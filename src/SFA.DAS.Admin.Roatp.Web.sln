@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Admin.Roatp.Web", "SFA.DAS.Admin.Roatp.Web\SFA.DAS.Admin.Roatp.Web.csproj", "{4AA11A76-AB91-4C5C-986E-5B9EAD30F4F4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4AA11A76-AB91-4C5C-986E-5B9EAD30F4F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AA11A76-AB91-4C5C-986E-5B9EAD30F4F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AA11A76-AB91-4C5C-986E-5B9EAD30F4F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AA11A76-AB91-4C5C-986E-5B9EAD30F4F4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C250B2B4-567F-45E9-B485-7053007FE0B7}
+	EndGlobalSection
+EndGlobal

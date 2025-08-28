@@ -1,0 +1,23 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using SFA.DAS.Admin.Roatp.Web.Infrastructure;
+
+namespace SFA.DAS.Admin.Roatp.Web.Controllers;
+
+[Route("[Controller]")]
+[Route("")]
+public class HomeController(IOptions<ApplicationConfiguration> _configuration) : Controller
+{
+    [Authorize(Roles = Roles.RoatpAdminTeam)]
+    public IActionResult Index()
+    {
+        return View();
+    }
+
+    [Route("dashboard")]
+    public IActionResult Dashboard()
+    {
+        return Redirect(_configuration.Value.AdminServicesBaseUrl + "Dashboard");
+    }
+}
