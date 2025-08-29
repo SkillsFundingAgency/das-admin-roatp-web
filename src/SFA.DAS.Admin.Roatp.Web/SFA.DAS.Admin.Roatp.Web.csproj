@@ -17,4 +17,8 @@
     <PackageReference Include="WebEssentials.AspNetCore.CdnTagHelpers" Version="1.0.21" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Admin.Roatp\SFA.DAS.Admin.Roatp.csproj" />
+  </ItemGroup>
+
 </Project>
