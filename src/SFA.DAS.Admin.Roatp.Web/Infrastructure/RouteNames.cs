@@ -2,6 +2,5 @@
 
 public static class RouteNames
 {
-    public const string SignOut = "signout";
-    public const string SignIn = "sign-in";
+    public const string Dashboard = "dashboard";
 }

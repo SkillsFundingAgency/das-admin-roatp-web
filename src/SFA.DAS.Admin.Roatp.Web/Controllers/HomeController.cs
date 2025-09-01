@@ -15,7 +15,7 @@ public class HomeController(IOptions<ApplicationConfiguration> _configuration) :
         return View();
     }
 
-    [Route("dashboard")]
+    [Route("dashboard", Name = RouteNames.Dashboard)]
     public IActionResult Dashboard()
     {
         return Redirect(_configuration.Value.AdminServicesBaseUrl + "Dashboard");
