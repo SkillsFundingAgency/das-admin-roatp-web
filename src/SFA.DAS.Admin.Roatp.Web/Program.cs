@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using SFA.DAS.Admin.Roatp.Web.AppStart;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
@@ -33,7 +34,10 @@ builder.Services
     .AddAuthentication(configuration)
     .AddApplicationRegistrations(configuration)
     .AddSession(configuration)
-    .AddControllersWithViews()
+    .AddMvc(options =>
+    {
+        options.Filters.Add<AutoValidateAntiforgeryTokenAttribute>();
+    })
     .AddSessionStateTempDataProvider();
 
 
@@ -64,16 +68,19 @@ app
             ResponseWriter = HealthCheckResponseWriter.WriteJsonResponse
         });
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseCookiePolicy();
-app.UseRouting();
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseSession();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+app
+    .UseHttpsRedirection()
+    .UseStaticFiles()
+    .UseCookiePolicy()
+    .UseRouting()
+    .UseAuthentication()
+    .UseAuthorization()
+    .UseSession()
+    .UseEndpoints(endpoints =>
+    {
+        endpoints.MapControllerRoute(
+            "default",
+            "{controller=Home}/{action=Index}/{id?}");
+    });
 
 await app.RunAsync();
