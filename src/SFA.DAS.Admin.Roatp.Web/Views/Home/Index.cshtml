@@ -1,9 +1,38 @@
-﻿@{
+﻿@model ManageTrainingProviderViewModel
+@{
     ViewBag.Title = "Roatp Admin Home Page";
 }
 
+
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-l">Welcome to the Roatp Admin Home Page</h1>
+    <div class="govuk-grid-column-one-half">
+        <h1 class="govuk-heading-xl margin-bottom-30">Manage training provider information</h1>
+        
+        <p class="govuk-body">Search and edit existing providers, or add new ones.</p>
+    </div>
+</div>
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <div class="govuk-grid-row app-flex-row">
+            <div class="govuk-grid-column-one-third">
+                <div class="app-feature-box">
+                    <h2 class="govuk-heading-s app-feature-box__heading"><a href="@Model.SearchForTrainingProviderUrl" class="govuk-link">Search for a training provider</a></h2>
+                    <p class="app-feature-box__content">Find and update existing providers using their UKPRN.</p>
+                </div>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                <div class="app-feature-box">
+                    <h2 class="govuk-heading-s app-feature-box__heading"><a href="@Model.AddUkprnToAllowListUrl" class="govuk-link">Add a UKPRN to the allow list</a></h2>
+                    <p class="app-feature-box__content">Add or remove organisations from the allow list.</p>
+                </div>
+            </div>
+            <div class="govuk-grid-column-one-third">
+                <div class="app-feature-box">
+                    <h2 class="govuk-heading-s app-feature-box__heading"><a href="@Model.AddANewTrainingProviderUrl" class="govuk-link">Add a new training provider</a></h2>
+                    <p class="app-feature-box__content">Add providers who won't go through a stage 2 application.</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

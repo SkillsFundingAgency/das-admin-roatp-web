@@ -42,7 +42,7 @@
             </div>
             <div class="govuk-header__content">
                 <a href="/" class="govuk-header__link govuk-header__service-name">
-                    Register of apprenticeship training providers admin service
+                   Apprenticeship service admin
                 </a>
             </div>
         </div>
@@ -54,29 +54,30 @@
     }
     else
     {
-        <div class="das-user-panel">
-            <div class="govuk-width-container">
-                <div class="das-user-panel__content">
-                    <span class="govuk-body-s das-user-panel__item das-user-panel__item--grow">
+        <div class="das-account-header das-account-header--provider2">
+            <div style="background: #1d70b8; position: relative; top: -15px; padding: 5px; height:40px">
+                <div class="govuk-grid-column-two-thirds">
 
-                        <p class="govuk-!-margin-top-0 govuk-!-margin-bottom-0 das-no-wrap">
-                            <span class="govuk-visually-hidden">Signed in as </span>
-                            @User.UserDisplayName()
-                        </p>
-                    </span>
-                    <span class="govuk-body-s das-user-panel__item">
-                        <a class="govuk-link govuk-link--white" asp-controller="Account" asp-action="SignOut">Sign out</a>
-                    </span>
+                    <span class="govuk-visually-hidden">Signed in as </span>
+                    @User.UserDisplayName()
+                </div>
+                <div class="govuk-grid-column-one-third">
+                    <a class="govuk-link" style="color: white;" asp-controller="Account" asp-action="SignOut">Sign out</a>
                 </div>
             </div>
         </div>
     }
 
-    <div class="govuk-width-container">
-        <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
-            @RenderBody()
-        </main>
-    </div>
+<div class="govuk-width-container">
+    @if (Model is IBackLink)
+    {
+        <a class="das-js-back-link">Back 2</a>
+    }
+    <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
+        @RenderBody()
+    </main>
+</div>
+
 
     <footer class="govuk-footer " role="contentinfo">
         <div class="govuk-width-container ">
@@ -104,11 +105,13 @@
         </div>
     </footer>
 
-    <script src="libs/govuk-frontend/all.js"></script>
+<script src="libs/accessible-autocomplete/accessible-autocomplete.min.js"></script>
+<script src="libs/jquery/jquery.min.js"></script>
+<script src="libs/govuk-frontend/all.js"></script>
     <script src="js/das-all.js"></script>
     <script src="~/js/libs/service-header.js" no-cdn asp-append-version="true"></script>
-    <script src="~/js/site.js" no-cdn asp-append-version="true"></script>
-    <script>
+    <script src="/js/site.js" no-cdn asp-append-version="true"></script>
+<script>
         window.GOVUKFrontend.initAll();
         var oneLoginHeader = document.querySelector("[data-module='one-login-header']");
         if (oneLoginHeader) {

@@ -82,10 +82,13 @@ AppSettings.Development.json file
       }
     },
     "ConfigurationStorageConnectionString": "UseDevelopmentStorage=true;",
-    "ConfigNames": "SFA.DAS.Tools.Servicebus.Support,SFA.DAS.AuditApiClient",
+    "ConfigNames": "SFA.DAS.AdminRoatp.Web,SFA.DAS.Provider.DfeSignIn",
     "EnvironmentName": "LOCAL",
+    "ResourceEnvironmentName": "LOCAL",
     "Version": "1.0",
-    "APPINSIGHTS_INSTRUMENTATIONKEY": ""
+    "cdn": {
+        "url": "https://das-at-frnt-end.azureedge.net"
+    }
   }  
 ```
 

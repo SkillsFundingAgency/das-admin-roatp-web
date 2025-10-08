@@ -23,3 +23,25 @@
   padding-bottom: 15px;
   background-color: #d5e8f3;
 }
+
+h1.margin-bottom-30 {
+    margin-bottom: 30px;
+}
+
+.app-feature-box {
+    padding: 20px;
+    height: 100%;
+    display: block;
+    border: 1px solid #b1b4b6;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+}
+
+.app-feature-box__heading {
+    margin-bottom: 15px;
+}
+
+.app-feature-box__content {
+    margin-bottom: 0;
+    font-size: 100%;
+}
