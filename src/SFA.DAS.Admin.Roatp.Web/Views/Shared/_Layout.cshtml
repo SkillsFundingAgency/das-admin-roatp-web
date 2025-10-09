@@ -95,7 +95,7 @@
 <div class="govuk-width-container">
         @if (Model is IBackLink)
         {
-            <span class="das-js-back-link"></span>
+            <a class="das-js-back-link">Back</a>
         }
         <main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing">
             @RenderBody()
@@ -156,11 +156,12 @@
             </div>
         </div>
     </footer>
-    <script type="module" src="/libs/govuk-frontend/govuk-frontend.min.js"></script>
-    <script type="module">
+<script type="module" src="/libs/govuk-frontend/govuk-frontend.min.js"></script>
+<script type="module">
         import {initAll} from '@Configuration["cdn:url"]/libs/govuk-frontend/govuk-frontend.min.js';
         initAll();
     </script>
+    <script src="libs/jquery/jquery.min.js"></script>
     <script src="/js/das-all.js"></script>
     <script src="~/js/site.js" no-cdn asp-append-version="true"></script>
 
