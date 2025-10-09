@@ -9,7 +9,6 @@ const backLinkOrHome = function () {
         });
 
     $backLinkOrHome.replaceWith(backLink);
-
 }
 
 if ($backLinkOrHome) {
