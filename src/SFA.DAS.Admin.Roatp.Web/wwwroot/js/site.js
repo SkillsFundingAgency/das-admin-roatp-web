@@ -1,5 +1,7 @@
 ﻿const $backLinkOrHome = $('.das-js-back-link');
 const backLinkOrHome = function () {
+
+    const referrer = document.referrer;
     const backLink = $('<a>')
         .attr({ 'href': '#', 'class': 'govuk-back-link' })
         .text('Back')
@@ -8,7 +10,9 @@ const backLinkOrHome = function () {
             e.preventDefault();
         });
 
-    $backLinkOrHome.replaceWith(backLink);
+    if (referrer && referrer !== document.location.href) {
+        $backLinkOrHome.replaceWith(backLink);
+    }
 }
 
 if ($backLinkOrHome) {
