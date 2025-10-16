@@ -1,4 +1,20 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿const $backLinkOrHome = $('.das-js-back-link');
+const backLinkOrHome = function () {
 
-// Write your JavaScript code.
+    const referrer = document.referrer;
+    const backLink = $('<a>')
+        .attr({ 'href': '#', 'class': 'govuk-back-link' })
+        .text('Back')
+        .on('click', function (e) {
+            window.history.back();
+            e.preventDefault();
+        });
+
+    if (referrer && referrer !== document.location.href) {
+        $backLinkOrHome.replaceWith(backLink);
+    }
+}
+
+if ($backLinkOrHome) {
+    backLinkOrHome();
+}

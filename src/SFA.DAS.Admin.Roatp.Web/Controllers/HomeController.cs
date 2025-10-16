@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
+using SFA.DAS.Admin.Roatp.Web.Models;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
@@ -12,7 +13,7 @@ public class HomeController(IOptions<ApplicationConfiguration> _configuration) :
     [Authorize(Roles = Roles.RoatpAdminTeam)]
     public IActionResult Index()
     {
-        return View();
+        return View(new ManageTrainingProviderViewModel());
     }
 
     [Route("/dashboard", Name = RouteNames.Dashboard)]
