@@ -6,9 +6,10 @@ using Moq;
 using SFA.DAS.Admin.Roatp.Web.Controllers;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
+using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests;
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers;
 
 [TestFixture]
 public class HomeControllerGetTests
@@ -17,9 +18,15 @@ public class HomeControllerGetTests
     public void HomeIndex_ContainsExpectedModel(
         [Greedy] HomeController sut)
     {
+        var selectOrganisationLink = Guid.NewGuid().ToString();
+        sut.AddDefaultContextWithUser().AddUrlHelperMock().AddUrlForRoute(RouteNames.SelectProvider, selectOrganisationLink);
+
         var result = sut.Index() as ViewResult;
         result.Should().NotBeNull();
-        result.Model.Should().BeEquivalentTo(new ManageTrainingProviderViewModel());
+        var model = result.Model as ManageTrainingProviderViewModel;
+        model!.AddANewTrainingProviderUrl.Should().Be("#");
+        model.AddUkprnToAllowListUrl.Should().Be("#");
+        model.SearchForTrainingProviderUrl.Should().Be(selectOrganisationLink);
     }
 
     [Test, MoqAutoData]
