@@ -11,4 +11,6 @@ public interface IOuterApiClient
     [Get("/organisations")]
     Task<GetOrganisationsResponse> GetOrganisations(CancellationToken cancellationToken);
 
+    [Get("/organisations/{ukprn}")]
+    Task<GetOrganisationResponse> GetOrganisation(string ukprn, CancellationToken cancellationToken);
 }

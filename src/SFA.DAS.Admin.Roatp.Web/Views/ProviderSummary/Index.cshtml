@@ -1,0 +1,128 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SFA.DAS.Admin.Roatp.Web.Extensions
+@using SFA.DAS.Admin.Roatp.Web.Infrastructure
+@using SFA.DAS.Admin.Roatp.Web.Models
+@model SFA.DAS.Admin.Roatp.Web.Models.ProviderSummaryViewModel
+@{
+    ViewData["Title"] = "Search for a training provider";
+    ViewData["Description"] = "Search for a training provider";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-form-group">
+            <fieldset class="govuk-fieldset">
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                    <span class="govuk-caption-l">Organisation details</span>
+                    <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">
+                        Details for @Model.Ukprn
+                    </h1>
+                </legend>
+                <div class="govuk-!-width das-highlight">
+                    <p class="govuk-body no-bottom-margin">
+                        <strong>UKPRN:</strong> @Model.Ukprn
+                        <br /><strong>Legal name:</strong> @Model.LegalName
+                        @if (Model.ShowTradingName)
+                        {
+                            <br/><strong>Trading name:</strong> @Model.TradingName
+                        }
+                        @if (Model.ShowCompanyNumber)
+                        {
+                            <br/><strong>Company number:</strong> @Model.CompanyNumber
+                        }
+                        @if (Model.ShowLastUpdatedDate)
+                        {
+                            <br/><strong>Last updated:</strong> @Model.LastUpdatedDateText
+                        }
+                    </p>
+                </div>
+                <div class="govuk-!-width">
+                    <p class="govuk-body">
+                        <h2 class="govuk-heading-l govuk-!-margin-bottom-5">
+                            Update training provider information
+                        </h2>
+
+                        <table class="govuk-table">
+                            <caption class="govuk-table__caption govuk-table__caption--m">Training provider overview</caption>
+                            <tbody class="govuk-table__body">
+                            <tr class="govuk-table__row">
+                                <th scope="row" class="govuk-table__header govuk-!-width-one-third">Status</th>
+                                <td class="govuk-table__cell  govuk-!-width-one-half">
+                                    <strong asp-show="Model.IsActive" class="govuk-tag govuk-tag--green">Active</strong>
+                                    <strong asp-show="Model.IsActiveNoStarts" class="govuk-tag govuk-tag--turquoise">Active - not taking new apprentices</strong>
+                                    <strong asp-show="Model.IsOnboarding" class="govuk-tag govuk-tag--blue">On-boarding</strong> 
+                                    <strong asp-show="Model.IsRemoved" class="govuk-tag govuk-tag--red">Removed</strong>
+                                </td>
+                                <td class="govuk-table__cell "><a href="@Model.StatusChangeLink" class="govuk-link">Change</a></td>
+                            </tr>
+                            @if (Model.ShowRemovedReason)
+                            {
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header" >Removal date</th>
+                                    <td class="govuk-table__cell govuk-!-width-two-thirds">@Model.RemovedDateText</td>
+                                    <td class="govuk-table__cell"></td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Reason for removal</th>
+                                    <td class="govuk-table__cell govuk-!-width-two-thirds">@Model.RemovedReason</td>
+                                    <td class="govuk-table__cell"></td>
+                                </tr>
+                            }
+                            <tr class="govuk-table__row">
+                                <th scope="row" class="govuk-table__header">Type of provider</th>
+                                <td class="govuk-table__cell">@Model.ProviderType</td>
+                                    <td class="govuk-table__cell"><a href="@Model.ProviderTypeChangeLink" class="govuk-link">Change</a></td>
+                            </tr>
+                            <tr class="govuk-table__row">
+                                <th scope="row" class="govuk-table__header">Type of organisation</th>
+                                <td class="govuk-table__cell">@Model.OrganisationType</td>
+                                    <td class="govuk-table__cell"><a href="@Model.OrganisationTypeChangeLink" class="govuk-link">Change</a></td>
+                            </tr>
+                            @if (!Model.IsSupportingProvider)
+                            {
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Offers&nbsp;apprenticeships</th>
+                                    <td class="govuk-table__cell  govuk-!-width-two-thirds">@Model.OffersApprenticeshipsText</td>
+                                    <td class="govuk-table__cell"></td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Offers short courses</th>
+                                    <td class="govuk-table__cell">@Model.OffersShortCoursesText</td>
+                                        <td class="govuk-table__cell"><a href="@Model.OffersShortCoursesChangeLink" class="govuk-link">Change</a></td>
+                                </tr>
+                                @if (Model.TypesOfShortCourses.Count > 0)
+                                {
+                                    <tr class="govuk-table__row">
+                                        <th scope="row" class="govuk-table__header">Type of short courses</th>
+                                        <td class="govuk-table__cell">
+                                            @foreach (var typeOfCourse in Model.TypesOfShortCourses)
+                                            {
+                                                @typeOfCourse
+                                                <br/>
+                                            }
+                                        </td>
+                                            <td class="govuk-table__cell"><a href="@Model.TypesOfShortCoursesChangeLink" class="govuk-link">Change</a></td>
+                                    </tr>
+                                }
+                            }
+                            </tbody>
+                        </table>
+                        <table class="govuk-table">
+                        <caption class="govuk-table__caption govuk-table__caption--m">Training provider account management</caption>
+                        <tbody class="govuk-table__body">
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header govuk-!-width-one-third">Application date</th>
+                            <td class="govuk-table__cell  govuk-!-width-two-thirds">@Model.ApplicationDeterminedDateText</td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Charity registration number</th>
+                            <td class="govuk-table__cell  govuk-!-width-two-thirds">@Model.CharityNumberText</td>
+                        </tr>
+                        </table>
+                    </p>
+                </div>
+
+            </fieldset>
+        </div>
+    </div>
+</div>

@@ -1,10 +1,12 @@
-﻿using Refit;
+﻿using System.Diagnostics.CodeAnalysis;
+using Refit;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Http.Configuration;
 
 namespace SFA.DAS.Admin.Roatp.Web.AppStart;
 
+[ExcludeFromCodeCoverage]
 public static class AddApplicationRegistrationsExtension
 {
     public static IServiceCollection AddApplicationRegistrations(this IServiceCollection services, IConfiguration configuration)
@@ -14,7 +16,7 @@ public static class AddApplicationRegistrationsExtension
             .Get<AdminRoatpOuterApiConfiguration>();
 
         services.AddTransient<ISessionService, SessionService>();
-        services.AddTransient<IOrganisationService, OrganisationService>();
+        services.AddTransient<IOrganisationsService, OrganisationsService>();
 
         services.AddOuterApi(outerApiConfig!);
 

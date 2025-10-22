@@ -8,7 +8,7 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
 [Route("[Controller]")]
-[Route("")]
+[Route("", Name = RouteNames.Home)]
 public class HomeController(IOptions<ApplicationConfiguration> _configuration, ISessionService _sessionService) : Controller
 {
     [Authorize(Roles = Roles.RoatpAdminTeam)]

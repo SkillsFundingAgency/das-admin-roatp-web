@@ -5,7 +5,7 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
 [Route("[Controller]")]
-public class RegisteredProvidersController(IOrganisationService _organisationService) : Controller
+public class RegisteredProvidersController(IOrganisationsService _organisationsService) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Index([FromQuery] string query, CancellationToken cancellationToken)
@@ -14,7 +14,7 @@ public class RegisteredProvidersController(IOrganisationService _organisationSer
         var searchTerm = query.Trim();
         if (searchTerm.Length < 3) return Ok(new List<OrganisationModel>());
 
-        var organisations = await _organisationService.GetOrganisations(cancellationToken);
+        var organisations = await _organisationsService.GetOrganisations(cancellationToken);
 
         var matchedOrganisations = organisations
             .Where(provider => provider.LegalName.Contains(query, StringComparison.OrdinalIgnoreCase)

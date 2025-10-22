@@ -14,7 +14,7 @@ public class OrganisationServicesGetOrganisationsTests
     public async Task GetOrganisations_FromSession(
         [Frozen] Mock<IOuterApiClient> clientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Greedy] OrganisationService sut,
+        [Greedy] OrganisationsService sut,
         List<OrganisationModel> organisations,
         CancellationToken cancellationToken
     )
@@ -34,7 +34,7 @@ public class OrganisationServicesGetOrganisationsTests
     public async Task GetOrganisations_NotInSession_PutInSessionAndReturned(
         [Frozen] Mock<IOuterApiClient> clientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Greedy] OrganisationService sut,
+        [Greedy] OrganisationsService sut,
         List<OrganisationModel> organisations,
         CancellationToken cancellationToken
     )

@@ -2,8 +2,6 @@
 
 public class SelectTrainingProviderViewModel : SelectTrainingProviderSubmitViewModel
 {
-    // this is a temporary field only needed to allow testing.  Will be removed in CSP-2210
-    public string MatchedResult { get; set; } = string.Empty;
 }
 
 public class SelectTrainingProviderSubmitViewModel : IBackLink

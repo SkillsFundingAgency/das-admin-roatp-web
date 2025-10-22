@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.Admin.Roatp.Web.Services;
 
-public interface IOrganisationService
+public interface IOrganisationsService
 {
     Task<List<OrganisationModel>> GetOrganisations(CancellationToken cancellationToken);
 }
