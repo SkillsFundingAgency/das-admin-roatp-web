@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.Admin.Roatp.Web.Models;
+﻿namespace SFA.DAS.Admin.Roatp.Domain.Models;
 
 public class OrganisationModel
 {

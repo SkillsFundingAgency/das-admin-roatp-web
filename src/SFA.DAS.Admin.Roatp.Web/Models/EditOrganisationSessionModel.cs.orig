@@ -2,6 +2,11 @@
 
 public class OrganisationSessionModel
 {
+<<<<<<< HEAD
     public required string LegalName { get; set; }
     public required string Ukprn { get; set; }
+=======
+    public string LegalName { get; set; }
+    public string Ukprn { get; set; }
+>>>>>>> CSP-2207 Search for training provider
 }

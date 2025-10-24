@@ -9,7 +9,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
 [Route("selectProvider", Name = RouteNames.SelectProvider)]
-public class TrainingProviderController(ISessionService _sessionService, IValidator<SelectTrainingProviderSubmitViewModel> _validator) : Controller
+public class SelectTrainingProviderController(ISessionService _sessionService, IValidator<SelectTrainingProviderSubmitViewModel> _validator) : Controller
 {
     [HttpGet]
     public IActionResult Index()
@@ -17,7 +17,7 @@ public class TrainingProviderController(ISessionService _sessionService, IValida
         SelectTrainingProviderViewModel model = new SelectTrainingProviderViewModel();
 
         // THIS IS A TEMPORARY MEASURE TO ENABLE TESTING, REMOVED in CSP-2210
-        var savedOrganisation = _sessionService.Get<OrganisationSessionModel>(SessionKeys.EditOrganisation);
+        var savedOrganisation = _sessionService.Get<EditOrganisationSessionModel>(SessionKeys.EditOrganisation);
 
         if (savedOrganisation != null)
         {
@@ -45,9 +45,9 @@ public class TrainingProviderController(ISessionService _sessionService, IValida
             return View(model);
         }
 
-        var organisationSessionModel = new OrganisationSessionModel { LegalName = submitModel.LegalName!, Ukprn = submitModel.Ukprn! };
+        var organisationSessionModel = new EditOrganisationSessionModel { LegalName = submitModel.LegalName!, Ukprn = submitModel.Ukprn! };
 
-        _sessionService.Set<OrganisationSessionModel>(SessionKeys.EditOrganisation, organisationSessionModel);
+        _sessionService.Set<EditOrganisationSessionModel>(SessionKeys.EditOrganisation, organisationSessionModel);
 
         return RedirectToRoute(RouteNames.SelectProvider);
     }

@@ -2,14 +2,13 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Web.Controllers;
-using SFA.DAS.Admin.Roatp.Web.Infrastructure;
-using SFA.DAS.Admin.Roatp.Web.Models;
-using SFA.DAS.Admin.Roatp.Web.OuterApi.Responses;
+using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.RegisteredProvidersControllerTests;
-public class GetRegisteedProvidersControllerTests
+public class GetRegisteredProvidersControllerTests
 {
     private const string SearchTerm = "test";
     private const string UkprnSearchString = "100";
@@ -17,18 +16,18 @@ public class GetRegisteedProvidersControllerTests
 
     [Test, MoqAutoData]
     public async Task GetOrganisations_MatchedByName(
-        [Frozen] Mock<IOuterApiClient> apiClientMock,
+        [Frozen] Mock<IOrganisationService> organisationServiceMock,
         [Greedy] RegisteredProvidersController controller,
-        GetOrganisationsResponse organisationsResponse,
+        List<OrganisationModel> organisations,
         CancellationToken cancellationToken
     )
     {
-        foreach (var organisation in organisationsResponse.Organisations)
+        foreach (var organisation in organisations)
         {
             organisation.LegalName = SearchTerm + organisation.LegalName;
         }
 
-        apiClientMock.Setup(x => x.GetOrganisations(It.IsAny<CancellationToken>())).ReturnsAsync(organisationsResponse);
+        organisationServiceMock.Setup(x => x.GetOrganisations(It.IsAny<CancellationToken>())).ReturnsAsync(organisations);
 
         var actual = await controller.Index(SearchTerm, cancellationToken);
         var actualResult = actual as OkObjectResult;
@@ -36,13 +35,13 @@ public class GetRegisteedProvidersControllerTests
 
         actual.Should().NotBeNull();
         actualResult.Should().NotBeNull();
-        returnedOrganisations.Should().BeEquivalentTo(organisationsResponse.Organisations);
-        apiClientMock.Verify(x => x.GetOrganisations(It.IsAny<CancellationToken>()), Times.Once);
+        returnedOrganisations.Should().BeEquivalentTo(organisations);
+        organisationServiceMock.Verify(x => x.GetOrganisations(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test, MoqAutoData]
     public async Task GetOrganisations_MatchedByUkprn(
-        [Frozen] Mock<IOuterApiClient> apiClientMock,
+        [Frozen] Mock<IOrganisationService> organisationServiceMock,
         [Greedy] RegisteredProvidersController controller,
         CancellationToken cancellationToken
     )
@@ -55,10 +54,8 @@ public class GetRegisteedProvidersControllerTests
             registeredProviders.Add(new OrganisationModel { LegalName = Guid.NewGuid().ToString(), Ukprn = UkprnSeed + i });
         }
 
-        GetOrganisationsResponse organisationsResponse = new GetOrganisationsResponse
-        { Organisations = registeredProviders };
 
-        apiClientMock.Setup(x => x.GetOrganisations(It.IsAny<CancellationToken>())).ReturnsAsync(organisationsResponse);
+        organisationServiceMock.Setup(x => x.GetOrganisations(It.IsAny<CancellationToken>())).ReturnsAsync(registeredProviders);
 
         var actual = await controller.Index(UkprnSearchString, cancellationToken);
         var actualResult = actual as OkObjectResult;
@@ -66,14 +63,14 @@ public class GetRegisteedProvidersControllerTests
 
         actual.Should().NotBeNull();
         actualResult.Should().NotBeNull();
-        returnedOrganisations.Should().BeEquivalentTo(organisationsResponse.Organisations);
-        apiClientMock.Verify(x => x.GetOrganisations(It.IsAny<CancellationToken>()), Times.Once);
+        returnedOrganisations.Should().BeEquivalentTo(registeredProviders);
+        organisationServiceMock.Verify(x => x.GetOrganisations(It.IsAny<CancellationToken>()), Times.Once);
     }
 
 
     [Test, MoqAutoData]
     public async Task GetOrganisations_ReturnedTop100MatchesSortedAlphabetically(
-        [Frozen] Mock<IOuterApiClient> apiClientMock,
+        [Frozen] Mock<IOrganisationService> organisationServiceMock,
         [Greedy] RegisteredProvidersController controller,
         CancellationToken cancellationToken
     )
@@ -87,9 +84,7 @@ public class GetRegisteedProvidersControllerTests
             mockedRegisteredProviders.Add(new OrganisationModel() { LegalName = Guid.NewGuid().ToString(), Ukprn = UkprnSeed + i });
         }
 
-        GetOrganisationsResponse organisationsResponse = new GetOrganisationsResponse
-        { Organisations = mockedRegisteredProviders };
-        apiClientMock.Setup(x => x.GetOrganisations(It.IsAny<CancellationToken>())).ReturnsAsync(organisationsResponse);
+        organisationServiceMock.Setup(x => x.GetOrganisations(It.IsAny<CancellationToken>())).ReturnsAsync(mockedRegisteredProviders);
 
 
         var actual = await controller.Index(UkprnSearchString, cancellationToken);
@@ -112,9 +107,9 @@ public class GetRegisteedProvidersControllerTests
     [TestCase("")]
     public async Task GetOrganisations_LessThan3Characters_NoResultsExpected(string searchTerm)
     {
-        Mock<IOuterApiClient> apiClientMock = new Mock<IOuterApiClient>();
+        Mock<IOrganisationService> organisationServiceMock = new Mock<IOrganisationService>();
 
-        var controller = new RegisteredProvidersController(apiClientMock.Object);
+        var controller = new RegisteredProvidersController(organisationServiceMock.Object);
 
         var actual = await controller.Index(searchTerm!, new CancellationToken());
         var actualResult = actual as OkObjectResult;
@@ -123,6 +118,6 @@ public class GetRegisteedProvidersControllerTests
         actual.Should().NotBeNull();
         actualResult.Should().NotBeNull();
         returnedProviders.Count.Should().Be(0);
-        apiClientMock.Verify(x => x.GetOrganisations(It.IsAny<CancellationToken>()), Times.Never);
+        organisationServiceMock.Verify(x => x.GetOrganisations(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

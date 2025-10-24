@@ -1,7 +1,6 @@
-﻿using SFA.DAS.Admin.Roatp.Web.Models;
+﻿using SFA.DAS.Admin.Roatp.Domain.Models;
 
-namespace SFA.DAS.Admin.Roatp.Web.OuterApi.Responses;
-
+namespace SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 public class GetOrganisationsResponse
 {
     public List<OrganisationModel> Organisations { get; set; } = [];

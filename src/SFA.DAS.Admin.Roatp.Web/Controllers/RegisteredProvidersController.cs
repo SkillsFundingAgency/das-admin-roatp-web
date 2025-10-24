@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SFA.DAS.Admin.Roatp.Web.Infrastructure;
-using SFA.DAS.Admin.Roatp.Web.Models;
+using SFA.DAS.Admin.Roatp.Domain.Models;
+using SFA.DAS.Admin.Roatp.Web.Services;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
-[Route("[Controller]", Name = RouteNames.RegisteredProviders)]
-public class RegisteredProvidersController(IOuterApiClient _outerApiClient) : Controller
+[Route("[Controller]")]
+public class RegisteredProvidersController(IOrganisationService _organisationService) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Index([FromQuery] string query, CancellationToken cancellationToken)
@@ -14,14 +14,13 @@ public class RegisteredProvidersController(IOuterApiClient _outerApiClient) : Co
         var searchTerm = query.Trim();
         if (searchTerm.Length < 3) return Ok(new List<OrganisationModel>());
 
-        var organisationsResponse = await _outerApiClient.GetOrganisations(cancellationToken);
-        var providers = organisationsResponse.Organisations;
+        var organisations = await _organisationService.GetOrganisations(cancellationToken);
 
-        var matchedProviders = providers
+        var matchedOrganisations = organisations
             .Where(provider => provider.LegalName.Contains(query, StringComparison.OrdinalIgnoreCase)
                                || provider.Ukprn.ToString().Contains(query, StringComparison.OrdinalIgnoreCase))
             .OrderBy(x => x.LegalName);
 
-        return Ok(matchedProviders.Take(100));
+        return Ok(matchedOrganisations.Take(100));
     }
 }

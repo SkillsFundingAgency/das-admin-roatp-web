@@ -7,24 +7,30 @@
         </h2>
         <div class="govuk-error-summary__body">
             <ul class="govuk-list govuk-error-summary__list">
+
                 @{
                     var explorer = ViewData.ModelExplorer;
+                    var lastErrorMessage = string.Empty;
                     foreach (var property in explorer.Properties)
                     {
+                        IEnumerable<ModelMetadata> properties = property.Metadata.Properties.Where(metadata => metadata.ShowForDisplay).OrderBy(metadata => metadata.Order);
                         var propertyName = property.Metadata.PropertyName;
-                        var propertyNameLink = propertyName == "Location" ? "search-location" : propertyName;
-                        var state = ViewData.ModelState[propertyName!];
+                        var state = ViewData.ModelState[propertyName];
                         var errors = state?.Errors ?? null;
+
                         if (errors != null)
                         {
-                          
-                            foreach (var error in errors)
+                            foreach (var errorMessage in errors.Select(e => e.ErrorMessage))
                             {
-                                <li>
-                                    <a href="#@propertyNameLink">
-                                        <span class="govuk-visually-hidden">Error: </span>@error.ErrorMessage
-                                    </a>
-                                </li>
+                                @if (errorMessage != lastErrorMessage)
+                                {
+                                    <li>
+                                        <a href="#@propertyName">
+                                            <span class="govuk-visually-hidden">Error: </span>@errorMessage
+                                        </a>
+                                    </li>
+                                }
+                                lastErrorMessage = errorMessage;
                             }
                         }
                     }

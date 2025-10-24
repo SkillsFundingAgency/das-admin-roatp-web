@@ -7,14 +7,14 @@ using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.TrainingProviderControllerTests;
-public class TrainingProviderControllerGetTests
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.SelectTrainingProviderControllerTests;
+public class SelectTrainingProviderControllerGetTests
 {
     [Test, MoqAutoData]
     public void Get_BuildsViewModel(
         [Frozen] ISessionService _sessionService,
         [Frozen] IValidator<SelectTrainingProviderSubmitViewModel> _validator,
-        [Greedy] TrainingProviderController controller)
+        [Greedy] SelectTrainingProviderController controller)
     {
         var actual = controller.Index() as ViewResult;
 

@@ -14,6 +14,7 @@ public static class AddApplicationRegistrationsExtension
             .Get<AdminRoatpOuterApiConfiguration>();
 
         services.AddTransient<ISessionService, SessionService>();
+        services.AddTransient<IOrganisationService, OrganisationService>();
 
         services.AddOuterApi(outerApiConfig!);
 

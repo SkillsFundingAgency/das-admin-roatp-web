@@ -1,5 +1,6 @@
 ﻿using Refit;
-using SFA.DAS.Admin.Roatp.Web.OuterApi.Responses;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
+
 
 namespace SFA.DAS.Admin.Roatp.Web.Infrastructure;
 public interface IOuterApiClient

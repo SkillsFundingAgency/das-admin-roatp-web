@@ -3,4 +3,5 @@
 public static class SessionKeys
 {
     public const string EditOrganisation = "EditOrganisation";
+    public const string GetOrganisations = "GetOrganisations";
 }

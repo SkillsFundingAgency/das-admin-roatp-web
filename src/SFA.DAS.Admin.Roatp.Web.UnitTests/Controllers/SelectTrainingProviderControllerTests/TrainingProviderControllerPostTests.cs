@@ -9,14 +9,14 @@ using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.TrainingProviderControllerTests;
-public class TrainingProviderControllerPostTests
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.SelectTrainingProviderControllerTests;
+public class SelectTrainingProviderControllerPostTests
 {
     [Test, MoqAutoData]
     public void And_SubmitViewModel_Is_Valid_Reroutes_To_Expected_Action(
         SelectTrainingProviderSubmitViewModel viewModel,
         [Frozen] Mock<IValidator<SelectTrainingProviderSubmitViewModel>> validator,
-        [Greedy] TrainingProviderController controller,
+        [Greedy] SelectTrainingProviderController controller,
         CancellationToken cancellationToken)
     {
         validator.Setup(x => x.Validate(viewModel)).Returns(new ValidationResult());
@@ -33,7 +33,7 @@ public class TrainingProviderControllerPostTests
     public void And_SubmitViewModel_Is_Invalid_Reloads_View(
         SelectTrainingProviderSubmitViewModel viewModel,
         [Frozen] Mock<IValidator<SelectTrainingProviderSubmitViewModel>> validator,
-        [Greedy] TrainingProviderController controller,
+        [Greedy] SelectTrainingProviderController controller,
         CancellationToken cancellationToken)
     {
         var validationResult = new ValidationResult();

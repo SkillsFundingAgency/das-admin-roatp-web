@@ -6,6 +6,7 @@ using Moq;
 using SFA.DAS.Admin.Roatp.Web.Controllers;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
+using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -16,10 +17,11 @@ public class HomeControllerGetTests
 {
     [Test, MoqAutoData]
     public void HomeIndex_ContainsExpectedModel(
+        [Frozen] Mock<ISessionService> _sessionServiceMock,
         [Greedy] HomeController sut)
     {
         var selectOrganisationLink = Guid.NewGuid().ToString();
-        sut.AddDefaultContextWithUser().AddUrlHelperMock().AddUrlForRoute(RouteNames.SelectProvider, selectOrganisationLink);
+        sut.AddUrlHelperMock().AddUrlForRoute(RouteNames.SelectProvider, selectOrganisationLink);
 
         var result = sut.Index() as ViewResult;
         result.Should().NotBeNull();
@@ -27,10 +29,12 @@ public class HomeControllerGetTests
         model!.AddANewTrainingProviderUrl.Should().Be("#");
         model.AddUkprnToAllowListUrl.Should().Be("#");
         model.SearchForTrainingProviderUrl.Should().Be(selectOrganisationLink);
+        _sessionServiceMock.Verify(x => x.Delete(SessionKeys.EditOrganisation), Times.Once);
     }
 
     [Test, MoqAutoData]
     public void Dashboard_ContainsExpectedConfig(
+        [Frozen] Mock<ISessionService> _sessionServiceMock,
         [Frozen] Mock<IOptions<ApplicationConfiguration>> mockOptions,
         [Frozen] ApplicationConfiguration configuration,
         [Greedy] HomeController sut)
@@ -40,5 +44,6 @@ public class HomeControllerGetTests
         var result = sut.Dashboard() as RedirectResult;
         result.Should().NotBeNull();
         result.Url.Should().Be(configuration.AdminServicesBaseUrl + "Dashboard");
+        _sessionServiceMock.Verify(x => x.Delete(SessionKeys.EditOrganisation), Times.Once);
     }
 }
