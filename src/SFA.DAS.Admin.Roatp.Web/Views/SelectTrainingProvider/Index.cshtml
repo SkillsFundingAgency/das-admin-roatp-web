@@ -8,36 +8,36 @@
 }
 
 <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <partial name="_validationSummary" />
-            <form asp-route="@RouteNames.SelectProvider" method="POST">
-                <div class="govuk-form-group">
-                    <fieldset class="govuk-fieldset">
-                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                            <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">
-                                Search for a training provider
-                            </h1>
-                        </legend>
-                        <input asp-for="LegalName" id="LegalName" type="hidden" />
-                        <input asp-for="Ukprn" id="Ukprn" type="hidden" />
-                        <p class="govuk-body">
-                            Search for a training provider by name or UK provider reference number (UKPRN).
-                        </p>
-                        <p class="govuk-hint">Start typing the provider's name or UKPRN</p>
-                        <span asp-validation-for="SearchTerm" class="govuk-error-message"></span>
-                        <div data-module="govuk-input">
-                            <input id="SearchTerm" type="text" title="Type name or UKPRN here"
-                                   asp-for="SearchTerm" class="govuk-input" sfa-validationerror-class="form-control-error" data-module="autoComplete" />
-                            <label for="SearchTerm" class="govuk-visually-hidden">Search Result: @Model.LegalName, @Model.Ukprn</label>
-                        </div>
-                        @* this is a temporary element, to be removed in CSP-2210 *@
-                        <span class="govuk-visually-hidden">Result: @Model.MatchedResult</span>
-                        @* end of temporary element *@
-                    </fieldset>
-                </div>
-                <div class="govuk-button-group">
-                    <button type="submit" id="continue" class="govuk-button" data-disable-on-submit="true">Continue</button>
-                </div>
-            </form>
-        </div>
+    <div class="govuk-grid-column-two-thirds">
+        <partial name="_validationSummary" />
+        <form asp-route="@RouteNames.SelectProvider" method="POST">
+            <div class="govuk-form-group">
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                        <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">
+                            Search for a training provider
+                        </h1>
+                    </legend>
+                    <input asp-for="LegalName" id="LegalName" type="hidden" />
+                    <input asp-for="Ukprn" id="Ukprn" type="hidden" />
+                    <p class="govuk-body">
+                        Search for a training provider by name or UK provider reference number (UKPRN).
+                    </p>
+                    <p class="govuk-hint">Start typing the provider's name or UKPRN</p>
+                    <span asp-validation-for="SearchTerm" class="govuk-error-message"></span>
+                    <div data-module="govuk-input">
+                        <input id="SearchTerm" type="text" title="Type name or UKPRN here"
+                               asp-for="SearchTerm" class="govuk-input" sfa-validationerror-class="form-control-error" data-module="autoComplete" />
+                        <label for="SearchTerm" class="govuk-visually-hidden">Search Result: @Model.LegalName, @Model.Ukprn</label>
+                    </div>
+                    @* this is a temporary element, to be removed in CSP-2210 *@
+                    <span class="govuk-visually-hidden">Result: @Model.MatchedResult</span>
+                    @* end of temporary element *@
+                </fieldset>
+            </div>
+            <div class="govuk-button-group">
+                <button type="submit" id="continue" class="govuk-button" data-disable-on-submit="true">Continue</button>
+            </div>
+        </form>
     </div>
+</div>
