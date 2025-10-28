@@ -1,8 +1,10 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using SFA.DAS.Admin.Roatp.Web.AppStart;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
+using SFA.DAS.Admin.Roatp.Web.Validators;
 using SFA.DAS.Api.Common.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,6 +41,9 @@ builder.Services
         options.Filters.Add<AutoValidateAntiforgeryTokenAttribute>();
     })
     .AddSessionStateTempDataProvider();
+
+builder.Services.AddValidatorsFromAssembly(typeof(SelectTrainingProviderValidator).Assembly);
+
 
 
 var app = builder.Build();

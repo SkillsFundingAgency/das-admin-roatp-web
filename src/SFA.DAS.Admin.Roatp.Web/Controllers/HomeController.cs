@@ -3,22 +3,27 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
+using SFA.DAS.Admin.Roatp.Web.Services;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
 [Route("[Controller]")]
 [Route("")]
-public class HomeController(IOptions<ApplicationConfiguration> _configuration) : Controller
+public class HomeController(IOptions<ApplicationConfiguration> _configuration, ISessionService _sessionService) : Controller
 {
     [Authorize(Roles = Roles.RoatpAdminTeam)]
     public IActionResult Index()
     {
-        return View(new ManageTrainingProviderViewModel());
+        _sessionService.Delete(SessionKeys.EditOrganisation);
+        var searchUrl = Url.RouteUrl(RouteNames.SelectProvider);
+
+        return View(new ManageTrainingProviderViewModel { SearchForTrainingProviderUrl = searchUrl! });
     }
 
     [Route("/dashboard", Name = RouteNames.Dashboard)]
     public IActionResult Dashboard()
     {
+        _sessionService.Delete(SessionKeys.EditOrganisation);
         return Redirect(_configuration.Value.AdminServicesBaseUrl + "Dashboard");
     }
 }

@@ -351,3 +351,7 @@ MigrationBackup/
 
 # local settings
 appsettings.*
+
+
+
+*.orig
