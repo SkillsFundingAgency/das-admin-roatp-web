@@ -30,7 +30,7 @@ public class SelectTrainingProviderControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public async Task And_SubmitViewModel_Is_Invalid_Reloads_View(
+    public void And_SubmitViewModel_Is_Invalid_Reloads_View(
         SelectTrainingProviderSubmitViewModel viewModel,
         [Frozen] Mock<IValidator<SelectTrainingProviderSubmitViewModel>> validator,
         [Greedy] SelectTrainingProviderController controller,
