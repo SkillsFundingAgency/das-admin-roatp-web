@@ -8,17 +8,20 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
-[Route("ProviderSummary", Name = RouteNames.ProviderSummary)]
-public class ProviderSummaryController(ISessionService _sessionService) : Controller
+[Route("providers/{ukprn}", Name = RouteNames.ProviderSummary)]
+public class ProviderSummaryController(IOuterApiClient _outerApiClient, ISessionService _sessionService) : Controller
 {
     [HttpGet]
-    public IActionResult Index()
+    public async Task<IActionResult> Index(string ukprn, CancellationToken cancellationToken)
     {
-        var savedOrganisation = _sessionService.Get<EditOrganisationSessionModel>(SessionKeys.EditOrganisation);
+        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
-        if (savedOrganisation == null) return RedirectToRoute(RouteNames.Home);
+        if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
 
-        ProviderSummaryViewModel model = (ProviderSummaryViewModel)savedOrganisation;
+        var organisationSessionModel = (EditOrganisationSessionModel)organisationResponse;
+        _sessionService.Set<EditOrganisationSessionModel>(SessionKeys.EditOrganisation, organisationSessionModel);
+
+        ProviderSummaryViewModel model = organisationSessionModel;
         model.SearchProviderUrl = Url.RouteUrl(RouteNames.SelectProvider)!;
         return View(model);
     }

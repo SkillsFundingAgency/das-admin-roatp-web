@@ -93,14 +93,14 @@
 
 
 <div class="govuk-width-container">
-        @if (Model is IBackLink)
-        {
-            <a class="das-js-back-link"></a>
-        }
-        @if (Model is ISearchProviderLink && Model.SearchProviderUrl!=null)
-        {
-            <a class="govuk-back-link" href="@Model.SearchProviderUrl">Search</a>
-        }
+    @if (Model is IBackLink)
+    {
+        <a class="das-js-back-link"></a>
+    }
+    @if (Model is ISearchProviderLink && Model.SearchProviderUrl!=null) 
+     { 
+       <a class="govuk-back-link" href="@Model.SearchProviderUrl">Search</a>
+     }
         <main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing">
             @RenderBody()
         </main>

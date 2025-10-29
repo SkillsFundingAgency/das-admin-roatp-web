@@ -4,7 +4,6 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
@@ -14,7 +13,7 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.SelectTrainingProviderCo
 public class SelectTrainingProviderControllerPostTests
 {
     [Test, MoqAutoData]
-    public async Task And_SubmitViewModel_Is_Valid_Reroutes_To_Expected_Action(
+    public void And_SubmitViewModel_Is_Valid_Reroutes_To_Expected_Action(
         SelectTrainingProviderSubmitViewModel viewModel,
         [Frozen] Mock<IValidator<SelectTrainingProviderSubmitViewModel>> validator,
         [Greedy] SelectTrainingProviderController controller,
@@ -22,7 +21,7 @@ public class SelectTrainingProviderControllerPostTests
     {
         validator.Setup(x => x.Validate(viewModel)).Returns(new ValidationResult());
 
-        var actual = await controller.Index(viewModel, cancellationToken);
+        var actual = controller.Index(viewModel);
 
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
@@ -43,7 +42,7 @@ public class SelectTrainingProviderControllerPostTests
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
 
-        var actual = await controller.Index(viewModel, cancellationToken);
+        var actual = controller.Index(viewModel);
 
         actual.Should().NotBeNull();
         var result = actual! as ViewResult;
@@ -51,25 +50,5 @@ public class SelectTrainingProviderControllerPostTests
         var model = result!.Model as SelectTrainingProviderViewModel;
 
         model.Should().NotBeNull();
-    }
-
-    [Test, MoqAutoData]
-    public async Task And_SubmitViewModel_Is_Valid_No_Matching_Organisation_Redirect_To_Home(
-        SelectTrainingProviderSubmitViewModel viewModel,
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IValidator<SelectTrainingProviderSubmitViewModel>> validator,
-        [Greedy] SelectTrainingProviderController controller,
-        CancellationToken cancellationToken)
-    {
-        validator.Setup(x => x.Validate(viewModel)).Returns(new ValidationResult());
-        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
-            .ReturnsAsync((GetOrganisationResponse)null!);
-
-        var actual = await controller.Index(viewModel, cancellationToken);
-
-        actual.Should().NotBeNull();
-        var result = actual! as RedirectToRouteResult;
-        result.Should().NotBeNull();
-        result!.RouteName.Should().Be(RouteNames.Home);
     }
 }
