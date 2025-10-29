@@ -1,0 +1,32 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SFA.DAS.Admin.Roatp.Domain.Models
+@using SFA.DAS.Admin.Roatp.Web.Infrastructure
+@model SFA.DAS.Admin.Roatp.Web.Models.ProviderStatusConfirmationViewModel
+@{
+    ViewData["Title"] = "provider status confirmation";
+    ViewData["Description"] = "provider status confirmation";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+       
+        <div class="govuk-panel govuk-panel--confirmation">
+            <h1 class="govuk-panel__title">
+                @Model.LegalName is now @Model.StatusText
+            </h1>
+        </div>
+        <p class="govuk-body">
+            You has successfully updated the status of <strong>@Model.LegalName</strong>. This provider is now set to @Model.StatusText.
+        </p>
+        <p class="govuk-body">
+            Next, you can:
+            <ul class="govuk-list govuk-list--bullet">
+                <li><a href="@Model.ProviderSummaryLink">edit their details</a></li>
+                <li><a href="@Model.SelectTrainingProviderLink">search for a different training provider</a></li>
+                <li><a href="@Model.ProviderSummaryLink">add a new training provider</a></li>
+            </ul>
+        </p>
+
+
+    </div>
+</div>
