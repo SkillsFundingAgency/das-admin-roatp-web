@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.ApplicationInsights;
+using Newtonsoft.Json.Converters;
 using SFA.DAS.Admin.Roatp.Web.AppStart;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Validators;
@@ -40,11 +41,10 @@ builder.Services
     {
         options.Filters.Add<AutoValidateAntiforgeryTokenAttribute>();
     })
-    .AddSessionStateTempDataProvider();
+    .AddSessionStateTempDataProvider()
+    .AddNewtonsoftJson(options => options.SerializerSettings.Converters.Add(new StringEnumConverter()));
 
 builder.Services.AddValidatorsFromAssembly(typeof(SelectTrainingProviderValidator).Assembly);
-
-
 
 var app = builder.Build();
 

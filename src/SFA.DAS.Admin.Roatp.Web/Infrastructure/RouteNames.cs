@@ -9,4 +9,6 @@ public static class RouteNames
     public const string Dashboard = "dashboard";
     public const string SelectProvider = nameof(SelectProvider);
     public const string ProviderSummary = nameof(ProviderSummary);
+    public const string ProviderStatusUpdate = nameof(ProviderStatusUpdate);
+    public const string ProviderStatusUpdateConfirmed = nameof(ProviderStatusUpdateConfirmed);
 }
