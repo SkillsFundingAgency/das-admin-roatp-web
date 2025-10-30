@@ -204,7 +204,7 @@ public class ProviderSummaryViewModelTests
 
 
     [Test, AutoData]
-    public void MapModel_TypesOfShortCourses_AsExpected(
+    public void MapModel_TypesOfShortCourses_AsExpectedContentAndOrdering(
         GetOrganisationResponse response
     )
     {
