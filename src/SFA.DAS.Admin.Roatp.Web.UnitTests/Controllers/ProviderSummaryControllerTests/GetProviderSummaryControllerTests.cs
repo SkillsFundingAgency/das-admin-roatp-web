@@ -7,7 +7,6 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
-using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -17,7 +16,6 @@ public class GetProviderSummaryControllerTests
     [Test, MoqAutoData]
     public async Task Get_NoMatchingDetails_RedirectToHome(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> _sessionServiceMock,
         [Frozen] EditOrganisationSessionModel _editOrganisationSessionModel,
         [Greedy] ProviderSummaryController sut,
         string ukprn,
@@ -31,13 +29,11 @@ public class GetProviderSummaryControllerTests
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
         result!.RouteName.Should().Be(RouteNames.Home);
-        _sessionServiceMock.Verify(c => c.Set<EditOrganisationSessionModel>(SessionKeys.EditOrganisation, It.IsAny<EditOrganisationSessionModel>()), Times.Never);
     }
 
     [Test, MoqAutoData]
     public async Task Get_MatchingDetails_SetSessionAndRedirect(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> _sessionServiceMock,
         [Frozen] EditOrganisationSessionModel _editOrganisationSessionModel,
         [Greedy] ProviderSummaryController sut,
         string selectOrganisationLink,
@@ -58,6 +54,5 @@ public class GetProviderSummaryControllerTests
         model.Should().NotBeNull();
         model.Ukprn.Should().Be(ukprn);
         model.SearchProviderUrl.Should().Be(selectOrganisationLink);
-        _sessionServiceMock.Verify(c => c.Set<EditOrganisationSessionModel>(SessionKeys.EditOrganisation, It.IsAny<EditOrganisationSessionModel>()), Times.Once);
     }
 }

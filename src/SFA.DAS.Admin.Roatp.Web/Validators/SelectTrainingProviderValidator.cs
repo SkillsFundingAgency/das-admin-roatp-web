@@ -3,7 +3,7 @@ using SFA.DAS.Admin.Roatp.Web.Models;
 
 namespace SFA.DAS.Admin.Roatp.Web.Validators;
 
-public class SelectTrainingProviderValidator : AbstractValidator<SelectTrainingProviderSubmitViewModel>
+public class SelectTrainingProviderValidator : AbstractValidator<SelectTrainingProviderViewModel>
 {
     public const string NoTrainingProviderSelectedErrorMessage = "Type a name or UKPRN and select a provider";
 

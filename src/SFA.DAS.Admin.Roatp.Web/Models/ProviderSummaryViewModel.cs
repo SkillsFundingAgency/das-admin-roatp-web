@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Admin.Roatp.Domain.Models;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 
 namespace SFA.DAS.Admin.Roatp.Web.Models;
@@ -43,35 +44,35 @@ public class ProviderSummaryViewModel : ISearchProviderLink
     public string OffersShortCoursesChangeLink { get; set; } = "#";
     public string TypesOfShortCoursesChangeLink { get; set; } = "#";
 
-    public static implicit operator ProviderSummaryViewModel(EditOrganisationSessionModel savedOrganisation)
+    public static implicit operator ProviderSummaryViewModel(GetOrganisationResponse organisationResponse)
     {
         var trainingProviderViewModel = new ProviderSummaryViewModel
         {
-            Ukprn = savedOrganisation.Ukprn,
-            LegalName = savedOrganisation.LegalName,
-            TradingName = savedOrganisation.TradingName,
-            ShowTradingName = !string.IsNullOrWhiteSpace(savedOrganisation.TradingName),
-            CompanyNumber = !string.IsNullOrWhiteSpace(savedOrganisation.CompanyNumber) ? savedOrganisation.CompanyNumber : "Not applicable",
-            ShowCompanyNumber = !string.IsNullOrWhiteSpace(savedOrganisation.CompanyNumber),
-            ProviderType = savedOrganisation.ProviderType,
-            IsSupportingProvider = savedOrganisation.ProviderType == ProviderType.Supporting,
-            OrganisationType = savedOrganisation.OrganisationType,
-            Status = savedOrganisation.Status,
-            LastUpdatedDateText = savedOrganisation.LastUpdatedDate.HasValue ? savedOrganisation.LastUpdatedDate.Value.ToScreenString() : string.Empty,
-            ShowLastUpdatedDate = savedOrganisation.LastUpdatedDate.HasValue,
-            ApplicationDeterminedDateText = savedOrganisation.ApplicationDeterminedDate.HasValue ? savedOrganisation.ApplicationDeterminedDate.Value.ToScreenString() : "Unavailable",
-            ShowRemovedReason = savedOrganisation.RemovedReasonId.HasValue,
-            RemovedReason = savedOrganisation.RemovedReason,
-            RemovedDateText = savedOrganisation.RemovedDate.HasValue ? savedOrganisation.RemovedDate.Value.ToScreenString() : string.Empty,
-            AllowedCourseTypes = savedOrganisation.AllowedCourseTypes,
-            OffersApprenticeshipsText = savedOrganisation.AllowedCourseTypes.Any(x => x.LearningType == LearningType.Standard) ? "Yes" : "No",
-            OffersShortCoursesText = savedOrganisation.AllowedCourseTypes.Any(x => x.LearningType == LearningType.ShortCourse) ? "Yes" : "No",
-            TypesOfShortCourses = savedOrganisation.AllowedCourseTypes.Where(x => x.LearningType == LearningType.ShortCourse).Select(x => x.CourseTypeName).OrderBy(x => x).ToList(),
-            CharityNumberText = !string.IsNullOrWhiteSpace(savedOrganisation.CharityNumber) ? savedOrganisation.CharityNumber : "Not applicable",
-            IsActive = savedOrganisation.Status == OrganisationStatus.Active,
-            IsActiveNoStarts = savedOrganisation.Status == OrganisationStatus.ActiveNoStarts,
-            IsOnboarding = savedOrganisation.Status == OrganisationStatus.OnBoarding,
-            IsRemoved = savedOrganisation.Status == OrganisationStatus.Removed
+            Ukprn = organisationResponse.Ukprn,
+            LegalName = organisationResponse.LegalName,
+            TradingName = organisationResponse.TradingName,
+            ShowTradingName = !string.IsNullOrWhiteSpace(organisationResponse.TradingName),
+            CompanyNumber = !string.IsNullOrWhiteSpace(organisationResponse.CompanyNumber) ? organisationResponse.CompanyNumber : "Not applicable",
+            ShowCompanyNumber = !string.IsNullOrWhiteSpace(organisationResponse.CompanyNumber),
+            ProviderType = organisationResponse.ProviderType,
+            IsSupportingProvider = organisationResponse.ProviderType == ProviderType.Supporting,
+            OrganisationType = organisationResponse.OrganisationType,
+            Status = organisationResponse.Status,
+            LastUpdatedDateText = organisationResponse.LastUpdatedDate.HasValue ? organisationResponse.LastUpdatedDate.Value.ToScreenString() : string.Empty,
+            ShowLastUpdatedDate = organisationResponse.LastUpdatedDate.HasValue,
+            ApplicationDeterminedDateText = organisationResponse.ApplicationDeterminedDate.HasValue ? organisationResponse.ApplicationDeterminedDate.Value.ToScreenString() : "Unavailable",
+            ShowRemovedReason = organisationResponse.RemovedReasonId.HasValue,
+            RemovedReason = organisationResponse.RemovedReason,
+            RemovedDateText = organisationResponse.RemovedDate.HasValue ? organisationResponse.RemovedDate.Value.ToScreenString() : string.Empty,
+            AllowedCourseTypes = organisationResponse.AllowedCourseTypes,
+            OffersApprenticeshipsText = organisationResponse.AllowedCourseTypes.Any(x => x.LearningType == LearningType.Standard) ? "Yes" : "No",
+            OffersShortCoursesText = organisationResponse.AllowedCourseTypes.Any(x => x.LearningType == LearningType.ShortCourse) ? "Yes" : "No",
+            TypesOfShortCourses = organisationResponse.AllowedCourseTypes.Where(x => x.LearningType == LearningType.ShortCourse).Select(x => x.CourseTypeName).OrderBy(x => x).ToList(),
+            CharityNumberText = !string.IsNullOrWhiteSpace(organisationResponse.CharityNumber) ? organisationResponse.CharityNumber : "Not applicable",
+            IsActive = organisationResponse.Status == OrganisationStatus.Active,
+            IsActiveNoStarts = organisationResponse.Status == OrganisationStatus.ActiveNoStarts,
+            IsOnboarding = organisationResponse.Status == OrganisationStatus.OnBoarding,
+            IsRemoved = organisationResponse.Status == OrganisationStatus.Removed
         };
 
         return trainingProviderViewModel;

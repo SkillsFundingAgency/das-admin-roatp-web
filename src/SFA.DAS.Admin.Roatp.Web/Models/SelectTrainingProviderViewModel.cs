@@ -1,10 +1,6 @@
 ﻿namespace SFA.DAS.Admin.Roatp.Web.Models;
 
-public class SelectTrainingProviderViewModel : SelectTrainingProviderSubmitViewModel
-{
-}
-
-public class SelectTrainingProviderSubmitViewModel : IBackLink
+public class SelectTrainingProviderViewModel : IBackLink
 {
     public string? SearchTerm
     {

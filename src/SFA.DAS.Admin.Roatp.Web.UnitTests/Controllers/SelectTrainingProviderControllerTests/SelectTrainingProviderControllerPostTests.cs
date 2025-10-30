@@ -14,8 +14,8 @@ public class SelectTrainingProviderControllerPostTests
 {
     [Test, MoqAutoData]
     public void And_SubmitViewModel_Is_Valid_Reroutes_To_Expected_Action(
-        SelectTrainingProviderSubmitViewModel viewModel,
-        [Frozen] Mock<IValidator<SelectTrainingProviderSubmitViewModel>> validator,
+        SelectTrainingProviderViewModel viewModel,
+        [Frozen] Mock<IValidator<SelectTrainingProviderViewModel>> validator,
         [Greedy] SelectTrainingProviderController controller,
         CancellationToken cancellationToken)
     {
@@ -31,8 +31,8 @@ public class SelectTrainingProviderControllerPostTests
 
     [Test, MoqAutoData]
     public void And_SubmitViewModel_Is_Invalid_Reloads_View(
-        SelectTrainingProviderSubmitViewModel viewModel,
-        [Frozen] Mock<IValidator<SelectTrainingProviderSubmitViewModel>> validator,
+        SelectTrainingProviderViewModel viewModel,
+        [Frozen] Mock<IValidator<SelectTrainingProviderViewModel>> validator,
         [Greedy] SelectTrainingProviderController controller,
         CancellationToken cancellationToken)
     {

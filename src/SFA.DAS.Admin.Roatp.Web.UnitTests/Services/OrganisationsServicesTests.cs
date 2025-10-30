@@ -8,7 +8,7 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Services;
-public class OrganisationServicesTests
+public class OrganisationsServicesTests
 {
     [Test, MoqAutoData]
     public async Task GetOrganisations_FromSession(

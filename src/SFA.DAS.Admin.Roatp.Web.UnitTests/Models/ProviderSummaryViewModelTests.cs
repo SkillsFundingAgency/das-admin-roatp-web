@@ -1,18 +1,19 @@
 ﻿using AutoFixture.NUnit3;
 using FluentAssertions;
 using SFA.DAS.Admin.Roatp.Domain.Models;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Models;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models;
 public class ProviderSummaryViewModelTests
 {
     [Test, AutoData]
-    public void MapModel_From_EditOrganisationSessionModel(
-        EditOrganisationSessionModel sessionModel
+    public void MapModel_From_GetOrganisationResponse(
+        GetOrganisationResponse response
     )
     {
-        var sut = (ProviderSummaryViewModel)sessionModel;
-        sut.Should().BeEquivalentTo(sessionModel, option => option
+        var sut = (ProviderSummaryViewModel)response;
+        sut.Should().BeEquivalentTo(response, option => option
             .Excluding(o => o.OrganisationId)
             .Excluding(o => o.OrganisationId)
             .Excluding(o => o.CharityNumber)
@@ -30,11 +31,11 @@ public class ProviderSummaryViewModelTests
     public void MapModel_CompanyNumber_AsExpected(
         string? companyNumber,
         string expected,
-        EditOrganisationSessionModel sessionModel
+        GetOrganisationResponse response
     )
     {
-        sessionModel.CompanyNumber = companyNumber!;
-        var sut = (ProviderSummaryViewModel)sessionModel;
+        response.CompanyNumber = companyNumber!;
+        var sut = (ProviderSummaryViewModel)response;
         sut.CompanyNumber.Should().Be(expected);
     }
 
@@ -42,14 +43,14 @@ public class ProviderSummaryViewModelTests
     [InlineAutoData(ProviderType.Supporting, true)]
     [InlineAutoData(ProviderType.Employer, false)]
     [InlineAutoData(ProviderType.Main, false)]
-    public void MapModel_IsSportinProvider_AsExpected(
+    public void MapModel_IsSupportingProvider_AsExpected(
         ProviderType providerType,
         bool expected,
-        EditOrganisationSessionModel sessionModel
+        GetOrganisationResponse response
     )
     {
-        sessionModel.ProviderType = providerType!;
-        var sut = (ProviderSummaryViewModel)sessionModel;
+        response.ProviderType = providerType!;
+        var sut = (ProviderSummaryViewModel)response;
         sut.IsSupportingProvider.Should().Be(expected);
     }
 
@@ -60,11 +61,11 @@ public class ProviderSummaryViewModelTests
     public void MapModel_ShowTradingName_AsExpected(
         string? tradingName,
         bool expected,
-        EditOrganisationSessionModel sessionModel
+        GetOrganisationResponse response
     )
     {
-        sessionModel.TradingName = tradingName!;
-        var sut = (ProviderSummaryViewModel)sessionModel;
+        response.TradingName = tradingName!;
+        var sut = (ProviderSummaryViewModel)response;
         sut.ShowTradingName.Should().Be(expected);
     }
 
@@ -75,11 +76,11 @@ public class ProviderSummaryViewModelTests
     public void MapModel_ShowCompanyNumber_AsExpected(
         string? companyNumber,
         bool expected,
-        EditOrganisationSessionModel sessionModel
+        GetOrganisationResponse response
     )
     {
-        sessionModel.CompanyNumber = companyNumber!;
-        var sut = (ProviderSummaryViewModel)sessionModel;
+        response.CompanyNumber = companyNumber!;
+        var sut = (ProviderSummaryViewModel)response;
         sut.ShowCompanyNumber.Should().Be(expected);
     }
 
@@ -91,15 +92,15 @@ public class ProviderSummaryViewModelTests
         int? day,
        string expectedDateText,
         bool expectedShowLastUpdatedDate,
-        EditOrganisationSessionModel sessionModel
+        GetOrganisationResponse response
     )
     {
-        sessionModel.LastUpdatedDate = null;
+        response.LastUpdatedDate = null;
         if (day != null)
         {
-            sessionModel.LastUpdatedDate = new DateTime(2024, 10, day.Value);
+            response.LastUpdatedDate = new DateTime(2024, 10, day.Value);
         }
-        var sut = (ProviderSummaryViewModel)sessionModel;
+        var sut = (ProviderSummaryViewModel)response;
         sut.LastUpdatedDateText.Should().Be(expectedDateText);
         sut.ShowLastUpdatedDate.Should().Be(expectedShowLastUpdatedDate);
     }
@@ -111,15 +112,15 @@ public class ProviderSummaryViewModelTests
     public void MapModel_ApplicationDeterminedDateText_AsExpected(
         int? day,
         string expectedDateText,
-        EditOrganisationSessionModel sessionModel
+        GetOrganisationResponse response
     )
     {
-        sessionModel.ApplicationDeterminedDate = null;
+        response.ApplicationDeterminedDate = null;
         if (day != null)
         {
-            sessionModel.ApplicationDeterminedDate = new DateTime(2024, 10, day.Value);
+            response.ApplicationDeterminedDate = new DateTime(2024, 10, day.Value);
         }
-        var sut = (ProviderSummaryViewModel)sessionModel;
+        var sut = (ProviderSummaryViewModel)response;
         sut.ApplicationDeterminedDateText.Should().Be(expectedDateText);
     }
 
@@ -129,16 +130,16 @@ public class ProviderSummaryViewModelTests
     public void MapModel_ShowRemovedReason_AsExpected(
         int? reasonId,
        bool expected,
-        EditOrganisationSessionModel sessionModel
+        GetOrganisationResponse response
     )
     {
-        sessionModel.RemovedReasonId = null;
+        response.RemovedReasonId = null;
         if (reasonId != null)
         {
-            sessionModel.RemovedReasonId = reasonId;
+            response.RemovedReasonId = reasonId;
         }
 
-        var sut = (ProviderSummaryViewModel)sessionModel;
+        var sut = (ProviderSummaryViewModel)response;
         sut.ShowRemovedReason.Should().Be(expected);
     }
 
@@ -149,15 +150,15 @@ public class ProviderSummaryViewModelTests
     public void MapModel_RemovedDateText_AsExpected(
         int? day,
         string expectedDateText,
-        EditOrganisationSessionModel sessionModel
+        GetOrganisationResponse response
     )
     {
-        sessionModel.RemovedDate = null;
+        response.RemovedDate = null;
         if (day != null)
         {
-            sessionModel.RemovedDate = new DateTime(2024, 10, day.Value);
+            response.RemovedDate = new DateTime(2024, 10, day.Value);
         }
-        var sut = (ProviderSummaryViewModel)sessionModel;
+        var sut = (ProviderSummaryViewModel)response;
         sut.RemovedDateText.Should().Be(expectedDateText);
     }
 
@@ -168,11 +169,11 @@ public class ProviderSummaryViewModelTests
     public void MapModel_CharityNumberText_AsExpected(
         string charityNumber,
         string expected,
-        EditOrganisationSessionModel sessionModel
+        GetOrganisationResponse response
     )
     {
-        sessionModel.CharityNumber = charityNumber;
-        var sut = (ProviderSummaryViewModel)sessionModel;
+        response.CharityNumber = charityNumber;
+        var sut = (ProviderSummaryViewModel)response;
         sut.CharityNumberText.Should().Be(expected);
     }
 
@@ -187,16 +188,16 @@ public class ProviderSummaryViewModelTests
         bool offersShortCourses,
         string expectedOffersApprenticeshipText,
         string expectedOffersShortCoursesText,
-        EditOrganisationSessionModel sessionModel
+        GetOrganisationResponse response
     )
     {
         var allowedCourseTypes = new List<AllowedCourseType>();
         if (offersApprenticeships) allowedCourseTypes.Add(new AllowedCourseType { LearningType = LearningType.Standard, CourseTypeId = 1, CourseTypeName = "course type" });
         if (offersShortCourses) allowedCourseTypes.Add(new AllowedCourseType { LearningType = LearningType.ShortCourse, CourseTypeId = 1, CourseTypeName = "unit" });
 
-        sessionModel.AllowedCourseTypes = allowedCourseTypes;
+        response.AllowedCourseTypes = allowedCourseTypes;
 
-        var sut = (ProviderSummaryViewModel)sessionModel;
+        var sut = (ProviderSummaryViewModel)response;
         sut.OffersApprenticeshipsText.Should().Be(expectedOffersApprenticeshipText);
         sut.OffersShortCoursesText.Should().Be(expectedOffersShortCoursesText);
     }
@@ -204,7 +205,7 @@ public class ProviderSummaryViewModelTests
 
     [Test, AutoData]
     public void MapModel_TypesOfShortCourses_AsExpected(
-        EditOrganisationSessionModel sessionModel
+        GetOrganisationResponse response
     )
     {
         var firstItemExpected = "AAAA";
@@ -219,9 +220,9 @@ public class ProviderSummaryViewModelTests
             new() { LearningType = LearningType.ShortCourse, CourseTypeId = 1, CourseTypeName = firstItemExpected }
         };
 
-        sessionModel.AllowedCourseTypes = allowedCourseTypes;
+        response.AllowedCourseTypes = allowedCourseTypes;
 
-        var sut = (ProviderSummaryViewModel)sessionModel;
+        var sut = (ProviderSummaryViewModel)response;
         var typesOfShortCourses = sut.TypesOfShortCourses;
         typesOfShortCourses.Count.Should().Be(3);
         typesOfShortCourses[0].Should().Be(firstItemExpected);
@@ -231,17 +232,20 @@ public class ProviderSummaryViewModelTests
 
     [Test]
     [InlineAutoData(OrganisationStatus.Active, true, false, false, false)]
+    [InlineAutoData(OrganisationStatus.ActiveNoStarts, false, true, false, false)]
+    [InlineAutoData(OrganisationStatus.OnBoarding, false, false, true, false)]
+    [InlineAutoData(OrganisationStatus.Removed, false, false, false, true)]
     public void MapModel_CheckStatuses_AsExpected(
         OrganisationStatus status,
         bool isActive,
         bool isActiveNoStarts,
         bool isOnboarding,
         bool isRemoved,
-        EditOrganisationSessionModel sessionModel
+        GetOrganisationResponse response
     )
     {
-        sessionModel.Status = status;
-        var sut = (ProviderSummaryViewModel)sessionModel;
+        response.Status = status;
+        var sut = (ProviderSummaryViewModel)response;
         sut.IsActive.Should().Be(isActive);
         sut.IsActiveNoStarts.Should().Be(isActiveNoStarts);
         sut.IsOnboarding.Should().Be(isOnboarding);
