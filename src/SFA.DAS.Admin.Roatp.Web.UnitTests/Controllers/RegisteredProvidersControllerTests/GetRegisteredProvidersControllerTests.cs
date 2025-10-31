@@ -16,7 +16,7 @@ public class GetRegisteredProvidersControllerTests
 
     [Test, MoqAutoData]
     public async Task GetOrganisations_MatchedByName(
-        [Frozen] Mock<IOrganisationService> organisationServiceMock,
+        [Frozen] Mock<IOrganisationsService> organisationServiceMock,
         [Greedy] RegisteredProvidersController controller,
         List<OrganisationModel> organisations,
         CancellationToken cancellationToken
@@ -41,7 +41,7 @@ public class GetRegisteredProvidersControllerTests
 
     [Test, MoqAutoData]
     public async Task GetOrganisations_MatchedByUkprn(
-        [Frozen] Mock<IOrganisationService> organisationServiceMock,
+        [Frozen] Mock<IOrganisationsService> organisationServiceMock,
         [Greedy] RegisteredProvidersController controller,
         CancellationToken cancellationToken
     )
@@ -70,7 +70,7 @@ public class GetRegisteredProvidersControllerTests
 
     [Test, MoqAutoData]
     public async Task GetOrganisations_ReturnedTop100MatchesSortedAlphabetically(
-        [Frozen] Mock<IOrganisationService> organisationServiceMock,
+        [Frozen] Mock<IOrganisationsService> organisationServiceMock,
         [Greedy] RegisteredProvidersController controller,
         CancellationToken cancellationToken
     )
@@ -107,7 +107,7 @@ public class GetRegisteredProvidersControllerTests
     [TestCase("")]
     public async Task GetOrganisations_LessThan3Characters_NoResultsExpected(string searchTerm)
     {
-        Mock<IOrganisationService> organisationServiceMock = new Mock<IOrganisationService>();
+        Mock<IOrganisationsService> organisationServiceMock = new Mock<IOrganisationsService>();
 
         var controller = new RegisteredProvidersController(organisationServiceMock.Object);
 

@@ -17,7 +17,7 @@ public class SelectTrainingProviderValidatorTests
     [Test]
     public void TestValidator_SearchTerm_Invalid_ReturnsExpectedErrorMessage()
     {
-        var result = _validator.TestValidate(new SelectTrainingProviderSubmitViewModel());
+        var result = _validator.TestValidate(new SelectTrainingProviderViewModel());
 
         result.IsValid.Should().BeFalse();
         result.ShouldHaveValidationErrorFor(c => c.SearchTerm)
@@ -28,7 +28,7 @@ public class SelectTrainingProviderValidatorTests
     public void TestValidator_SearchTerm_Valid_ReturnsValid()
     {
         var ukprn = "10001000";
-        var result = _validator.TestValidate(new SelectTrainingProviderSubmitViewModel { Ukprn = ukprn });
+        var result = _validator.TestValidate(new SelectTrainingProviderViewModel { Ukprn = ukprn });
         result.IsValid.Should().BeTrue();
     }
 }

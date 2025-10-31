@@ -13,7 +13,7 @@ public class SelectTrainingProviderControllerGetTests
     [Test, MoqAutoData]
     public void Get_BuildsViewModel(
         [Frozen] ISessionService _sessionService,
-        [Frozen] IValidator<SelectTrainingProviderSubmitViewModel> _validator,
+        [Frozen] IValidator<SelectTrainingProviderViewModel> _validator,
         [Greedy] SelectTrainingProviderController controller)
     {
         var actual = controller.Index() as ViewResult;

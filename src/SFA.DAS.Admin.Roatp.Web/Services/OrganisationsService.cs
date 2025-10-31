@@ -3,7 +3,7 @@ using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 
 namespace SFA.DAS.Admin.Roatp.Web.Services;
 
-public class OrganisationService(IOuterApiClient _outerApiClient, ISessionService _sessionService) : IOrganisationService
+public class OrganisationsService(IOuterApiClient _outerApiClient, ISessionService _sessionService) : IOrganisationsService
 {
     public async Task<List<OrganisationModel>> GetOrganisations(CancellationToken cancellationToken)
     {

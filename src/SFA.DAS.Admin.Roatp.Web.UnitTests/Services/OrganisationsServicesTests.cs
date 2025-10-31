@@ -8,13 +8,13 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Services;
-public class OrganisationServicesGetOrganisationsTests
+public class OrganisationsServicesTests
 {
     [Test, MoqAutoData]
     public async Task GetOrganisations_FromSession(
         [Frozen] Mock<IOuterApiClient> clientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Greedy] OrganisationService sut,
+        [Greedy] OrganisationsService sut,
         List<OrganisationModel> organisations,
         CancellationToken cancellationToken
     )
@@ -34,7 +34,7 @@ public class OrganisationServicesGetOrganisationsTests
     public async Task GetOrganisations_NotInSession_PutInSessionAndReturned(
         [Frozen] Mock<IOuterApiClient> clientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Greedy] OrganisationService sut,
+        [Greedy] OrganisationsService sut,
         List<OrganisationModel> organisations,
         CancellationToken cancellationToken
     )

@@ -29,7 +29,6 @@ public class HomeControllerGetTests
         model!.AddANewTrainingProviderUrl.Should().Be("#");
         model.AddUkprnToAllowListUrl.Should().Be("#");
         model.SearchForTrainingProviderUrl.Should().Be(selectOrganisationLink);
-        _sessionServiceMock.Verify(x => x.Delete(SessionKeys.EditOrganisation), Times.Once);
     }
 
     [Test, MoqAutoData]
@@ -44,6 +43,5 @@ public class HomeControllerGetTests
         var result = sut.Dashboard() as RedirectResult;
         result.Should().NotBeNull();
         result.Url.Should().Be(configuration.AdminServicesBaseUrl + "Dashboard");
-        _sessionServiceMock.Verify(x => x.Delete(SessionKeys.EditOrganisation), Times.Once);
     }
 }

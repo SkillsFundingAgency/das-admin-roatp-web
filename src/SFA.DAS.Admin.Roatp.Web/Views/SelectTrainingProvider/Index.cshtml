@@ -30,9 +30,6 @@
                                asp-for="SearchTerm" class="govuk-input" sfa-validationerror-class="form-control-error" data-module="autoComplete" />
                         <label for="SearchTerm" class="govuk-visually-hidden">Search Result: @Model.LegalName, @Model.Ukprn</label>
                     </div>
-                    @* this is a temporary element, to be removed in CSP-2210 *@
-                    <span class="govuk-visually-hidden">Result: @Model.MatchedResult</span>
-                    @* end of temporary element *@
                 </fieldset>
             </div>
             <div class="govuk-button-group">

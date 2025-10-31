@@ -14,25 +14,25 @@ public class SelectTrainingProviderControllerPostTests
 {
     [Test, MoqAutoData]
     public void And_SubmitViewModel_Is_Valid_Reroutes_To_Expected_Action(
-        SelectTrainingProviderSubmitViewModel viewModel,
-        [Frozen] Mock<IValidator<SelectTrainingProviderSubmitViewModel>> validator,
+        SelectTrainingProviderViewModel viewModel,
+        [Frozen] Mock<IValidator<SelectTrainingProviderViewModel>> validator,
         [Greedy] SelectTrainingProviderController controller,
         CancellationToken cancellationToken)
     {
         validator.Setup(x => x.Validate(viewModel)).Returns(new ValidationResult());
 
-        var actual = controller.Index(viewModel, cancellationToken);
+        var actual = controller.Index(viewModel);
 
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
-        result!.RouteName.Should().Be(RouteNames.SelectProvider);
+        result!.RouteName.Should().Be(RouteNames.ProviderSummary);
     }
 
     [Test, MoqAutoData]
     public void And_SubmitViewModel_Is_Invalid_Reloads_View(
-        SelectTrainingProviderSubmitViewModel viewModel,
-        [Frozen] Mock<IValidator<SelectTrainingProviderSubmitViewModel>> validator,
+        SelectTrainingProviderViewModel viewModel,
+        [Frozen] Mock<IValidator<SelectTrainingProviderViewModel>> validator,
         [Greedy] SelectTrainingProviderController controller,
         CancellationToken cancellationToken)
     {
@@ -42,7 +42,7 @@ public class SelectTrainingProviderControllerPostTests
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
 
-        var actual = controller.Index(viewModel, cancellationToken);
+        var actual = controller.Index(viewModel);
 
         actual.Should().NotBeNull();
         var result = actual! as ViewResult;
