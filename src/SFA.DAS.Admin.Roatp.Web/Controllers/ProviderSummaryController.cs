@@ -18,6 +18,7 @@ public class ProviderSummaryController(IOuterApiClient _outerApiClient) : Contro
 
         ProviderSummaryViewModel model = organisationResponse;
         model.SearchProviderUrl = Url.RouteUrl(RouteNames.SelectProvider)!;
+        model.StatusChangeLink = Url.RouteUrl(RouteNames.ProviderStatusUpdate, new { ukprn })!;
         return View(model);
     }
 }
