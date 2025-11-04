@@ -18,4 +18,7 @@ public interface IOuterApiClient
 
     [Patch("/organisations/{ukprn}")]
     Task PatchOrganisation(string ukprn, [Header(RequestHeaders.RequestingUserIdHeader)] string userId, [Body] JsonPatchDocument<PatchOrganisationModel> patchDoc, CancellationToken cancellationToken);
+
+    [Get("/removed-reasons")]
+    Task<GetRemovalReasonsResponse> GetRemovalReasons(CancellationToken cancellationToken);
 }

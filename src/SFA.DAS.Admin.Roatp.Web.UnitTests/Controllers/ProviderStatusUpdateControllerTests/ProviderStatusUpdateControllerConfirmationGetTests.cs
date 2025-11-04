@@ -10,38 +10,20 @@ using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ProviderStatusConfirmationControllerTests;
-public class ProviderStatusConfirmationControllerGetTests
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ProviderStatusUpdateControllerTests;
+public class ProviderStatusUpdateControllerConfirmationGetTests
 {
     [Test, MoqAutoData]
     public async Task Get_NoMatchingDetails_RedirectToHome(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] ProviderStatusConfirmationController sut,
+        [Greedy] ProviderStatusUpdateController sut,
         string ukprn,
         CancellationToken cancellationToken)
     {
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync((GetOrganisationResponse)null!);
 
-        var actual = await sut.Index(ukprn, cancellationToken);
-        actual.Should().NotBeNull();
-        var result = actual! as RedirectToRouteResult;
-        result.Should().NotBeNull();
-        result!.RouteName.Should().Be(RouteNames.Home);
-    }
-
-    [Test, MoqAutoData]
-    public async Task Get_MatchingDetails_UkprnNoMatch_RedirectToHome(
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] ProviderStatusConfirmationController sut,
-        GetOrganisationResponse getOrganisationResponse,
-        string ukprn,
-        CancellationToken cancellationToken)
-    {
-        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
-            .ReturnsAsync(getOrganisationResponse);
-
-        var actual = await sut.Index(ukprn, cancellationToken);
+        var actual = await sut.ProviderStatusUpdateConfirmed(ukprn, cancellationToken);
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
@@ -56,7 +38,7 @@ public class ProviderStatusConfirmationControllerGetTests
     public async Task Get_MatchingDetails_BuildExpectedViewModel(
         OrganisationStatus status,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] ProviderStatusConfirmationController sut,
+        [Greedy] ProviderStatusUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
         int ukprn,
         string providerSummaryLink,
@@ -83,12 +65,13 @@ public class ProviderStatusConfirmationControllerGetTests
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(getOrganisationResponse);
 
-        var actual = await sut.Index(ukprn.ToString(), cancellationToken) as ViewResult;
+        var actual = await sut.ProviderStatusUpdateConfirmed(ukprn.ToString(), cancellationToken) as ViewResult;
 
         actual.Should().NotBeNull();
         var model = actual!.Model as ProviderStatusConfirmationViewModel;
         model.Should().NotBeNull();
         model.Should().BeEquivalentTo(expectedViewModel);
+        actual.ViewName.Should().Contain("ProviderStatusConfirmation.cshtml");
     }
 
     private static string MatchingStatusText(OrganisationStatus status)
