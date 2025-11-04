@@ -33,4 +33,8 @@
     <ProjectReference Include="..\SFA.DAS.Admin.Roatp\SFA.DAS.Admin.Roatp.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Views\RemovalReasonUpdate\" />
+  </ItemGroup>
+
 </Project>

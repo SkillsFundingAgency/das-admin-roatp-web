@@ -2,6 +2,7 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
@@ -38,7 +39,7 @@ public class ProviderStatusUpdateControllerGetTests
         CancellationToken cancellationToken)
     {
         getOrganisationResponse.Ukprn = ukprn;
-
+        var expectedOrganisationStatuses = BuildOrganisationStatuses(getOrganisationResponse.Status);
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn.ToString(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(getOrganisationResponse);
 
@@ -46,7 +47,18 @@ public class ProviderStatusUpdateControllerGetTests
         actual.Should().NotBeNull();
         var model = actual.Model as OrganisationStatusUpdateViewModel;
         model.Should().NotBeNull();
-        model.Ukprn.Should().Be(ukprn.ToString());
         model.OrganisationStatus.Should().Be(getOrganisationResponse.Status);
+        model.OrganisationStatuses.Should().BeEquivalentTo(expectedOrganisationStatuses);
+    }
+
+    private List<OrganisationStatusModel> BuildOrganisationStatuses(OrganisationStatus status)
+    {
+        return new List<OrganisationStatusModel>
+        {
+            new() { Description = "Active", Id = (int)OrganisationStatus.Active, IsSelected = status == OrganisationStatus.Active },
+            new() { Description = "Active but not taking on apprentices", Id = (int)OrganisationStatus.ActiveNoStarts, IsSelected = status == OrganisationStatus.ActiveNoStarts },
+            new() { Description = "On-boarding", Id = (int)OrganisationStatus.OnBoarding, IsSelected = status == OrganisationStatus.OnBoarding },
+            new() { Description = "Removed", Id = (int)OrganisationStatus.Removed, IsSelected = status == OrganisationStatus.Removed }
+        };
     }
 }

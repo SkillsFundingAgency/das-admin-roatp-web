@@ -22,30 +22,8 @@ public class ProviderStatusUpdateControllerPostTests
         int ukprn,
         CancellationToken cancellationToken)
     {
-        viewModel.Ukprn = ukprn.ToString();
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync((GetOrganisationResponse)null!);
-
-        var actual = await sut.Index(ukprn, viewModel, cancellationToken);
-        actual.Should().NotBeNull();
-        var result = actual! as RedirectToRouteResult;
-        result.Should().NotBeNull();
-        result!.RouteName.Should().Be(RouteNames.Home);
-    }
-
-    [Test, MoqAutoData]
-    public async Task Get_MatchingDetails_UkprnNoMatch_RedirectToHome(
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] ProviderStatusUpdateController sut,
-        GetOrganisationResponse getOrganisationResponse,
-        OrganisationStatusUpdateViewModel viewModel,
-        int ukprn,
-        CancellationToken cancellationToken)
-    {
-        viewModel.Ukprn = ukprn.ToString();
-        getOrganisationResponse.Ukprn = 1;
-        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
-            .ReturnsAsync(getOrganisationResponse);
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
         actual.Should().NotBeNull();
@@ -64,7 +42,6 @@ public class ProviderStatusUpdateControllerPostTests
         CancellationToken cancellationToken)
     {
         viewModel.OrganisationStatus = getOrganisationResponse.Status;
-        viewModel.Ukprn = ukprn.ToString();
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(getOrganisationResponse);

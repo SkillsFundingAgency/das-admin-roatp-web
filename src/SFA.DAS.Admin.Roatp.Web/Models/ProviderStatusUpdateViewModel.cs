@@ -5,6 +5,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Models;
 
 public class OrganisationStatusUpdateViewModel : IBackLink
 {
+    public List<OrganisationStatusModel> OrganisationStatuses { get; set; }
     public required OrganisationStatus OrganisationStatus { get; set; }
-    public required string Ukprn { get; set; }
+
 }

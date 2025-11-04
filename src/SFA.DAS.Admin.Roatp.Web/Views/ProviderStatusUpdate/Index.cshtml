@@ -1,29 +1,13 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
-@using SFA.DAS.Admin.Roatp.Domain.Models
 @using SFA.DAS.Admin.Roatp.Web.Infrastructure
 @model SFA.DAS.Admin.Roatp.Web.Models.OrganisationStatusUpdateViewModel
 @{
     ViewData["Title"] = "update provider status";
     ViewData["Description"] = "update provider status";
-    var checkedText = "checked='checked'";
-    var checkedActive = "";
-    var checkedActiveNoStarts = "";
-    var checkedOnboarding = "";
-    var checkedRemoved = "";
-    switch (Model.OrganisationStatus)
+
+    string CheckedText(int statusId)
     {
-        case OrganisationStatus.Active:
-            checkedActive = checkedText;
-            break;
-        case OrganisationStatus.ActiveNoStarts:
-            checkedActiveNoStarts = checkedText;
-            break;
-        case OrganisationStatus.OnBoarding:
-            checkedOnboarding = checkedText;
-            break;
-        case OrganisationStatus.Removed:
-            checkedRemoved = checkedText;
-            break;
+        return (int)Model.OrganisationStatus == statusId ? "checked='checked'" : "";
     }
 }
 
@@ -38,30 +22,15 @@
                         </h1>
                     </legend>
                     <div class="govuk-radios" data-module="govuk-radios">
-                        <div class="govuk-radios__item">
-                            <input name="OrganisationStatus" class="govuk-radios__input" id="OrganisationStatusId" type="radio" value="@OrganisationStatus.Active" @checkedActive>
-                            <label class="govuk-label govuk-radios__label" for="whereDoYouLive">
-                                Active
-                            </label>
-                        </div>
-                        <div class="govuk-radios__item">
-                            <input name="OrganisationStatus" class="govuk-radios__input" id="OrganisationStatusId-2"  type="radio" value="@OrganisationStatus.ActiveNoStarts" @checkedActiveNoStarts >
-                            <label class="govuk-label govuk-radios__label" for="whereDoYouLive-2">
-                                Active but not taking on apprentices
-                            </label>
-                        </div>
-                        <div class="govuk-radios__item">
-                            <input name="OrganisationStatus" class="govuk-radios__input" id="OrganisationStatusId-3"  type="radio" value="@OrganisationStatus.OnBoarding" @checkedOnboarding >
-                            <label class="govuk-label govuk-radios__label" for="whereDoYouLive-3">
-                                On-boarding
-                            </label>
-                        </div>
-                        <div class="govuk-radios__item">
-                            <input name="OrganisationStatus" class="govuk-radios__input" id="OrganisationStatusId-4" type="radio" value="@OrganisationStatus.Removed" @checkedRemoved>
-                            <label class="govuk-label govuk-radios__label" for="whereDoYouLive-4">
-                                Removed
-                            </label>
-                        </div>
+                        @foreach (var status in Model.OrganisationStatuses)
+                        {
+                            <div class="govuk-radios__item">
+                                <input name="OrganisationStatus" class="govuk-radios__input" id="OrganisationStatusId-@status.Id" type="radio" value="@status.Id" @CheckedText(status.Id)>
+                                <label class="govuk-label govuk-radios__label" for="OrganisationStatusId-@status.Id">
+                                    @status.Description
+                                </label>
+                            </div>
+                        }
                     </div>
                 </fieldset>
             </div>

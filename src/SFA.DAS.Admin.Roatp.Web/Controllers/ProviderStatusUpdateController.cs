@@ -23,7 +23,7 @@ public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IHt
         var model = new OrganisationStatusUpdateViewModel
         {
             OrganisationStatus = organisationResponse.Status,
-            Ukprn = ukprn
+            OrganisationStatuses = BuildOrganisationStatuses(organisationResponse.Status)
         };
 
         return View(model);
@@ -34,9 +34,9 @@ public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IHt
     {
         var organisationResponse = await _outerApiClient.GetOrganisation(ukprn.ToString(), cancellationToken);
 
-        if (organisationResponse == null || organisationResponse.Ukprn != ukprn) return RedirectToRoute(RouteNames.Home);
+        if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
 
-        if (organisationResponse.Status == model.OrganisationStatus) return RedirectToRoute(RouteNames.ProviderSummary, new { model.Ukprn });
+        if (organisationResponse.Status == model.OrganisationStatus) return RedirectToRoute(RouteNames.ProviderSummary, new { ukprn });
 
         string userId = _contextAccessor.HttpContext!.User.UserDisplayName();
 
@@ -51,6 +51,17 @@ public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IHt
 
         await _outerApiClient.PatchOrganisation(ukprn.ToString(), userId, patchDoc, cancellationToken);
 
-        return RedirectToRoute(RouteNames.ProviderStatusUpdateConfirmed, new { model.Ukprn });
+        return RedirectToRoute(RouteNames.ProviderStatusUpdateConfirmed, new { ukprn });
+    }
+
+    private List<OrganisationStatusModel> BuildOrganisationStatuses(OrganisationStatus status)
+    {
+        return new List<OrganisationStatusModel>
+        {
+            new() { Description = "Active", Id = (int)OrganisationStatus.Active, IsSelected = status == OrganisationStatus.Active },
+            new() { Description = "Active but not taking on apprentices", Id = (int)OrganisationStatus.ActiveNoStarts, IsSelected = status == OrganisationStatus.ActiveNoStarts },
+            new() { Description = "On-boarding", Id = (int)OrganisationStatus.OnBoarding, IsSelected = status == OrganisationStatus.OnBoarding },
+            new() { Description = "Removed", Id = (int)OrganisationStatus.Removed, IsSelected = status == OrganisationStatus.Removed }
+        };
     }
 }
