@@ -51,7 +51,7 @@ public class ProviderStatusUpdateControllerGetTests
         model.OrganisationStatuses.Should().BeEquivalentTo(expectedOrganisationStatuses);
     }
 
-    private List<OrganisationStatusModel> BuildOrganisationStatuses(OrganisationStatus status)
+    private static List<OrganisationStatusModel> BuildOrganisationStatuses(OrganisationStatus status)
     {
         return new List<OrganisationStatusModel>
         {

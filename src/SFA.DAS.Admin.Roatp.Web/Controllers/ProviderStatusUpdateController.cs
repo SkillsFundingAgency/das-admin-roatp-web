@@ -54,7 +54,7 @@ public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IHt
         return RedirectToRoute(RouteNames.ProviderStatusUpdateConfirmed, new { ukprn });
     }
 
-    private List<OrganisationStatusModel> BuildOrganisationStatuses(OrganisationStatus status)
+    private static List<OrganisationStatusModel> BuildOrganisationStatuses(OrganisationStatus status)
     {
         return new List<OrganisationStatusModel>
         {
