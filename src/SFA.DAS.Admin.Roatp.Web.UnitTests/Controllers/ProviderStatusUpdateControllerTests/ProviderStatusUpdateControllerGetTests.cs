@@ -51,9 +51,9 @@ public class ProviderStatusUpdateControllerGetTests
         model.OrganisationStatuses.Should().BeEquivalentTo(expectedOrganisationStatuses);
     }
 
-    private static List<OrganisationStatusModel> BuildOrganisationStatuses(OrganisationStatus status)
+    private static List<OrganisationStatusSelectionModel> BuildOrganisationStatuses(OrganisationStatus status)
     {
-        return new List<OrganisationStatusModel>
+        return new List<OrganisationStatusSelectionModel>
         {
             new() { Description = "Active", Id = (int)OrganisationStatus.Active, IsSelected = status == OrganisationStatus.Active },
             new() { Description = "Active but not taking on apprentices", Id = (int)OrganisationStatus.ActiveNoStarts, IsSelected = status == OrganisationStatus.ActiveNoStarts },

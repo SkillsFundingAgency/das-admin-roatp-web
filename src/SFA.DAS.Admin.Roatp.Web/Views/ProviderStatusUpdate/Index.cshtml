@@ -4,11 +4,6 @@
 @{
     ViewData["Title"] = "update provider status";
     ViewData["Description"] = "update provider status";
-
-    string CheckedText(int statusId)
-    {
-        return (int)Model.OrganisationStatus == statusId ? "checked='checked'" : "";
-    }
 }
 
 <div class="govuk-grid-row">
@@ -25,7 +20,7 @@
                         @foreach (var status in Model.OrganisationStatuses)
                         {
                             <div class="govuk-radios__item">
-                                <input name="OrganisationStatus" class="govuk-radios__input" id="OrganisationStatusId-@status.Id" type="radio" value="@status.Id" @CheckedText(status.Id)>
+                                <input name="OrganisationStatus" class="govuk-radios__input" id="OrganisationStatusId-@status.Id" type="radio" value="@status.Id"  @status.Checked>
                                 <label class="govuk-label govuk-radios__label" for="OrganisationStatusId-@status.Id">
                                     @status.Description
                                 </label>
