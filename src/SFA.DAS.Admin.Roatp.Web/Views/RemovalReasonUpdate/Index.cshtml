@@ -1,0 +1,51 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SFA.DAS.Admin.Roatp.Domain.Models
+@using SFA.DAS.Admin.Roatp.Web.Infrastructure
+@model SFA.DAS.Admin.Roatp.Web.Models.RemovalReasonUpdateViewModel
+@{
+    ViewData["Title"] = "update provider status";
+    ViewData["Description"] = "update provider status";
+
+    var hasErrors = false;
+    var errorMessage = "";
+    if (ViewData.ModelState.ContainsKey("RemovalReasonId") && ViewData.ModelState["RemovalReasonId"]!.Errors.Count > 0)
+    {
+        hasErrors = true;
+        errorMessage = ViewData.ModelState["RemovalReasonId"]!.Errors[0].ErrorMessage;
+    }
+    var formGroupError = hasErrors ? "govuk-form-group--error" : "";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <partial name="_validationSummary" />
+        <form asp-route="@RouteNames.ProviderStatusUpdate" method="POST" enctype="multipart/form-data">
+            <div class="govuk-form-group @formGroupError" id="RemovalReasonId">
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                        <h1 class="govuk-fieldset__heading">
+                            Why do you want to remove this provider?
+                        </h1>
+                    </legend>
+                    <span asp-show="hasErrors" class="govuk-error-message">
+                        @errorMessage
+                    </span>
+                    <div class="govuk-radios" data-module="govuk-radios">
+                        @foreach (var reason in Model.RemovedReasons)
+                        {
+                            <div class="govuk-radios__item">
+                                <input name="RemovalReasonId" class="govuk-radios__input" id="RemovalReasonId-@reason.Id" type="radio" value="@reason.Id" @reason.Checked>
+                                <label class="govuk-label govuk-radios__label" for="RemovalReasonId-@reason.Id">
+                                    @reason.Description
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </fieldset>
+            </div>
+            <div class="govuk-button-group">
+                <button type="submit" id="continue" class="govuk-button" data-disable-on-submit="true">Remove training provider</button>
+            </div>
+        </form>
+    </div>
+</div>

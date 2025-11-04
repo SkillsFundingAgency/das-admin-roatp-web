@@ -10,5 +10,6 @@ public static class RouteNames
     public const string SelectProvider = nameof(SelectProvider);
     public const string ProviderSummary = nameof(ProviderSummary);
     public const string ProviderStatusUpdate = nameof(ProviderStatusUpdate);
+    public const string ProviderRemovalReasonUpdate = nameof(ProviderRemovalReasonUpdate);
     public const string ProviderStatusUpdateConfirmed = nameof(ProviderStatusUpdateConfirmed);
 }

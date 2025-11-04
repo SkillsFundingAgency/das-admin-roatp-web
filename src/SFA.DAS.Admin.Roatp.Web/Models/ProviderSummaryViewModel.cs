@@ -19,8 +19,6 @@ public class ProviderSummaryViewModel : ISearchProviderLink
     public string RemovedDateText { get; set; } = string.Empty;
     public IEnumerable<AllowedCourseType> AllowedCourseTypes { get; set; } = [];
 
-    public List<string> TypesOfShortCourses { get; set; } = new();
-
     public bool ShowTradingName { get; set; }
     public bool ShowCompanyNumber { get; set; }
     public bool ShowLastUpdatedDate { get; set; }
@@ -41,8 +39,7 @@ public class ProviderSummaryViewModel : ISearchProviderLink
     public string StatusChangeLink { get; set; } = "#";
     public string ProviderTypeChangeLink { get; set; } = "#";
     public string OrganisationTypeChangeLink { get; set; } = "#";
-    public string OffersShortCoursesChangeLink { get; set; } = "#";
-    public string TypesOfShortCoursesChangeLink { get; set; } = "#";
+    public string OffersApprenticeshipUnitsChangeLink { get; set; } = "#";
 
     public static implicit operator ProviderSummaryViewModel(GetOrganisationResponse organisationResponse)
     {
@@ -67,7 +64,6 @@ public class ProviderSummaryViewModel : ISearchProviderLink
             AllowedCourseTypes = organisationResponse.AllowedCourseTypes,
             OffersApprenticeshipsText = organisationResponse.AllowedCourseTypes.Any(x => x.LearningType == LearningType.Standard) ? "Yes" : "No",
             OffersShortCoursesText = organisationResponse.AllowedCourseTypes.Any(x => x.LearningType == LearningType.ShortCourse) ? "Yes" : "No",
-            TypesOfShortCourses = organisationResponse.AllowedCourseTypes.Where(x => x.LearningType == LearningType.ShortCourse).Select(x => x.CourseTypeName).OrderBy(x => x).ToList(),
             CharityNumberText = !string.IsNullOrWhiteSpace(organisationResponse.CharityNumber) ? organisationResponse.CharityNumber : "Not applicable",
             IsActive = organisationResponse.Status == OrganisationStatus.Active,
             IsActiveNoStarts = organisationResponse.Status == OrganisationStatus.ActiveNoStarts,

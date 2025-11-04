@@ -1,0 +1,63 @@
+﻿using AutoFixture.NUnit3;
+using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
+using SFA.DAS.Admin.Roatp.Web.Controllers;
+using SFA.DAS.Admin.Roatp.Web.Infrastructure;
+using SFA.DAS.Admin.Roatp.Web.Models;
+using SFA.DAS.Testing.AutoFixture;
+
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.RemovalReasonUpdateControllerTests;
+public class RemovalReasonUpdateControllerGetTests
+{
+    [Test, MoqAutoData]
+    public async Task Get_NoMatchingDetails_RedirectToHome(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Greedy] RemovalReasonUpdateController sut,
+        int ukprn,
+        CancellationToken cancellationToken)
+    {
+        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
+            .ReturnsAsync((GetOrganisationResponse)null!);
+
+        var actual = await sut.Index(ukprn, cancellationToken);
+        actual.Should().NotBeNull();
+        var result = actual! as RedirectToRouteResult;
+        result.Should().NotBeNull();
+        result!.RouteName.Should().Be(RouteNames.Home);
+    }
+
+    [Test, MoqAutoData]
+    public async Task Get_MatchingDetails_BuildViewModel(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Greedy] RemovalReasonUpdateController sut,
+        string selectOrganisationLink,
+        GetOrganisationResponse getOrganisationResponse,
+        GetRemovalReasonsResponse getRemovalReasonsResponse,
+        int ukprn,
+        CancellationToken cancellationToken)
+    {
+        var removedReasonId = getRemovalReasonsResponse.ReasonsForRemoval[0].Id;
+        getOrganisationResponse.RemovedReasonId = removedReasonId;
+        getOrganisationResponse.Ukprn = ukprn;
+
+        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn.ToString(), It.IsAny<CancellationToken>()))!
+            .ReturnsAsync(getOrganisationResponse);
+
+        outerApiClientMock.Setup(x => x.GetRemovalReasons(cancellationToken)).ReturnsAsync(getRemovalReasonsResponse);
+
+        var expectedReasonsForRemoval = getRemovalReasonsResponse.ReasonsForRemoval.OrderBy(r => r.Description).ToList();
+        foreach (var reason in expectedReasonsForRemoval)
+        {
+            reason.IsSelected = reason.Id == removedReasonId;
+        }
+
+        var actual = await sut.Index(ukprn, cancellationToken) as ViewResult;
+        actual.Should().NotBeNull();
+        var model = actual.Model as RemovalReasonUpdateViewModel;
+        model.Should().NotBeNull();
+        model.RemovalReasonId.Should().Be(getOrganisationResponse.RemovedReasonId);
+        model.RemovedReasons.Should().BeEquivalentTo(expectedReasonsForRemoval);
+    }
+}
