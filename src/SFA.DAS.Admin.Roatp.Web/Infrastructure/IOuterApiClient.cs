@@ -1,6 +1,8 @@
-﻿using Refit;
+﻿using Microsoft.AspNetCore.JsonPatch;
+using Refit;
+using SFA.DAS.Admin.Roatp.Application.Constants;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
-
 
 namespace SFA.DAS.Admin.Roatp.Web.Infrastructure;
 public interface IOuterApiClient
@@ -13,4 +15,7 @@ public interface IOuterApiClient
 
     [Get("/organisations/{ukprn}")]
     Task<GetOrganisationResponse> GetOrganisation(string ukprn, CancellationToken cancellationToken);
+
+    [Patch("/organisations/{ukprn}")]
+    Task PatchOrganisation(string ukprn, [Header(RequestHeaders.RequestingUserIdHeader)] string userId, [Body] JsonPatchDocument<PatchOrganisationModel> patchDoc, CancellationToken cancellationToken);
 }
