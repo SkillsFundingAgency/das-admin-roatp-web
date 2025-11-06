@@ -15,7 +15,7 @@ public class RemovalReasonUpdateController(IOuterApiClient _outerApiClient, IOrg
 {
     public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
     {
-        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn.ToString(), cancellationToken);
+        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
         if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
 
@@ -40,7 +40,7 @@ public class RemovalReasonUpdateController(IOuterApiClient _outerApiClient, IOrg
     [HttpPost]
     public async Task<IActionResult> Index(int ukprn, RemovalReasonUpdateViewModel model, CancellationToken cancellationToken)
     {
-        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn.ToString(), cancellationToken);
+        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
         if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
 

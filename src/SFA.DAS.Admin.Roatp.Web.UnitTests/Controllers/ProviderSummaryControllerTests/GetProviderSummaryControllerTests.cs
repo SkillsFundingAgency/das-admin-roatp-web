@@ -18,10 +18,10 @@ public class GetProviderSummaryControllerTests
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] EditOrganisationSessionModel _editOrganisationSessionModel,
         [Greedy] ProviderSummaryController sut,
-        string ukprn,
+        int ukprn,
         CancellationToken cancellationToken)
     {
-        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync((GetOrganisationResponse)null!);
 
         var actual = await sut.Index(ukprn, cancellationToken);
@@ -53,10 +53,10 @@ public class GetProviderSummaryControllerTests
             .AddUrlForRoute(RouteNames.OrganisationTypeUpdate, organisationTypeUpdateLink)
             ;
 
-        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn.ToString(), It.IsAny<CancellationToken>()))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))!
             .ReturnsAsync(getOrganisationResponse);
 
-        var actual = await sut.Index(_editOrganisationSessionModel.Ukprn.ToString(), cancellationToken) as ViewResult;
+        var actual = await sut.Index(_editOrganisationSessionModel.Ukprn, cancellationToken) as ViewResult;
         actual.Should().NotBeNull();
         var model = actual.Model as ProviderSummaryViewModel;
         model.Should().NotBeNull();

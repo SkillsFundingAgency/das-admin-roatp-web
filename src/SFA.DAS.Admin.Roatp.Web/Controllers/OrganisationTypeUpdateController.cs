@@ -13,7 +13,7 @@ public class OrganisationTypeUpdateController(IOuterApiClient _outerApiClient, I
 {
     public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
     {
-        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn.ToString(), cancellationToken);
+        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
         if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
 
@@ -40,7 +40,7 @@ public class OrganisationTypeUpdateController(IOuterApiClient _outerApiClient, I
     public async Task<IActionResult> Index(int ukprn, OrganisationTypeUpdateViewModel model,
         CancellationToken cancellationToken)
     {
-        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn.ToString(), cancellationToken);
+        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
         if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
 

@@ -6,5 +6,4 @@ public class ProviderTypeUpdateViewModel : IBackLink
 {
     public List<ProviderTypeSelectionModel> ProviderTypes { get; set; } = new();
     public required int ProviderTypeId { get; set; }
-
 }

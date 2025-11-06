@@ -13,7 +13,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 public class ProviderTypeUpdateController(IOuterApiClient _outerApiClient, IOrganisationPatchService _organisationPatchService) : Controller
 {
 
-    public async Task<IActionResult> Index(string ukprn, CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
     {
         var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
@@ -32,7 +32,7 @@ public class ProviderTypeUpdateController(IOuterApiClient _outerApiClient, IOrga
     public async Task<IActionResult> Index(int ukprn, ProviderTypeUpdateViewModel model,
         CancellationToken cancellationToken)
     {
-        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn.ToString(), cancellationToken);
+        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
         if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
 
