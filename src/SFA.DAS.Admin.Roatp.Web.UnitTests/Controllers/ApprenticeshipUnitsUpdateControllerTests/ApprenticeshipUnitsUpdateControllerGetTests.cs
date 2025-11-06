@@ -1,0 +1,72 @@
+﻿using AutoFixture.NUnit3;
+using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
+using SFA.DAS.Admin.Roatp.Domain.Models;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
+using SFA.DAS.Admin.Roatp.Web.Controllers;
+using SFA.DAS.Admin.Roatp.Web.Infrastructure;
+using SFA.DAS.Admin.Roatp.Web.Models;
+using SFA.DAS.Testing.AutoFixture;
+
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ApprenticeshipUnitsUpdateControllerTests;
+public class ApprenticeshipUnitsUpdateControllerGetTests
+{
+    [Test, MoqAutoData]
+    public async Task Get_NoMatchingDetails_RedirectToHome(
+       [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+       [Greedy] ApprenticeshipUnitsUpdateController sut,
+       int ukprn,
+       CancellationToken cancellationToken)
+    {
+        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn.ToString(), cancellationToken))!
+            .ReturnsAsync((GetOrganisationResponse)null!);
+
+        var actual = await sut.Index(ukprn, cancellationToken);
+        actual.Should().NotBeNull();
+        var result = actual! as RedirectToRouteResult;
+        result.Should().NotBeNull();
+        result!.RouteName.Should().Be(RouteNames.Home);
+    }
+
+    [Test, MoqAutoData]
+    public async Task Get_MatchingDetails_BuildViewModel(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Greedy] ApprenticeshipUnitsUpdateController sut,
+        string selectOrganisationLink,
+        GetOrganisationResponse getOrganisationResponse,
+        int ukprn,
+        bool containsApprenticeshipUnits,
+        CancellationToken cancellationToken)
+    {
+        getOrganisationResponse.Ukprn = ukprn;
+        getOrganisationResponse.AllowedCourseTypes = new List<AllowedCourseType>();
+
+        if (containsApprenticeshipUnits)
+        {
+            getOrganisationResponse.AllowedCourseTypes = new List<AllowedCourseType>
+            {
+                new() {LearningType = LearningType.ShortCourse}
+            };
+        }
+        var expectedApprenticeshipTypesChoices = BuildApprenticeshipTypesChoices(containsApprenticeshipUnits);
+        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn.ToString(), cancellationToken))!
+            .ReturnsAsync(getOrganisationResponse);
+
+        var actual = await sut.Index(ukprn, cancellationToken) as ViewResult;
+        actual.Should().NotBeNull();
+        var model = actual.Model as ApprenticeshipUnitUpdateViewModel;
+        model.Should().NotBeNull();
+        model.ApprenticeshipUnitSelectionChoice.Should().Be(containsApprenticeshipUnits);
+        model.ApprenticeshipUnitsSelection.Should().BeEquivalentTo(expectedApprenticeshipTypesChoices);
+    }
+
+    private static List<ApprenticeshipUnitsSelectionModel> BuildApprenticeshipTypesChoices(bool containsApprenticeshipUnits)
+    {
+        return new List<ApprenticeshipUnitsSelectionModel>
+        {
+            new() { Description = "Yes", Id = true, IsSelected = containsApprenticeshipUnits},
+            new() { Description = "No", Id = false, IsSelected = !containsApprenticeshipUnits},
+        };
+    }
+}

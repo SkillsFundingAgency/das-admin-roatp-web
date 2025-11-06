@@ -25,4 +25,7 @@ public interface IOuterApiClient
 
     [Get("/organisation-types")]
     Task<GetOrganisationTypesResponse> GetOrganisationTypes(CancellationToken cancellationToken);
+
+    [Put("/organisations/{ukprn}/course-types")]
+    Task PutCourseTypes(int ukprn, [Body] UpdateCourseTypesModel updateCourseTypesModel, CancellationToken cancellationToken);
 }

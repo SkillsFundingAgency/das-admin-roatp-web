@@ -21,6 +21,7 @@ public class ProviderSummaryController(IOuterApiClient _outerApiClient) : Contro
         model.StatusChangeLink = Url.RouteUrl(RouteNames.ProviderStatusUpdate, new { ukprn })!;
         model.ProviderTypeChangeLink = Url.RouteUrl(RouteNames.ProviderTypeUpdate, new { ukprn })!;
         model.OrganisationTypeChangeLink = Url.RouteUrl(RouteNames.OrganisationTypeUpdate, new { ukprn })!;
+        model.OffersApprenticeshipUnitsChangeLink = Url.RouteUrl(RouteNames.ApprenticeshipUnitsUpdate, new { ukprn })!;
         return View(model);
     }
 }
