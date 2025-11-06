@@ -15,4 +15,5 @@ public static class RouteNames
     public const string ProviderTypeUpdate = nameof(ProviderTypeUpdate);
     public const string OrganisationTypeUpdate = nameof(OrganisationTypeUpdate);
     public const string ApprenticeshipUnitsUpdate = nameof(ApprenticeshipUnitsUpdate);
+    public const string ApprenticeshipsUpdate = nameof(ApprenticeshipsUpdate);
 }

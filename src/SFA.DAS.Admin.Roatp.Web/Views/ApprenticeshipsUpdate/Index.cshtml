@@ -1,7 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
 @using SFA.DAS.Admin.Roatp.Domain.Models
 @using SFA.DAS.Admin.Roatp.Web.Infrastructure
-@model SFA.DAS.Admin.Roatp.Web.Models.ApprenticeshipUnitUpdateViewModel
+@model SFA.DAS.Admin.Roatp.Web.Models.ApprenticeshipsUpdateViewModel
 @{
     ViewData["Title"] = "update apprenticeship units";
     ViewData["Description"] = "update apprenticeship units";
@@ -9,12 +9,12 @@
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <form asp-route="@RouteNames.ApprenticeshipUnitsUpdate" method="POST" enctype="multipart/form-data">
+        <form asp-route="@RouteNames.ApprenticeshipsUpdate" method="POST" enctype="multipart/form-data">
             <div class="govuk-form-group">
                 <fieldset class="govuk-fieldset">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                         <h1 class="govuk-fieldset__heading">
-                            Do they offer apprenticeship units?
+                            Do they offer apprenticeships?
                         </h1>
                     </legend>
                     <div class="govuk-radios" data-module="govuk-radios">

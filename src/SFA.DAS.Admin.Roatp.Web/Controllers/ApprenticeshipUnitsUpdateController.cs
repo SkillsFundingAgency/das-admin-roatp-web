@@ -45,8 +45,14 @@ public class ApprenticeshipUnitsUpdateController(IOuterApiClient _outerApiClient
             return RedirectToRoute(RouteNames.ProviderSummary, new { ukprn });
         }
 
+        if (model.ApprenticeshipUnitSelectionChoice == null)
+        {
+            // validator should have kicked in
+            return RedirectToRoute(RouteNames.ApprenticeshipUnitsUpdate, new { ukprn });
+        }
+
         string userDisplayName = User.UserDisplayName();
-        var courseTypesModel = model.ApprenticeshipUnitSelectionChoice
+        var courseTypesModel = model.ApprenticeshipUnitSelectionChoice!.Value
             ? AddShortCoursesToCourseTypes(organisationResponse.AllowedCourseTypes, userDisplayName)
             : RemoveShortCoursesFromCourseTypes(organisationResponse.AllowedCourseTypes, userDisplayName);
 
