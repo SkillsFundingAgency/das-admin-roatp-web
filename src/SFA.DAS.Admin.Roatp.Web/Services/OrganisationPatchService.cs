@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.JsonPatch;
+﻿using System.Net;
+using Microsoft.AspNetCore.JsonPatch;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
-using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 
@@ -34,20 +34,17 @@ public class OrganisationPatchService(IOuterApiClient _outerApiClient, IHttpCont
             patchDoc.Replace(o => o.RemovedReasonId, patchModel.RemovedReasonId);
         }
 
-        if (!ChangeMade(patchModel, organisationResponse)) return false;
+        if (!ChangeMade(patchDoc)) return false;
 
         string userDisplayName = _contextAccessor.HttpContext!.User.UserDisplayName();
-        await _outerApiClient.PatchOrganisation(ukprn.ToString(), userDisplayName, patchDoc, cancellationToken);
 
-        return true;
+        var response = await _outerApiClient.PatchOrganisation(ukprn.ToString(), userDisplayName, patchDoc, cancellationToken);
+
+        return response.StatusCode == HttpStatusCode.NoContent;
     }
 
-
-    private static bool ChangeMade(PatchOrganisationModel newPatchModel, GetOrganisationResponse currentDetails)
+    private static bool ChangeMade(JsonPatchDocument<PatchOrganisationModel> model)
     {
-        return currentDetails.Status != newPatchModel.Status
-               || currentDetails.OrganisationTypeId != newPatchModel.OrganisationTypeId
-               || currentDetails.ProviderType != newPatchModel.ProviderType
-               || currentDetails.RemovedReasonId != newPatchModel.RemovedReasonId;
+        return model.Operations.Count > 0;
     }
 }

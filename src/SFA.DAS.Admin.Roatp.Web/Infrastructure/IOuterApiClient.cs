@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.JsonPatch;
+﻿using System.Net;
+using Microsoft.AspNetCore.JsonPatch;
 using Refit;
 using SFA.DAS.Admin.Roatp.Application.Constants;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
@@ -17,7 +18,7 @@ public interface IOuterApiClient
     Task<GetOrganisationResponse> GetOrganisation(string ukprn, CancellationToken cancellationToken);
 
     [Patch("/organisations/{ukprn}")]
-    Task PatchOrganisation(string ukprn, [Header(RequestHeaders.RequestingUserIdHeader)] string userId, [Body] JsonPatchDocument<PatchOrganisationModel> patchDoc, CancellationToken cancellationToken);
+    Task<ApiResponse<HttpStatusCode>> PatchOrganisation(string ukprn, [Header(RequestHeaders.RequestingUserIdHeader)] string userId, [Body] JsonPatchDocument<PatchOrganisationModel> patchDoc, CancellationToken cancellationToken);
 
     [Get("/removed-reasons")]
     Task<GetRemovalReasonsResponse> GetRemovalReasons(CancellationToken cancellationToken);

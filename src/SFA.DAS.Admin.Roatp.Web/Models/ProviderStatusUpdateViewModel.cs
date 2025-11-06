@@ -2,7 +2,6 @@
 
 namespace SFA.DAS.Admin.Roatp.Web.Models;
 
-
 public class OrganisationStatusUpdateViewModel : IBackLink
 {
     public List<OrganisationStatusSelectionModel> OrganisationStatuses { get; set; } = new();

@@ -1,0 +1,45 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SFA.DAS.Admin.Roatp.Domain.Models
+@using SFA.DAS.Admin.Roatp.Web.Infrastructure
+@model SFA.DAS.Admin.Roatp.Web.Models.ProviderTypeUpdateViewModel
+@{
+    ViewData["Title"] = "update provider route";
+    ViewData["Description"] = "update provider route";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <form asp-route="@RouteNames.ProviderTypeUpdate" method="POST" enctype="multipart/form-data">
+            <div class="govuk-form-group">
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                        <h1 class="govuk-fieldset__heading">
+                            What provider route are they using?
+                        </h1>
+                    </legend>
+                    <div class="govuk-radios" data-module="govuk-radios">
+                        @foreach (var providerType in Model.ProviderTypes)
+                        {
+                            <div class="govuk-radios__item">
+                                <input name="ProviderTypeId" class="govuk-radios__input" id="ProviderTypeId-@providerType.Id" type="radio" value="@providerType.Id" @providerType.Checked>
+                                <label class="govuk-label govuk-radios__label" for="ProviderTypeId-@providerType.Id">
+                                    @providerType.Description
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </fieldset>
+            </div>
+            <div class="govuk-warning-text">
+                <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+                <strong class="govuk-warning-text__text">
+                    <span class="govuk-visually-hidden">Warning</span>
+                    Changing the provider route from main or employer to supporting will stop this provider from delivering short courses.
+                </strong>
+            </div>
+            <div class="govuk-button-group">
+                <button type="submit" id="continue" class="govuk-button" data-disable-on-submit="true">Confirm</button>
+            </div>
+        </form>
+    </div>
+</div>
