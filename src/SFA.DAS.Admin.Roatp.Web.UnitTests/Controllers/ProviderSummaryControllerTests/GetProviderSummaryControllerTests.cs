@@ -39,6 +39,7 @@ public class GetProviderSummaryControllerTests
         string selectOrganisationLink,
         string providerStatusUpdateLink,
         string providerTypeUpdateLink,
+        string organisationTypeUpdateLink,
         GetOrganisationResponse getOrganisationResponse,
         int ukprn,
         CancellationToken cancellationToken)
@@ -48,7 +49,9 @@ public class GetProviderSummaryControllerTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.SelectProvider, selectOrganisationLink)
             .AddUrlForRoute(RouteNames.ProviderStatusUpdate, providerStatusUpdateLink)
-            .AddUrlForRoute(RouteNames.ProviderTypeUpdate, providerTypeUpdateLink);
+            .AddUrlForRoute(RouteNames.ProviderTypeUpdate, providerTypeUpdateLink)
+            .AddUrlForRoute(RouteNames.OrganisationTypeUpdate, organisationTypeUpdateLink)
+            ;
 
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn.ToString(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(getOrganisationResponse);
@@ -61,5 +64,6 @@ public class GetProviderSummaryControllerTests
         model.SearchProviderUrl.Should().Be(selectOrganisationLink);
         model.StatusChangeLink.Should().Be(providerStatusUpdateLink);
         model.ProviderTypeChangeLink.Should().Be(providerTypeUpdateLink);
+        model.OrganisationTypeChangeLink.Should().Be(organisationTypeUpdateLink);
     }
 }

@@ -1,0 +1,39 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SFA.DAS.Admin.Roatp.Domain.Models
+@using SFA.DAS.Admin.Roatp.Web.Infrastructure
+@model SFA.DAS.Admin.Roatp.Web.Models.OrganisationTypeUpdateViewModel
+@{
+    ViewData["Title"] = "update organisation type";
+    ViewData["Description"] = "update organisation type";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+       
+        <form asp-route="@RouteNames.OrganisationTypeUpdate" method="POST" enctype="multipart/form-data">
+            <div class="govuk-form-group">
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                        <h1 class="govuk-fieldset__heading">
+                            Choose the type of organisation for @Model.LegalName
+                        </h1>
+                    </legend>
+                    <div class="govuk-radios" data-module="govuk-radios">
+                        @foreach (var organisationType in Model.OrganisationTypes)
+                        {
+                            <div class="govuk-radios__item">
+                                <input name="OrganisationTypeId" class="govuk-radios__input" id="OrganisationTypeId-@organisationType.Id" type="radio" value="@organisationType.Id" @organisationType.Checked>
+                                <label class="govuk-label govuk-radios__label" for="OrganisationTypeId-@organisationType.Id">
+                                    @organisationType.Description
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </fieldset>
+            </div>
+            <div class="govuk-button-group">
+                <button type="submit" id="continue" class="govuk-button" data-disable-on-submit="true">Confirm</button>
+            </div>
+        </form>
+    </div>
+</div>
