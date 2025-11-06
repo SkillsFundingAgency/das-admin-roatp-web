@@ -6,12 +6,12 @@ using SFA.DAS.Admin.Roatp.Web.Validators;
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Validators;
 public class ApprenticeshipUnitUpdateViewModelValidatorTests
 {
-    private ApprenticeshipUnitUpdateViewModelValidator _validator = null!;
+    private ApprenticeshipUnitsUpdateViewModelValidator _validator = null!;
 
     [SetUp]
     public void Setup()
     {
-        _validator = new ApprenticeshipUnitUpdateViewModelValidator();
+        _validator = new ApprenticeshipUnitsUpdateViewModelValidator();
     }
 
     [TestCase(false, false)]
@@ -21,15 +21,15 @@ public class ApprenticeshipUnitUpdateViewModelValidatorTests
 
         result.IsValid.Should().BeFalse();
         result.ShouldHaveValidationErrorFor(c => c.ApprenticeshipUnitsSelectionId)
-            .WithErrorMessage(ApprenticeshipUnitUpdateViewModelValidator.NoSelectionsMadeErrorMessage);
+            .WithErrorMessage(ApprenticeshipUnitsUpdateViewModelValidator.NoSelectionsMadeErrorMessage);
     }
 
     [TestCase(false, true)]
     [TestCase(true, true)]
     [TestCase(true, false)]
-    public void TestValidator_ValidCourseTypes_ReturnsValid(bool offersApprentices, bool offersApprenticeshipUnits)
+    public void TestValidator_ValidCourseTypes_ReturnsValid(bool offersApprenticeships, bool offersApprenticeshipUnits)
     {
-        var model = new ApprenticeshipUnitsUpdateViewModel { OffersApprenticeships = offersApprentices, ApprenticeshipUnitsSelectionId = offersApprenticeshipUnits };
+        var model = new ApprenticeshipUnitsUpdateViewModel { OffersApprenticeships = offersApprenticeships, ApprenticeshipUnitsSelectionId = offersApprenticeshipUnits };
         var result = _validator.TestValidate(model);
 
         result.IsValid.Should().BeTrue();

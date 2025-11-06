@@ -10,7 +10,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
 [Route("providers/{ukprn}/route", Name = RouteNames.ProviderTypeUpdate)]
 [Authorize(Roles = Roles.RoatpAdminTeam)]
-public class ProviderTypeUpdateController(IOuterApiClient _outerApiClient, IOrganisationPatchService _organisationPatchService) : Controller
+public class ProviderTypeUpdateController(IOuterApiClient _outerApiClient, IOrganisationPatchService _organisationPatchService, ISessionService _sessionService) : Controller
 {
 
     public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
@@ -36,11 +36,20 @@ public class ProviderTypeUpdateController(IOuterApiClient _outerApiClient, IOrga
 
         if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
 
+        if (organisationResponse.ProviderType == ProviderType.Supporting
+            && (model.ProviderTypeId == (int)ProviderType.Main || model.ProviderTypeId == (int)ProviderType.Employer))
+        {
+            var sessionModel = new UpdateProviderTypeCourseTypesSessionModel()
+            { ProviderType = (ProviderType)model.ProviderTypeId };
+
+            _sessionService.Set<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes, sessionModel);
+            return RedirectToRoute(RouteNames.ApprenticeshipsUpdate, new { ukprn });
+        }
+
         PatchOrganisationModel patchModel = organisationResponse;
         patchModel.ProviderType = (ProviderType)model.ProviderTypeId;
 
         await _organisationPatchService.OrganisationPatched(ukprn, organisationResponse, patchModel, cancellationToken);
-
         return RedirectToRoute(RouteNames.ProviderSummary, new { ukprn });
     }
 

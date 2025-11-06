@@ -1,34 +1,32 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
 @using SFA.DAS.Admin.Roatp.Domain.Models
 @using SFA.DAS.Admin.Roatp.Web.Infrastructure
-@model SFA.DAS.Admin.Roatp.Web.Models.ApprenticeshipUnitsUpdateViewModel
+@model SFA.DAS.Admin.Roatp.Web.Models.ApprenticeshipsUpdateViewModel
 @{
-    ViewData["Title"] = "update apprenticeship units";
-    ViewData["Description"] = "update apprenticeship units";
+    ViewData["Title"] = "update apprenticeships";
+    ViewData["Description"] = "update apprenticeships";
 }
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <partial name="_validationSummary" />
-        <form asp-route="@RouteNames.ApprenticeshipUnitsUpdate" method="POST" enctype="multipart/form-data">
-            <input asp-for="OffersApprenticeships" id="OffersApprenticeships" type="hidden"/>
-            <div class="govuk-form-group" id="ApprenticeshipUnitsSelectionId">
-           
+        <form asp-route="@RouteNames.ApprenticeshipsUpdate" method="POST" enctype="multipart/form-data">
+            <div class="govuk-form-group" id="ApprenticeshipsSelectionChoice">
                 <fieldset class="govuk-fieldset">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                         <h1 class="govuk-fieldset__heading">
-                            Do they offer apprenticeship units?
+                            Do they offer apprenticeships?
                         </h1>
                     </legend>
-                    <div esfa-validation-marker-for="@Model.ApprenticeshipUnitsSelectionId" class="govuk-form-group">
-                    <span asp-validation-for="ApprenticeshipUnitsSelectionId" class="govuk-error-message"></span>
+                    <div esfa-validation-marker-for="@Model.ApprenticeshipsSelectionChoice" class="govuk-form-group">
+                        <span asp-validation-for="ApprenticeshipsSelectionChoice" class="govuk-error-message"></span>
                     <div class="govuk-radios" data-module="govuk-radios">
-                        @foreach (var selection in Model.ApprenticeshipUnitsSelection)
+                        @foreach (var selection in Model.ApprenticeshipsSelection)
                         {
                             <div class="govuk-radios__item">
-                                <input name="ApprenticeshipUnitsSelectionId" class="govuk-radios__input" id="ApprenticeshipUnitId-@selection.Id" type="radio"
+                                <input name="ApprenticeshipsSelectionChoice" class="govuk-radios__input" id="ApprenticeshipsId-@selection.Id" type="radio"
                                        value="@selection.Id.ToString()" @selection.Checked>
-                                <label class="govuk-label govuk-radios__label" for="ApprenticeshipUnitId-@selection.Id">
+                                <label class="govuk-label govuk-radios__label" for="ApprenticeshipsId-@selection.Id">
                                     @selection.Description
                                 </label>
                             </div>

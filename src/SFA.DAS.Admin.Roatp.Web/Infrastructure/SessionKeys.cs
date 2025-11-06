@@ -3,4 +3,5 @@
 public static class SessionKeys
 {
     public const string GetOrganisations = "GetOrganisations";
+    public const string UpdateSupportingProviderCourseTypes = "UpdateSupportingProviderCourseTypes";
 }
