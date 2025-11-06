@@ -202,34 +202,6 @@ public class ProviderSummaryViewModelTests
         sut.OffersShortCoursesText.Should().Be(expectedOffersShortCoursesText);
     }
 
-
-    [Test, AutoData]
-    public void MapModel_TypesOfShortCourses_AsExpectedContentAndOrdering(
-        GetOrganisationResponse response
-    )
-    {
-        var firstItemExpected = "AAAA";
-        var secondItemExpected = "DDD";
-        var thirdItemExpected = "ZZZZ";
-
-        var allowedCourseTypes = new List<AllowedCourseType>
-        {
-            new() { LearningType = LearningType.ShortCourse, CourseTypeId = 1, CourseTypeName = thirdItemExpected },
-            new() { LearningType = LearningType.Standard, CourseTypeId = 2, CourseTypeName = "standard name" },
-            new() { LearningType = LearningType.ShortCourse, CourseTypeId = 1, CourseTypeName = secondItemExpected },
-            new() { LearningType = LearningType.ShortCourse, CourseTypeId = 1, CourseTypeName = firstItemExpected }
-        };
-
-        response.AllowedCourseTypes = allowedCourseTypes;
-
-        var sut = (ProviderSummaryViewModel)response;
-        var typesOfShortCourses = sut.TypesOfShortCourses;
-        typesOfShortCourses.Count.Should().Be(3);
-        typesOfShortCourses[0].Should().Be(firstItemExpected);
-        typesOfShortCourses[1].Should().Be(secondItemExpected);
-        typesOfShortCourses[2].Should().Be(thirdItemExpected);
-    }
-
     [Test]
     [InlineAutoData(OrganisationStatus.Active, true, false, false, false)]
     [InlineAutoData(OrganisationStatus.ActiveNoStarts, false, true, false, false)]

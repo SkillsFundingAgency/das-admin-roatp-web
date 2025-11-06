@@ -86,24 +86,10 @@
                                     <td class="govuk-table__cell"></td>
                                 </tr>
                                 <tr class="govuk-table__row">
-                                    <th scope="row" class="govuk-table__header">Offers short courses</th>
+                                    <th scope="row" class="govuk-table__header">Offers apprenticeship units</th>
                                     <td class="govuk-table__cell">@Model.OffersShortCoursesText</td>
-                                        <td class="govuk-table__cell"><a href="@Model.OffersShortCoursesChangeLink" class="govuk-link">Change</a></td>
+                                        <td class="govuk-table__cell"><a href="@Model.OffersApprenticeshipUnitsChangeLink" class="govuk-link">Change</a></td>
                                 </tr>
-                                @if (Model.TypesOfShortCourses.Count > 0)
-                                {
-                                    <tr class="govuk-table__row">
-                                        <th scope="row" class="govuk-table__header">Type of short courses</th>
-                                        <td class="govuk-table__cell">
-                                            @foreach (var typeOfCourse in Model.TypesOfShortCourses)
-                                            {
-                                                @typeOfCourse
-                                                <br/>
-                                            }
-                                        </td>
-                                            <td class="govuk-table__cell"><a href="@Model.TypesOfShortCoursesChangeLink" class="govuk-link">Change</a></td>
-                                    </tr>
-                                }
                             }
                             </tbody>
                         </table>
