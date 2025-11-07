@@ -1,19 +1,19 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
-using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
+using SFA.DAS.Admin.Roatp.Web.Services;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
 [Route("providers/{ukprn}/status", Name = RouteNames.ProviderStatusUpdate)]
-public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IHttpContextAccessor _contextAccessor) : Controller
+public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IOrganisationPatchService _organisationPatchService) : Controller
 {
-    [Authorize(Roles = Roles.RoatpAdminTeam)]
+    private readonly string _providerStatusConfirmed = "~/Views/ProviderStatusUpdate/ProviderStatusConfirmation.cshtml";
 
+    [Authorize(Roles = Roles.RoatpAdminTeam)]
     public async Task<IActionResult> Index(string ukprn, CancellationToken cancellationToken)
     {
         var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
@@ -30,28 +30,48 @@ public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IHt
     }
 
     [HttpPost]
-    public async Task<IActionResult> Index(int ukprn, OrganisationStatusUpdateViewModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(int ukprn, OrganisationStatusUpdateViewModel model,
+        CancellationToken cancellationToken)
     {
         var organisationResponse = await _outerApiClient.GetOrganisation(ukprn.ToString(), cancellationToken);
 
         if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
 
-        if (organisationResponse.Status == model.OrganisationStatus) return RedirectToRoute(RouteNames.ProviderSummary, new { ukprn });
-
-        string userId = _contextAccessor.HttpContext!.User.UserDisplayName();
-
-        var patchDoc = new JsonPatchDocument<PatchOrganisationModel>();
-        patchDoc.Replace(o => o.Status, model.OrganisationStatus);
         if (model.OrganisationStatus == OrganisationStatus.Removed)
         {
-            // will redirect to  removedReason selection page in CSP-2212 
-            var removedReasonIdOther = 12;
-            patchDoc.Replace(o => o.RemovedReasonId, removedReasonIdOther);
+            return RedirectToRoute(RouteNames.ProviderRemovalReasonUpdate, new { ukprn });
         }
 
-        await _outerApiClient.PatchOrganisation(ukprn.ToString(), userId, patchDoc, cancellationToken);
+        PatchOrganisationModel patchModel = organisationResponse;
+        patchModel.Status = model.OrganisationStatus;
 
-        return RedirectToRoute(RouteNames.ProviderStatusUpdateConfirmed, new { ukprn });
+        var organisationPatched = await _organisationPatchService.OrganisationPatched(ukprn, patchModel, cancellationToken);
+
+        return RedirectToRoute(!organisationPatched
+            ? RouteNames.ProviderSummary
+            : RouteNames.ProviderStatusUpdateConfirmed,
+            new { ukprn });
+    }
+
+    [Authorize(Roles = Roles.RoatpAdminTeam)]
+    [Route("confirmed", Name = RouteNames.ProviderStatusUpdateConfirmed)]
+    public async Task<IActionResult> ProviderStatusUpdateConfirmed(string ukprn, CancellationToken cancellationToken)
+    {
+        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
+
+        if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
+
+        var model = new ProviderStatusConfirmationViewModel
+        {
+            LegalName = organisationResponse.LegalName,
+            OrganisationStatus = organisationResponse.Status,
+            Ukprn = ukprn,
+            StatusText = MatchingStatusText(organisationResponse.Status),
+            ProviderSummaryLink = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!,
+            SelectTrainingProviderLink = Url.RouteUrl(RouteNames.SelectProvider)!
+        };
+
+        return View(_providerStatusConfirmed, model);
     }
 
     private static List<OrganisationStatusSelectionModel> BuildOrganisationStatuses(OrganisationStatus status)
@@ -62,6 +82,17 @@ public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IHt
             new() { Description = "Active but not taking on apprentices", Id = (int)OrganisationStatus.ActiveNoStarts, IsSelected = status == OrganisationStatus.ActiveNoStarts },
             new() { Description = "On-boarding", Id = (int)OrganisationStatus.OnBoarding, IsSelected = status == OrganisationStatus.OnBoarding },
             new() { Description = "Removed", Id = (int)OrganisationStatus.Removed, IsSelected = status == OrganisationStatus.Removed }
+        };
+    }
+
+    private static string MatchingStatusText(OrganisationStatus status)
+    {
+        return status switch
+        {
+            OrganisationStatus.ActiveNoStarts => "active but not taking on apprentices",
+            OrganisationStatus.OnBoarding => "on-boarding",
+            OrganisationStatus.Removed => "removed",
+            _ => "active"
         };
     }
 }

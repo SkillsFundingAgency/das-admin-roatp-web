@@ -29,7 +29,6 @@ public class OrganisationsServicesTests
         sessionServiceMock.Verify(x => x.Set<List<OrganisationModel>>(SessionKeys.GetOrganisations, It.IsAny<List<OrganisationModel>>()), Times.Never);
     }
 
-
     [Test, MoqAutoData]
     public async Task GetOrganisations_NotInSession_PutInSessionAndReturned(
         [Frozen] Mock<IOuterApiClient> clientMock,
