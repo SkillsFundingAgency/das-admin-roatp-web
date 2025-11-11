@@ -9,26 +9,26 @@ namespace SFA.DAS.Admin.Roatp.Web.Services;
 
 public class OrganisationPatchService(IOuterApiClient _outerApiClient, IHttpContextAccessor _contextAccessor) : IOrganisationPatchService
 {
-    public async Task<bool> OrganisationPatched(int ukprn, GetOrganisationResponse organisationResponse, PatchOrganisationModel patchModel, CancellationToken cancellationToken)
+    public async Task<bool> OrganisationPatched(int ukprn, GetOrganisationResponse getOrganisationResponse, PatchOrganisationModel patchModel, CancellationToken cancellationToken)
     {
         var patchDoc = new JsonPatchDocument<PatchOrganisationModel>();
 
-        if (organisationResponse.Status != patchModel.Status)
+        if (getOrganisationResponse.Status != patchModel.Status)
         {
             patchDoc.Replace(o => o.Status, patchModel.Status);
         }
 
-        if (organisationResponse.OrganisationTypeId != patchModel.OrganisationTypeId)
+        if (getOrganisationResponse.OrganisationTypeId != patchModel.OrganisationTypeId)
         {
             patchDoc.Replace(o => o.OrganisationTypeId, patchModel.OrganisationTypeId);
         }
 
-        if (organisationResponse.ProviderType != patchModel.ProviderType)
+        if (getOrganisationResponse.ProviderType != patchModel.ProviderType)
         {
             patchDoc.Replace(o => o.ProviderType, patchModel.ProviderType);
         }
 
-        if (organisationResponse.RemovedReasonId != patchModel.RemovedReasonId)
+        if (getOrganisationResponse.RemovedReasonId != patchModel.RemovedReasonId)
         {
             patchDoc.Replace(o => o.RemovedReasonId, patchModel.RemovedReasonId);
         }
