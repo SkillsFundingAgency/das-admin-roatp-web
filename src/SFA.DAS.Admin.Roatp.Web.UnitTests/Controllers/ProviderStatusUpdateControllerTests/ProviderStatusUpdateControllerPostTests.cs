@@ -47,12 +47,10 @@ public class ProviderStatusUpdateControllerPostTests
         CancellationToken cancellationToken)
     {
         getOrganisationResponse.Status = status;
-        viewModel.OrganisationStatus = getOrganisationResponse.Status;
-        getOrganisationResponse.Ukprn = ukprn;
-        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
-            .ReturnsAsync(getOrganisationResponse);
+        viewModel.OrganisationStatus = getOrganisationResponse.Status; getOrganisationResponse.Ukprn = ukprn;
 
-        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
+
+        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, It.IsAny<GetOrganisationResponse>(), It.IsAny<PatchOrganisationModel>(), cancellationToken))!
             .ReturnsAsync(false);
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
@@ -82,7 +80,7 @@ public class ProviderStatusUpdateControllerPostTests
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(getOrganisationResponse);
 
-        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
+        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, getOrganisationResponse, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
             .ReturnsAsync(true);
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);

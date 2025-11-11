@@ -54,9 +54,9 @@ public class ProviderTypeUpdateControllerGetTests
         model.ProviderTypes.Should().BeEquivalentTo(expectedOrganisationTypes);
     }
 
-    private static List<OrganisationRouteSelectionModel> BuildProviderTypes(int providerTypeId)
+    private static List<ProviderTypeSelectionModel> BuildProviderTypes(int providerTypeId)
     {
-        return new List<OrganisationRouteSelectionModel>
+        return new List<ProviderTypeSelectionModel>
         {
             new() { Description = "Main provider", Id = (int)ProviderType.Main, IsSelected = providerTypeId == (int)ProviderType.Main },
             new() { Description = "Employer provider", Id = (int)ProviderType.Employer, IsSelected = providerTypeId == (int)ProviderType.Employer },

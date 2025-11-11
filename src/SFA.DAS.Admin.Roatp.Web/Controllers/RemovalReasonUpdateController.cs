@@ -67,7 +67,7 @@ public class RemovalReasonUpdateController(IOuterApiClient _outerApiClient, IOrg
         patchModel.Status = OrganisationStatus.Removed;
         patchModel.RemovedReasonId = model.RemovalReasonId;
 
-        var organisationPatched = await _organisationPatchService.OrganisationPatched(ukprn, patchModel, cancellationToken);
+        var organisationPatched = await _organisationPatchService.OrganisationPatched(ukprn, organisationResponse, patchModel, cancellationToken);
 
         return RedirectToRoute(!organisationPatched
             ? RouteNames.ProviderSummary

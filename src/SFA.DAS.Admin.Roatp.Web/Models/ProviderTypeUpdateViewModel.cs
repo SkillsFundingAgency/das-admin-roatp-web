@@ -4,7 +4,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Models;
 
 public class ProviderTypeUpdateViewModel : IBackLink
 {
-    public List<OrganisationRouteSelectionModel> ProviderTypes { get; set; } = new();
+    public List<ProviderTypeSelectionModel> ProviderTypes { get; set; } = new();
     public required int ProviderTypeId { get; set; }
 
 }

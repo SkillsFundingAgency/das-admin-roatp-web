@@ -9,9 +9,10 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
 [Route("providers/{ukprn}/route", Name = RouteNames.ProviderTypeUpdate)]
+[Authorize(Roles = Roles.RoatpAdminTeam)]
 public class ProviderTypeUpdateController(IOuterApiClient _outerApiClient, IOrganisationPatchService _organisationPatchService) : Controller
 {
-    [Authorize(Roles = Roles.RoatpAdminTeam)]
+
     public async Task<IActionResult> Index(string ukprn, CancellationToken cancellationToken)
     {
         var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
@@ -38,14 +39,14 @@ public class ProviderTypeUpdateController(IOuterApiClient _outerApiClient, IOrga
         PatchOrganisationModel patchModel = organisationResponse;
         patchModel.ProviderType = (ProviderType)model.ProviderTypeId;
 
-        await _organisationPatchService.OrganisationPatched(ukprn, patchModel, cancellationToken);
+        await _organisationPatchService.OrganisationPatched(ukprn, organisationResponse, patchModel, cancellationToken);
 
         return RedirectToRoute(RouteNames.ProviderSummary, new { ukprn });
     }
 
-    private static List<OrganisationRouteSelectionModel> BuildProviderTypes(int providerTypeId)
+    private static List<ProviderTypeSelectionModel> BuildProviderTypes(int providerTypeId)
     {
-        return new List<OrganisationRouteSelectionModel>
+        return new List<ProviderTypeSelectionModel>
         {
             new() { Description = "Main provider", Id = (int)ProviderType.Main, IsSelected = providerTypeId == (int)ProviderType.Main },
             new() { Description = "Employer provider", Id = (int)ProviderType.Employer, IsSelected = providerTypeId == (int)ProviderType.Employer },

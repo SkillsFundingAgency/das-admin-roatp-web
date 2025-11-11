@@ -49,7 +49,7 @@ public class ProviderTypeUpdateControllerPostTests
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(getOrganisationResponse);
 
-        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
+        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, getOrganisationResponse, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
             .ReturnsAsync(false);
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
@@ -81,7 +81,7 @@ public class ProviderTypeUpdateControllerPostTests
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(getOrganisationResponse);
 
-        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
+        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, getOrganisationResponse, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
             .ReturnsAsync(true);
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
@@ -117,7 +117,7 @@ public class ProviderTypeUpdateControllerPostTests
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(getOrganisationResponse);
 
-        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
+        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, getOrganisationResponse, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
             .ReturnsAsync(true);
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
@@ -155,7 +155,7 @@ public class ProviderTypeUpdateControllerPostTests
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(getOrganisationResponse);
 
-        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
+        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, getOrganisationResponse, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
             .ReturnsAsync(true);
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);

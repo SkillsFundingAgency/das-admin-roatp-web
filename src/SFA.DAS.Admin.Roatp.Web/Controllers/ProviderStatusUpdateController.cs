@@ -45,7 +45,7 @@ public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IOr
         PatchOrganisationModel patchModel = organisationResponse;
         patchModel.Status = model.OrganisationStatus;
 
-        var organisationPatched = await _organisationPatchService.OrganisationPatched(ukprn, patchModel, cancellationToken);
+        var organisationPatched = await _organisationPatchService.OrganisationPatched(ukprn, organisationResponse, patchModel, cancellationToken);
 
         return RedirectToRoute(!organisationPatched
             ? RouteNames.ProviderSummary
