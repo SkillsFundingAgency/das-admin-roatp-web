@@ -7,17 +7,15 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
-using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ProviderSummaryControllerTests;
-public class GetProviderSummaryControllerTests
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ProviderTypeUpdateControllerTests;
+public class ProviderTypeUpdateControllerGetTests
 {
     [Test, MoqAutoData]
     public async Task Get_NoMatchingDetails_RedirectToHome(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] EditOrganisationSessionModel _editOrganisationSessionModel,
-        [Greedy] ProviderSummaryController sut,
+        [Greedy] ProviderTypeUpdateController sut,
         string ukprn,
         CancellationToken cancellationToken)
     {
@@ -32,34 +30,37 @@ public class GetProviderSummaryControllerTests
     }
 
     [Test, MoqAutoData]
-    public async Task Get_MatchingDetails_SetSessionAndRedirect(
+    public async Task Get_MatchingDetails_BuildViewModel(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] EditOrganisationSessionModel _editOrganisationSessionModel,
-        [Greedy] ProviderSummaryController sut,
+        [Greedy] ProviderTypeUpdateController sut,
         string selectOrganisationLink,
-        string providerStatusUpdateLink,
-        string providerTypeUpdateLink,
         GetOrganisationResponse getOrganisationResponse,
         int ukprn,
+        ProviderType providerType,
         CancellationToken cancellationToken)
     {
         getOrganisationResponse.Ukprn = ukprn;
-        _editOrganisationSessionModel.Ukprn = ukprn;
-        sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.SelectProvider, selectOrganisationLink)
-            .AddUrlForRoute(RouteNames.ProviderStatusUpdate, providerStatusUpdateLink)
-            .AddUrlForRoute(RouteNames.ProviderTypeUpdate, providerTypeUpdateLink);
-
+        getOrganisationResponse.ProviderType = providerType;
+        var providerTypeId = (int)getOrganisationResponse.ProviderType;
+        var expectedOrganisationTypes = BuildProviderTypes(providerTypeId);
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn.ToString(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(getOrganisationResponse);
 
-        var actual = await sut.Index(_editOrganisationSessionModel.Ukprn.ToString(), cancellationToken) as ViewResult;
+        var actual = await sut.Index(ukprn.ToString(), cancellationToken) as ViewResult;
         actual.Should().NotBeNull();
-        var model = actual.Model as ProviderSummaryViewModel;
+        var model = actual.Model as ProviderTypeUpdateViewModel;
         model.Should().NotBeNull();
-        model.Ukprn.Should().Be(ukprn);
-        model.SearchProviderUrl.Should().Be(selectOrganisationLink);
-        model.StatusChangeLink.Should().Be(providerStatusUpdateLink);
-        model.ProviderTypeChangeLink.Should().Be(providerTypeUpdateLink);
+        model.ProviderTypeId.Should().Be((int)getOrganisationResponse.ProviderType);
+        model.ProviderTypes.Should().BeEquivalentTo(expectedOrganisationTypes);
+    }
+
+    private static List<ProviderTypeSelectionModel> BuildProviderTypes(int providerTypeId)
+    {
+        return new List<ProviderTypeSelectionModel>
+        {
+            new() { Description = "Main provider", Id = (int)ProviderType.Main, IsSelected = providerTypeId == (int)ProviderType.Main },
+            new() { Description = "Employer provider", Id = (int)ProviderType.Employer, IsSelected = providerTypeId == (int)ProviderType.Employer },
+            new() { Description = "Supporting provider", Id = (int)ProviderType.Supporting, IsSelected = providerTypeId == (int)ProviderType.Supporting },
+        };
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.JsonPatch;
+﻿using System.Net;
+using Microsoft.AspNetCore.JsonPatch;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
@@ -8,46 +9,41 @@ namespace SFA.DAS.Admin.Roatp.Web.Services;
 
 public class OrganisationPatchService(IOuterApiClient _outerApiClient, IHttpContextAccessor _contextAccessor) : IOrganisationPatchService
 {
-    public async Task<bool> OrganisationPatched(int ukprn, PatchOrganisationModel patchModel, CancellationToken cancellationToken)
+    public async Task<bool> OrganisationPatched(int ukprn, GetOrganisationResponse getOrganisationResponse, PatchOrganisationModel patchModel, CancellationToken cancellationToken)
     {
-        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn.ToString(), cancellationToken);
-
         var patchDoc = new JsonPatchDocument<PatchOrganisationModel>();
 
-        if (organisationResponse.Status != patchModel.Status)
+        if (getOrganisationResponse.Status != patchModel.Status)
         {
             patchDoc.Replace(o => o.Status, patchModel.Status);
         }
 
-        if (organisationResponse.OrganisationTypeId != patchModel.OrganisationTypeId)
+        if (getOrganisationResponse.OrganisationTypeId != patchModel.OrganisationTypeId)
         {
             patchDoc.Replace(o => o.OrganisationTypeId, patchModel.OrganisationTypeId);
         }
 
-        if (organisationResponse.ProviderType != patchModel.ProviderType)
+        if (getOrganisationResponse.ProviderType != patchModel.ProviderType)
         {
             patchDoc.Replace(o => o.ProviderType, patchModel.ProviderType);
         }
 
-        if (organisationResponse.RemovedReasonId != patchModel.RemovedReasonId)
+        if (getOrganisationResponse.RemovedReasonId != patchModel.RemovedReasonId)
         {
             patchDoc.Replace(o => o.RemovedReasonId, patchModel.RemovedReasonId);
         }
 
-        if (!ChangeMade(patchModel, organisationResponse)) return false;
+        if (!ChangeMade(patchDoc)) return false;
 
         string userDisplayName = _contextAccessor.HttpContext!.User.UserDisplayName();
-        await _outerApiClient.PatchOrganisation(ukprn.ToString(), userDisplayName, patchDoc, cancellationToken);
 
-        return true;
+        var response = await _outerApiClient.PatchOrganisation(ukprn.ToString(), userDisplayName, patchDoc, cancellationToken);
+
+        return response.StatusCode == HttpStatusCode.NoContent;
     }
 
-
-    private static bool ChangeMade(PatchOrganisationModel newPatchModel, GetOrganisationResponse currentDetails)
+    private static bool ChangeMade(JsonPatchDocument<PatchOrganisationModel> model)
     {
-        return currentDetails.Status != newPatchModel.Status
-               || currentDetails.OrganisationTypeId != newPatchModel.OrganisationTypeId
-               || currentDetails.ProviderType != newPatchModel.ProviderType
-               || currentDetails.RemovedReasonId != newPatchModel.RemovedReasonId;
+        return model.Operations.Count > 0;
     }
 }

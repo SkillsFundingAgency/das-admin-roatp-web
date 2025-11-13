@@ -74,7 +74,7 @@ public class RemovalReasonUpdateControllerPostTests
         var validationResult = new ValidationResult();
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
-        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
+        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, It.IsAny<GetOrganisationResponse>(), It.IsAny<PatchOrganisationModel>(), cancellationToken))!
             .ReturnsAsync(false);
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
@@ -102,7 +102,7 @@ public class RemovalReasonUpdateControllerPostTests
         var validationResult = new ValidationResult();
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
-        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
+        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, It.IsAny<GetOrganisationResponse>(), It.IsAny<PatchOrganisationModel>(), cancellationToken))!
             .ReturnsAsync(true);
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);

@@ -1,9 +1,11 @@
-﻿using System.Security.Claims;
+﻿using System.Net;
+using System.Security.Claims;
 using AutoFixture.NUnit3;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Moq;
+using Refit;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
@@ -24,14 +26,12 @@ public class OrganisationPatchServiceOrganisationPatchedTests
     )
     {
         getOrganisationResponse.Ukprn = ukprn;
-        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn.ToString(), It.IsAny<CancellationToken>()))!
-            .ReturnsAsync(getOrganisationResponse);
+
         PatchOrganisationModel patchModel = getOrganisationResponse;
-        var changed = await sut.OrganisationPatched(ukprn, patchModel, cancellationToken);
+        var changed = await sut.OrganisationPatched(ukprn, getOrganisationResponse, patchModel, cancellationToken);
 
 
         changed.Should().Be(false);
-        outerApiClientMock.Verify(c => c.GetOrganisation(ukprn.ToString(), cancellationToken), Times.Once);
         outerApiClientMock.Verify(
             c => c.PatchOrganisation(ukprn.ToString(), It.IsAny<string>(),
                 It.IsAny<JsonPatchDocument<PatchOrganisationModel>>(), cancellationToken), Times.Never);
@@ -56,8 +56,10 @@ public class OrganisationPatchServiceOrganisationPatchedTests
         getOrganisationResponse.RemovedReasonId = organisationDetails.RemovedReasonId;
         getOrganisationResponse.OrganisationTypeId = organisationDetails.OrganisationTypeId;
 
-        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn.ToString(), It.IsAny<CancellationToken>()))!
-            .ReturnsAsync(getOrganisationResponse);
+        ApiResponse<HttpStatusCode> apiResponse = new ApiResponse<HttpStatusCode>(new HttpResponseMessage(HttpStatusCode.NoContent), HttpStatusCode.NoContent, new RefitSettings(), null);
+
+        outerApiClientMock.Setup(x => x.PatchOrganisation(ukprn.ToString(), It.IsAny<string>(), It.IsAny<JsonPatchDocument<PatchOrganisationModel>>(), cancellationToken))!
+            .ReturnsAsync(apiResponse);
 
         var user = new ClaimsPrincipal(new ClaimsIdentity(
             new Claim[]
@@ -69,11 +71,9 @@ public class OrganisationPatchServiceOrganisationPatchedTests
         context.Setup(x => x.HttpContext).Returns(new DefaultHttpContext { User = user });
 
         OrganisationPatchService sut = new OrganisationPatchService(outerApiClientMock.Object, context.Object);
-        var changed = await sut.OrganisationPatched(ukprn, patchModelApplied, cancellationToken);
-
+        var changed = await sut.OrganisationPatched(ukprn, getOrganisationResponse, patchModelApplied, cancellationToken);
 
         changed.Should().Be(true);
-        outerApiClientMock.Verify(c => c.GetOrganisation(ukprn.ToString(), cancellationToken), Times.Once);
         outerApiClientMock.Verify(
             c => c.PatchOrganisation(ukprn.ToString(), It.IsAny<string>(),
                 It.IsAny<JsonPatchDocument<PatchOrganisationModel>>(), cancellationToken), Times.Once);
