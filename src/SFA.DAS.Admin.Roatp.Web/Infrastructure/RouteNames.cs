@@ -13,4 +13,5 @@ public static class RouteNames
     public const string ProviderRemovalReasonUpdate = nameof(ProviderRemovalReasonUpdate);
     public const string ProviderStatusUpdateConfirmed = nameof(ProviderStatusUpdateConfirmed);
     public const string ProviderTypeUpdate = nameof(ProviderTypeUpdate);
+    public const string OrganisationTypeUpdate = nameof(OrganisationTypeUpdate);
 }

@@ -22,4 +22,7 @@ public interface IOuterApiClient
 
     [Get("/removed-reasons")]
     Task<GetRemovalReasonsResponse> GetRemovalReasons(CancellationToken cancellationToken);
+
+    [Get("/organisation-types")]
+    Task<GetOrganisationTypesResponse> GetOrganisationTypes(CancellationToken cancellationToken);
 }
