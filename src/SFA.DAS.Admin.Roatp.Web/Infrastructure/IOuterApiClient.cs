@@ -25,4 +25,10 @@ public interface IOuterApiClient
 
     [Get("/organisation-types")]
     Task<GetOrganisationTypesResponse> GetOrganisationTypes(CancellationToken cancellationToken);
+
+    [Put("/organisations/{ukprn}/course-types")]
+    Task PutCourseTypes(int ukprn, [Body] UpdateCourseTypesModel updateCourseTypesModel, CancellationToken cancellationToken);
+
+    [Delete("/organisations/{ukprn}/short-courses")]
+    Task DeleteShortCourses(int ukprn, [Header(RequestHeaders.RequestingUserIdHeader)] string userId, CancellationToken cancellationToken);
 }
