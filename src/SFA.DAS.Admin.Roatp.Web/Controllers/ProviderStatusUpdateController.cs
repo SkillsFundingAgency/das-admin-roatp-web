@@ -14,7 +14,7 @@ public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IOr
     private readonly string _providerStatusConfirmed = "~/Views/ProviderStatusUpdate/ProviderStatusConfirmation.cshtml";
 
     [Authorize(Roles = Roles.RoatpAdminTeam)]
-    public async Task<IActionResult> Index(string ukprn, CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
     {
         var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
@@ -33,7 +33,7 @@ public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IOr
     public async Task<IActionResult> Index(int ukprn, OrganisationStatusUpdateViewModel model,
         CancellationToken cancellationToken)
     {
-        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn.ToString(), cancellationToken);
+        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
         if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
 
@@ -55,7 +55,7 @@ public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IOr
 
     [Authorize(Roles = Roles.RoatpAdminTeam)]
     [Route("confirmed", Name = RouteNames.ProviderStatusUpdateConfirmed)]
-    public async Task<IActionResult> ProviderStatusUpdateConfirmed(string ukprn, CancellationToken cancellationToken)
+    public async Task<IActionResult> ProviderStatusUpdateConfirmed(int ukprn, CancellationToken cancellationToken)
     {
         var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 

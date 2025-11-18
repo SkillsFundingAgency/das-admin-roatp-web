@@ -19,7 +19,7 @@ public class OrganisationTypeUpdateControllerGetTests
        int ukprn,
        CancellationToken cancellationToken)
     {
-        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync((GetOrganisationResponse)null!);
 
         var actual = await sut.Index(ukprn, cancellationToken);
@@ -47,7 +47,7 @@ public class OrganisationTypeUpdateControllerGetTests
             item.IsSelected = item.Id == getOrganisationResponse.OrganisationTypeId;
         }
 
-        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn.ToString(), It.IsAny<CancellationToken>()))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))!
             .ReturnsAsync(getOrganisationResponse);
         outerApiClientMock.Setup(x => x.GetOrganisationTypes(It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new GetOrganisationTypesResponse { OrganisationTypes = organisationTypes });

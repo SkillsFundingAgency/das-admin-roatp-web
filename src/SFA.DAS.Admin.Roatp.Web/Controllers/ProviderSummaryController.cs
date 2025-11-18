@@ -10,7 +10,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 public class ProviderSummaryController(IOuterApiClient _outerApiClient) : Controller
 {
     [HttpGet]
-    public async Task<IActionResult> Index(string ukprn, CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
     {
         var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
@@ -21,6 +21,7 @@ public class ProviderSummaryController(IOuterApiClient _outerApiClient) : Contro
         model.StatusChangeLink = Url.RouteUrl(RouteNames.ProviderStatusUpdate, new { ukprn })!;
         model.ProviderTypeChangeLink = Url.RouteUrl(RouteNames.ProviderTypeUpdate, new { ukprn })!;
         model.OrganisationTypeChangeLink = Url.RouteUrl(RouteNames.OrganisationTypeUpdate, new { ukprn })!;
+        model.OffersApprenticeshipUnitsChangeLink = Url.RouteUrl(RouteNames.ApprenticeshipUnitsUpdate, new { ukprn })!;
         return View(model);
     }
 }

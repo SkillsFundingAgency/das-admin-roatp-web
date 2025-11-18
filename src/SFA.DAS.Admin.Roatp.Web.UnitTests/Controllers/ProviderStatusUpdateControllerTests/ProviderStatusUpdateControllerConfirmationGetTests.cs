@@ -17,10 +17,10 @@ public class ProviderStatusUpdateControllerConfirmationGetTests
     public async Task Get_NoMatchingDetails_RedirectToHome(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] ProviderStatusUpdateController sut,
-        string ukprn,
+        int ukprn,
         CancellationToken cancellationToken)
     {
-        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync((GetOrganisationResponse)null!);
 
         var actual = await sut.ProviderStatusUpdateConfirmed(ukprn, cancellationToken);
@@ -56,16 +56,16 @@ public class ProviderStatusUpdateControllerConfirmationGetTests
         {
             LegalName = getOrganisationResponse.LegalName,
             OrganisationStatus = getOrganisationResponse.Status,
-            Ukprn = ukprn.ToString(),
+            Ukprn = ukprn,
             StatusText = MatchingStatusText(getOrganisationResponse.Status),
             ProviderSummaryLink = providerSummaryLink,
             SelectTrainingProviderLink = selectTrainingProviderLink
         };
 
-        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(getOrganisationResponse);
 
-        var actual = await sut.ProviderStatusUpdateConfirmed(ukprn.ToString(), cancellationToken) as ViewResult;
+        var actual = await sut.ProviderStatusUpdateConfirmed(ukprn, cancellationToken) as ViewResult;
 
         actual.Should().NotBeNull();
         var model = actual!.Model as ProviderStatusConfirmationViewModel;

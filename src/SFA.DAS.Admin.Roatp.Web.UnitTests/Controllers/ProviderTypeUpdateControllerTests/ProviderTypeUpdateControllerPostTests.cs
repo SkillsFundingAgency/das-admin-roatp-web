@@ -22,7 +22,7 @@ public class ProviderTypeUpdateControllerPostTests
        int ukprn,
        CancellationToken cancellationToken)
     {
-        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync((GetOrganisationResponse)null!);
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
@@ -46,7 +46,7 @@ public class ProviderTypeUpdateControllerPostTests
         getOrganisationResponse.ProviderType = providerType;
         viewModel.ProviderTypeId = (int)getOrganisationResponse.ProviderType;
         getOrganisationResponse.Ukprn = ukprn;
-        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(getOrganisationResponse);
 
         organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, getOrganisationResponse, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
@@ -78,7 +78,7 @@ public class ProviderTypeUpdateControllerPostTests
         getOrganisationResponse.ProviderType = providerType;
         viewModel.ProviderTypeId = (int)providerTypeChange;
         getOrganisationResponse.Ukprn = ukprn;
-        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(getOrganisationResponse);
 
         organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, getOrganisationResponse, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
@@ -89,7 +89,7 @@ public class ProviderTypeUpdateControllerPostTests
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
         result!.RouteName.Should().Be(RouteNames.ProviderSummary);
-        outerApiClientMock.Verify(o => o.GetOrganisation(ukprn.ToString(), cancellationToken), Times.Once);
+        outerApiClientMock.Verify(o => o.GetOrganisation(ukprn, cancellationToken), Times.Once);
     }
 
     [Test]
@@ -114,7 +114,7 @@ public class ProviderTypeUpdateControllerPostTests
         getOrganisationResponse.ProviderType = providerType;
         viewModel.ProviderTypeId = (int)providerTypeChange;
         getOrganisationResponse.Ukprn = ukprn;
-        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(getOrganisationResponse);
 
         organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, getOrganisationResponse, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
@@ -125,7 +125,7 @@ public class ProviderTypeUpdateControllerPostTests
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
         result!.RouteName.Should().Be(RouteNames.ProviderSummary);
-        outerApiClientMock.Verify(o => o.GetOrganisation(ukprn.ToString(), cancellationToken), Times.Once);
+        outerApiClientMock.Verify(o => o.GetOrganisation(ukprn, cancellationToken), Times.Once);
     }
 
     [Test]
@@ -152,7 +152,7 @@ public class ProviderTypeUpdateControllerPostTests
         getOrganisationResponse.ProviderType = providerType;
         viewModel.ProviderTypeId = (int)providerTypeChange;
         getOrganisationResponse.Ukprn = ukprn;
-        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(getOrganisationResponse);
 
         organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, getOrganisationResponse, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
@@ -163,6 +163,6 @@ public class ProviderTypeUpdateControllerPostTests
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
         result!.RouteName.Should().Be(RouteNames.ProviderSummary);
-        outerApiClientMock.Verify(o => o.GetOrganisation(ukprn.ToString(), cancellationToken), Times.Once);
+        outerApiClientMock.Verify(o => o.GetOrganisation(ukprn, cancellationToken), Times.Once);
     }
 }

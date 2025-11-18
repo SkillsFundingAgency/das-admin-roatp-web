@@ -33,7 +33,7 @@ public class OrganisationPatchServiceOrganisationPatchedTests
 
         changed.Should().Be(false);
         outerApiClientMock.Verify(
-            c => c.PatchOrganisation(ukprn.ToString(), It.IsAny<string>(),
+            c => c.PatchOrganisation(ukprn, It.IsAny<string>(),
                 It.IsAny<JsonPatchDocument<PatchOrganisationModel>>(), cancellationToken), Times.Never);
     }
 
@@ -58,7 +58,7 @@ public class OrganisationPatchServiceOrganisationPatchedTests
 
         ApiResponse<HttpStatusCode> apiResponse = new ApiResponse<HttpStatusCode>(new HttpResponseMessage(HttpStatusCode.NoContent), HttpStatusCode.NoContent, new RefitSettings(), null);
 
-        outerApiClientMock.Setup(x => x.PatchOrganisation(ukprn.ToString(), It.IsAny<string>(), It.IsAny<JsonPatchDocument<PatchOrganisationModel>>(), cancellationToken))!
+        outerApiClientMock.Setup(x => x.PatchOrganisation(ukprn, It.IsAny<string>(), It.IsAny<JsonPatchDocument<PatchOrganisationModel>>(), cancellationToken))!
             .ReturnsAsync(apiResponse);
 
         var user = new ClaimsPrincipal(new ClaimsIdentity(
@@ -75,7 +75,7 @@ public class OrganisationPatchServiceOrganisationPatchedTests
 
         changed.Should().Be(true);
         outerApiClientMock.Verify(
-            c => c.PatchOrganisation(ukprn.ToString(), It.IsAny<string>(),
+            c => c.PatchOrganisation(ukprn, It.IsAny<string>(),
                 It.IsAny<JsonPatchDocument<PatchOrganisationModel>>(), cancellationToken), Times.Once);
     }
 

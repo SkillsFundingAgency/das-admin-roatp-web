@@ -5,3 +5,4 @@ public class AllowedCourseType
     public string CourseTypeName { get; set; } = string.Empty;
     public LearningType LearningType { get; set; }
 }
+

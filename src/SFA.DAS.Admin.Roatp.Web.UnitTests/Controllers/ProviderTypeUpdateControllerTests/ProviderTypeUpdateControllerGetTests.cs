@@ -16,10 +16,10 @@ public class ProviderTypeUpdateControllerGetTests
     public async Task Get_NoMatchingDetails_RedirectToHome(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] ProviderTypeUpdateController sut,
-        string ukprn,
+        int ukprn,
         CancellationToken cancellationToken)
     {
-        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync((GetOrganisationResponse)null!);
 
         var actual = await sut.Index(ukprn, cancellationToken);
@@ -43,10 +43,10 @@ public class ProviderTypeUpdateControllerGetTests
         getOrganisationResponse.ProviderType = providerType;
         var providerTypeId = (int)getOrganisationResponse.ProviderType;
         var expectedOrganisationTypes = BuildProviderTypes(providerTypeId);
-        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn.ToString(), It.IsAny<CancellationToken>()))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))!
             .ReturnsAsync(getOrganisationResponse);
 
-        var actual = await sut.Index(ukprn.ToString(), cancellationToken) as ViewResult;
+        var actual = await sut.Index(ukprn, cancellationToken) as ViewResult;
         actual.Should().NotBeNull();
         var model = actual.Model as ProviderTypeUpdateViewModel;
         model.Should().NotBeNull();

@@ -23,7 +23,7 @@ public class RemovalReasonUpdateControllerPostTests
         int ukprn,
         CancellationToken cancellationToken)
     {
-        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<string>(), It.IsAny<CancellationToken>()))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync((GetOrganisationResponse)null!);
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
@@ -69,7 +69,7 @@ public class RemovalReasonUpdateControllerPostTests
     {
 
         getOrganisationResponse.Ukprn = ukprn;
-        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn.ToString(), cancellationToken))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
             .ReturnsAsync(getOrganisationResponse);
         var validationResult = new ValidationResult();
         validator.Setup(x => x.Validate(viewModel))
@@ -97,7 +97,7 @@ public class RemovalReasonUpdateControllerPostTests
     {
 
         getOrganisationResponse.Ukprn = ukprn;
-        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn.ToString(), cancellationToken))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
             .ReturnsAsync(getOrganisationResponse);
         var validationResult = new ValidationResult();
         validator.Setup(x => x.Validate(viewModel))

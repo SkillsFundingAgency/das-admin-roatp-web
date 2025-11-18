@@ -1,0 +1,45 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SFA.DAS.Admin.Roatp.Domain.Models
+@using SFA.DAS.Admin.Roatp.Web.Infrastructure
+@model SFA.DAS.Admin.Roatp.Web.Models.ApprenticeshipUnitsUpdateViewModel
+@{
+    ViewData["Title"] = "update apprenticeship units";
+    ViewData["Description"] = "update apprenticeship units";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <partial name="_validationSummary" />
+        <form asp-route="@RouteNames.ApprenticeshipUnitsUpdate" method="POST" enctype="multipart/form-data">
+            <input asp-for="OffersApprenticeships" id="OffersApprentices" type="hidden"/>
+            <div class="govuk-form-group" id="ApprenticeshipUnitsSelectionId">
+           
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                        <h1 class="govuk-fieldset__heading">
+                            Do they offer apprenticeship units?
+                        </h1>
+                    </legend>
+                    <div esfa-validation-marker-for="@Model.ApprenticeshipUnitsSelectionId" class="govuk-form-group">
+                    <span asp-validation-for="ApprenticeshipUnitsSelectionId" class="govuk-error-message"></span>
+                    <div class="govuk-radios" data-module="govuk-radios">
+                        @foreach (var selection in Model.ApprenticeshipUnitsSelection)
+                        {
+                            <div class="govuk-radios__item">
+                                <input name="ApprenticeshipUnitsSelectionId" class="govuk-radios__input" id="ApprenticeshipUnitId-@selection.Id" type="radio"
+                                       value="@selection.Id.ToString()" @selection.Checked>
+                                <label class="govuk-label govuk-radios__label" for="ApprenticeshipUnitId-@selection.Id">
+                                    @selection.Description
+                                </label>
+                            </div>
+                        }
+                    </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="govuk-button-group">
+                <button type="submit" id="continue" class="govuk-button" data-disable-on-submit="true">Confirm</button>
+            </div>
+        </form>
+    </div>
+</div>
