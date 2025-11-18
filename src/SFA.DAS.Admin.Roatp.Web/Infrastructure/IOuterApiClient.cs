@@ -1,9 +1,9 @@
-﻿using System.Net;
-using Microsoft.AspNetCore.JsonPatch;
+﻿using Microsoft.AspNetCore.JsonPatch;
 using Refit;
 using SFA.DAS.Admin.Roatp.Application.Constants;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
+using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.Infrastructure;
 public interface IOuterApiClient
@@ -16,6 +16,9 @@ public interface IOuterApiClient
 
     [Get("/organisations/{ukprn}")]
     Task<GetOrganisationResponse> GetOrganisation(int ukprn, CancellationToken cancellationToken);
+
+    [Get("/organisations/{ukprn}")]
+    Task<ApiResponse<GetOrganisationResponse>> GetOrganisationNew(int ukprn, CancellationToken cancellationToken);
 
     [Patch("/organisations/{ukprn}")]
     Task<ApiResponse<HttpStatusCode>> PatchOrganisation(int ukprn, [Header(RequestHeaders.RequestingUserIdHeader)] string userId, [Body] JsonPatchDocument<PatchOrganisationModel> patchDoc, CancellationToken cancellationToken);
@@ -31,4 +34,7 @@ public interface IOuterApiClient
 
     [Delete("/organisations/{ukprn}/short-courses")]
     Task DeleteShortCourses(int ukprn, [Header(RequestHeaders.RequestingUserIdHeader)] string userId, CancellationToken cancellationToken);
+
+    [Get("/organisations/{ukprn}/ukrlp-data")]
+    Task<ApiResponse<GetUkrlpResponse>> GetUkrlp(int ukprn, CancellationToken cancellationToken);
 }

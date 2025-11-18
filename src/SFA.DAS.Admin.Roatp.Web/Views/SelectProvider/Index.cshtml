@@ -1,0 +1,32 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SFA.DAS.Admin.Roatp.Web.Infrastructure
+@using SFA.DAS.Admin.Roatp.Web.Models
+@model SFA.DAS.Admin.Roatp.Web.Models.AddProviderViewModel
+@{
+    ViewData["Title"] = "What is the organisation’s UKPRN?";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <partial name="_validationSummary" />
+        <form asp-route="@RouteNames.AddProvider" method="POST">
+            <div class="govuk-form-group">
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                        <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">
+                            What is the organisation’s UKPRN?
+                        </h1>
+                    </legend>
+                    <p class="govuk-hint">Type in the organisation's UK provider reference number (UKPRN)</p>
+                </fieldset>
+                <span asp-validation-for="Ukprn" class="govuk-error-message"></span>
+                <input id="Ukprn" type="text" title="Type name or UKPRN here"
+                       asp-for="Ukprn" class="govuk-input" sfa-validationerror-class="form-control-error" />
+            </div>
+            <div class="govuk-button-group">
+                <button type="submit" id="continue" class="govuk-button" data-disable-on-submit="true">Continue</button>
+            </div>
+        </form>
+    </div>
+
+</div>
