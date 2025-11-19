@@ -43,6 +43,7 @@ public class ProviderStatusUpdateControllerConfirmationGetTests
         int ukprn,
         string providerSummaryLink,
         string selectTrainingProviderLink,
+        string addProviderLink,
         CancellationToken cancellationToken)
     {
         getOrganisationResponse.Ukprn = ukprn;
@@ -50,7 +51,8 @@ public class ProviderStatusUpdateControllerConfirmationGetTests
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderSummary, providerSummaryLink)
-            .AddUrlForRoute(RouteNames.SelectProvider, selectTrainingProviderLink);
+            .AddUrlForRoute(RouteNames.SelectProvider, selectTrainingProviderLink)
+            .AddUrlForRoute(RouteNames.AddProvider, addProviderLink); ;
 
         var expectedViewModel = new ProviderStatusConfirmationViewModel
         {
@@ -59,7 +61,8 @@ public class ProviderStatusUpdateControllerConfirmationGetTests
             Ukprn = ukprn,
             StatusText = MatchingStatusText(getOrganisationResponse.Status),
             ProviderSummaryLink = providerSummaryLink,
-            SelectTrainingProviderLink = selectTrainingProviderLink
+            SelectTrainingProviderLink = selectTrainingProviderLink,
+            AddNewTrainingProviderLink = addProviderLink,
         };
 
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!

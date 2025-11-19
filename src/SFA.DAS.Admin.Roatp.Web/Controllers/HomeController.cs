@@ -15,7 +15,6 @@ public class HomeController(IOptions<ApplicationConfiguration> _configuration, I
     public IActionResult Index()
     {
         string searchUrl = Url.RouteUrl(RouteNames.SelectProvider)!;
-
         string addProviderUrl = Url.RouteUrl(RouteNames.AddProvider)!;
         return View(new ManageTrainingProviderViewModel { SearchForTrainingProviderUrl = searchUrl, AddANewTrainingProviderUrl = addProviderUrl });
     }

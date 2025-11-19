@@ -68,7 +68,8 @@ public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IOr
             Ukprn = ukprn,
             StatusText = MatchingStatusText(organisationResponse.Status),
             ProviderSummaryLink = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!,
-            SelectTrainingProviderLink = Url.RouteUrl(RouteNames.SelectProvider)!
+            SelectTrainingProviderLink = Url.RouteUrl(RouteNames.SelectProvider)!,
+            AddNewTrainingProviderLink = Url.RouteUrl(RouteNames.AddProvider)!
         };
 
         return View(_providerStatusConfirmed, model);
