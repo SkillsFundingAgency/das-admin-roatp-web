@@ -22,8 +22,8 @@ public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IOr
 
         var model = new OrganisationStatusUpdateViewModel
         {
-            OrganisationStatus = organisationResponse.Status,
-            OrganisationStatuses = BuildOrganisationStatuses(organisationResponse.Status)
+            OrganisationStatus = organisationResponse.Content!.Status,
+            OrganisationStatuses = BuildOrganisationStatuses(organisationResponse.Content!.Status)
         };
 
         return View(model);
@@ -42,10 +42,10 @@ public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IOr
             return RedirectToRoute(RouteNames.ProviderRemovalReasonUpdate, new { ukprn });
         }
 
-        PatchOrganisationModel patchModel = organisationResponse;
+        PatchOrganisationModel patchModel = organisationResponse.Content!;
         patchModel.Status = model.OrganisationStatus;
 
-        var organisationPatched = await _organisationPatchService.OrganisationPatched(ukprn, organisationResponse, patchModel, cancellationToken);
+        var organisationPatched = await _organisationPatchService.OrganisationPatched(ukprn, organisationResponse.Content!, patchModel, cancellationToken);
 
         return RedirectToRoute(!organisationPatched
             ? RouteNames.ProviderSummary
@@ -63,10 +63,10 @@ public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IOr
 
         var model = new ProviderStatusConfirmationViewModel
         {
-            LegalName = organisationResponse.LegalName,
-            OrganisationStatus = organisationResponse.Status,
+            LegalName = organisationResponse.Content!.LegalName,
+            OrganisationStatus = organisationResponse.Content!.Status,
             Ukprn = ukprn,
-            StatusText = MatchingStatusText(organisationResponse.Status),
+            StatusText = MatchingStatusText(organisationResponse.Content!.Status),
             ProviderSummaryLink = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!,
             SelectTrainingProviderLink = Url.RouteUrl(RouteNames.SelectProvider)!,
             AddNewTrainingProviderLink = Url.RouteUrl(RouteNames.AddProvider)!

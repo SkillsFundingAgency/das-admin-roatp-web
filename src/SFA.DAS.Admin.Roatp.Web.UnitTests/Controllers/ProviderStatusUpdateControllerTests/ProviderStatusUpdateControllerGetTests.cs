@@ -2,6 +2,7 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Refit;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers;
@@ -20,7 +21,7 @@ public class ProviderStatusUpdateControllerGetTests
         CancellationToken cancellationToken)
     {
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
-            .ReturnsAsync((GetOrganisationResponse)null!);
+            .ReturnsAsync((ApiResponse<GetOrganisationResponse>)null!);
 
         var actual = await sut.Index(ukprn, cancellationToken);
         actual.Should().NotBeNull();
@@ -41,7 +42,7 @@ public class ProviderStatusUpdateControllerGetTests
         getOrganisationResponse.Ukprn = ukprn;
         var expectedOrganisationStatuses = BuildOrganisationStatuses(getOrganisationResponse.Status);
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))!
-            .ReturnsAsync(getOrganisationResponse);
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(), getOrganisationResponse, new RefitSettings(), null));
 
         var actual = await sut.Index(ukprn, cancellationToken) as ViewResult;
         actual.Should().NotBeNull();

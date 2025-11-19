@@ -4,6 +4,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Refit;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers;
@@ -24,7 +25,7 @@ public class RemovalReasonUpdateControllerPostTests
         CancellationToken cancellationToken)
     {
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
-            .ReturnsAsync((GetOrganisationResponse)null!);
+            .ReturnsAsync((ApiResponse<GetOrganisationResponse>)null!);
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
         actual.Should().NotBeNull();
@@ -37,7 +38,9 @@ public class RemovalReasonUpdateControllerPostTests
     public async Task And_SubmitViewModel_Is_Invalid_Reloads_View(
         RemovalReasonUpdateViewModel viewModel,
         [Frozen] Mock<IValidator<RemovalReasonUpdateViewModel>> validator,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] RemovalReasonUpdateController controller,
+        GetOrganisationResponse getOrganisationResponse,
         int ukprn,
         CancellationToken cancellationToken)
     {
@@ -46,6 +49,9 @@ public class RemovalReasonUpdateControllerPostTests
 
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
+
+        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(), getOrganisationResponse, new RefitSettings(), null));
 
         var actual = await controller.Index(ukprn, viewModel, cancellationToken);
 
@@ -70,7 +76,7 @@ public class RemovalReasonUpdateControllerPostTests
 
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
-            .ReturnsAsync(getOrganisationResponse);
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(), getOrganisationResponse, new RefitSettings(), null));
         var validationResult = new ValidationResult();
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
@@ -98,7 +104,7 @@ public class RemovalReasonUpdateControllerPostTests
 
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
-            .ReturnsAsync(getOrganisationResponse);
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(), getOrganisationResponse, new RefitSettings(), null));
         var validationResult = new ValidationResult();
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);

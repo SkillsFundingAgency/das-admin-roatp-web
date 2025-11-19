@@ -25,13 +25,13 @@ public class RemovalReasonUpdateController(IOuterApiClient _outerApiClient, IOrg
 
         foreach (var removalReason in removalReasonsResponse.ReasonsForRemoval)
         {
-            removalReasons.Add(new RemovalReasonModel { Id = removalReason.Id, Description = removalReason.Description, IsSelected = removalReason.Id == organisationResponse.RemovedReasonId });
+            removalReasons.Add(new RemovalReasonModel { Id = removalReason.Id, Description = removalReason.Description, IsSelected = removalReason.Id == organisationResponse.Content!.RemovedReasonId });
         }
 
         var model = new RemovalReasonUpdateViewModel
         {
             RemovedReasons = removalReasons.OrderBy(r => r.Description).ToList(),
-            RemovalReasonId = organisationResponse.RemovedReasonId
+            RemovalReasonId = organisationResponse.Content!.RemovedReasonId
         };
 
         return View(model);
@@ -53,7 +53,7 @@ public class RemovalReasonUpdateController(IOuterApiClient _outerApiClient, IOrg
             var viewModel = new RemovalReasonUpdateViewModel
             {
                 RemovedReasons = removalReasonsResponse.ReasonsForRemoval.OrderBy(r => r.Description).ToList(),
-                RemovalReasonId = organisationResponse.RemovedReasonId,
+                RemovalReasonId = organisationResponse.Content!.RemovedReasonId,
             };
             foreach (var error in result.Errors)
             {
@@ -63,11 +63,11 @@ public class RemovalReasonUpdateController(IOuterApiClient _outerApiClient, IOrg
             return View(viewModel);
         }
 
-        PatchOrganisationModel patchModel = organisationResponse;
+        PatchOrganisationModel patchModel = organisationResponse.Content!;
         patchModel.Status = OrganisationStatus.Removed;
         patchModel.RemovedReasonId = model.RemovalReasonId;
 
-        var organisationPatched = await _organisationPatchService.OrganisationPatched(ukprn, organisationResponse, patchModel, cancellationToken);
+        var organisationPatched = await _organisationPatchService.OrganisationPatched(ukprn, organisationResponse.Content!, patchModel, cancellationToken);
 
         return RedirectToRoute(!organisationPatched
             ? RouteNames.ProviderSummary

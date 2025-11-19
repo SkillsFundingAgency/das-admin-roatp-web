@@ -5,6 +5,7 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Refit;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
@@ -28,7 +29,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
       CancellationToken cancellationToken)
     {
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
-            .ReturnsAsync((GetOrganisationResponse)null!);
+            .ReturnsAsync((ApiResponse<GetOrganisationResponse>)null!);
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
         actual.Should().NotBeNull();
@@ -69,7 +70,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
 
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
-            .ReturnsAsync(getOrganisationResponse);
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(), getOrganisationResponse, new RefitSettings(), null));
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
         actual.Should().NotBeNull();
@@ -120,7 +121,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
 
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
-            .ReturnsAsync(getOrganisationResponse);
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(), getOrganisationResponse, new RefitSettings(), null));
 
 
         var expectedCourseTypeIds = currentCourseTypeIds;
@@ -189,7 +190,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
 
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
-            .ReturnsAsync(getOrganisationResponse);
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(), getOrganisationResponse, new RefitSettings(), null));
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
         actual.Should().NotBeNull();

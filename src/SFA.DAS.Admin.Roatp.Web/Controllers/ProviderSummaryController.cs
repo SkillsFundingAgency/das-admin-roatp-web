@@ -16,7 +16,7 @@ public class ProviderSummaryController(IOuterApiClient _outerApiClient) : Contro
 
         if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
 
-        ProviderSummaryViewModel model = organisationResponse;
+        ProviderSummaryViewModel model = organisationResponse.Content!;
         model.SearchProviderUrl = Url.RouteUrl(RouteNames.SelectProvider)!;
         model.StatusChangeLink = Url.RouteUrl(RouteNames.ProviderStatusUpdate, new { ukprn })!;
         model.ProviderTypeChangeLink = Url.RouteUrl(RouteNames.ProviderTypeUpdate, new { ukprn })!;

@@ -21,8 +21,8 @@ public class ProviderTypeUpdateController(IOuterApiClient _outerApiClient, IOrga
 
         var model = new ProviderTypeUpdateViewModel
         {
-            ProviderTypeId = (int)organisationResponse.ProviderType,
-            ProviderTypes = BuildProviderTypes((int)organisationResponse.ProviderType)
+            ProviderTypeId = (int)organisationResponse.Content!.ProviderType,
+            ProviderTypes = BuildProviderTypes((int)organisationResponse.Content!.ProviderType)
         };
 
         return View(model);

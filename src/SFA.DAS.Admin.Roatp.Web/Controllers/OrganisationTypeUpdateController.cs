@@ -23,14 +23,14 @@ public class OrganisationTypeUpdateController(IOuterApiClient _outerApiClient, I
 
         foreach (var organisationType in organisationTypesResponse.OrganisationTypes)
         {
-            organisationTypes.Add(new OrganisationTypeModel { Id = organisationType.Id, Description = organisationType.Description, IsSelected = organisationType.Id == organisationResponse.OrganisationTypeId });
+            organisationTypes.Add(new OrganisationTypeModel { Id = organisationType.Id, Description = organisationType.Description, IsSelected = organisationType.Id == organisationResponse.Content!.OrganisationTypeId });
         }
 
         var model = new OrganisationTypeUpdateViewModel
         {
-            LegalName = organisationResponse.LegalName,
+            LegalName = organisationResponse.Content!.LegalName,
             OrganisationTypes = organisationTypes.OrderBy(r => r.Id).ToList(),
-            OrganisationTypeId = organisationResponse.OrganisationTypeId
+            OrganisationTypeId = organisationResponse.Content!.OrganisationTypeId
         };
 
         return View(model);
@@ -44,10 +44,10 @@ public class OrganisationTypeUpdateController(IOuterApiClient _outerApiClient, I
 
         if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
 
-        PatchOrganisationModel patchModel = organisationResponse;
+        PatchOrganisationModel patchModel = organisationResponse.Content!;
         patchModel.OrganisationTypeId = model.OrganisationTypeId;
 
-        await _organisationPatchService.OrganisationPatched(ukprn, organisationResponse, patchModel, cancellationToken);
+        await _organisationPatchService.OrganisationPatched(ukprn, organisationResponse.Content!, patchModel, cancellationToken);
 
         return RedirectToRoute(RouteNames.ProviderSummary, new { ukprn });
     }

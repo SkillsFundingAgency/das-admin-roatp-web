@@ -15,10 +15,7 @@ public interface IOuterApiClient
     Task<GetOrganisationsResponse> GetOrganisations(CancellationToken cancellationToken);
 
     [Get("/organisations/{ukprn}")]
-    Task<GetOrganisationResponse> GetOrganisation(int ukprn, CancellationToken cancellationToken);
-
-    [Get("/organisations/{ukprn}")]
-    Task<ApiResponse<GetOrganisationResponse>> GetOrganisationNew(int ukprn, CancellationToken cancellationToken);
+    Task<ApiResponse<GetOrganisationResponse>> GetOrganisation(int ukprn, CancellationToken cancellationToken);
 
     [Patch("/organisations/{ukprn}")]
     Task<ApiResponse<HttpStatusCode>> PatchOrganisation(int ukprn, [Header(RequestHeaders.RequestingUserIdHeader)] string userId, [Body] JsonPatchDocument<PatchOrganisationModel> patchDoc, CancellationToken cancellationToken);

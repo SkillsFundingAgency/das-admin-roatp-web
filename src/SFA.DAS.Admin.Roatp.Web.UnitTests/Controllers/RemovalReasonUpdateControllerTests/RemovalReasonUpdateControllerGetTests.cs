@@ -2,6 +2,7 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Refit;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
@@ -19,7 +20,7 @@ public class RemovalReasonUpdateControllerGetTests
         CancellationToken cancellationToken)
     {
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
-            .ReturnsAsync((GetOrganisationResponse)null!);
+            .ReturnsAsync((ApiResponse<GetOrganisationResponse>)null!);
 
         var actual = await sut.Index(ukprn, cancellationToken);
         actual.Should().NotBeNull();
@@ -43,7 +44,7 @@ public class RemovalReasonUpdateControllerGetTests
         getOrganisationResponse.Ukprn = ukprn;
 
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))!
-            .ReturnsAsync(getOrganisationResponse);
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(), getOrganisationResponse, new RefitSettings(), null));
 
         outerApiClientMock.Setup(x => x.GetRemovalReasons(cancellationToken)).ReturnsAsync(getRemovalReasonsResponse);
 

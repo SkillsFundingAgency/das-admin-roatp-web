@@ -38,7 +38,7 @@ public class SelectProviderController(IValidator<AddProviderSubmitModel> _valida
             return View(viewModel);
         }
 
-        ApiResponse<GetOrganisationResponse> organisationResponse = await _outerApiClient.GetOrganisationNew(int.Parse(submitModel.Ukprn!), cancellationToken);
+        ApiResponse<GetOrganisationResponse> organisationResponse = await _outerApiClient.GetOrganisation(int.Parse(submitModel.Ukprn!), cancellationToken);
 
         if (organisationResponse.StatusCode == System.Net.HttpStatusCode.OK)
         {
