@@ -7,12 +7,13 @@ using SFA.DAS.Admin.Roatp.Web.Models;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.AddProvider;
 
+[Route("providers/new")]
 public class SelectProviderController(IValidator<AddProviderSubmitModel> _validator, IOuterApiClient _outerApiClient) : Controller
 {
     public const string ExistingUkprnValidationMessage = "This is an existing UKPRN for";
 
     [HttpGet]
-    [Route("providers/new/select", Name = RouteNames.AddProvider)]
+    [Route("select", Name = RouteNames.AddProvider)]
     public IActionResult Index()
     {
         AddProviderViewModel model = new();
@@ -21,7 +22,7 @@ public class SelectProviderController(IValidator<AddProviderSubmitModel> _valida
     }
 
     [HttpPost]
-    [Route("providers/new/select", Name = RouteNames.AddProvider)]
+    [Route("select", Name = RouteNames.AddProvider)]
     public async Task<IActionResult> Index(AddProviderSubmitModel submitModel, CancellationToken cancellationToken)
     {
         var result = _validator.Validate(submitModel);
@@ -59,7 +60,7 @@ public class SelectProviderController(IValidator<AddProviderSubmitModel> _valida
     }
 
     [HttpGet]
-    [Route("providers/new/not-found", Name = RouteNames.ProviderNotFoundInUkrlp)]
+    [Route("not-found", Name = RouteNames.ProviderNotFoundInUkrlp)]
     public IActionResult ProviderNotFoundInUkrlp()
     {
         var viewModel = new AddProviderViewModel();

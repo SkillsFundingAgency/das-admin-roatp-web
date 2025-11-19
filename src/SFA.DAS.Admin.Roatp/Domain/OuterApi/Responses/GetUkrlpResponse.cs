@@ -1,4 +1,8 @@
-﻿namespace SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
+
+[ExcludeFromCodeCoverage]
 public class GetUkrlpResponse
 {
     public string? LegalName { get; set; }
