@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
+using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
@@ -12,9 +14,11 @@ public class ProviderSummaryController(IOuterApiClient _outerApiClient) : Contro
     [HttpGet]
     public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
     {
-        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
+        var organisationApiResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
-        if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
+        if (organisationApiResponse.StatusCode != HttpStatusCode.OK) return RedirectToRoute(RouteNames.Home);
+
+        GetOrganisationResponse organisationResponse = organisationApiResponse.Content!;
 
         ProviderSummaryViewModel model = organisationResponse;
         model.SearchProviderUrl = Url.RouteUrl(RouteNames.SelectProvider)!;

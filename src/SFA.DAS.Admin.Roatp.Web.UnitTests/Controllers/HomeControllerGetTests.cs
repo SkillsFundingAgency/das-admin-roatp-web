@@ -21,12 +21,15 @@ public class HomeControllerGetTests
         [Greedy] HomeController sut)
     {
         var selectOrganisationLink = Guid.NewGuid().ToString();
-        sut.AddUrlHelperMock().AddUrlForRoute(RouteNames.SelectProvider, selectOrganisationLink);
+        var addProvideLink = Guid.NewGuid().ToString();
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.SelectProvider, selectOrganisationLink)
+            .AddUrlForRoute(RouteNames.AddProvider, addProvideLink);
 
         var result = sut.Index() as ViewResult;
         result.Should().NotBeNull();
         var model = result.Model as ManageTrainingProviderViewModel;
-        model!.AddANewTrainingProviderUrl.Should().Be("#");
+        model!.AddANewTrainingProviderUrl.Should().Be(addProvideLink);
         model.AddUkprnToAllowListUrl.Should().Be("#");
         model.SearchForTrainingProviderUrl.Should().Be(selectOrganisationLink);
     }
