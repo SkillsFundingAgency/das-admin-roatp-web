@@ -240,7 +240,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
 
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
-            .ReturnsAsync(getOrganisationResponse);
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
         actual.Should().NotBeNull();
@@ -299,7 +299,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
 
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
-            .ReturnsAsync(getOrganisationResponse);
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
         actual.Should().NotBeNull();
@@ -359,7 +359,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
 
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
-            .ReturnsAsync(getOrganisationResponse);
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
         actual.Should().NotBeNull();

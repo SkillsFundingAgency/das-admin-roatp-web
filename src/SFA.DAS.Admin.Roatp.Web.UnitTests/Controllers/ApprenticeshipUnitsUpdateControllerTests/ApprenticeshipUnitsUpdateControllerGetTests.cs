@@ -111,7 +111,7 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
                 };
 
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
-            .ReturnsAsync(getOrganisationResponse);
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
         var actual = await sut.Index(ukprn, cancellationToken) as ViewResult;
         actual.Should().NotBeNull();
