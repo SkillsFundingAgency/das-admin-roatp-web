@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.Models;
-using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Services;
@@ -18,8 +17,6 @@ public class ApprenticeshipsUpdateController(IOuterApiClient _outerApiClient, IS
         var organisationApiResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
         if (organisationApiResponse.StatusCode != HttpStatusCode.OK) return RedirectToRoute(RouteNames.Home);
-
-        GetOrganisationResponse organisationResponse = organisationApiResponse.Content!;
 
         var sessionModel = _sessionService.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes);
         if (sessionModel == null) return RedirectToRoute(RouteNames.Home);
@@ -46,8 +43,6 @@ public class ApprenticeshipsUpdateController(IOuterApiClient _outerApiClient, IS
         var organisationApiResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
         if (organisationApiResponse.StatusCode != HttpStatusCode.OK) return RedirectToRoute(RouteNames.Home);
-
-        GetOrganisationResponse organisationResponse = organisationApiResponse.Content!;
 
         var result = _validator.Validate(model);
 
