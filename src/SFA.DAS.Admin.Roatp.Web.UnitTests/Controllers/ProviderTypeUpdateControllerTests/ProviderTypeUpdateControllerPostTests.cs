@@ -62,9 +62,7 @@ public class ProviderTypeUpdateControllerPostTests
     [Test]
     [MoqInlineAutoData(ProviderType.Main, ProviderType.Employer)]
     [MoqInlineAutoData(ProviderType.Employer, ProviderType.Main)]
-    [MoqInlineAutoData(ProviderType.Supporting, ProviderType.Employer)]
-    [MoqInlineAutoData(ProviderType.Supporting, ProviderType.Main)]
-    public async Task Get_ProviderTypeChange_NotToSupporting_RedirectToProviderSummary(
+    public async Task Get_ProviderTypeChange_SwappingMainAndEmployer_RedirectToProviderSummary(
         ProviderType providerType,
         ProviderType providerTypeChange,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
@@ -90,6 +88,39 @@ public class ProviderTypeUpdateControllerPostTests
         result.Should().NotBeNull();
         result!.RouteName.Should().Be(RouteNames.ProviderSummary);
         outerApiClientMock.Verify(o => o.GetOrganisation(ukprn, cancellationToken), Times.Once);
+    }
+
+    [Test]
+    [MoqInlineAutoData(ProviderType.Supporting, ProviderType.Employer)]
+    [MoqInlineAutoData(ProviderType.Supporting, ProviderType.Main)]
+    public async Task Get_ProviderTypeChange_SupportingToMainEmployer_RedirectToProviderSummary(
+        ProviderType providerType,
+        ProviderType providerTypeChange,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<IOrganisationPatchService> organisationPatchService,
+        [Frozen] Mock<ISessionService> sessionMock,
+        [Greedy] ProviderTypeUpdateController sut,
+        GetOrganisationResponse getOrganisationResponse,
+        ProviderTypeUpdateViewModel viewModel,
+        int ukprn,
+        CancellationToken cancellationToken)
+    {
+        getOrganisationResponse.ProviderType = providerType;
+        viewModel.ProviderTypeId = (int)providerTypeChange;
+        getOrganisationResponse.Ukprn = ukprn;
+        outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
+            .ReturnsAsync(getOrganisationResponse);
+
+        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, getOrganisationResponse, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
+            .ReturnsAsync(true);
+
+        var actual = await sut.Index(ukprn, viewModel, cancellationToken);
+        actual.Should().NotBeNull();
+        var result = actual! as RedirectToRouteResult;
+        result.Should().NotBeNull();
+        result!.RouteName.Should().Be(RouteNames.ApprenticeshipsUpdate);
+        outerApiClientMock.Verify(o => o.GetOrganisation(ukprn, cancellationToken), Times.Once);
+        sessionMock.Verify(x => x.Set<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes, It.Is<UpdateProviderTypeCourseTypesSessionModel>(x => x.ProviderType == providerTypeChange)), Times.Once);
     }
 
     [Test]

@@ -11,6 +11,7 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
+using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 using ValidationResult = FluentValidation.Results.ValidationResult;
@@ -40,6 +41,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
     [Test, MoqAutoData]
     public async Task Post_NoApprenticeshipUnitsChange_RedirectToProviderSummary(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ApprenticeshipUnitsUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
         ApprenticeshipUnitsUpdateViewModel viewModel,
@@ -47,6 +49,10 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         int ukprn,
         CancellationToken cancellationToken)
     {
+        sessionServiceMock.Setup(s =>
+                s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
+            .Returns((UpdateProviderTypeCourseTypesSessionModel)null!);
+
         var courseTypes = new List<AllowedCourseType>
         {
             new() { CourseTypeId = CourseTypes.ApprenticeshipId, CourseTypeName = "Apprenticeship", LearningType = LearningType.Standard }
@@ -82,6 +88,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
        bool isShortCourseTypePresent,
        int expectedPutCourseTypes,
        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+       [Frozen] Mock<ISessionService> sessionServiceMock,
        [Frozen] Mock<IValidator<ApprenticeshipUnitsUpdateViewModel>> validator,
        [Greedy] ApprenticeshipUnitsUpdateController sut,
        GetOrganisationResponse getOrganisationResponse,
@@ -89,6 +96,10 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
        int ukprn,
        CancellationToken cancellationToken)
     {
+        sessionServiceMock.Setup(s =>
+                s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
+            .Returns((UpdateProviderTypeCourseTypesSessionModel)null!);
+
         var validationResult = new ValidationResult();
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
@@ -163,7 +174,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
 
-        var selectedNoId = false;
+        var selectionChoice = false;
         sut.ControllerContext = new ControllerContext()
         {
             HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
@@ -174,7 +185,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         var currentCourseTypeIds = getOrganisationResponse.AllowedCourseTypes
             .Select(a => a.CourseTypeId).ToList();
 
-        viewModel.ApprenticeshipUnitsSelectionId = selectedNoId;
+        viewModel.ApprenticeshipUnitsSelectionId = selectionChoice;
 
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
@@ -187,4 +198,183 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         var model = result!.Model as ApprenticeshipUnitsUpdateViewModel;
         model.Should().NotBeNull();
     }
+
+    [Test]
+    [MoqInlineAutoData(ProviderType.Main)]
+    [MoqInlineAutoData(ProviderType.Employer)]
+    public async Task Post_ProviderTypeFromSupportingToOther_ApprenticeshipsTrue_ApprenticeshipUnitsFalse(
+        ProviderType providerTypeChangedTo,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IOrganisationPatchService> patchServiceMock,
+        [Frozen] Mock<IValidator<ApprenticeshipUnitsUpdateViewModel>> validator,
+        [Greedy] ApprenticeshipUnitsUpdateController sut,
+        GetOrganisationResponse getOrganisationResponse,
+        ApprenticeshipUnitsUpdateViewModel viewModel,
+        UpdateProviderTypeCourseTypesSessionModel sessionModel,
+        int ukprn,
+        CancellationToken cancellationToken)
+    {
+        var validationResult = new ValidationResult();
+        validator.Setup(x => x.Validate(viewModel))
+            .Returns(validationResult);
+
+        var courseTypeIdsWithApprentices = new List<int> { CourseTypes.ApprenticeshipId };
+        sessionModel.CourseTypeIds = courseTypeIdsWithApprentices;
+        sessionModel.ProviderType = providerTypeChangedTo;
+
+        sessionServiceMock.Setup(s =>
+                s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
+            .Returns(sessionModel);
+
+        var apprenticeshipUnitsSelected = false;
+
+        sut.ControllerContext = new ControllerContext()
+        {
+            HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
+        };
+
+        viewModel.ApprenticeshipUnitsSelectionId = apprenticeshipUnitsSelected;
+
+        getOrganisationResponse.Ukprn = ukprn;
+        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
+            .ReturnsAsync(getOrganisationResponse);
+
+        var actual = await sut.Index(ukprn, viewModel, cancellationToken);
+        actual.Should().NotBeNull();
+        var result = actual! as RedirectToRouteResult;
+        result.Should().NotBeNull();
+        result!.RouteName.Should().Be(RouteNames.ProviderSummary);
+        outerApiClientMock.Verify(o => o.PutCourseTypes(ukprn,
+            It.Is<UpdateCourseTypesModel>(
+                c => c.CourseTypeIds.Count == sessionModel.CourseTypeIds.Count
+                && c.CourseTypeIds[0] == sessionModel.CourseTypeIds[0]
+                )
+            , cancellationToken), Times.Once);
+
+        patchServiceMock.Verify(p => p.OrganisationPatched(ukprn,
+            It.Is<GetOrganisationResponse>(o => o.Ukprn == ukprn),
+            It.Is<PatchOrganisationModel>(p => p.ProviderType == sessionModel.ProviderType),
+            cancellationToken), Times.Once);
+    }
+
+    [Test]
+    [MoqInlineAutoData(ProviderType.Main)]
+    [MoqInlineAutoData(ProviderType.Employer)]
+    public async Task Post_ProviderTypeFromSupportingToOther_ApprenticeshipsTrue_ApprenticeshipUnitsTrue(
+        ProviderType providerTypeChangedTo,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IOrganisationPatchService> patchServiceMock,
+        [Frozen] Mock<IValidator<ApprenticeshipUnitsUpdateViewModel>> validator,
+        [Greedy] ApprenticeshipUnitsUpdateController sut,
+        GetOrganisationResponse getOrganisationResponse,
+        ApprenticeshipUnitsUpdateViewModel viewModel,
+        UpdateProviderTypeCourseTypesSessionModel sessionModel,
+        int ukprn,
+        CancellationToken cancellationToken)
+    {
+        var validationResult = new ValidationResult();
+        validator.Setup(x => x.Validate(viewModel))
+            .Returns(validationResult);
+
+        var courseTypeIdsWithApprentices = new List<int> { CourseTypes.ApprenticeshipId };
+        sessionModel.CourseTypeIds = courseTypeIdsWithApprentices;
+        sessionModel.ProviderType = providerTypeChangedTo;
+
+        sessionServiceMock.Setup(s =>
+                s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
+            .Returns(sessionModel);
+
+        var apprenticeshipUnitsSelected = true;
+
+        sut.ControllerContext = new ControllerContext()
+        {
+            HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
+        };
+
+        viewModel.ApprenticeshipUnitsSelectionId = apprenticeshipUnitsSelected;
+
+        getOrganisationResponse.Ukprn = ukprn;
+        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
+            .ReturnsAsync(getOrganisationResponse);
+
+        var actual = await sut.Index(ukprn, viewModel, cancellationToken);
+        actual.Should().NotBeNull();
+        var result = actual! as RedirectToRouteResult;
+        result.Should().NotBeNull();
+        result!.RouteName.Should().Be(RouteNames.ProviderSummary);
+        outerApiClientMock.Verify(o => o.PutCourseTypes(ukprn,
+            It.Is<UpdateCourseTypesModel>(
+                c => c.CourseTypeIds.Count == sessionModel.CourseTypeIds.Count
+                && c.CourseTypeIds[0] == sessionModel.CourseTypeIds[0]
+                && c.CourseTypeIds[1] == sessionModel.CourseTypeIds[1]
+                )
+            , cancellationToken), Times.Once);
+
+        patchServiceMock.Verify(p => p.OrganisationPatched(ukprn,
+            It.Is<GetOrganisationResponse>(o => o.Ukprn == ukprn),
+            It.Is<PatchOrganisationModel>(p => p.ProviderType == sessionModel.ProviderType),
+            cancellationToken), Times.Once);
+    }
+
+    [Test]
+    [MoqInlineAutoData(ProviderType.Main)]
+    [MoqInlineAutoData(ProviderType.Employer)]
+    public async Task Post_ProviderTypeFromSupportingToOther_ApprenticeshipsFalse_ApprenticeshipUnitsTrue(
+        ProviderType providerTypeChangedTo,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IOrganisationPatchService> patchServiceMock,
+        [Frozen] Mock<IValidator<ApprenticeshipUnitsUpdateViewModel>> validator,
+        [Greedy] ApprenticeshipUnitsUpdateController sut,
+        GetOrganisationResponse getOrganisationResponse,
+        ApprenticeshipUnitsUpdateViewModel viewModel,
+        UpdateProviderTypeCourseTypesSessionModel sessionModel,
+        int ukprn,
+        CancellationToken cancellationToken)
+    {
+        var validationResult = new ValidationResult();
+        validator.Setup(x => x.Validate(viewModel))
+            .Returns(validationResult);
+
+        var courseTypeIdsWithoutApprentices = new List<int>();
+        sessionModel.CourseTypeIds = courseTypeIdsWithoutApprentices;
+        sessionModel.ProviderType = providerTypeChangedTo;
+
+        sessionServiceMock.Setup(s =>
+                s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
+            .Returns(sessionModel);
+
+        var apprenticeshipUnitsSelected = true;
+
+        sut.ControllerContext = new ControllerContext()
+        {
+            HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
+        };
+
+        viewModel.ApprenticeshipUnitsSelectionId = apprenticeshipUnitsSelected;
+
+        getOrganisationResponse.Ukprn = ukprn;
+        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
+            .ReturnsAsync(getOrganisationResponse);
+
+        var actual = await sut.Index(ukprn, viewModel, cancellationToken);
+        actual.Should().NotBeNull();
+        var result = actual! as RedirectToRouteResult;
+        result.Should().NotBeNull();
+        result!.RouteName.Should().Be(RouteNames.ProviderSummary);
+        outerApiClientMock.Verify(o => o.PutCourseTypes(ukprn,
+            It.Is<UpdateCourseTypesModel>(
+                c => c.CourseTypeIds.Count == sessionModel.CourseTypeIds.Count
+                && c.CourseTypeIds[0] == sessionModel.CourseTypeIds[0]
+                )
+            , cancellationToken), Times.Once);
+
+        patchServiceMock.Verify(p => p.OrganisationPatched(ukprn,
+            It.Is<GetOrganisationResponse>(o => o.Ukprn == ukprn),
+            It.Is<PatchOrganisationModel>(p => p.ProviderType == sessionModel.ProviderType),
+            cancellationToken), Times.Once);
+    }
+
 }

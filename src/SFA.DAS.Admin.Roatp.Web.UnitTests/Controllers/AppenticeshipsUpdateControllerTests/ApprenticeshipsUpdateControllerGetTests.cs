@@ -10,13 +10,13 @@ using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ApprenticeshipUnitsUpdateControllerTests;
-public class ApprenticeshipUnitsUpdateControllerGetTests
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.AppenticeshipsUpdateControllerTests;
+public class ApprenticeshipsUpdateControllerGetTests
 {
     [Test, MoqAutoData]
     public async Task Get_NoMatchingDetails_RedirectToHome(
        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-       [Greedy] ApprenticeshipUnitsUpdateController sut,
+       [Greedy] ApprenticeshipsUpdateController sut,
        int ukprn,
        CancellationToken cancellationToken)
     {
@@ -31,10 +31,10 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task Get_MatchingDetails_NotInSession_BuildViewModelFromGetOrganisationResponse(
+    public async Task Get_NotInSession_RedirectToHome(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Greedy] ApprenticeshipUnitsUpdateController sut,
+        [Greedy] ApprenticeshipsUpdateController sut,
         string selectOrganisationLink,
         GetOrganisationResponse getOrganisationResponse,
         int ukprn,
@@ -47,31 +47,14 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
                 .Returns((UpdateProviderTypeCourseTypesSessionModel)null!);
 
         getOrganisationResponse.Ukprn = ukprn;
-        var allowedCourseTypes = new List<AllowedCourseType>();
-
-        if (containsApprenticeshipUnits)
-        {
-            allowedCourseTypes.Add(new() { CourseTypeId = CourseTypes.ApprenticeshipUnitId });
-        }
-
-        if (containsApprenticeships)
-        {
-            allowedCourseTypes.Add(new() { CourseTypeId = CourseTypes.ApprenticeshipId });
-        }
-
-        getOrganisationResponse.AllowedCourseTypes = allowedCourseTypes;
-
-        var expectedApprenticeshipTypesChoices = BuildApprenticeshipTypesChoices(containsApprenticeshipUnits);
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
             .ReturnsAsync(getOrganisationResponse);
 
-        var actual = await sut.Index(ukprn, cancellationToken) as ViewResult;
+        var actual = await sut.Index(ukprn, cancellationToken);
         actual.Should().NotBeNull();
-        var model = actual.Model as ApprenticeshipUnitsUpdateViewModel;
-        model.Should().NotBeNull();
-        model.ApprenticeshipUnitsSelection.Should().BeEquivalentTo(expectedApprenticeshipTypesChoices);
-        model.OffersApprenticeships.Should().Be(containsApprenticeships);
-        model.ApprenticeshipUnitsSelectionId.Should().Be(containsApprenticeshipUnits);
+        var result = actual! as RedirectToRouteResult;
+        result.Should().NotBeNull();
+        result!.RouteName.Should().Be(RouteNames.Home);
     }
 
 
@@ -79,11 +62,10 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
     public async Task Get_MatchingDetails_InSession_BuildViewModelFromSession(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Greedy] ApprenticeshipUnitsUpdateController sut,
+        [Greedy] ApprenticeshipsUpdateController sut,
         string selectOrganisationLink,
         GetOrganisationResponse getOrganisationResponse,
         int ukprn,
-        bool containsApprenticeshipUnits,
         bool containsApprenticeships,
         CancellationToken cancellationToken)
     {
@@ -93,7 +75,6 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
         };
 
         if (containsApprenticeships) { sessionModel.CourseTypeIds.Add(CourseTypes.ApprenticeshipId); }
-        if (containsApprenticeshipUnits) { sessionModel.CourseTypeIds.Add(CourseTypes.ApprenticeshipUnitId); }
 
         sessionServiceMock.Setup(s =>
                 s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
@@ -101,32 +82,25 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
 
         getOrganisationResponse.Ukprn = ukprn;
 
-        var expectedApprenticeshipTypesChoices =
-                 new List<ApprenticeshipUnitsSelectionModel>
-                {
-                    new() { Description = "Yes", Id = true, IsSelected = false},
-                    new() { Description = "No", Id = false, IsSelected = false},
-                };
+        var expectedApprenticeshipTypesChoices = BuildApprenticeshipTypesChoices(containsApprenticeships);
 
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
             .ReturnsAsync(getOrganisationResponse);
 
         var actual = await sut.Index(ukprn, cancellationToken) as ViewResult;
         actual.Should().NotBeNull();
-        var model = actual.Model as ApprenticeshipUnitsUpdateViewModel;
+        var model = actual.Model as ApprenticeshipsUpdateViewModel;
         model.Should().NotBeNull();
-        model.ApprenticeshipUnitsSelection.Should().BeEquivalentTo(expectedApprenticeshipTypesChoices);
-        model.OffersApprenticeships.Should().Be(containsApprenticeships);
-        model.ApprenticeshipUnitsSelectionId.Should().Be(null);
-
+        model.ApprenticeshipsSelection.Should().BeEquivalentTo(expectedApprenticeshipTypesChoices);
+        model.ApprenticeshipsSelectionChoice.Should().Be(containsApprenticeships);
     }
 
-    private static List<ApprenticeshipUnitsSelectionModel> BuildApprenticeshipTypesChoices(bool containsApprenticeshipUnits)
+    private static List<ApprenticeshipsSelectionModel> BuildApprenticeshipTypesChoices(bool containsApprenticeships)
     {
-        return new List<ApprenticeshipUnitsSelectionModel>
+        return new List<ApprenticeshipsSelectionModel>
         {
-            new() { Description = "Yes", Id = true, IsSelected = containsApprenticeshipUnits},
-            new() { Description = "No", Id = false, IsSelected = !containsApprenticeshipUnits},
+            new() { Description = "Yes", Id = true, IsSelected = containsApprenticeships},
+            new() { Description = "No", Id = false, IsSelected = !containsApprenticeships},
         };
     }
 }
