@@ -34,4 +34,15 @@ public class ApprenticeshipUnitUpdateViewModelValidatorTests
 
         result.IsValid.Should().BeTrue();
     }
+
+    [TestCase(true)]
+    [TestCase(false)]
+    public void TestValidator_NoApprenticeshipUnitsSet_Invalid_ReturnsExpectedErrorMessage(bool offersApprenticeships)
+    {
+        var result = _validator.TestValidate(new ApprenticeshipUnitsUpdateViewModel { OffersApprenticeships = offersApprenticeships, ApprenticeshipUnitsSelectionId = null });
+
+        result.IsValid.Should().BeFalse();
+        result.ShouldHaveValidationErrorFor(c => c.ApprenticeshipUnitsSelectionId)
+            .WithErrorMessage(ApprenticeshipUnitsUpdateViewModelValidator.NoValueSelectedErrorMessage);
+    }
 }

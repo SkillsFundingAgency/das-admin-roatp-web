@@ -11,11 +11,13 @@ public class ApprenticeshipUnitsUpdateViewModelValidator : AbstractValidator<App
     public ApprenticeshipUnitsUpdateViewModelValidator()
     {
         RuleFor(s => s.ApprenticeshipUnitsSelectionId)
-            .Cascade(CascadeMode.Stop)
             .NotNull()
-            .WithMessage(NoValueSelectedErrorMessage)
+            .WithMessage(NoValueSelectedErrorMessage);
+
+
+        RuleFor(s => s.ApprenticeshipUnitsSelectionId)
             .Equal(true)
-            .When(s => !s.OffersApprenticeships)
+            .When(s => !s.OffersApprenticeships && s.ApprenticeshipUnitsSelectionId != null)
             .WithMessage(NoSelectionsMadeErrorMessage);
     }
 }
