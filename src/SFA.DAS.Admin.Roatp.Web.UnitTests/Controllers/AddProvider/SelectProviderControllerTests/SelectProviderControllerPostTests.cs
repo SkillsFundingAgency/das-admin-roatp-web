@@ -25,9 +25,9 @@ public class SelectProviderControllerPostTests
         AddProviderSubmitModel viewModel = new() { Ukprn = "12345678" };
         validator.Setup(x => x.Validate(It.Is<AddProviderSubmitModel>(m => m.Ukprn == viewModel.Ukprn))).Returns(new ValidationResult());
 
-        outerApiClient.Setup(x => x.GetOrganisation(int.Parse(viewModel.Ukprn!), cancellationToken)).ReturnsAsync((new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null)));
+        outerApiClient.Setup(x => x.GetOrganisation(int.Parse(viewModel.Ukprn!), cancellationToken)).ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null));
 
-        outerApiClient.Setup(x => x.GetUkrlp(int.Parse(viewModel.Ukprn!), cancellationToken)).ReturnsAsync((new ApiResponse<GetUkrlpResponse>(new HttpResponseMessage(HttpStatusCode.OK), new GetUkrlpResponse(), new RefitSettings(), null)));
+        outerApiClient.Setup(x => x.GetUkrlp(int.Parse(viewModel.Ukprn!), cancellationToken)).ReturnsAsync(new ApiResponse<GetUkrlpResponse>(new HttpResponseMessage(HttpStatusCode.OK), new GetUkrlpResponse(), new RefitSettings(), null));
 
         SelectProviderController sut = new(validator.Object, outerApiClient.Object);
 
@@ -80,7 +80,7 @@ public class SelectProviderControllerPostTests
         AddProviderSubmitModel viewModel = new() { Ukprn = "12345678" };
         validator.Setup(x => x.Validate(It.Is<AddProviderSubmitModel>(m => m.Ukprn == viewModel.Ukprn))).Returns(new ValidationResult());
 
-        outerApiClient.Setup(x => x.GetOrganisation(int.Parse(viewModel.Ukprn!), cancellationToken)).ReturnsAsync((new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), new GetOrganisationResponse(), new RefitSettings(), null)));
+        outerApiClient.Setup(x => x.GetOrganisation(int.Parse(viewModel.Ukprn!), cancellationToken)).ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), new GetOrganisationResponse(), new RefitSettings(), null));
 
         SelectProviderController sut = new(validator.Object, outerApiClient.Object);
 
@@ -107,9 +107,9 @@ public class SelectProviderControllerPostTests
         AddProviderSubmitModel viewModel = new() { Ukprn = "12345678" };
         validator.Setup(x => x.Validate(It.Is<AddProviderSubmitModel>(m => m.Ukprn == viewModel.Ukprn))).Returns(new ValidationResult());
 
-        outerApiClient.Setup(x => x.GetOrganisation(int.Parse(viewModel.Ukprn!), cancellationToken)).ReturnsAsync((new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null)));
+        outerApiClient.Setup(x => x.GetOrganisation(int.Parse(viewModel.Ukprn!), cancellationToken)).ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null));
 
-        outerApiClient.Setup(x => x.GetUkrlp(int.Parse(viewModel.Ukprn!), cancellationToken)).ReturnsAsync((new ApiResponse<GetUkrlpResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetUkrlpResponse(), new RefitSettings(), null)));
+        outerApiClient.Setup(x => x.GetUkrlp(int.Parse(viewModel.Ukprn!), cancellationToken)).ReturnsAsync(new ApiResponse<GetUkrlpResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetUkrlpResponse(), new RefitSettings(), null));
 
         SelectProviderController sut = new(validator.Object, outerApiClient.Object);
 

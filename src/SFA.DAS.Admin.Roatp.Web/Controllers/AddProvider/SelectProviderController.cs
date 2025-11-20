@@ -4,6 +4,7 @@ using Refit;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
+using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.AddProvider;
 
@@ -38,13 +39,15 @@ public class SelectProviderController(IValidator<AddProviderSubmitModel> _valida
             return View(viewModel);
         }
 
-        ApiResponse<GetOrganisationResponse> organisationResponse = await _outerApiClient.GetOrganisation(int.Parse(submitModel.Ukprn!), cancellationToken);
+        ApiResponse<GetOrganisationResponse> organisationApiResponse = await _outerApiClient.GetOrganisation(int.Parse(submitModel.Ukprn!), cancellationToken);
 
-        if (organisationResponse.StatusCode == System.Net.HttpStatusCode.OK)
+        if (organisationApiResponse.StatusCode == HttpStatusCode.OK)
         {
+            GetOrganisationResponse organisationResponse = organisationApiResponse.Content!;
+
             var viewModel = new AddProviderViewModel() { Ukprn = submitModel.Ukprn };
 
-            ModelState.AddModelError(nameof(AddProviderSubmitModel.Ukprn), $"{ExistingUkprnValidationMessage} '{organisationResponse.Content!.LegalName}'");
+            ModelState.AddModelError(nameof(AddProviderSubmitModel.Ukprn), $"{ExistingUkprnValidationMessage} '{organisationResponse.LegalName}'");
 
             return View(viewModel);
         }
@@ -63,7 +66,8 @@ public class SelectProviderController(IValidator<AddProviderSubmitModel> _valida
     [Route("not-found", Name = RouteNames.ProviderNotFoundInUkrlp)]
     public IActionResult ProviderNotFoundInUkrlp()
     {
-        var viewModel = new AddProviderViewModel();
+        var viewModel = new ProviderNotFoundInUkrlpViewModel() { AddANewTrainingProviderUrl = Url.RouteUrl(RouteNames.AddProvider)! };
+
         return View(viewModel);
     }
 }

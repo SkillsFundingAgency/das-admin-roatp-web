@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Services;
+using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
@@ -15,9 +17,11 @@ public class RemovalReasonUpdateController(IOuterApiClient _outerApiClient, IOrg
 {
     public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
     {
-        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
+        var organisationApiResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
-        if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
+        if (organisationApiResponse.StatusCode != HttpStatusCode.OK) return RedirectToRoute(RouteNames.Home);
+
+        GetOrganisationResponse organisationResponse = organisationApiResponse.Content!;
 
         var removalReasonsResponse = await _outerApiClient.GetRemovalReasons(cancellationToken);
 
@@ -25,13 +29,13 @@ public class RemovalReasonUpdateController(IOuterApiClient _outerApiClient, IOrg
 
         foreach (var removalReason in removalReasonsResponse.ReasonsForRemoval)
         {
-            removalReasons.Add(new RemovalReasonModel { Id = removalReason.Id, Description = removalReason.Description, IsSelected = removalReason.Id == organisationResponse.Content!.RemovedReasonId });
+            removalReasons.Add(new RemovalReasonModel { Id = removalReason.Id, Description = removalReason.Description, IsSelected = removalReason.Id == organisationResponse.RemovedReasonId });
         }
 
         var model = new RemovalReasonUpdateViewModel
         {
             RemovedReasons = removalReasons.OrderBy(r => r.Description).ToList(),
-            RemovalReasonId = organisationResponse.Content!.RemovedReasonId
+            RemovalReasonId = organisationResponse.RemovedReasonId
         };
 
         return View(model);
@@ -40,9 +44,11 @@ public class RemovalReasonUpdateController(IOuterApiClient _outerApiClient, IOrg
     [HttpPost]
     public async Task<IActionResult> Index(int ukprn, RemovalReasonUpdateViewModel model, CancellationToken cancellationToken)
     {
-        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
+        var organisationApiResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
-        if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
+        if (organisationApiResponse.StatusCode != HttpStatusCode.OK) return RedirectToRoute(RouteNames.Home);
+
+        GetOrganisationResponse organisationResponse = organisationApiResponse.Content!;
 
         var result = _validator.Validate(model);
 
@@ -53,7 +59,7 @@ public class RemovalReasonUpdateController(IOuterApiClient _outerApiClient, IOrg
             var viewModel = new RemovalReasonUpdateViewModel
             {
                 RemovedReasons = removalReasonsResponse.ReasonsForRemoval.OrderBy(r => r.Description).ToList(),
-                RemovalReasonId = organisationResponse.Content!.RemovedReasonId,
+                RemovalReasonId = organisationResponse.RemovedReasonId,
             };
             foreach (var error in result.Errors)
             {
@@ -63,11 +69,11 @@ public class RemovalReasonUpdateController(IOuterApiClient _outerApiClient, IOrg
             return View(viewModel);
         }
 
-        PatchOrganisationModel patchModel = organisationResponse.Content!;
+        PatchOrganisationModel patchModel = organisationResponse;
         patchModel.Status = OrganisationStatus.Removed;
         patchModel.RemovedReasonId = model.RemovalReasonId;
 
-        var organisationPatched = await _organisationPatchService.OrganisationPatched(ukprn, organisationResponse.Content!, patchModel, cancellationToken);
+        var organisationPatched = await _organisationPatchService.OrganisationPatched(ukprn, organisationResponse, patchModel, cancellationToken);
 
         return RedirectToRoute(!organisationPatched
             ? RouteNames.ProviderSummary

@@ -11,6 +11,7 @@ using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
+using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ProviderTypeUpdateControllerTests;
 public class ProviderTypeUpdateControllerPostTests
@@ -24,7 +25,7 @@ public class ProviderTypeUpdateControllerPostTests
        CancellationToken cancellationToken)
     {
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
-            .ReturnsAsync((ApiResponse<GetOrganisationResponse>)null!);
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null));
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
         actual.Should().NotBeNull();
@@ -48,7 +49,7 @@ public class ProviderTypeUpdateControllerPostTests
         viewModel.ProviderTypeId = (int)getOrganisationResponse.ProviderType;
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
-            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(), getOrganisationResponse, new RefitSettings(), null));
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
         organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, getOrganisationResponse, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
             .ReturnsAsync(false);
@@ -78,7 +79,7 @@ public class ProviderTypeUpdateControllerPostTests
         viewModel.ProviderTypeId = (int)providerTypeChange;
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
-            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(), getOrganisationResponse, new RefitSettings(), null));
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
         organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, getOrganisationResponse, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
             .ReturnsAsync(true);
@@ -147,7 +148,7 @@ public class ProviderTypeUpdateControllerPostTests
         viewModel.ProviderTypeId = (int)providerTypeChange;
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
-            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(), getOrganisationResponse, new RefitSettings(), null));
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
         organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, getOrganisationResponse, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
             .ReturnsAsync(true);
@@ -185,7 +186,7 @@ public class ProviderTypeUpdateControllerPostTests
         viewModel.ProviderTypeId = (int)providerTypeChange;
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
-            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(), getOrganisationResponse, new RefitSettings(), null));
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
         organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, getOrganisationResponse, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
             .ReturnsAsync(true);

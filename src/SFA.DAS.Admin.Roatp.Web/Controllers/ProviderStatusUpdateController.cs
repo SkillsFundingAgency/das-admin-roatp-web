@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Services;
+using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
@@ -16,14 +18,16 @@ public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IOr
     [Authorize(Roles = Roles.RoatpAdminTeam)]
     public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
     {
-        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
+        var organisationApiResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
-        if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
+        if (organisationApiResponse.StatusCode != HttpStatusCode.OK) return RedirectToRoute(RouteNames.Home);
+
+        GetOrganisationResponse organisationResponse = organisationApiResponse.Content!;
 
         var model = new OrganisationStatusUpdateViewModel
         {
-            OrganisationStatus = organisationResponse.Content!.Status,
-            OrganisationStatuses = BuildOrganisationStatuses(organisationResponse.Content!.Status)
+            OrganisationStatus = organisationResponse.Status,
+            OrganisationStatuses = BuildOrganisationStatuses(organisationResponse.Status)
         };
 
         return View(model);
@@ -33,19 +37,21 @@ public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IOr
     public async Task<IActionResult> Index(int ukprn, OrganisationStatusUpdateViewModel model,
         CancellationToken cancellationToken)
     {
-        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
+        var organisationApiResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
-        if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
+        if (organisationApiResponse.StatusCode != HttpStatusCode.OK) return RedirectToRoute(RouteNames.Home);
+
+        GetOrganisationResponse organisationResponse = organisationApiResponse.Content!;
 
         if (model.OrganisationStatus == OrganisationStatus.Removed)
         {
             return RedirectToRoute(RouteNames.ProviderRemovalReasonUpdate, new { ukprn });
         }
 
-        PatchOrganisationModel patchModel = organisationResponse.Content!;
+        PatchOrganisationModel patchModel = organisationResponse;
         patchModel.Status = model.OrganisationStatus;
 
-        var organisationPatched = await _organisationPatchService.OrganisationPatched(ukprn, organisationResponse.Content!, patchModel, cancellationToken);
+        var organisationPatched = await _organisationPatchService.OrganisationPatched(ukprn, organisationResponse, patchModel, cancellationToken);
 
         return RedirectToRoute(!organisationPatched
             ? RouteNames.ProviderSummary
@@ -57,16 +63,18 @@ public class ProviderStatusUpdateController(IOuterApiClient _outerApiClient, IOr
     [Route("confirmed", Name = RouteNames.ProviderStatusUpdateConfirmed)]
     public async Task<IActionResult> ProviderStatusUpdateConfirmed(int ukprn, CancellationToken cancellationToken)
     {
-        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
+        var organisationApiResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
-        if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
+        if (organisationApiResponse.StatusCode != HttpStatusCode.OK) return RedirectToRoute(RouteNames.Home);
+
+        GetOrganisationResponse organisationResponse = organisationApiResponse.Content!;
 
         var model = new ProviderStatusConfirmationViewModel
         {
-            LegalName = organisationResponse.Content!.LegalName,
-            OrganisationStatus = organisationResponse.Content!.Status,
+            LegalName = organisationResponse.LegalName,
+            OrganisationStatus = organisationResponse.Status,
             Ukprn = ukprn,
-            StatusText = MatchingStatusText(organisationResponse.Content!.Status),
+            StatusText = MatchingStatusText(organisationResponse.Status),
             ProviderSummaryLink = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!,
             SelectTrainingProviderLink = Url.RouteUrl(RouteNames.SelectProvider)!,
             AddNewTrainingProviderLink = Url.RouteUrl(RouteNames.AddProvider)!

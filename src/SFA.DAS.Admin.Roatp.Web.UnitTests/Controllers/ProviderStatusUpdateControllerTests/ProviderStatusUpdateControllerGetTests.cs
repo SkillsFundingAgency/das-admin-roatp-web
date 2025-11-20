@@ -9,6 +9,7 @@ using SFA.DAS.Admin.Roatp.Web.Controllers;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Testing.AutoFixture;
+using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ProviderStatusUpdateControllerTests;
 public class ProviderStatusUpdateControllerGetTests
@@ -21,7 +22,7 @@ public class ProviderStatusUpdateControllerGetTests
         CancellationToken cancellationToken)
     {
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
-            .ReturnsAsync((ApiResponse<GetOrganisationResponse>)null!);
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null));
 
         var actual = await sut.Index(ukprn, cancellationToken);
         actual.Should().NotBeNull();
@@ -42,7 +43,7 @@ public class ProviderStatusUpdateControllerGetTests
         getOrganisationResponse.Ukprn = ukprn;
         var expectedOrganisationStatuses = BuildOrganisationStatuses(getOrganisationResponse.Status);
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))!
-            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(), getOrganisationResponse, new RefitSettings(), null));
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
         var actual = await sut.Index(ukprn, cancellationToken) as ViewResult;
         actual.Should().NotBeNull();

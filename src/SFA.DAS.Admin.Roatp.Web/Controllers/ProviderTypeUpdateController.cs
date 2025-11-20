@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Services;
+using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
@@ -15,14 +17,16 @@ public class ProviderTypeUpdateController(IOuterApiClient _outerApiClient, IOrga
 
     public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
     {
-        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
+        var organisationApiResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
-        if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
+        if (organisationApiResponse.StatusCode != HttpStatusCode.OK) return RedirectToRoute(RouteNames.Home);
+
+        GetOrganisationResponse organisationResponse = organisationApiResponse.Content!;
 
         var model = new ProviderTypeUpdateViewModel
         {
-            ProviderTypeId = (int)organisationResponse.Content!.ProviderType,
-            ProviderTypes = BuildProviderTypes((int)organisationResponse.Content!.ProviderType)
+            ProviderTypeId = (int)organisationResponse.ProviderType,
+            ProviderTypes = BuildProviderTypes((int)organisationResponse.ProviderType)
         };
 
         return View(model);
@@ -32,9 +36,11 @@ public class ProviderTypeUpdateController(IOuterApiClient _outerApiClient, IOrga
     public async Task<IActionResult> Index(int ukprn, ProviderTypeUpdateViewModel model,
         CancellationToken cancellationToken)
     {
-        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
+        var organisationApiResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
-        if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
+        if (organisationApiResponse.StatusCode != HttpStatusCode.OK) return RedirectToRoute(RouteNames.Home);
+
+        GetOrganisationResponse organisationResponse = organisationApiResponse.Content!;
 
         if (organisationResponse.ProviderType == ProviderType.Supporting
             && (model.ProviderTypeId == (int)ProviderType.Main || model.ProviderTypeId == (int)ProviderType.Employer))

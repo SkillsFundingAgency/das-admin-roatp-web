@@ -17,9 +17,9 @@ public class ApprenticeshipUnitsUpdateController(IOuterApiClient _outerApiClient
 {
     public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
     {
-        var organisationResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
+        var organisationApiResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
-        if (organisationResponse == null) return RedirectToRoute(RouteNames.Home);
+        if (organisationApiResponse.StatusCode != HttpStatusCode.OK) return RedirectToRoute(RouteNames.Home);
 
         var sessionModel = _sessionService.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes);
         var isProviderTypeAndCourseTypesChangeInProgress = sessionModel != null;

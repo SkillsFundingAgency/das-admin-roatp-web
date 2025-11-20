@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
 @using SFA.DAS.Admin.Roatp.Web.Infrastructure
-@model SFA.DAS.Admin.Roatp.Web.Models.AddProviderViewModel
+@model SFA.DAS.Admin.Roatp.Web.Models.ProviderNotFoundInUkrlpViewModel
 @{
     ViewData["Title"] = "UKPRN not found";
 }
@@ -13,6 +13,6 @@
                 <li>does not exist</li>
                 <li>is inactive on the UK Register of Learning Providers</li>
             </ul>
-            <p class="govuk-body"><a href="@Url.RouteUrl(RouteNames.AddProvider)" class="govuk-link">Try again</a></p>
+        <p class="govuk-body"><a href="@Model.AddANewTrainingProviderUrl" class="govuk-link">Try again</a></p>
     </div>
 </div>
