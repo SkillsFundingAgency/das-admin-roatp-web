@@ -1,15 +1,17 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Refit;
+using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
+using SFA.DAS.Admin.Roatp.Web.Services;
 using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.AddProvider;
 
 [Route("providers/new")]
-public class SelectProviderController(IValidator<AddProviderSubmitModel> _validator, IOuterApiClient _outerApiClient) : Controller
+public class SelectProviderController(IValidator<AddProviderSubmitModel> _validator, ISessionService _sessionService, IOuterApiClient _outerApiClient) : Controller
 {
     public const string ExistingUkprnValidationMessage = "This is an existing UKPRN for";
 
@@ -17,6 +19,8 @@ public class SelectProviderController(IValidator<AddProviderSubmitModel> _valida
     [Route("select", Name = RouteNames.AddProvider)]
     public IActionResult Index()
     {
+        _sessionService.Delete(SessionKeys.AddProvider);
+
         AddProviderViewModel model = new();
 
         return View(model);
@@ -52,11 +56,24 @@ public class SelectProviderController(IValidator<AddProviderSubmitModel> _valida
             return View(viewModel);
         }
 
-        ApiResponse<GetUkrlpResponse> ukrlpResponse = await _outerApiClient.GetUkrlp(int.Parse(submitModel.Ukprn!)!, cancellationToken);
+        ApiResponse<GetUkrlpResponse> ukrlpApiResponse = await _outerApiClient.GetUkrlp(int.Parse(submitModel.Ukprn!)!, cancellationToken);
 
-        if (ukrlpResponse.StatusCode == System.Net.HttpStatusCode.OK)
+        if (ukrlpApiResponse.StatusCode == System.Net.HttpStatusCode.OK)
         {
-            return RedirectToRoute(RouteNames.AddProvider);
+            GetUkrlpResponse ukrlpResponse = ukrlpApiResponse.Content!;
+
+            var sessionModel = new AddProviderSessionModel()
+            {
+                Ukprn = int.Parse(submitModel.Ukprn!),
+                LegalName = ukrlpResponse.LegalName,
+                TradingName = ukrlpResponse.TradingName,
+                CompanyNumber = ukrlpResponse.CompanyNumber,
+                CharityNumber = ukrlpResponse.CharityNumber
+            };
+
+            _sessionService.Set<AddProviderSessionModel>(SessionKeys.AddProvider, sessionModel);
+
+            return RedirectToRoute(RouteNames.ProviderDetails);
         }
 
         return RedirectToRoute(RouteNames.ProviderNotFoundInUkrlp);
