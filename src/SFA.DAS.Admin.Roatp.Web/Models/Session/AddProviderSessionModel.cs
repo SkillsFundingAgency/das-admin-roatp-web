@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.Admin.Roatp.Domain.Models;
+﻿namespace SFA.DAS.Admin.Roatp.Web.Models.Session;
 public class AddProviderSessionModel
 {
     public int Ukprn { get; set; }

@@ -9,6 +9,8 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.AddProvider;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
+using SFA.DAS.Admin.Roatp.Web.Models.Session;
+using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
 using System.Net;
 
@@ -16,36 +18,54 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.AddProvider.SelectProvid
 public class SelectProviderControllerPostTests
 {
     [Test, MoqAutoData]
-    public async Task Post_Index_SubmitModelIsValid_RedirectsToCorrectAction(
+    public async Task Post_Index_SubmitModelIsValid_SetsSessionAndRedirectsToCorrectAction(
         [Frozen] Mock<IValidator<AddProviderSubmitModel>> validator,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClient,
+        GetUkrlpResponse ukrlpResponse,
         CancellationToken cancellationToken)
     {
         // Arrange
-        AddProviderSubmitModel viewModel = new() { Ukprn = "12345678" };
-        validator.Setup(x => x.Validate(It.Is<AddProviderSubmitModel>(m => m.Ukprn == viewModel.Ukprn))).Returns(new ValidationResult());
+        AddProviderSubmitModel submitModel = new() { Ukprn = "12345678" };
+        validator.Setup(x => x.Validate(It.Is<AddProviderSubmitModel>(m => m.Ukprn == submitModel.Ukprn))).Returns(new ValidationResult());
 
-        outerApiClient.Setup(x => x.GetOrganisation(int.Parse(viewModel.Ukprn!), cancellationToken)).ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null));
+        outerApiClient.Setup(x => x.GetOrganisation(int.Parse(submitModel.Ukprn!), cancellationToken)).ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null));
 
-        outerApiClient.Setup(x => x.GetUkrlp(int.Parse(viewModel.Ukprn!), cancellationToken)).ReturnsAsync(new ApiResponse<GetUkrlpResponse>(new HttpResponseMessage(HttpStatusCode.OK), new GetUkrlpResponse(), new RefitSettings(), null));
+        outerApiClient.Setup(x => x.GetUkrlp(int.Parse(submitModel.Ukprn!), cancellationToken)).ReturnsAsync(new ApiResponse<GetUkrlpResponse>(new HttpResponseMessage(HttpStatusCode.OK), ukrlpResponse, new RefitSettings(), null));
 
-        SelectProviderController sut = new(validator.Object, outerApiClient.Object);
+        var sessionModel = new AddProviderSessionModel()
+        {
+            Ukprn = int.Parse(submitModel.Ukprn!),
+            LegalName = ukrlpResponse.LegalName,
+            TradingName = ukrlpResponse.TradingName,
+            CompanyNumber = ukrlpResponse.CompanyNumber,
+            CharityNumber = ukrlpResponse.CharityNumber
+        };
+
+        SelectProviderController sut = new(validator.Object, sessionServiceMock.Object, outerApiClient.Object);
 
         // Act
-        var result = await sut.Index(viewModel, cancellationToken);
+        var result = await sut.Index(submitModel, cancellationToken);
 
         // Assert
         result.Should().NotBeNull();
         var redirectResult = result as RedirectToRouteResult;
         redirectResult.Should().NotBeNull();
-        redirectResult.RouteName.Should().Be(RouteNames.AddProvider);
-        outerApiClient.Verify(x => x.GetOrganisation(int.Parse(viewModel.Ukprn!), cancellationToken), Times.Once);
-        outerApiClient.Verify(x => x.GetUkrlp(int.Parse(viewModel.Ukprn!), cancellationToken), Times.Once);
+        redirectResult.RouteName.Should().Be(RouteNames.ProviderDetails);
+        outerApiClient.Verify(x => x.GetOrganisation(int.Parse(submitModel.Ukprn!), cancellationToken), Times.Once);
+        outerApiClient.Verify(x => x.GetUkrlp(int.Parse(submitModel.Ukprn!), cancellationToken), Times.Once);
+        sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.Is<AddProviderSessionModel>(m =>
+            m.Ukprn == sessionModel.Ukprn &&
+            m.LegalName == sessionModel.LegalName &&
+            m.TradingName == sessionModel.TradingName &&
+            m.CompanyNumber == sessionModel.CompanyNumber &&
+            m.CharityNumber == sessionModel.CharityNumber)), Times.Once);
     }
 
     [Test, MoqAutoData]
     public async Task Post_Index_SubmitModelIsInvalid_ReturnsViewWithErrors(
     [Frozen] Mock<IValidator<AddProviderSubmitModel>> validator,
+    [Frozen] Mock<ISessionService> sessionServiceMock,
     [Frozen] Mock<IOuterApiClient> outerApiClient,
     CancellationToken cancellationToken)
     {
@@ -55,7 +75,7 @@ public class SelectProviderControllerPostTests
         validationResult.Errors.Add(new ValidationFailure("Field", "Error"));
         validator.Setup(x => x.Validate(It.Is<AddProviderSubmitModel>(m => m.Ukprn == viewModel.Ukprn))).Returns(validationResult);
 
-        SelectProviderController sut = new(validator.Object, outerApiClient.Object);
+        SelectProviderController sut = new(validator.Object, sessionServiceMock.Object, outerApiClient.Object);
 
         // Act
         var result = await sut.Index(viewModel, cancellationToken);
@@ -73,6 +93,7 @@ public class SelectProviderControllerPostTests
     [Test, MoqAutoData]
     public async Task Post_Index_ExistingOrganisation_ReturnsViewWithErrors(
     [Frozen] Mock<IValidator<AddProviderSubmitModel>> validator,
+    [Frozen] Mock<ISessionService> sessionServiceMock,
     [Frozen] Mock<IOuterApiClient> outerApiClient,
     CancellationToken cancellationToken)
     {
@@ -82,7 +103,7 @@ public class SelectProviderControllerPostTests
 
         outerApiClient.Setup(x => x.GetOrganisation(int.Parse(viewModel.Ukprn!), cancellationToken)).ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), new GetOrganisationResponse(), new RefitSettings(), null));
 
-        SelectProviderController sut = new(validator.Object, outerApiClient.Object);
+        SelectProviderController sut = new(validator.Object, sessionServiceMock.Object, outerApiClient.Object);
 
         // Act
         var result = await sut.Index(viewModel, cancellationToken);
@@ -100,6 +121,7 @@ public class SelectProviderControllerPostTests
     [Test, MoqAutoData]
     public async Task Post_Index_UkrlpNotFound_RedirectsToCorrectAction(
         [Frozen] Mock<IValidator<AddProviderSubmitModel>> validator,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClient,
         CancellationToken cancellationToken)
     {
@@ -111,7 +133,7 @@ public class SelectProviderControllerPostTests
 
         outerApiClient.Setup(x => x.GetUkrlp(int.Parse(viewModel.Ukprn!), cancellationToken)).ReturnsAsync(new ApiResponse<GetUkrlpResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetUkrlpResponse(), new RefitSettings(), null));
 
-        SelectProviderController sut = new(validator.Object, outerApiClient.Object);
+        SelectProviderController sut = new(validator.Object, sessionServiceMock.Object, outerApiClient.Object);
 
         // Act
         var result = await sut.Index(viewModel, cancellationToken);
@@ -123,5 +145,6 @@ public class SelectProviderControllerPostTests
         redirectResult.RouteName.Should().Be(RouteNames.ProviderNotFoundInUkrlp);
         outerApiClient.Verify(x => x.GetOrganisation(int.Parse(viewModel.Ukprn!), cancellationToken), Times.Once);
         outerApiClient.Verify(x => x.GetUkrlp(int.Parse(viewModel.Ukprn!), cancellationToken), Times.Once);
+        sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.IsAny<AddProviderSessionModel>()), Times.Never);
     }
 }
