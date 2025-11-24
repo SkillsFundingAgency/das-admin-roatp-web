@@ -9,6 +9,8 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.AddProvider;
 [Route("providers/new/details", Name = RouteNames.ProviderDetails)]
 public class ProviderDetailsController(ISessionService _sessionService) : Controller
 {
+    public const string NotApplicableValue = "Not applicable";
+
     [HttpGet]
     public IActionResult Index()
     {
@@ -19,10 +21,10 @@ public class ProviderDetailsController(ISessionService _sessionService) : Contro
         var model = new ProviderDetailsViewModel()
         {
             Ukprn = sessionModel.Ukprn,
-            LegalName = sessionModel.LegalName ?? "Not applicable",
-            TradingName = sessionModel.TradingName ?? "Not applicable",
-            CompanyNumber = sessionModel.CompanyNumber ?? "Not applicable",
-            CharityNumber = sessionModel.CharityNumber ?? "Not applicable",
+            LegalName = sessionModel.LegalName ?? NotApplicableValue,
+            TradingName = sessionModel.TradingName ?? NotApplicableValue,
+            CompanyNumber = sessionModel.CompanyNumber ?? NotApplicableValue,
+            CharityNumber = sessionModel.CharityNumber ?? NotApplicableValue,
             AddProviderRouteUrl = Url.RouteUrl(RouteNames.ProviderDetails)!,
             SelectProviderUrl = Url.RouteUrl(RouteNames.AddProvider)!
         };
