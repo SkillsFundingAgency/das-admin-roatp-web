@@ -1,9 +1,11 @@
 ﻿using AutoFixture.NUnit3;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
 using SFA.DAS.Admin.Roatp.Web.Controllers.AddProvider;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
+using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -12,6 +14,7 @@ public class SelectProviderControllerGetTests
 {
     [Test, MoqAutoData]
     public void Get_Index_ReturnsView(
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] SelectProviderController sut)
     {
         // Act
@@ -21,6 +24,7 @@ public class SelectProviderControllerGetTests
         result.Should().NotBeNull();
         result!.Model.Should().NotBeNull();
         result!.Model.Should().BeOfType<AddProviderViewModel>();
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProvider), Times.Once());
     }
 
     [Test, MoqAutoData]
