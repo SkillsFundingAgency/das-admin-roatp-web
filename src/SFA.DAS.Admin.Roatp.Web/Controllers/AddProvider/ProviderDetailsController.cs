@@ -21,7 +21,7 @@ public class ProviderDetailsController(ISessionService _sessionService) : Contro
         var model = new ProviderDetailsViewModel()
         {
             Ukprn = sessionModel.Ukprn,
-            LegalName = sessionModel.LegalName ?? NotApplicableValue,
+            LegalName = sessionModel.LegalName,
             TradingName = sessionModel.TradingName ?? NotApplicableValue,
             CompanyNumber = sessionModel.CompanyNumber ?? NotApplicableValue,
             CharityNumber = sessionModel.CharityNumber ?? NotApplicableValue,

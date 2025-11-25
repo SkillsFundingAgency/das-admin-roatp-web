@@ -74,14 +74,14 @@ public class ProviderDetailsControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public void Get_Index_SessionReturnsEmptyData_ReturnsViewWithModel(
+    public void Get_Index_SessionMissingData_ReturnsViewWithModel(
         [Frozen] Mock<ISessionService> sessionServiceMock)
     {
         // Arrange
         var sessionModel = new AddProviderSessionModel()
         {
             Ukprn = 12345678,
-            LegalName = null,
+            LegalName = "LegalName",
             TradingName = null,
             CompanyNumber = null,
             CharityNumber = null
@@ -106,7 +106,7 @@ public class ProviderDetailsControllerGetTests
         model!.AddProviderRouteUrl.Should().Be(providerDetailsLink);
         model!.SelectProviderUrl.Should().Be(addProvideLink);
         model.Ukprn.Should().Be(sessionModel.Ukprn);
-        model.LegalName!.Should().Be("Not applicable");
+        model.LegalName!.Should().Be(sessionModel.LegalName);
         model.TradingName!.Should().Be("Not applicable");
         model.CompanyNumber!.Should().Be("Not applicable");
         model.CharityNumber!.Should().Be("Not applicable");

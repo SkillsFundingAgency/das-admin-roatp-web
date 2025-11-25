@@ -58,25 +58,25 @@ public class SelectProviderController(IValidator<AddProviderSubmitModel> _valida
 
         ApiResponse<GetUkrlpResponse> ukrlpApiResponse = await _outerApiClient.GetUkrlp(int.Parse(submitModel.Ukprn!)!, cancellationToken);
 
-        if (ukrlpApiResponse.StatusCode == System.Net.HttpStatusCode.OK)
+        if (ukrlpApiResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
-            GetUkrlpResponse ukrlpResponse = ukrlpApiResponse.Content!;
-
-            var sessionModel = new AddProviderSessionModel()
-            {
-                Ukprn = int.Parse(submitModel.Ukprn!),
-                LegalName = ukrlpResponse.LegalName,
-                TradingName = ukrlpResponse.TradingName,
-                CompanyNumber = ukrlpResponse.CompanyNumber,
-                CharityNumber = ukrlpResponse.CharityNumber
-            };
-
-            _sessionService.Set<AddProviderSessionModel>(SessionKeys.AddProvider, sessionModel);
-
-            return RedirectToRoute(RouteNames.ProviderDetails);
+            return RedirectToRoute(RouteNames.ProviderNotFoundInUkrlp);
         }
 
-        return RedirectToRoute(RouteNames.ProviderNotFoundInUkrlp);
+        GetUkrlpResponse ukrlpResponse = ukrlpApiResponse.Content!;
+
+        var sessionModel = new AddProviderSessionModel()
+        {
+            Ukprn = int.Parse(submitModel.Ukprn!),
+            LegalName = ukrlpResponse.LegalName!,
+            TradingName = ukrlpResponse.TradingName,
+            CompanyNumber = ukrlpResponse.CompanyNumber,
+            CharityNumber = ukrlpResponse.CharityNumber
+        };
+
+        _sessionService.Set<AddProviderSessionModel>(SessionKeys.AddProvider, sessionModel);
+
+        return RedirectToRoute(RouteNames.ProviderDetails);
     }
 
     [HttpGet]
