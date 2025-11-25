@@ -36,7 +36,7 @@ public class SelectProviderControllerPostTests
         var sessionModel = new AddProviderSessionModel()
         {
             Ukprn = int.Parse(submitModel.Ukprn!),
-            LegalName = ukrlpResponse.LegalName,
+            LegalName = ukrlpResponse.LegalName!,
             TradingName = ukrlpResponse.TradingName,
             CompanyNumber = ukrlpResponse.CompanyNumber,
             CharityNumber = ukrlpResponse.CharityNumber
