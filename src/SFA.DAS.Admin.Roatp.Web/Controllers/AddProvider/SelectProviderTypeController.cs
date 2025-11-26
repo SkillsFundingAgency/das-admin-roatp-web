@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
@@ -8,7 +9,7 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.AddProvider;
 
 [Route("providers/new/providertype", Name = RouteNames.SelectProviderType)]
-public class SelectProviderTypeController(ISessionService _sessionService) : Controller
+public class SelectProviderTypeController(ISessionService _sessionService, IValidator<SelectProviderTypeSubmitModel> _validator) : Controller
 {
     [HttpGet]
     public IActionResult Index()
@@ -29,13 +30,27 @@ public class SelectProviderTypeController(ISessionService _sessionService) : Con
     [HttpPost]
     public IActionResult Index(SelectProviderTypeSubmitModel submitModel)
     {
-        var viewModel = new SelectProviderTypeViewModel
-        {
-            ProviderTypes = BuildProviderTypes(submitModel.ProviderTypeId),
-            ProviderTypeId = submitModel.ProviderTypeId
-        };
+        var result = _validator.Validate(submitModel);
 
-        return View(viewModel);
+        if (!result.IsValid)
+        {
+            var viewModel = new SelectProviderTypeViewModel
+            {
+                ProviderTypes = BuildProviderTypes(submitModel.ProviderTypeId),
+                ProviderTypeId = submitModel.ProviderTypeId
+            };
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+            }
+
+            return View(viewModel);
+        }
+
+        return View(result);
+
+
     }
 
     private static List<AddProviderTypeSelectionModel> BuildProviderTypes(int providerTypeId)
