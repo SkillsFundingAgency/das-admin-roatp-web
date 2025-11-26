@@ -8,6 +8,7 @@
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
+        <partial name="_validationSummary" />
         <form asp-route="@RouteNames.SelectProviderType" method="POST" enctype="multipart/form-data">
             <div class="govuk-form-group">
                 <fieldset class="govuk-fieldset">
@@ -16,6 +17,7 @@
                             What provider route are they using?
                         </h1>
                     </legend>
+                    <span asp-validation-for="ProviderTypeId" class="govuk-error-message"></span>
                     <div class="govuk-radios" data-module="govuk-radios">
                         @foreach (var providerType in Model.ProviderTypes)
                         {
@@ -26,7 +28,7 @@
                                 </label>
                             </div>
                         }
-                    </div>
+                    </div>                    
                 </fieldset>
             </div>
             <div class="govuk-button-group">
