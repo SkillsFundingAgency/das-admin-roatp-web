@@ -14,9 +14,10 @@ public class HomeController(IOptions<ApplicationConfiguration> _configuration, I
     [Authorize(Roles = Roles.RoatpAdminTeam)]
     public IActionResult Index()
     {
-        var searchUrl = Url.RouteUrl(RouteNames.SelectProvider);
+        string searchUrl = Url.RouteUrl(RouteNames.SelectProvider)!;
+        string addProviderUrl = Url.RouteUrl(RouteNames.AddProvider)!;
 
-        return View(new ManageTrainingProviderViewModel { SearchForTrainingProviderUrl = searchUrl! });
+        return View(new ManageTrainingProviderViewModel { SearchForTrainingProviderUrl = searchUrl, AddANewTrainingProviderUrl = addProviderUrl });
     }
 
     [Route("/dashboard", Name = RouteNames.Dashboard)]

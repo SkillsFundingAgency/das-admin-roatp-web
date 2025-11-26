@@ -16,4 +16,6 @@ public static class RouteNames
     public const string OrganisationTypeUpdate = nameof(OrganisationTypeUpdate);
     public const string ApprenticeshipUnitsUpdate = nameof(ApprenticeshipUnitsUpdate);
     public const string ApprenticeshipsUpdate = nameof(ApprenticeshipsUpdate);
+    public const string AddProvider = nameof(AddProvider);
+    public const string ProviderNotFoundInUkrlp = nameof(ProviderNotFoundInUkrlp);
 }
