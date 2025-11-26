@@ -18,4 +18,6 @@ public static class RouteNames
     public const string ApprenticeshipsUpdate = nameof(ApprenticeshipsUpdate);
     public const string AddProvider = nameof(AddProvider);
     public const string ProviderNotFoundInUkrlp = nameof(ProviderNotFoundInUkrlp);
+    public const string AdminServiceAddProvider = "organisations-ukprn";
+    public const string AdminServiceAllowedList = "Roatp/AllowedProviders";
 }

@@ -15,8 +15,8 @@ public class HomeController(IOptions<ApplicationConfiguration> _configuration, I
     public IActionResult Index()
     {
         string searchUrl = Url.RouteUrl(RouteNames.SelectProvider)!;
-        string addProviderUrl = _configuration.Value.AdminServicesBaseUrl + "organisations-ukprn";
-        string allowedListUrl = _configuration.Value.AdminServicesBaseUrl + "Roatp/AllowedProviders";
+        string addProviderUrl = new UriBuilder(_configuration.Value.AdminServicesBaseUrl) { Path = RouteNames.AdminServiceAddProvider }.Uri.ToString();
+        string allowedListUrl = new UriBuilder(_configuration.Value.AdminServicesBaseUrl) { Path = RouteNames.AdminServiceAllowedList }.Uri.ToString();
 
         return View(new ManageTrainingProviderViewModel { SearchForTrainingProviderUrl = searchUrl, AddANewTrainingProviderUrl = addProviderUrl, AddUkprnToAllowListUrl = allowedListUrl });
     }
