@@ -4,9 +4,9 @@ using SFA.DAS.Admin.Roatp.Web.Validators.Common;
 
 namespace SFA.DAS.Admin.Roatp.Web.Validators;
 
-public class AddProviderValidator : AbstractValidator<AddProviderSubmitModel>
+public class SelectProviderSubmitModelValidator : AbstractValidator<AddProviderSubmitModel>
 {
-    public AddProviderValidator()
+    public SelectProviderSubmitModelValidator()
     {
         RuleFor(s => s.Ukprn!)
             .MustBeValidUkprnFormat();

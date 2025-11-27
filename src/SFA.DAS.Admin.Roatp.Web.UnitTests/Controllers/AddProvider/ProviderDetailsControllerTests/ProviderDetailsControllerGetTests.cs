@@ -10,7 +10,7 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.AddProvider.ProviderDetails;
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.AddProvider.ProviderDetailsControllerTests;
 public class ProviderDetailsControllerGetTests
 {
     [Test, MoqAutoData]
@@ -51,9 +51,7 @@ public class ProviderDetailsControllerGetTests
 
         var sut = new ProviderDetailsController(sessionServiceMock.Object);
         var addProvideLink = Guid.NewGuid().ToString();
-        var providerDetailsLink = Guid.NewGuid().ToString();
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.ProviderDetails, providerDetailsLink)
             .AddUrlForRoute(RouteNames.AddProvider, addProvideLink);
 
         // Act
@@ -63,7 +61,6 @@ public class ProviderDetailsControllerGetTests
         result.Should().NotBeNull();
         result!.Model.Should().NotBeNull();
         var model = result!.Model as ProviderDetailsViewModel;
-        model!.AddProviderRouteUrl.Should().Be(providerDetailsLink);
         model!.SelectProviderUrl.Should().Be(addProvideLink);
         model.Ukprn.Should().Be(sessionModel.Ukprn);
         model.LegalName!.Should().Be(sessionModel.LegalName);
@@ -91,9 +88,7 @@ public class ProviderDetailsControllerGetTests
 
         var sut = new ProviderDetailsController(sessionServiceMock.Object);
         var addProvideLink = Guid.NewGuid().ToString();
-        var providerDetailsLink = Guid.NewGuid().ToString();
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.ProviderDetails, providerDetailsLink)
             .AddUrlForRoute(RouteNames.AddProvider, addProvideLink);
 
         // Act
@@ -103,7 +98,6 @@ public class ProviderDetailsControllerGetTests
         result.Should().NotBeNull();
         result!.Model.Should().NotBeNull();
         var model = result!.Model as ProviderDetailsViewModel;
-        model!.AddProviderRouteUrl.Should().Be(providerDetailsLink);
         model!.SelectProviderUrl.Should().Be(addProvideLink);
         model.Ukprn.Should().Be(sessionModel.Ukprn);
         model.LegalName!.Should().Be(sessionModel.LegalName);

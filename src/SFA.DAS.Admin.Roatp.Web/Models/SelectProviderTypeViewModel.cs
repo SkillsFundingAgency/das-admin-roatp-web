@@ -3,7 +3,7 @@
 public class SelectProviderTypeViewModel : IBackLink
 {
     public List<AddProviderTypeSelectionModel> ProviderTypes { get; set; } = new();
-    public required int ProviderTypeId { get; set; }
+    public int ProviderTypeId { get; set; }
 }
 
 public class SelectProviderTypeSubmitModel : SelectProviderTypeViewModel
