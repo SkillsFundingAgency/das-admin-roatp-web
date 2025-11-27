@@ -28,8 +28,8 @@ public class HomeControllerGetTests
 
         mockOptions.Setup(c => c.Value).Returns(configuration);
 
-        string addProviderUrl = new UriBuilder(configuration.AdminServicesBaseUrl) { Path = RouteNames.AdminServiceAddProvider }.Uri.ToString();
-        string allowedListUrl = new UriBuilder(configuration.AdminServicesBaseUrl) { Path = RouteNames.AdminServiceAllowedList }.Uri.ToString();
+        string addProviderUrl = new UriBuilder(configuration.AdminServicesBaseUrl) { Path = ExternalPaths.AdminServiceAddProvider }.Uri.ToString();
+        string allowedListUrl = new UriBuilder(configuration.AdminServicesBaseUrl) { Path = ExternalPaths.AdminServiceAllowedList }.Uri.ToString();
 
         var result = sut.Index() as ViewResult;
         result.Should().NotBeNull();
