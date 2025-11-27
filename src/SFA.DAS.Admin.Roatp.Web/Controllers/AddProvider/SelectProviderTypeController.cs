@@ -57,7 +57,7 @@ public class SelectProviderTypeController(ISessionService _sessionService, IVali
         return RedirectToRoute(RouteNames.SelectProviderType);
     }
 
-    private static List<AddProviderTypeSelectionModel> BuildProviderTypes(int providerTypeId)
+    private static List<AddProviderTypeSelectionModel> BuildProviderTypes(int? providerTypeId)
     {
         return new List<AddProviderTypeSelectionModel>
         {

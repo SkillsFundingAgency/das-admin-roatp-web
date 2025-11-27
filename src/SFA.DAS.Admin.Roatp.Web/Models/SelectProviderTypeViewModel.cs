@@ -1,11 +1,11 @@
 ﻿namespace SFA.DAS.Admin.Roatp.Web.Models;
 
-public class SelectProviderTypeViewModel : IBackLink
+public class SelectProviderTypeViewModel : SelectProviderTypeSubmitModel, IBackLink
 {
-    public List<AddProviderTypeSelectionModel> ProviderTypes { get; set; } = new();
-    public int ProviderTypeId { get; set; }
 }
 
-public class SelectProviderTypeSubmitModel : SelectProviderTypeViewModel
+public class SelectProviderTypeSubmitModel
 {
+    public List<AddProviderTypeSelectionModel> ProviderTypes { get; set; } = new();
+    public int? ProviderTypeId { get; set; }
 }

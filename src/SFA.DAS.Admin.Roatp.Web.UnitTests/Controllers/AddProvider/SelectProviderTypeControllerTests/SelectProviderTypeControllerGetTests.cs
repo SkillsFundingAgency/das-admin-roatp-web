@@ -50,6 +50,26 @@ public class SelectProviderTypeControllerGetTests
         sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
     }
 
+    [Test, MoqAutoData]
+    public void Get_Index_SessionIsNull_RedirectsToAddProvider(
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] SelectProviderTypeController sut)
+    {
+        // Arrange
+        sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(() => null!);
+
+
+        // Act
+        var result = sut.Index();
+
+        // Assert
+        result.Should().NotBeNull();
+        var redirectResult = result! as RedirectToRouteResult;
+        redirectResult.Should().NotBeNull();
+        redirectResult!.RouteName.Should().Be(RouteNames.AddProvider);
+        sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
+    }
+
     private static List<AddProviderTypeSelectionModel> BuildProviderTypes(int providerTypeId)
     {
         return new List<AddProviderTypeSelectionModel>
