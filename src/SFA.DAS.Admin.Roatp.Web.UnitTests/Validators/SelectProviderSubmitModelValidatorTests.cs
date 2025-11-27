@@ -4,7 +4,7 @@ using SFA.DAS.Admin.Roatp.Web.Validators;
 using SFA.DAS.Admin.Roatp.Web.Validators.Common;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Validators;
-public class AddProviderValidatorTests
+public class SelectProviderSubmitModelValidatorTests
 {
     [TestCase("")]
     [TestCase(null)]
@@ -14,7 +14,7 @@ public class AddProviderValidatorTests
     [TestCase("abcdefgh")]
     public void Validate_InvalidUkprn_FailsValidation(string ukprn)
     {
-        AddProviderValidator sut = new();
+        SelectProviderSubmitModelValidator sut = new();
 
         var result = sut.TestValidate(new AddProviderSubmitModel() { Ukprn = ukprn });
 
@@ -25,7 +25,7 @@ public class AddProviderValidatorTests
     public void Validate_ValidUkprn_PassesValidation()
     {
         string ukprn = "12345678";
-        AddProviderValidator sut = new();
+        SelectProviderSubmitModelValidator sut = new();
 
         var result = sut.TestValidate(new AddProviderSubmitModel() { Ukprn = ukprn });
 

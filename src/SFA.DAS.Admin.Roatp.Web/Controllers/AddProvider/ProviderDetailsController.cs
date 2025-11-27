@@ -25,7 +25,6 @@ public class ProviderDetailsController(ISessionService _sessionService) : Contro
             TradingName = sessionModel.TradingName ?? NotApplicableValue,
             CompanyNumber = sessionModel.CompanyNumber ?? NotApplicableValue,
             CharityNumber = sessionModel.CharityNumber ?? NotApplicableValue,
-            AddProviderRouteUrl = Url.RouteUrl(RouteNames.SelectProviderType)!,
             SelectProviderUrl = Url.RouteUrl(RouteNames.AddProvider)!
         };
 
@@ -42,8 +41,6 @@ public class ProviderDetailsController(ISessionService _sessionService) : Contro
             sessionModel.ProviderTypeId = null;
             _sessionService.Set(SessionKeys.AddProvider, sessionModel);
         }
-
-        var sessionModel1 = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
 
         return RedirectToRoute(RouteNames.SelectProviderType);
     }
