@@ -40,8 +40,10 @@
             </fieldset>
         </div>
         <div class="govuk-button-group">
-            <a href="@Model.AddProviderRouteUrl" id="continue" class="govuk-button">Continue</a>
-            <a href="@Model.SelectProviderUrl" id="tryagain" class="govuk-button govuk-button--secondary">Try again</a>
+            <form asp-route="@RouteNames.ProviderDetails" method="POST">
+                <button type="submit" id="continue" class="govuk-button" data-disable-on-submit="true">Continue</button>
+                <a href="@Model.SelectProviderUrl" id="tryagain" class="govuk-button govuk-button--secondary">Try again</a>
+            </form>
         </div>
     </div>
 </div>
