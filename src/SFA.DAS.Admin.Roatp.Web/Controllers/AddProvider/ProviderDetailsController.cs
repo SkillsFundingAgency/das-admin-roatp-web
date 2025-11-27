@@ -31,4 +31,20 @@ public class ProviderDetailsController(ISessionService _sessionService) : Contro
 
         return View(model);
     }
+
+    [HttpPost]
+    public IActionResult Index(ProviderDetailsViewModel model)
+    {
+        var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
+
+        if (sessionModel.ProviderTypeId != null)
+        {
+            sessionModel.ProviderTypeId = null;
+            _sessionService.Set(SessionKeys.AddProvider, sessionModel);
+        }
+
+        var sessionModel1 = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
+
+        return RedirectToRoute(RouteNames.SelectProviderType);
+    }
 }
