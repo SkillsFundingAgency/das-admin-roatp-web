@@ -5,7 +5,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Validators;
 
 public class SelectProviderTypeSubmitModelValidator : AbstractValidator<SelectProviderTypeSubmitModel>
 {
-    public const string NoProviderTypeSelectedErrorMessage = "Select a route for this provide";
+    public const string NoProviderTypeSelectedErrorMessage = "Select a route for this provider";
 
     public SelectProviderTypeSubmitModelValidator()
     {

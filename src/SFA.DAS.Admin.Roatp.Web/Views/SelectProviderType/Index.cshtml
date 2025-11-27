@@ -10,13 +10,14 @@
     <div class="govuk-grid-column-two-thirds">
         <partial name="_validationSummary" />
         <form asp-route="@RouteNames.SelectProviderType" method="POST" enctype="multipart/form-data">
-            <div class="govuk-form-group @(ViewData.ModelState["ProviderTypeId"]?.Errors.Count > 0 ? "govuk-form-group--error" : "")">
+            <div id="ProviderTypeId" class="govuk-form-group">
                 <fieldset class="govuk-fieldset">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                         <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">
                             What provider route are they using?
                         </h1>
                     </legend>
+                    <div esfa-validation-marker-for="@Model.ProviderTypeId" class="govuk-form-group">
                     <span asp-validation-for="ProviderTypeId" class="govuk-error-message"></span>
                     <div class="govuk-radios" data-module="govuk-radios">
                         @foreach (var providerType in Model.ProviderTypes)
@@ -28,11 +29,12 @@
                                 </label>
                             </div>
                         }
-                    </div>                    
+                    </div>
+                    </div>
                 </fieldset>
             </div>
             <div class="govuk-button-group">
-                <button type="submit" id="continue" class="govuk-button" data-disable-on-submit="true">Confirm</button>
+                <button type="submit" id="continue" class="govuk-button" data-disable-on-submit="true">Continue</button>
             </div>
         </form>
     </div>
