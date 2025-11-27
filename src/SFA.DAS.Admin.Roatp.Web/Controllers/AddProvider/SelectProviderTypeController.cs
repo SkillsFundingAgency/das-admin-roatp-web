@@ -48,9 +48,13 @@ public class SelectProviderTypeController(ISessionService _sessionService, IVali
             return View(viewModel);
         }
 
-        return View(result);
+        var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
 
+        sessionModel.ProviderTypeId = submitModel.ProviderTypeId;
 
+        _sessionService.Set(SessionKeys.AddProvider, sessionModel);
+
+        return RedirectToRoute(RouteNames.SelectProviderType);
     }
 
     private static List<AddProviderTypeSelectionModel> BuildProviderTypes(int providerTypeId)

@@ -10,10 +10,10 @@
     <div class="govuk-grid-column-two-thirds">
         <partial name="_validationSummary" />
         <form asp-route="@RouteNames.SelectProviderType" method="POST" enctype="multipart/form-data">
-            <div class="govuk-form-group">
+            <div class="govuk-form-group @(ViewData.ModelState["ProviderTypeId"]?.Errors.Count > 0 ? "govuk-form-group--error" : "")">
                 <fieldset class="govuk-fieldset">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                        <h1 class="govuk-fieldset__heading">
+                        <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">
                             What provider route are they using?
                         </h1>
                     </legend>
