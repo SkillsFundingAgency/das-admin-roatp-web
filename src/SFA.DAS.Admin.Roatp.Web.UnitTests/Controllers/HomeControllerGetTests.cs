@@ -18,19 +18,24 @@ public class HomeControllerGetTests
     [Test, MoqAutoData]
     public void HomeIndex_ContainsExpectedModel(
         [Frozen] Mock<ISessionService> _sessionServiceMock,
+        [Frozen] Mock<IOptions<ApplicationConfiguration>> mockOptions,
+        [Frozen] ApplicationConfiguration configuration,
         [Greedy] HomeController sut)
     {
         var selectOrganisationLink = Guid.NewGuid().ToString();
-        var addProvideLink = Guid.NewGuid().ToString();
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.SelectProvider, selectOrganisationLink)
-            .AddUrlForRoute(RouteNames.AddProvider, addProvideLink);
+            .AddUrlForRoute(RouteNames.SelectProvider, selectOrganisationLink);
+
+        mockOptions.Setup(c => c.Value).Returns(configuration);
+
+        string addProviderUrl = new UriBuilder(configuration.AdminServicesBaseUrl) { Path = ExternalPaths.AdminServiceAddProvider }.Uri.ToString();
+        string allowedListUrl = new UriBuilder(configuration.AdminServicesBaseUrl) { Path = ExternalPaths.AdminServiceAllowedList }.Uri.ToString();
 
         var result = sut.Index() as ViewResult;
         result.Should().NotBeNull();
         var model = result.Model as ManageTrainingProviderViewModel;
-        model!.AddANewTrainingProviderUrl.Should().Be(addProvideLink);
-        model.AddUkprnToAllowListUrl.Should().Be("#");
+        model!.AddANewTrainingProviderUrl.Should().Be(addProviderUrl);
+        model.AddUkprnToAllowListUrl.Should().Be(allowedListUrl);
         model.SearchForTrainingProviderUrl.Should().Be(selectOrganisationLink);
     }
 
