@@ -17,13 +17,13 @@
                             What provider route are they using?
                         </h1>
                     </legend>
-                    <div esfa-validation-marker-for="@Model.ProviderTypeId" class="govuk-form-group">
-                    <span asp-validation-for="ProviderTypeId" class="govuk-error-message"></span>
+                    <div esfa-validation-marker-for="@Model.SelectedProviderTypeId" class="govuk-form-group">
+                    <span asp-validation-for="SelectedProviderTypeId" class="govuk-error-message"></span>
                     <div class="govuk-radios" data-module="govuk-radios">
                         @foreach (var providerType in Model.ProviderTypes)
                         {
                             <div class="govuk-radios__item">
-                                <input name="ProviderTypeId" class="govuk-radios__input" id="ProviderTypeId-@providerType.Id" type="radio" value="@providerType.Id" @providerType.Checked>
+                                <input name="SelectedProviderTypeId" class="govuk-radios__input" id="ProviderTypeId-@providerType.Id" type="radio" value="@providerType.Id" @providerType.Checked>
                                 <label class="govuk-label govuk-radios__label" for="ProviderTypeId-@providerType.Id">
                                     @providerType.Description
                                 </label>

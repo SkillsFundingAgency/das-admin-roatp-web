@@ -23,7 +23,7 @@ public class SelectProviderControllerGetTests
         // Assert
         result.Should().NotBeNull();
         result!.Model.Should().NotBeNull();
-        result!.Model.Should().BeOfType<AddProviderViewModel>();
+        result!.Model.Should().BeOfType<SelectProviderViewModel>();
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProvider), Times.Once());
     }
 

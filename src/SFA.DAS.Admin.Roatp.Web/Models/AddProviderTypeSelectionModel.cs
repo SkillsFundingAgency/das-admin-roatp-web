@@ -1,6 +1,8 @@
-﻿namespace SFA.DAS.Admin.Roatp.Web.Models;
+﻿using SFA.DAS.Admin.Roatp.Domain.Models;
 
-public class AddProviderTypeSelectionModel : AddProviderRadioButtonSelectionModel
+namespace SFA.DAS.Admin.Roatp.Web.Models;
+
+public class AddProviderTypeSelectionModel : RadioButtonSelectionModel
 {
     public required int Id { get; set; }
     public required string Description { get; set; }

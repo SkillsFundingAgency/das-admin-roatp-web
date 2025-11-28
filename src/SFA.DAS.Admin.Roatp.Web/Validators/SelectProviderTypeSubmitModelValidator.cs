@@ -9,7 +9,7 @@ public class SelectProviderTypeSubmitModelValidator : AbstractValidator<SelectPr
 
     public SelectProviderTypeSubmitModelValidator()
     {
-        RuleFor(s => s.ProviderTypeId)
+        RuleFor(s => s.SelectedProviderTypeId)
             .NotEmpty()
             .WithMessage(NoProviderTypeSelectedErrorMessage);
     }

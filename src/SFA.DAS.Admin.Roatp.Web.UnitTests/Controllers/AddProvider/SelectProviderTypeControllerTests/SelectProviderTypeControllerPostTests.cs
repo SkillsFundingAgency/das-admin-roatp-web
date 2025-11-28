@@ -8,6 +8,7 @@ using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Web.Controllers.AddProvider;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
+using SFA.DAS.Admin.Roatp.Web.Models.Constants;
 using SFA.DAS.Admin.Roatp.Web.Models.Session;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
@@ -34,9 +35,9 @@ public class SelectProviderTypeControllerPostTests
             ProviderTypeId = providerTypeId
         };
 
-        SelectProviderTypeSubmitModel submitModel = new() { ProviderTypeId = providerTypeId, ProviderTypes = providerTypes };
+        SelectProviderTypeSubmitModel submitModel = new() { SelectedProviderTypeId = providerTypeId };
 
-        validator.Setup(x => x.Validate(It.Is<SelectProviderTypeSubmitModel>(m => m.ProviderTypes == submitModel.ProviderTypes && m.ProviderTypeId == submitModel.ProviderTypeId))).Returns(new ValidationResult());
+        validator.Setup(x => x.Validate(It.Is<SelectProviderTypeSubmitModel>(m => m.SelectedProviderTypeId == submitModel.SelectedProviderTypeId))).Returns(new ValidationResult());
 
         sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(sessionModel);
 
@@ -97,9 +98,9 @@ public class SelectProviderTypeControllerPostTests
     {
         return new List<AddProviderTypeSelectionModel>
         {
-            new() { Description = "Main provider", Id = (int)ProviderType.Main, IsSelected = providerTypeId == (int)ProviderType.Main },
-            new() { Description = "Employer provider", Id = (int)ProviderType.Employer, IsSelected = providerTypeId == (int)ProviderType.Employer },
-            new() { Description = "Supporting provider", Id = (int)ProviderType.Supporting, IsSelected = providerTypeId == (int)ProviderType.Supporting },
+            new() { Description = ProviderTypeDescription.Main, Id = (int)ProviderType.Main, IsSelected = providerTypeId == (int)ProviderType.Main },
+            new() { Description = ProviderTypeDescription.Employer, Id = (int)ProviderType.Employer, IsSelected = providerTypeId == (int)ProviderType.Employer },
+            new() { Description = ProviderTypeDescription.Supporting, Id = (int)ProviderType.Supporting, IsSelected = providerTypeId == (int)ProviderType.Supporting },
         };
     }
 }

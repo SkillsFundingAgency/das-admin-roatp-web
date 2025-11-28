@@ -4,7 +4,7 @@ using SFA.DAS.Admin.Roatp.Web.Validators.Common;
 
 namespace SFA.DAS.Admin.Roatp.Web.Validators;
 
-public class SelectProviderSubmitModelValidator : AbstractValidator<AddProviderSubmitModel>
+public class SelectProviderSubmitModelValidator : AbstractValidator<SelectProviderSubmitModel>
 {
     public SelectProviderSubmitModelValidator()
     {
