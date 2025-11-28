@@ -8,6 +8,7 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
+using SFA.DAS.Admin.Roatp.Web.Models.Constants;
 using SFA.DAS.Testing.AutoFixture;
 using System.Net;
 
@@ -60,9 +61,9 @@ public class ProviderTypeUpdateControllerGetTests
     {
         return new List<ProviderTypeSelectionModel>
         {
-            new() { Description = "Main provider", Id = (int)ProviderType.Main, IsSelected = providerTypeId == (int)ProviderType.Main },
-            new() { Description = "Employer provider", Id = (int)ProviderType.Employer, IsSelected = providerTypeId == (int)ProviderType.Employer },
-            new() { Description = "Supporting provider", Id = (int)ProviderType.Supporting, IsSelected = providerTypeId == (int)ProviderType.Supporting },
+            new() { Description = ProviderTypeDescription.Main, Id = (int)ProviderType.Main, IsSelected = providerTypeId == (int)ProviderType.Main },
+            new() { Description = ProviderTypeDescription.Employer, Id = (int)ProviderType.Employer, IsSelected = providerTypeId == (int)ProviderType.Employer },
+            new() { Description = ProviderTypeDescription.Supporting, Id = (int)ProviderType.Supporting, IsSelected = providerTypeId == (int)ProviderType.Supporting },
         };
     }
 }

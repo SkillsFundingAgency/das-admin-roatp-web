@@ -20,7 +20,7 @@ public class SelectProviderTypeSubmitModelValidatorTests
         var result = _validator.TestValidate(new SelectProviderTypeSubmitModel());
 
         result.IsValid.Should().BeFalse();
-        result.ShouldHaveValidationErrorFor(c => c.ProviderTypeId)
+        result.ShouldHaveValidationErrorFor(c => c.SelectedProviderTypeId)
             .WithErrorMessage(SelectProviderTypeSubmitModelValidator.NoProviderTypeSelectedErrorMessage);
     }
 
@@ -28,7 +28,7 @@ public class SelectProviderTypeSubmitModelValidatorTests
     public void TestValidator_RemovalReasonId_Valid_ReturnsValid()
     {
         int providerTypeId = 1;
-        var result = _validator.TestValidate(new SelectProviderTypeSubmitModel { ProviderTypeId = providerTypeId });
+        var result = _validator.TestValidate(new SelectProviderTypeSubmitModel { SelectedProviderTypeId = providerTypeId });
         result.IsValid.Should().BeTrue();
     }
 }

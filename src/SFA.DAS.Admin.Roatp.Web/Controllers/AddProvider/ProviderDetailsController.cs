@@ -25,23 +25,10 @@ public class ProviderDetailsController(ISessionService _sessionService) : Contro
             TradingName = sessionModel.TradingName ?? NotApplicableValue,
             CompanyNumber = sessionModel.CompanyNumber ?? NotApplicableValue,
             CharityNumber = sessionModel.CharityNumber ?? NotApplicableValue,
+            SelectProviderTypeUrl = Url.RouteUrl(RouteNames.SelectProviderType)!,
             SelectProviderUrl = Url.RouteUrl(RouteNames.AddProvider)!
         };
 
         return View(model);
-    }
-
-    [HttpPost]
-    public IActionResult Index(ProviderDetailsViewModel model)
-    {
-        var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
-
-        if (sessionModel.ProviderTypeId != null)
-        {
-            sessionModel.ProviderTypeId = null;
-            _sessionService.Set(SessionKeys.AddProvider, sessionModel);
-        }
-
-        return RedirectToRoute(RouteNames.SelectProviderType);
     }
 }

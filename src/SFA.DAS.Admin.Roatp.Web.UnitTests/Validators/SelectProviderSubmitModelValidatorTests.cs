@@ -16,7 +16,7 @@ public class SelectProviderSubmitModelValidatorTests
     {
         SelectProviderSubmitModelValidator sut = new();
 
-        var result = sut.TestValidate(new AddProviderSubmitModel() { Ukprn = ukprn });
+        var result = sut.TestValidate(new SelectProviderSubmitModel() { Ukprn = ukprn });
 
         result.ShouldHaveValidationErrorFor(m => m.Ukprn).WithErrorMessage(UkprnValidator.UkprnFormatValidationMessage);
     }
@@ -27,7 +27,7 @@ public class SelectProviderSubmitModelValidatorTests
         string ukprn = "12345678";
         SelectProviderSubmitModelValidator sut = new();
 
-        var result = sut.TestValidate(new AddProviderSubmitModel() { Ukprn = ukprn });
+        var result = sut.TestValidate(new SelectProviderSubmitModel() { Ukprn = ukprn });
 
         result.ShouldNotHaveValidationErrorFor(m => m.Ukprn);
     }
