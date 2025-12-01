@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.Models;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Models.Constants;
@@ -40,10 +41,7 @@ public class SelectProviderTypeController(ISessionService _sessionService, IVali
                 ProviderTypes = BuildProviderTypes(submitModel.SelectedProviderTypeId ?? 0),
             };
 
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-            }
+            ModelState.AddValidationErrors(result.Errors);
 
             return View(viewModel);
         }
@@ -54,7 +52,19 @@ public class SelectProviderTypeController(ISessionService _sessionService, IVali
 
         _sessionService.Set(SessionKeys.AddProvider, sessionModel);
 
-        return RedirectToRoute(RouteNames.SelectProviderType);
+        if (sessionModel.OfferApprenticeships != null)
+        {
+            sessionModel.ClearSessionProperty(nameof(sessionModel.OfferApprenticeships));
+
+            _sessionService.Set(SessionKeys.AddProvider, sessionModel);
+        }
+
+        if (submitModel.SelectedProviderTypeId == (int)ProviderType.Supporting)
+        {
+            return RedirectToRoute(RouteNames.SelectProviderType);
+        }
+
+        return RedirectToRoute(RouteNames.SelectOfferApprenticeships);
     }
 
     private static List<AddProviderTypeSelectionModel> BuildProviderTypes(int providerTypeId)

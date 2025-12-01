@@ -3,8 +3,7 @@
 @using SFA.DAS.Admin.Roatp.Web.Infrastructure
 @model SFA.DAS.Admin.Roatp.Web.Models.OfferApprenticeshipsViewModel
 @{
-    ViewData["Title"] = "update apprenticeships";
-    ViewData["Description"] = "update apprenticeships";
+    ViewData["Title"] = "Do they offer apprenticeships?";
 }
 
 <div class="govuk-grid-row">
@@ -14,29 +13,29 @@
             <div class="govuk-form-group" id="ApprenticeshipsSelectionChoice">
                 <fieldset class="govuk-fieldset">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                        <h1 class="govuk-fieldset__heading">
+                        <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">
                             Do they offer apprenticeships?
                         </h1>
                     </legend>
                     <div esfa-validation-marker-for="@Model.ApprenticeshipsSelectionChoice" class="govuk-form-group">
                         <span asp-validation-for="ApprenticeshipsSelectionChoice" class="govuk-error-message"></span>
-                    <div class="govuk-radios" data-module="govuk-radios">
-                        @foreach (var selection in Model.ApprenticeshipsSelection)
-                        {
-                            <div class="govuk-radios__item">
-                                <input name="ApprenticeshipsSelectionChoice" class="govuk-radios__input" id="ApprenticeshipsId-@selection.Id" type="radio"
-                                       value="@selection.Id.ToString()" @selection.Checked>
-                                <label class="govuk-label govuk-radios__label" for="ApprenticeshipsId-@selection.Id">
-                                    @selection.Description
-                                </label>
-                            </div>
-                        }
-                    </div>
+                        <div class="govuk-radios" data-module="govuk-radios">
+                            @foreach (var selection in Model.ApprenticeshipsSelection)
+                            {
+                                <div class="govuk-radios__item">
+                                    <input name="ApprenticeshipsSelectionChoice" class="govuk-radios__input" id="ApprenticeshipsId-@selection.Id" type="radio"
+                                           value="@selection.Id.ToString()" @selection.Checked>
+                                    <label class="govuk-label govuk-radios__label" for="ApprenticeshipsId-@selection.Id">
+                                        @selection.Description
+                                    </label>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </fieldset>
             </div>
             <div class="govuk-button-group">
-                <button type="submit" id="continue" class="govuk-button" data-disable-on-submit="true">Confirm</button>
+                <button type="submit" id="continue" class="govuk-button" data-disable-on-submit="true">Continue</button>
             </div>
         </form>
     </div>

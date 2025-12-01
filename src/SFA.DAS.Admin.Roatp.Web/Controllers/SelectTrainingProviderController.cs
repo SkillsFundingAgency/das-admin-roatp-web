@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 
@@ -26,10 +27,8 @@ public class SelectTrainingProviderController(IValidator<SelectTrainingProviderV
         if (!result.IsValid)
         {
             var viewModel = new SelectTrainingProviderViewModel();
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-            }
+
+            ModelState.AddValidationErrors(result.Errors);
 
             return View(viewModel);
         }
