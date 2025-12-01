@@ -91,7 +91,7 @@ public class ApprenticeshipsUpdateControllerGetTests
 
         var actual = await sut.Index(ukprn, cancellationToken) as ViewResult;
         actual.Should().NotBeNull();
-        var model = actual.Model as ApprenticeshipsUpdateViewModel;
+        var model = actual.Model as OfferApprenticeshipsViewModel;
         model.Should().NotBeNull();
         model.ApprenticeshipsSelection.Should().BeEquivalentTo(expectedApprenticeshipTypesChoices);
         model.ApprenticeshipsSelectionChoice.Should().Be(containsApprenticeships);

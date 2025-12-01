@@ -2,8 +2,12 @@
 
 namespace SFA.DAS.Admin.Roatp.Web.Models;
 
-public class ApprenticeshipsUpdateViewModel : IBackLink
+public class OfferApprenticeshipsViewModel : OfferApprenticeshipsSubmitModel, IBackLink
 {
     public List<ApprenticeshipsSelectionModel> ApprenticeshipsSelection { get; set; } = new();
+}
+
+public class OfferApprenticeshipsSubmitModel
+{
     public bool? ApprenticeshipsSelectionChoice { get; set; }
 }

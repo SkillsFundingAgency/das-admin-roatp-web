@@ -17,7 +17,7 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.AddProvider.SelectProvid
 public class SelectProviderTypeControllerPostTests
 {
     [Test, MoqAutoData]
-    public void Post_Index_SubmitModelIsValid_SetsSessionAndRedirectsToCorrectAction(
+    public void Post_Index_SubmitModelIsValidAndNotSupportingProvider_SetsSessionAndRedirectsToCorrectAction(
         [Frozen] Mock<IValidator<SelectProviderTypeSubmitModel>> validator,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] SelectProviderTypeController sut)
@@ -32,7 +32,47 @@ public class SelectProviderTypeControllerPostTests
             TradingName = "TradingName",
             CompanyNumber = "12345678",
             CharityNumber = "12345678",
-            ProviderTypeId = providerTypeId
+            ProviderTypeId = providerTypeId,
+            OfferApprenticeships = true
+        };
+
+        SelectProviderTypeSubmitModel submitModel = new() { SelectedProviderTypeId = providerTypeId };
+
+        validator.Setup(x => x.Validate(It.Is<SelectProviderTypeSubmitModel>(m => m.SelectedProviderTypeId == submitModel.SelectedProviderTypeId))).Returns(new ValidationResult());
+
+        sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(sessionModel);
+
+        // Act
+        var result = sut.Index(submitModel);
+
+        // Assert
+        result.Should().NotBeNull();
+        var redirectResult = result as RedirectToRouteResult;
+        redirectResult.Should().NotBeNull();
+        redirectResult.RouteName.Should().Be(RouteNames.SelectOfferApprenticeships);
+        sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
+        sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.Is<AddProviderSessionModel>(m =>
+            m.ProviderTypeId == sessionModel.ProviderTypeId && m.OfferApprenticeships == sessionModel.OfferApprenticeships)), Times.Exactly(2));
+    }
+
+    [Test, MoqAutoData]
+    public void Post_Index_SubmitModelIsValidAndSupportingProvider_SetsSessionAndRedirectsToCorrectAction(
+        [Frozen] Mock<IValidator<SelectProviderTypeSubmitModel>> validator,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] SelectProviderTypeController sut)
+    {
+        // Arrange
+        var providerTypeId = 3;
+        var providerTypes = BuildProviderTypes(providerTypeId);
+        var sessionModel = new AddProviderSessionModel()
+        {
+            Ukprn = 12345678,
+            LegalName = "LegalName",
+            TradingName = "TradingName",
+            CompanyNumber = "12345678",
+            CharityNumber = "12345678",
+            ProviderTypeId = providerTypeId,
+            OfferApprenticeships = null
         };
 
         SelectProviderTypeSubmitModel submitModel = new() { SelectedProviderTypeId = providerTypeId };
@@ -51,7 +91,7 @@ public class SelectProviderTypeControllerPostTests
         redirectResult.RouteName.Should().Be(RouteNames.SelectProviderType);
         sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
         sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.Is<AddProviderSessionModel>(m =>
-            m.ProviderTypeId == sessionModel.ProviderTypeId)), Times.Once);
+            m.ProviderTypeId == sessionModel.ProviderTypeId && m.OfferApprenticeships == sessionModel.OfferApprenticeships)), Times.Once);
     }
 
     [Test, MoqAutoData]

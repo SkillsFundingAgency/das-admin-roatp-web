@@ -20,4 +20,5 @@ public static class RouteNames
     public const string ProviderNotFoundInUkrlp = nameof(ProviderNotFoundInUkrlp);
     public const string ProviderDetails = nameof(ProviderDetails);
     public const string SelectProviderType = nameof(SelectProviderType);
+    public const string SelectOfferApprenticeships = nameof(SelectOfferApprenticeships);
 }

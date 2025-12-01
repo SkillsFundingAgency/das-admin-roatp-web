@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.Models;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Services;
@@ -10,7 +11,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
 [Route("providers/{ukprn}/apprenticeships", Name = RouteNames.ApprenticeshipsUpdate)]
 
-public class ApprenticeshipsUpdateController(IOuterApiClient _outerApiClient, ISessionService _sessionService, IValidator<ApprenticeshipsUpdateViewModel> _validator) : Controller
+public class ApprenticeshipsUpdateController(IOuterApiClient _outerApiClient, ISessionService _sessionService, IValidator<OfferApprenticeshipsSubmitModel> _validator) : Controller
 {
     public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
     {
@@ -27,7 +28,7 @@ public class ApprenticeshipsUpdateController(IOuterApiClient _outerApiClient, IS
             containsApprenticeships = sessionModel.CourseTypeIds.Any(a => a == (int)LearningType.Standard);
         }
 
-        var model = new ApprenticeshipsUpdateViewModel
+        var model = new OfferApprenticeshipsViewModel
         {
             ApprenticeshipsSelectionChoice = containsApprenticeships,
             ApprenticeshipsSelection = BuildApprenticeshipsChoices(containsApprenticeships)
@@ -37,32 +38,29 @@ public class ApprenticeshipsUpdateController(IOuterApiClient _outerApiClient, IS
     }
 
     [HttpPost]
-    public async Task<IActionResult> Index(int ukprn, ApprenticeshipsUpdateViewModel model,
+    public async Task<IActionResult> Index(int ukprn, OfferApprenticeshipsSubmitModel submitModel,
         CancellationToken cancellationToken)
     {
         var organisationApiResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
 
         if (organisationApiResponse.StatusCode != HttpStatusCode.OK) return RedirectToRoute(RouteNames.Home);
 
-        var result = _validator.Validate(model);
+        var result = _validator.Validate(submitModel);
 
         if (!result.IsValid)
         {
-            var viewModel = new ApprenticeshipsUpdateViewModel
+            var viewModel = new OfferApprenticeshipsViewModel
             {
-                ApprenticeshipsSelectionChoice = model.ApprenticeshipsSelectionChoice,
-                ApprenticeshipsSelection = BuildApprenticeshipsChoices(model.ApprenticeshipsSelectionChoice)
+                ApprenticeshipsSelectionChoice = submitModel.ApprenticeshipsSelectionChoice,
+                ApprenticeshipsSelection = BuildApprenticeshipsChoices(submitModel.ApprenticeshipsSelectionChoice)
             };
 
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-            }
+            ModelState.AddValidationErrors(result.Errors);
 
             return View(viewModel);
         }
 
-        if (model.ApprenticeshipsSelectionChoice is true)
+        if (submitModel.ApprenticeshipsSelectionChoice is true)
         {
             var sessionModel =
                 _sessionService.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys

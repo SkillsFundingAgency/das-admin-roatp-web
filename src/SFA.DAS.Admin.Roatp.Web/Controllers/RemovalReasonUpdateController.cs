@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Services;
@@ -61,10 +62,8 @@ public class RemovalReasonUpdateController(IOuterApiClient _outerApiClient, IOrg
                 RemovedReasons = removalReasonsResponse.ReasonsForRemoval.OrderBy(r => r.Description).ToList(),
                 RemovalReasonId = organisationResponse.RemovedReasonId,
             };
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-            }
+
+            ModelState.AddValidationErrors(result.Errors);
 
             return View(viewModel);
         }

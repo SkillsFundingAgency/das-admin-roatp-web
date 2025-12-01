@@ -65,10 +65,8 @@ public class ApprenticeshipUnitsUpdateController(IOuterApiClient _outerApiClient
                 ApprenticeshipUnitsSelection = BuildApprenticeshipTypesChoices(model.ApprenticeshipUnitsSelectionId),
                 OffersApprenticeships = model.OffersApprenticeships
             };
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-            }
+
+            ModelState.AddValidationErrors(result.Errors);
 
             return View(viewModel);
         }

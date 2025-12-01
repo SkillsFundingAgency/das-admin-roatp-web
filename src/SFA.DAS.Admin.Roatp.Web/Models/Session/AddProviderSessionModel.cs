@@ -7,4 +7,10 @@ public class AddProviderSessionModel
     public string? CharityNumber { get; set; }
     public string? CompanyNumber { get; set; }
     public int? ProviderTypeId { get; set; }
+    public bool? OfferApprenticeships { get; set; }
+    public void ClearSessionProperty(string propertyName)
+    {
+        var propertyType = GetType().GetProperty(propertyName);
+        propertyType?.SetValue(this, default);
+    }
 }
