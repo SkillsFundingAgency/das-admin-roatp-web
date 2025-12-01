@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Refit;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Models.Session;
@@ -35,10 +36,8 @@ public class SelectProviderController(IValidator<SelectProviderSubmitModel> _val
         if (!result.IsValid)
         {
             var viewModel = new SelectProviderViewModel() { Ukprn = submitModel.Ukprn };
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-            }
+
+            ModelState.AddValidationErrors(result.Errors);
 
             return View(viewModel);
         }

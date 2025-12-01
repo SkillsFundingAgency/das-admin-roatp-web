@@ -23,14 +23,14 @@ public class ApprenticeshipsUpdateControllerPostTests
     public async Task Post_NoMatchingDetails_RedirectToHome(
      [Frozen] Mock<IOuterApiClient> outerApiClientMock,
      [Greedy] ApprenticeshipsUpdateController sut,
-     ApprenticeshipsUpdateViewModel viewModel,
+     OfferApprenticeshipsSubmitModel submitModel,
      int ukprn,
      CancellationToken cancellationToken)
     {
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null));
 
-        var actual = await sut.Index(ukprn, viewModel, cancellationToken);
+        var actual = await sut.Index(ukprn, submitModel, cancellationToken);
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
@@ -41,16 +41,16 @@ public class ApprenticeshipsUpdateControllerPostTests
     [MoqInlineAutoData]
     public async Task Post_ValidationTriggered_ResetWithCorrectViewModelSetup(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IValidator<ApprenticeshipsUpdateViewModel>> validator,
+        [Frozen] Mock<IValidator<OfferApprenticeshipsSubmitModel>> validator,
         [Greedy] ApprenticeshipsUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
-        ApprenticeshipsUpdateViewModel viewModel,
+        OfferApprenticeshipsSubmitModel submitModel,
         int ukprn,
         CancellationToken cancellationToken)
     {
         var validationResult = new ValidationResult();
         validationResult.Errors.Add(new ValidationFailure("Field", "Error"));
-        validator.Setup(x => x.Validate(viewModel))
+        validator.Setup(x => x.Validate(submitModel))
             .Returns(validationResult);
 
         var selectedNoId = false;
@@ -64,7 +64,7 @@ public class ApprenticeshipsUpdateControllerPostTests
         var currentCourseTypeIds = getOrganisationResponse.AllowedCourseTypes
             .Select(a => a.CourseTypeId).ToList();
 
-        viewModel.ApprenticeshipsSelectionChoice = selectedNoId;
+        submitModel.ApprenticeshipsSelectionChoice = selectedNoId;
 
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
@@ -72,11 +72,11 @@ public class ApprenticeshipsUpdateControllerPostTests
 
         var expectedSelections = BuildApprenticeshipsChoices(selectedNoId);
 
-        var actual = await sut.Index(ukprn, viewModel, cancellationToken);
+        var actual = await sut.Index(ukprn, submitModel, cancellationToken);
         actual.Should().NotBeNull();
         var result = actual! as ViewResult;
         result.Should().NotBeNull();
-        var model = result!.Model as ApprenticeshipsUpdateViewModel;
+        var model = result!.Model as OfferApprenticeshipsViewModel;
         model.Should().NotBeNull();
         model.ApprenticeshipsSelectionChoice.Should().Be(selectedNoId);
         model.ApprenticeshipsSelection.Should().BeEquivalentTo(expectedSelections);
@@ -86,16 +86,16 @@ public class ApprenticeshipsUpdateControllerPostTests
     [MoqInlineAutoData]
     public async Task Post_NoSelected_MoveToApprenticeshipUnitsUpdate(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IValidator<ApprenticeshipsUpdateViewModel>> validator,
+        [Frozen] Mock<IValidator<OfferApprenticeshipsSubmitModel>> validator,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ApprenticeshipsUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
-        ApprenticeshipsUpdateViewModel viewModel,
+        OfferApprenticeshipsSubmitModel submitModel,
         int ukprn,
         CancellationToken cancellationToken)
     {
         var validationResult = new ValidationResult();
-        validator.Setup(x => x.Validate(viewModel))
+        validator.Setup(x => x.Validate(submitModel))
             .Returns(validationResult);
 
         var selectedNoId = false;
@@ -107,13 +107,13 @@ public class ApprenticeshipsUpdateControllerPostTests
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
 
-        viewModel.ApprenticeshipsSelectionChoice = selectedNoId;
+        submitModel.ApprenticeshipsSelectionChoice = selectedNoId;
 
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), new GetOrganisationResponse(), new RefitSettings(), null));
 
-        var actual = await sut.Index(ukprn, viewModel, cancellationToken);
+        var actual = await sut.Index(ukprn, submitModel, cancellationToken);
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
@@ -128,16 +128,16 @@ public class ApprenticeshipsUpdateControllerPostTests
     [MoqInlineAutoData]
     public async Task Post_YesSelected_SetInSession_MoveToApprenticeshipUnitsUpdate(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IValidator<ApprenticeshipsUpdateViewModel>> validator,
+        [Frozen] Mock<IValidator<OfferApprenticeshipsSubmitModel>> validator,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ApprenticeshipsUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
-        ApprenticeshipsUpdateViewModel viewModel,
+        OfferApprenticeshipsSubmitModel submitModel,
         int ukprn,
         CancellationToken cancellationToken)
     {
         var validationResult = new ValidationResult();
-        validator.Setup(x => x.Validate(viewModel))
+        validator.Setup(x => x.Validate(submitModel))
             .Returns(validationResult);
 
         var selectedNoId = true;
@@ -148,13 +148,13 @@ public class ApprenticeshipsUpdateControllerPostTests
         var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = "Unit", LearningType = LearningType.ShortCourse } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
-        viewModel.ApprenticeshipsSelectionChoice = selectedNoId;
+        submitModel.ApprenticeshipsSelectionChoice = selectedNoId;
 
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), new GetOrganisationResponse(), new RefitSettings(), null));
 
-        var actual = await sut.Index(ukprn, viewModel, cancellationToken);
+        var actual = await sut.Index(ukprn, submitModel, cancellationToken);
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
