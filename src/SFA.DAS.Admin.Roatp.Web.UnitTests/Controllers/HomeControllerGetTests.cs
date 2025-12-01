@@ -23,12 +23,13 @@ public class HomeControllerGetTests
         [Greedy] HomeController sut)
     {
         var selectOrganisationLink = Guid.NewGuid().ToString();
+        string addProviderUrl = Guid.NewGuid().ToString();
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.SelectProvider, selectOrganisationLink);
+            .AddUrlForRoute(RouteNames.SelectProvider, selectOrganisationLink)
+            .AddUrlForRoute(RouteNames.AddProvider, addProviderUrl);
 
         mockOptions.Setup(c => c.Value).Returns(configuration);
 
-        string addProviderUrl = new UriBuilder(configuration.AdminServicesBaseUrl) { Path = ExternalPaths.AdminServiceAddProvider }.Uri.ToString();
         string allowedListUrl = new UriBuilder(configuration.AdminServicesBaseUrl) { Path = ExternalPaths.AdminServiceAllowedList }.Uri.ToString();
 
         var result = sut.Index() as ViewResult;
