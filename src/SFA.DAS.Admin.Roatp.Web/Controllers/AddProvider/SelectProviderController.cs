@@ -55,11 +55,21 @@ public class SelectProviderController(IValidator<SelectProviderSubmitModel> _val
             return View(viewModel);
         }
 
+        if (organisationApiResponse.StatusCode != System.Net.HttpStatusCode.NotFound)
+        {
+            throw new InvalidOperationException($"Unexpected status code returned from GetOrganisation: {organisationApiResponse.StatusCode}");
+        }
+
         ApiResponse<GetUkrlpResponse> ukrlpApiResponse = await _outerApiClient.GetUkrlp(int.Parse(submitModel.Ukprn!)!, cancellationToken);
 
         if (ukrlpApiResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             return RedirectToRoute(RouteNames.ProviderNotFoundInUkrlp);
+        }
+
+        if (ukrlpApiResponse.StatusCode != System.Net.HttpStatusCode.OK)
+        {
+            throw new InvalidOperationException($"Unexpected status code returned from GetUkrlp: {ukrlpApiResponse.StatusCode}");
         }
 
         GetUkrlpResponse ukrlpResponse = ukrlpApiResponse.Content!;
