@@ -147,4 +147,56 @@ public class SelectProviderControllerPostTests
         outerApiClient.Verify(x => x.GetUkrlp(int.Parse(viewModel.Ukprn!), cancellationToken), Times.Once);
         sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.IsAny<AddProviderSessionModel>()), Times.Never);
     }
+
+    [Test, MoqAutoData]
+    public async Task Post_Index_GetOrganisationReturnsInvalidStatusCode_ThrowsException(
+        [Frozen] Mock<IValidator<SelectProviderSubmitModel>> validator,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClient,
+        CancellationToken cancellationToken)
+    {
+        // Arrange
+        SelectProviderSubmitModel viewModel = new() { Ukprn = "12345678" };
+        validator.Setup(x => x.Validate(It.Is<SelectProviderSubmitModel>(m => m.Ukprn == viewModel.Ukprn))).Returns(new ValidationResult());
+
+        outerApiClient.Setup(x => x.GetOrganisation(int.Parse(viewModel.Ukprn!), cancellationToken)).ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.InternalServerError), new GetOrganisationResponse(), new RefitSettings(), null));
+
+        SelectProviderController sut = new(validator.Object, sessionServiceMock.Object, outerApiClient.Object);
+
+        // Act
+        Func<Task> result = async () => await sut.Index(viewModel, cancellationToken);
+
+        // Assert
+        await result.Should().ThrowAsync<InvalidOperationException>();
+        outerApiClient.Verify(x => x.GetOrganisation(int.Parse(viewModel.Ukprn!), cancellationToken), Times.Once);
+        outerApiClient.Verify(x => x.GetUkrlp(int.Parse(viewModel.Ukprn!), cancellationToken), Times.Never);
+        sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.IsAny<AddProviderSessionModel>()), Times.Never);
+    }
+
+    [Test, MoqAutoData]
+    public async Task Post_Index_GetUkrlpReturnsInvalidStatusCode_ThrowsException(
+        [Frozen] Mock<IValidator<SelectProviderSubmitModel>> validator,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClient,
+        CancellationToken cancellationToken)
+    {
+        // Arrange
+        SelectProviderSubmitModel viewModel = new() { Ukprn = "12345678" };
+        validator.Setup(x => x.Validate(It.Is<SelectProviderSubmitModel>(m => m.Ukprn == viewModel.Ukprn))).Returns(new ValidationResult());
+
+        outerApiClient.Setup(x => x.GetOrganisation(int.Parse(viewModel.Ukprn!), cancellationToken)).ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null));
+
+        outerApiClient.Setup(x => x.GetUkrlp(int.Parse(viewModel.Ukprn!), cancellationToken)).ReturnsAsync(new ApiResponse<GetUkrlpResponse>(new HttpResponseMessage(HttpStatusCode.InternalServerError), new GetUkrlpResponse(), new RefitSettings(), null));
+
+        SelectProviderController sut = new(validator.Object, sessionServiceMock.Object, outerApiClient.Object);
+
+        // Act
+        Func<Task> result = async () => await sut.Index(viewModel, cancellationToken);
+
+        // Assert
+        await result.Should().ThrowAsync<InvalidOperationException>();
+        outerApiClient.Verify(x => x.GetOrganisation(int.Parse(viewModel.Ukprn!), cancellationToken), Times.Once);
+        outerApiClient.Verify(x => x.GetUkrlp(int.Parse(viewModel.Ukprn!), cancellationToken), Times.Once);
+        sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.IsAny<AddProviderSessionModel>()), Times.Never);
+    }
 }

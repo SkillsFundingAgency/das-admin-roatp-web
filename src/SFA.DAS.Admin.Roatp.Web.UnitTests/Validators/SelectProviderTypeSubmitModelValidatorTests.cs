@@ -15,7 +15,7 @@ public class SelectProviderTypeSubmitModelValidatorTests
     }
 
     [Test]
-    public void TestValidator_RemovalReasonId_Invalid_ReturnsExpectedErrorMessage()
+    public void TestValidator_SelectedProviderTypeId_Invalid_ReturnsExpectedErrorMessage()
     {
         var result = _validator.TestValidate(new SelectProviderTypeSubmitModel());
 
@@ -25,7 +25,7 @@ public class SelectProviderTypeSubmitModelValidatorTests
     }
 
     [Test]
-    public void TestValidator_RemovalReasonId_Valid_ReturnsValid()
+    public void TestValidator_SelectedProviderTypeId_Valid_ReturnsValid()
     {
         int providerTypeId = 1;
         var result = _validator.TestValidate(new SelectProviderTypeSubmitModel { SelectedProviderTypeId = providerTypeId });

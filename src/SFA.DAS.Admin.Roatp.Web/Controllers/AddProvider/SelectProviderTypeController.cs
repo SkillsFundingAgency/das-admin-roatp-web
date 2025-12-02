@@ -18,7 +18,7 @@ public class SelectProviderTypeController(ISessionService _sessionService, IVali
     {
         var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
 
-        if (sessionModel == null) return RedirectToRoute(RouteNames.AddProvider);
+        if (sessionModel == null) return RedirectToRoute(RouteNames.Home);
 
         var model = new SelectProviderTypeViewModel
         {
@@ -32,6 +32,10 @@ public class SelectProviderTypeController(ISessionService _sessionService, IVali
     [HttpPost]
     public IActionResult Index(SelectProviderTypeSubmitModel submitModel)
     {
+        var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
+
+        if (sessionModel == null) return RedirectToRoute(RouteNames.Home);
+
         var result = _validator.Validate(submitModel);
 
         if (!result.IsValid)
@@ -46,18 +50,14 @@ public class SelectProviderTypeController(ISessionService _sessionService, IVali
             return View(viewModel);
         }
 
-        var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
+        if (sessionModel.ProviderTypeId != submitModel.SelectedProviderTypeId)
+        {
+            sessionModel.ResetModel();
+        }
 
         sessionModel.ProviderTypeId = submitModel.SelectedProviderTypeId;
 
         _sessionService.Set(SessionKeys.AddProvider, sessionModel);
-
-        if (sessionModel.OfferApprenticeships != null)
-        {
-            sessionModel.ClearSessionProperty(nameof(sessionModel.OfferApprenticeships));
-
-            _sessionService.Set(SessionKeys.AddProvider, sessionModel);
-        }
 
         if (submitModel.SelectedProviderTypeId == (int)ProviderType.Supporting)
         {

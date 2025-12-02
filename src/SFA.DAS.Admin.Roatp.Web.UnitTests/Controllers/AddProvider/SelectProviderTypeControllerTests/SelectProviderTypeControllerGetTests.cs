@@ -52,7 +52,7 @@ public class SelectProviderTypeControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public void Get_Index_SessionIsNull_RedirectsToAddProvider(
+    public void Get_Index_SessionIsNull_RedirectsToHome(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] SelectProviderTypeController sut)
     {
@@ -67,7 +67,7 @@ public class SelectProviderTypeControllerGetTests
         result.Should().NotBeNull();
         var redirectResult = result! as RedirectToRouteResult;
         redirectResult.Should().NotBeNull();
-        redirectResult!.RouteName.Should().Be(RouteNames.AddProvider);
+        redirectResult!.RouteName.Should().Be(RouteNames.Home);
         sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
     }
 

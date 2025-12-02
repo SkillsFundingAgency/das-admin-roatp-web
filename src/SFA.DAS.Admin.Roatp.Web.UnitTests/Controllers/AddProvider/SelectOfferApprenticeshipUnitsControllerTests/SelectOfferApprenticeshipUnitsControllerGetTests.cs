@@ -10,17 +10,17 @@ using SFA.DAS.Admin.Roatp.Web.Models.Session;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.AddProvider.SelectOfferApprenticeshipsControllerTests;
-public class SelectOfferApprenticeshipsControllerGetTests
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.AddProvider.SelectOfferApprenticeshipUnitsControllerTests;
+public class SelectOfferApprenticeshipUnitsControllerGetTests
 {
     [Test]
     [MoqInlineAutoData(null)]
     [MoqInlineAutoData(false)]
     [MoqInlineAutoData(true)]
-    public void Get_Index_SessionsReturnsVariationOfOfferApprenticeshipsInput_ReturnsViewModel(
-        bool? offerApprenticeships,
+    public void Get_Index_SessionsReturnsVariationOfOfferApprenticeshipUnitsInput_ReturnsViewModel(
+        bool? offerApprenticeshipUnits,
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Greedy] SelectOfferApprenticeshipsController sut)
+        [Greedy] SelectOfferApprenticeshipUnitsController sut)
     {
         // Arrange
         var sessionModel = new AddProviderSessionModel()
@@ -31,12 +31,13 @@ public class SelectOfferApprenticeshipsControllerGetTests
             CompanyNumber = "12345678",
             CharityNumber = "12345678",
             ProviderTypeId = 1,
-            OfferApprenticeships = offerApprenticeships,
+            OfferApprenticeships = true,
+            OfferApprenticeshipUnits = offerApprenticeshipUnits,
         };
 
         sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(sessionModel);
 
-        var expectedApprenticeshipTypesChoices = BuildApprenticeshipsChoices(offerApprenticeships);
+        var expectedApprenticeshipTypesChoices = BuildApprenticeshipTypesChoices(offerApprenticeshipUnits);
 
         // Act
         var result = sut.Index() as ViewResult;
@@ -44,16 +45,16 @@ public class SelectOfferApprenticeshipsControllerGetTests
         // Assert
         result.Should().NotBeNull();
         result!.Model.Should().NotBeNull();
-        result!.Model.Should().BeOfType<OfferApprenticeshipsViewModel>();
-        var model = result!.Model as OfferApprenticeshipsViewModel;
-        model!.ApprenticeshipsSelection.Should().BeEquivalentTo(expectedApprenticeshipTypesChoices);
+        result!.Model.Should().BeOfType<OfferApprenticeshipUnitsViewModel>();
+        var model = result!.Model as OfferApprenticeshipUnitsViewModel;
+        model!.ApprenticeshipUnitsSelection.Should().BeEquivalentTo(expectedApprenticeshipTypesChoices);
         sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
     }
 
     [Test, MoqAutoData]
     public void Get_Index_SessionIsNull_RedirectsToHome(
     [Frozen] Mock<ISessionService> sessionServiceMock,
-    [Greedy] SelectOfferApprenticeshipsController sut)
+    [Greedy] SelectOfferApprenticeshipUnitsController sut)
     {
         // Arrange
         sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(() => null!);
@@ -73,7 +74,7 @@ public class SelectOfferApprenticeshipsControllerGetTests
     [Test, MoqAutoData]
     public void Get_Index_SessionReturnSupportingProvider_RedirectsToSelectProviderType(
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Greedy] SelectOfferApprenticeshipsController sut)
+        [Greedy] SelectOfferApprenticeshipUnitsController sut)
     {
         // Arrange
         var sessionModel = new AddProviderSessionModel()
@@ -96,12 +97,12 @@ public class SelectOfferApprenticeshipsControllerGetTests
         sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
     }
 
-    private static List<ApprenticeshipsSelectionModel> BuildApprenticeshipsChoices(bool? containsApprenticeshipUnits)
+    private static List<ApprenticeshipUnitsSelectionModel> BuildApprenticeshipTypesChoices(bool? selectedId)
     {
-        return new List<ApprenticeshipsSelectionModel>
-            {
-                new() { Description = "Yes", Id = true, IsSelected = containsApprenticeshipUnits is true},
-                new() { Description = "No", Id = false, IsSelected =  containsApprenticeshipUnits is false}
-            };
+        return new List<ApprenticeshipUnitsSelectionModel>
+        {
+            new() { Description = "Yes", Id = true, IsSelected = selectedId is true},
+            new() { Description = "No", Id = false, IsSelected = selectedId is false},
+        };
     }
 }
