@@ -17,7 +17,7 @@ public class SelectOfferApprenticeshipsController(ISessionService _sessionServic
     {
         var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
 
-        if (sessionModel == null) return RedirectToRoute(RouteNames.AddProvider);
+        if (sessionModel == null) return RedirectToRoute(RouteNames.Home);
 
         if (sessionModel.ProviderTypeId == (int)ProviderType.Supporting) return RedirectToRoute(RouteNames.SelectProviderType);
 
@@ -32,6 +32,10 @@ public class SelectOfferApprenticeshipsController(ISessionService _sessionServic
     [HttpPost]
     public IActionResult Index(OfferApprenticeshipsSubmitModel submitModel)
     {
+        var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
+
+        if (sessionModel == null) return RedirectToRoute(RouteNames.Home);
+
         var result = _validator.Validate(submitModel);
 
         if (!result.IsValid)
@@ -47,13 +51,13 @@ public class SelectOfferApprenticeshipsController(ISessionService _sessionServic
             return View(viewModel);
         }
 
-        var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
+
 
         sessionModel.OfferApprenticeships = submitModel.ApprenticeshipsSelectionChoice;
 
         _sessionService.Set(SessionKeys.AddProvider, sessionModel);
 
-        return RedirectToRoute(RouteNames.SelectOfferApprenticeships);
+        return RedirectToRoute(RouteNames.SelectOfferApprenticeshipUnits);
     }
 
     private static List<ApprenticeshipsSelectionModel> BuildApprenticeshipsChoices(bool? containsApprenticeshipUnits)
