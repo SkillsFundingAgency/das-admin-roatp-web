@@ -20,7 +20,7 @@ public class OfferApprenticeshipUnitsSubmitModelValidatorTests
         var result = _validator.TestValidate(new OfferApprenticeshipUnitsSubmitModel());
 
         result.IsValid.Should().BeFalse();
-        result.ShouldHaveValidationErrorFor(c => c.ApprenticeshipUnitsSelectionId)
+        result.ShouldHaveValidationErrorFor(c => c.IsApprenticeshipUnitsOffered)
             .WithErrorMessage(OfferApprenticeshipUnitsSubmitModelValidator.ApprenticeshipUnitSelectionErrorMessage);
     }
 
@@ -28,7 +28,7 @@ public class OfferApprenticeshipUnitsSubmitModelValidatorTests
     public void TestValidator_ApprenticeshipUnitsSelectionId_Valid_ReturnsValid()
     {
         bool apprenticeshipUnitsSelection = true;
-        var result = _validator.TestValidate(new OfferApprenticeshipUnitsSubmitModel { ApprenticeshipUnitsSelectionId = apprenticeshipUnitsSelection });
+        var result = _validator.TestValidate(new OfferApprenticeshipUnitsSubmitModel { IsApprenticeshipUnitsOffered = apprenticeshipUnitsSelection });
         result.IsValid.Should().BeTrue();
     }
 }

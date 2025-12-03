@@ -10,20 +10,20 @@
     <div class="govuk-grid-column-two-thirds">
         <partial name="_validationSummary" />
         <form asp-route="@RouteNames.ApprenticeshipsUpdate" method="POST" enctype="multipart/form-data">
-            <div class="govuk-form-group" id="ApprenticeshipsSelectionChoice">
+            <div class="govuk-form-group" id="IsApprenticeshipsOffered">
                 <fieldset class="govuk-fieldset">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                         <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">
                             Do they offer apprenticeships?
                         </h1>
                     </legend>
-                    <div esfa-validation-marker-for="@Model.ApprenticeshipsSelectionChoice" class="govuk-form-group">
-                        <span asp-validation-for="ApprenticeshipsSelectionChoice" class="govuk-error-message"></span>
+                    <div esfa-validation-marker-for="@Model.IsApprenticeshipsOffered" class="govuk-form-group">
+                        <span asp-validation-for="IsApprenticeshipsOffered" class="govuk-error-message"></span>
                         <div class="govuk-radios" data-module="govuk-radios">
                             @foreach (var selection in Model.ApprenticeshipsSelection)
                             {
                                 <div class="govuk-radios__item">
-                                    <input name="ApprenticeshipsSelectionChoice" class="govuk-radios__input" id="ApprenticeshipsId-@selection.Id" type="radio"
+                                    <input name="IsApprenticeshipsOffered" class="govuk-radios__input" id="ApprenticeshipsId-@selection.Id" type="radio"
                                            value="@selection.Id.ToString()" @selection.Checked>
                                     <label class="govuk-label govuk-radios__label" for="ApprenticeshipsId-@selection.Id">
                                         @selection.Description

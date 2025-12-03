@@ -29,13 +29,13 @@ public class SelectOfferApprenticeshipsControllerPostTests
             CompanyNumber = "12345678",
             CharityNumber = "12345678",
             ProviderTypeId = 1,
-            OfferApprenticeships = true,
-            OfferApprenticeshipUnits = true
+            OffersApprenticeships = true,
+            OffersApprenticeshipUnits = true
         };
 
-        OfferApprenticeshipsSubmitModel submitModel = new() { ApprenticeshipsSelectionChoice = true };
+        OfferApprenticeshipsSubmitModel submitModel = new() { IsApprenticeshipsOffered = true };
 
-        validator.Setup(x => x.Validate(It.Is<OfferApprenticeshipsSubmitModel>(m => m.ApprenticeshipsSelectionChoice == submitModel.ApprenticeshipsSelectionChoice))).Returns(new ValidationResult());
+        validator.Setup(x => x.Validate(It.Is<OfferApprenticeshipsSubmitModel>(m => m.IsApprenticeshipsOffered == submitModel.IsApprenticeshipsOffered))).Returns(new ValidationResult());
 
         sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(sessionModel);
 
@@ -49,7 +49,7 @@ public class SelectOfferApprenticeshipsControllerPostTests
         redirectResult.RouteName.Should().Be(RouteNames.SelectOfferApprenticeshipUnits);
         sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
         sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.Is<AddProviderSessionModel>(m =>
-            m.OfferApprenticeships == sessionModel.OfferApprenticeships && m.OfferApprenticeshipUnits == sessionModel.OfferApprenticeshipUnits)), Times.Once);
+            m.OffersApprenticeships == sessionModel.OffersApprenticeships && m.OffersApprenticeshipUnits == sessionModel.OffersApprenticeshipUnits)), Times.Once);
     }
 
     [Test, MoqAutoData]
@@ -89,7 +89,7 @@ public class SelectOfferApprenticeshipsControllerPostTests
         sut.ModelState.ErrorCount.Should().Be(1);
         sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
         sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.Is<AddProviderSessionModel>(m =>
-            m.OfferApprenticeships == sessionModel.OfferApprenticeships)), Times.Never);
+            m.OffersApprenticeships == sessionModel.OffersApprenticeships)), Times.Never);
     }
 
     [Test, MoqAutoData]

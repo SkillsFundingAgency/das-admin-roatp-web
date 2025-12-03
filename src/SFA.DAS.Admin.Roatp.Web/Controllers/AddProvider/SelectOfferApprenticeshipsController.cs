@@ -23,7 +23,7 @@ public class SelectOfferApprenticeshipsController(ISessionService _sessionServic
 
         var viewModel = new OfferApprenticeshipsViewModel
         {
-            ApprenticeshipsSelection = BuildApprenticeshipsChoices(sessionModel.OfferApprenticeships),
+            ApprenticeshipsSelection = BuildApprenticeshipsChoices(sessionModel.OffersApprenticeships),
         };
 
         return View(viewModel);
@@ -42,8 +42,8 @@ public class SelectOfferApprenticeshipsController(ISessionService _sessionServic
         {
             var viewModel = new OfferApprenticeshipsViewModel
             {
-                ApprenticeshipsSelectionChoice = submitModel.ApprenticeshipsSelectionChoice,
-                ApprenticeshipsSelection = BuildApprenticeshipsChoices(submitModel.ApprenticeshipsSelectionChoice)
+                IsApprenticeshipsOffered = submitModel.IsApprenticeshipsOffered,
+                ApprenticeshipsSelection = BuildApprenticeshipsChoices(submitModel.IsApprenticeshipsOffered)
             };
 
             ModelState.AddValidationErrors(result.Errors);
@@ -53,7 +53,7 @@ public class SelectOfferApprenticeshipsController(ISessionService _sessionServic
 
 
 
-        sessionModel.OfferApprenticeships = submitModel.ApprenticeshipsSelectionChoice;
+        sessionModel.OffersApprenticeships = submitModel.IsApprenticeshipsOffered;
 
         _sessionService.Set(SessionKeys.AddProvider, sessionModel);
 

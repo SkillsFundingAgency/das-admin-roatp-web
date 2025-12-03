@@ -9,7 +9,7 @@ public class OfferApprenticeshipsSubmitModelValidator : AbstractValidator<OfferA
 
     public OfferApprenticeshipsSubmitModelValidator()
     {
-        RuleFor(s => s.ApprenticeshipsSelectionChoice)
+        RuleFor(s => s.IsApprenticeshipsOffered)
             .NotEmpty()
             .WithMessage(ApprenticeshipsSelectionErrorMessage);
     }

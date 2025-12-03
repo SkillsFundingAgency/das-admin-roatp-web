@@ -64,7 +64,7 @@ public class ApprenticeshipsUpdateControllerPostTests
         var currentCourseTypeIds = getOrganisationResponse.AllowedCourseTypes
             .Select(a => a.CourseTypeId).ToList();
 
-        submitModel.ApprenticeshipsSelectionChoice = selectedNoId;
+        submitModel.IsApprenticeshipsOffered = selectedNoId;
 
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
@@ -78,7 +78,7 @@ public class ApprenticeshipsUpdateControllerPostTests
         result.Should().NotBeNull();
         var model = result!.Model as OfferApprenticeshipsViewModel;
         model.Should().NotBeNull();
-        model.ApprenticeshipsSelectionChoice.Should().Be(selectedNoId);
+        model.IsApprenticeshipsOffered.Should().Be(selectedNoId);
         model.ApprenticeshipsSelection.Should().BeEquivalentTo(expectedSelections);
     }
 
@@ -107,7 +107,7 @@ public class ApprenticeshipsUpdateControllerPostTests
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
 
-        submitModel.ApprenticeshipsSelectionChoice = selectedNoId;
+        submitModel.IsApprenticeshipsOffered = selectedNoId;
 
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
@@ -148,7 +148,7 @@ public class ApprenticeshipsUpdateControllerPostTests
         var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = "AppenticeshipUnit", LearningType = LearningType.ShortCourse } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
-        submitModel.ApprenticeshipsSelectionChoice = selectedNoId;
+        submitModel.IsApprenticeshipsOffered = selectedNoId;
 
         getOrganisationResponse.Ukprn = ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!

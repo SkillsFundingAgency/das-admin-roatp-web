@@ -31,7 +31,7 @@ public class SelectOfferApprenticeshipsControllerGetTests
             CompanyNumber = "12345678",
             CharityNumber = "12345678",
             ProviderTypeId = 1,
-            OfferApprenticeships = offerApprenticeships,
+            OffersApprenticeships = offerApprenticeships,
         };
 
         sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(sessionModel);
