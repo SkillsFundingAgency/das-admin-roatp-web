@@ -33,7 +33,7 @@ public class SelectProviderTypeControllerPostTests
             CompanyNumber = "12345678",
             CharityNumber = "12345678",
             ProviderTypeId = providerTypeId,
-            OfferApprenticeships = true
+            OffersApprenticeships = true
         };
 
         SelectProviderTypeSubmitModel submitModel = new() { SelectedProviderTypeId = providerTypeId };
@@ -52,7 +52,7 @@ public class SelectProviderTypeControllerPostTests
         redirectResult.RouteName.Should().Be(RouteNames.SelectOfferApprenticeships);
         sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
         sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.Is<AddProviderSessionModel>(m =>
-            m.ProviderTypeId == sessionModel.ProviderTypeId && m.OfferApprenticeships == sessionModel.OfferApprenticeships)), Times.Once);
+            m.ProviderTypeId == sessionModel.ProviderTypeId && m.OffersApprenticeships == sessionModel.OffersApprenticeships)), Times.Once);
     }
 
     [Test, MoqAutoData]
@@ -72,7 +72,7 @@ public class SelectProviderTypeControllerPostTests
             CompanyNumber = "12345678",
             CharityNumber = "12345678",
             ProviderTypeId = providerTypeId,
-            OfferApprenticeships = null
+            OffersApprenticeships = null
         };
 
         SelectProviderTypeSubmitModel submitModel = new() { SelectedProviderTypeId = providerTypeId };
@@ -91,7 +91,7 @@ public class SelectProviderTypeControllerPostTests
         redirectResult.RouteName.Should().Be(RouteNames.SelectProviderType);
         sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
         sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.Is<AddProviderSessionModel>(m =>
-            m.ProviderTypeId == sessionModel.ProviderTypeId && m.OfferApprenticeships == sessionModel.OfferApprenticeships)), Times.Once);
+            m.ProviderTypeId == sessionModel.ProviderTypeId && m.OffersApprenticeships == sessionModel.OffersApprenticeships)), Times.Once);
     }
 
     [Test, MoqAutoData]
@@ -111,8 +111,8 @@ public class SelectProviderTypeControllerPostTests
             CompanyNumber = "12345678",
             CharityNumber = "12345678",
             ProviderTypeId = 2,
-            OfferApprenticeships = true,
-            OfferApprenticeshipUnits = true
+            OffersApprenticeships = true,
+            OffersApprenticeshipUnits = true
         };
 
         SelectProviderTypeSubmitModel submitModel = new() { SelectedProviderTypeId = providerTypeId };
@@ -129,11 +129,11 @@ public class SelectProviderTypeControllerPostTests
         var redirectResult = result as RedirectToRouteResult;
         redirectResult.Should().NotBeNull();
         redirectResult.RouteName.Should().Be(RouteNames.SelectOfferApprenticeships);
-        sessionModel.OfferApprenticeships.Should().BeNull();
-        sessionModel.OfferApprenticeshipUnits.Should().BeNull();
+        sessionModel.OffersApprenticeships.Should().BeNull();
+        sessionModel.OffersApprenticeshipUnits.Should().BeNull();
         sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
         sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.Is<AddProviderSessionModel>(m =>
-            m.ProviderTypeId == sessionModel.ProviderTypeId && m.OfferApprenticeships == sessionModel.OfferApprenticeships)), Times.Once);
+            m.ProviderTypeId == sessionModel.ProviderTypeId && m.OffersApprenticeships == sessionModel.OffersApprenticeships)), Times.Once);
     }
 
     [Test, MoqAutoData]

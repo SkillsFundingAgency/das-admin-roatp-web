@@ -17,10 +17,10 @@ public class ApprenticeshipsUpdateViewModelValidatorTests
     [Test]
     public void TestValidator_NoApprenticeshipsAndNoApprenticeshipUnits_Invalid_ReturnsExpectedErrorMessage()
     {
-        var result = _validator.TestValidate(new OfferApprenticeshipsViewModel { ApprenticeshipsSelectionChoice = null });
+        var result = _validator.TestValidate(new OfferApprenticeshipsViewModel { IsApprenticeshipsOffered = null });
 
         result.IsValid.Should().BeFalse();
-        result.ShouldHaveValidationErrorFor(c => c.ApprenticeshipsSelectionChoice)
+        result.ShouldHaveValidationErrorFor(c => c.IsApprenticeshipsOffered)
             .WithErrorMessage(OfferApprenticeshipsSubmitModelValidator.ApprenticeshipsSelectionErrorMessage);
     }
 
@@ -28,7 +28,7 @@ public class ApprenticeshipsUpdateViewModelValidatorTests
     [TestCase(false)]
     public void TestValidator_ValidCourseTypes_ReturnsValid(bool offersApprenticeshipUnits)
     {
-        var model = new OfferApprenticeshipsViewModel { ApprenticeshipsSelectionChoice = offersApprenticeshipUnits };
+        var model = new OfferApprenticeshipsViewModel { IsApprenticeshipsOffered = offersApprenticeshipUnits };
         var result = _validator.TestValidate(model);
 
         result.IsValid.Should().BeTrue();

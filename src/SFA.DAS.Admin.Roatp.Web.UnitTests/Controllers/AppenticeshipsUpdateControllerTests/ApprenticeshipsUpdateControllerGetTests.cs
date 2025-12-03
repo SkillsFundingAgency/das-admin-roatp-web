@@ -94,7 +94,7 @@ public class ApprenticeshipsUpdateControllerGetTests
         var model = actual.Model as OfferApprenticeshipsViewModel;
         model.Should().NotBeNull();
         model.ApprenticeshipsSelection.Should().BeEquivalentTo(expectedApprenticeshipTypesChoices);
-        model.ApprenticeshipsSelectionChoice.Should().Be(containsApprenticeships);
+        model.IsApprenticeshipsOffered.Should().Be(containsApprenticeships);
     }
 
     private static List<ApprenticeshipsSelectionModel> BuildApprenticeshipTypesChoices(bool containsApprenticeships)

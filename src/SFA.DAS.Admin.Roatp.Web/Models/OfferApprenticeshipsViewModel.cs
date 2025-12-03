@@ -9,5 +9,5 @@ public class OfferApprenticeshipsViewModel : OfferApprenticeshipsSubmitModel, IB
 
 public class OfferApprenticeshipsSubmitModel
 {
-    public bool? ApprenticeshipsSelectionChoice { get; set; }
+    public bool? IsApprenticeshipsOffered { get; set; }
 }

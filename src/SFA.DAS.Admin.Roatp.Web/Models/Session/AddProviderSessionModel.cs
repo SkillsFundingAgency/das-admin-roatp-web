@@ -7,11 +7,11 @@ public class AddProviderSessionModel
     public string? CharityNumber { get; set; }
     public string? CompanyNumber { get; set; }
     public int? ProviderTypeId { get; set; }
-    public bool? OfferApprenticeships { get; set; }
-    public bool? OfferApprenticeshipUnits { get; set; }
+    public bool? OffersApprenticeships { get; set; }
+    public bool? OffersApprenticeshipUnits { get; set; }
     public void ResetModel()
     {
-        OfferApprenticeships = null;
-        OfferApprenticeshipUnits = null;
+        OffersApprenticeships = null;
+        OffersApprenticeshipUnits = null;
     }
 }
