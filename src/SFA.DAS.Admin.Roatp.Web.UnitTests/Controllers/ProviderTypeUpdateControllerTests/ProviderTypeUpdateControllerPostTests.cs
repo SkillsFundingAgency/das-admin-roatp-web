@@ -178,7 +178,7 @@ public class ProviderTypeUpdateControllerPostTests
         var allowedCourseTypes = new List<AllowedCourseType>
         {
             new() { CourseTypeId = 1, CourseTypeName = "Apprenticeship", LearningType = LearningType.Standard },
-            new() { CourseTypeId = 2, CourseTypeName = "Unit", LearningType = LearningType.ShortCourse}
+            new() { CourseTypeId = 2, CourseTypeName = "AppenticeshipUnit", LearningType = LearningType.ShortCourse}
         };
 
         getOrganisationResponse.AllowedCourseTypes = allowedCourseTypes;

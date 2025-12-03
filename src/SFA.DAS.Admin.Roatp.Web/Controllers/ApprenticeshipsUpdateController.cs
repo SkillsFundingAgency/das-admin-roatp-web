@@ -65,7 +65,7 @@ public class ApprenticeshipsUpdateController(IOuterApiClient _outerApiClient, IS
             var sessionModel =
                 _sessionService.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys
                     .UpdateSupportingProviderCourseTypes);
-            sessionModel.CourseTypeIds = new List<int> { CourseTypes.ApprenticeshipId };
+            sessionModel.CourseTypeIds = new List<int> { CourseTypes.Apprenticeship };
             _sessionService.Set<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes, sessionModel);
         }
 
