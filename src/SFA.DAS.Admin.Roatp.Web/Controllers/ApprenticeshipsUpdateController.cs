@@ -30,7 +30,7 @@ public class ApprenticeshipsUpdateController(IOuterApiClient _outerApiClient, IS
 
         var model = new OfferApprenticeshipsViewModel
         {
-            ApprenticeshipsSelectionChoice = containsApprenticeships,
+            IsApprenticeshipsOffered = containsApprenticeships,
             ApprenticeshipsSelection = BuildApprenticeshipsChoices(containsApprenticeships)
         };
 
@@ -51,8 +51,8 @@ public class ApprenticeshipsUpdateController(IOuterApiClient _outerApiClient, IS
         {
             var viewModel = new OfferApprenticeshipsViewModel
             {
-                ApprenticeshipsSelectionChoice = submitModel.ApprenticeshipsSelectionChoice,
-                ApprenticeshipsSelection = BuildApprenticeshipsChoices(submitModel.ApprenticeshipsSelectionChoice)
+                IsApprenticeshipsOffered = submitModel.IsApprenticeshipsOffered,
+                ApprenticeshipsSelection = BuildApprenticeshipsChoices(submitModel.IsApprenticeshipsOffered)
             };
 
             ModelState.AddValidationErrors(result.Errors);
@@ -60,7 +60,7 @@ public class ApprenticeshipsUpdateController(IOuterApiClient _outerApiClient, IS
             return View(viewModel);
         }
 
-        if (submitModel.ApprenticeshipsSelectionChoice is true)
+        if (submitModel.IsApprenticeshipsOffered is true)
         {
             var sessionModel =
                 _sessionService.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys

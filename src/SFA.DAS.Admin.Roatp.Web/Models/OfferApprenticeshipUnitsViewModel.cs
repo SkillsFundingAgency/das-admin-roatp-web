@@ -9,5 +9,5 @@ public class OfferApprenticeshipUnitsViewModel : OfferApprenticeshipUnitsSubmitM
 
 public class OfferApprenticeshipUnitsSubmitModel
 {
-    public bool? ApprenticeshipUnitsSelectionId { get; set; }
+    public bool? IsApprenticeshipUnitsOffered { get; set; }
 }

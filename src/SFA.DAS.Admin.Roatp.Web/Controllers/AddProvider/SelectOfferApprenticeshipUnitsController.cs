@@ -23,7 +23,7 @@ public class SelectOfferApprenticeshipUnitsController(ISessionService _sessionSe
 
         var viewModel = new OfferApprenticeshipUnitsViewModel
         {
-            ApprenticeshipUnitsSelection = BuildApprenticeshipTypesChoices(sessionModel.OfferApprenticeshipUnits),
+            ApprenticeshipUnitsSelection = BuildApprenticeshipTypesChoices(sessionModel.OffersApprenticeshipUnits),
         };
 
         return View(viewModel);
@@ -42,8 +42,8 @@ public class SelectOfferApprenticeshipUnitsController(ISessionService _sessionSe
         {
             var viewModel = new OfferApprenticeshipUnitsViewModel
             {
-                ApprenticeshipUnitsSelectionId = submitModel.ApprenticeshipUnitsSelectionId,
-                ApprenticeshipUnitsSelection = BuildApprenticeshipTypesChoices(submitModel.ApprenticeshipUnitsSelectionId)
+                IsApprenticeshipUnitsOffered = submitModel.IsApprenticeshipUnitsOffered,
+                ApprenticeshipUnitsSelection = BuildApprenticeshipTypesChoices(submitModel.IsApprenticeshipUnitsOffered)
             };
 
             ModelState.AddValidationErrors(result.Errors);
@@ -51,11 +51,11 @@ public class SelectOfferApprenticeshipUnitsController(ISessionService _sessionSe
             return View(viewModel);
         }
 
-        sessionModel.OfferApprenticeshipUnits = submitModel.ApprenticeshipUnitsSelectionId;
+        sessionModel.OffersApprenticeshipUnits = submitModel.IsApprenticeshipUnitsOffered;
 
         _sessionService.Set(SessionKeys.AddProvider, sessionModel);
 
-        if (submitModel.ApprenticeshipUnitsSelectionId == false)
+        if (submitModel.IsApprenticeshipUnitsOffered == false)
         {
             return RedirectToRoute(RouteNames.SelectOfferApprenticeshipUnits);
         }

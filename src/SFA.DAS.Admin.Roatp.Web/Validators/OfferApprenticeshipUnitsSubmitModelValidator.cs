@@ -9,7 +9,7 @@ public class OfferApprenticeshipUnitsSubmitModelValidator : AbstractValidator<Of
 
     public OfferApprenticeshipUnitsSubmitModelValidator()
     {
-        RuleFor(s => s.ApprenticeshipUnitsSelectionId)
+        RuleFor(s => s.IsApprenticeshipUnitsOffered)
             .NotNull()
             .WithMessage(ApprenticeshipUnitSelectionErrorMessage);
     }
