@@ -57,12 +57,12 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
 
         var courseTypes = new List<AllowedCourseType>
         {
-            new() { CourseTypeId = CourseTypes.ApprenticeshipId, CourseTypeName = "Apprenticeship", LearningType = LearningType.Standard }
+            new() { CourseTypeId = CourseTypes.Apprenticeship, CourseTypeName = "Apprenticeship", LearningType = LearningType.Standard }
         };
 
         if (containsApprenticeshipUnits)
         {
-            courseTypes.Add(new() { CourseTypeId = CourseTypes.ApprenticeshipUnitId, CourseTypeName = "Unit", LearningType = LearningType.ShortCourse });
+            courseTypes.Add(new() { CourseTypeId = CourseTypes.ApprenticeshipUnit, CourseTypeName = "AppenticeshipUnit", LearningType = LearningType.ShortCourse });
         }
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
@@ -112,7 +112,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         };
         var courseTypes = new List<AllowedCourseType>();
         if (isStandardCourseTypePresent) courseTypes.Add(new AllowedCourseType { CourseTypeId = 1, CourseTypeName = "Apprenticeship", LearningType = LearningType.Standard });
-        if (isShortCourseTypePresent) courseTypes.Add(new AllowedCourseType { CourseTypeId = 2, CourseTypeName = "Unit", LearningType = LearningType.ShortCourse });
+        if (isShortCourseTypePresent) courseTypes.Add(new AllowedCourseType { CourseTypeId = 2, CourseTypeName = "AppenticeshipUnit", LearningType = LearningType.ShortCourse });
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
         var currentCourseTypeIds = getOrganisationResponse.AllowedCourseTypes
@@ -128,11 +128,11 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         var expectedCourseTypeIds = currentCourseTypeIds;
         if (isShortCourseTypePresent)
         {
-            expectedCourseTypeIds = currentCourseTypeIds.Where(a => a != CourseTypes.ApprenticeshipUnitId).ToList();
+            expectedCourseTypeIds = currentCourseTypeIds.Where(a => a != CourseTypes.ApprenticeshipUnit).ToList();
         }
         else
         {
-            expectedCourseTypeIds.Add(CourseTypes.ApprenticeshipUnitId);
+            expectedCourseTypeIds.Add(CourseTypes.ApprenticeshipUnit);
         }
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
@@ -181,7 +181,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         {
             HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
         };
-        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = "Unit", LearningType = LearningType.ShortCourse } };
+        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = "AppenticeshipUnit", LearningType = LearningType.ShortCourse } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
         var currentCourseTypeIds = getOrganisationResponse.AllowedCourseTypes
@@ -221,7 +221,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
 
-        var courseTypeIdsWithApprentices = new List<int> { CourseTypes.ApprenticeshipId };
+        var courseTypeIdsWithApprentices = new List<int> { CourseTypes.Apprenticeship };
         sessionModel.CourseTypeIds = courseTypeIdsWithApprentices;
         sessionModel.ProviderType = providerTypeChangedTo;
 
@@ -280,7 +280,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
 
-        var courseTypeIdsWithApprentices = new List<int> { CourseTypes.ApprenticeshipId };
+        var courseTypeIdsWithApprentices = new List<int> { CourseTypes.Apprenticeship };
         sessionModel.CourseTypeIds = courseTypeIdsWithApprentices;
         sessionModel.ProviderType = providerTypeChangedTo;
 

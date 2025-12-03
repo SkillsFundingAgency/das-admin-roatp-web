@@ -193,7 +193,7 @@ public class ProviderSummaryViewModelTests
     {
         var allowedCourseTypes = new List<AllowedCourseType>();
         if (offersApprenticeships) allowedCourseTypes.Add(new AllowedCourseType { LearningType = LearningType.Standard, CourseTypeId = 1, CourseTypeName = "course type" });
-        if (offersShortCourses) allowedCourseTypes.Add(new AllowedCourseType { LearningType = LearningType.ShortCourse, CourseTypeId = 1, CourseTypeName = "unit" });
+        if (offersShortCourses) allowedCourseTypes.Add(new AllowedCourseType { LearningType = LearningType.ShortCourse, CourseTypeId = 1, CourseTypeName = "AppenticeshipUnit" });
 
         response.AllowedCourseTypes = allowedCourseTypes;
 

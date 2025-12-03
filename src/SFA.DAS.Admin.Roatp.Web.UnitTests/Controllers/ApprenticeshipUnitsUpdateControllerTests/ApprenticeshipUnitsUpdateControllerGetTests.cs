@@ -53,12 +53,12 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
 
         if (containsApprenticeshipUnits)
         {
-            allowedCourseTypes.Add(new() { CourseTypeId = CourseTypes.ApprenticeshipUnitId });
+            allowedCourseTypes.Add(new() { CourseTypeId = CourseTypes.ApprenticeshipUnit });
         }
 
         if (containsApprenticeships)
         {
-            allowedCourseTypes.Add(new() { CourseTypeId = CourseTypes.ApprenticeshipId });
+            allowedCourseTypes.Add(new() { CourseTypeId = CourseTypes.Apprenticeship });
         }
 
         getOrganisationResponse.AllowedCourseTypes = allowedCourseTypes;
@@ -94,8 +94,8 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
             CourseTypeIds = new List<int>()
         };
 
-        if (containsApprenticeships) { sessionModel.CourseTypeIds.Add(CourseTypes.ApprenticeshipId); }
-        if (containsApprenticeshipUnits) { sessionModel.CourseTypeIds.Add(CourseTypes.ApprenticeshipUnitId); }
+        if (containsApprenticeships) { sessionModel.CourseTypeIds.Add(CourseTypes.Apprenticeship); }
+        if (containsApprenticeshipUnits) { sessionModel.CourseTypeIds.Add(CourseTypes.ApprenticeshipUnit); }
 
         sessionServiceMock.Setup(s =>
                 s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
