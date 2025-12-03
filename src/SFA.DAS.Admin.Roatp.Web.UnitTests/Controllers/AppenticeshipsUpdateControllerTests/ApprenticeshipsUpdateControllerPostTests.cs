@@ -58,7 +58,7 @@ public class ApprenticeshipsUpdateControllerPostTests
         {
             HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
         };
-        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = "Unit", LearningType = LearningType.ShortCourse } };
+        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = "AppenticeshipUnit", LearningType = LearningType.ShortCourse } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
         var currentCourseTypeIds = getOrganisationResponse.AllowedCourseTypes
@@ -103,7 +103,7 @@ public class ApprenticeshipsUpdateControllerPostTests
         {
             HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
         };
-        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = "Unit", LearningType = LearningType.ShortCourse } };
+        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = "AppenticeshipUnit", LearningType = LearningType.ShortCourse } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
 
@@ -145,7 +145,7 @@ public class ApprenticeshipsUpdateControllerPostTests
         {
             HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
         };
-        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = "Unit", LearningType = LearningType.ShortCourse } };
+        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = "AppenticeshipUnit", LearningType = LearningType.ShortCourse } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
         submitModel.ApprenticeshipsSelectionChoice = selectedNoId;
@@ -164,7 +164,7 @@ public class ApprenticeshipsUpdateControllerPostTests
         sessionServiceMock.Verify(x => x.Set(SessionKeys
             .UpdateSupportingProviderCourseTypes, It.Is<UpdateProviderTypeCourseTypesSessionModel>(
             c => c.CourseTypeIds.Count == 1
-            && c.CourseTypeIds[0] == CourseTypes.ApprenticeshipId
+            && c.CourseTypeIds[0] == CourseTypes.Apprenticeship
             )), Times.Once);
     }
 

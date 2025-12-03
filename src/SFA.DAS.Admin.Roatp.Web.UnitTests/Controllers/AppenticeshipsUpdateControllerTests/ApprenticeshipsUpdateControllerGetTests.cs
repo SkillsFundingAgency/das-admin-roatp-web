@@ -76,7 +76,7 @@ public class ApprenticeshipsUpdateControllerGetTests
             CourseTypeIds = new List<int>()
         };
 
-        if (containsApprenticeships) { sessionModel.CourseTypeIds.Add(CourseTypes.ApprenticeshipId); }
+        if (containsApprenticeships) { sessionModel.CourseTypeIds.Add(CourseTypes.Apprenticeship); }
 
         sessionServiceMock.Setup(s =>
                 s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
