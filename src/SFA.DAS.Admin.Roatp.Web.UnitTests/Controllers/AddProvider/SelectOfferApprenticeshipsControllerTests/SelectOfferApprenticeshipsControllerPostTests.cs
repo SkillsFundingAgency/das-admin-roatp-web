@@ -87,29 +87,8 @@ public class SelectOfferApprenticeshipsControllerPostTests
         viewResult!.Model.Should().NotBeNull();
         viewResult!.Model.Should().BeOfType<OfferApprenticeshipsViewModel>();
         sut.ModelState.ErrorCount.Should().Be(1);
-        sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
+        sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Never());
         sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.Is<AddProviderSessionModel>(m =>
             m.OffersApprenticeships == sessionModel.OffersApprenticeships)), Times.Never);
-    }
-
-    [Test, MoqAutoData]
-    public void Post_Index_SessionIsNull_RedirectsToHome(
-   [Frozen] Mock<ISessionService> sessionServiceMock,
-   [Greedy] SelectOfferApprenticeshipsController sut)
-    {
-        // Arrange
-        sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(() => null!);
-        OfferApprenticeshipsSubmitModel submitModel = new();
-
-
-        // Act
-        var result = sut.Index(submitModel);
-
-        // Assert
-        result.Should().NotBeNull();
-        var redirectResult = result! as RedirectToRouteResult;
-        redirectResult.Should().NotBeNull();
-        redirectResult!.RouteName.Should().Be(RouteNames.Home);
-        sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
     }
 }

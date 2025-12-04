@@ -38,6 +38,7 @@ public class HomeControllerGetTests
         model!.AddANewTrainingProviderUrl.Should().Be(addProviderUrl);
         model.AddUkprnToAllowListUrl.Should().Be(allowedListUrl);
         model.SearchForTrainingProviderUrl.Should().Be(selectOrganisationLink);
+        _sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProvider), Times.Once());
     }
 
     [Test, MoqAutoData]

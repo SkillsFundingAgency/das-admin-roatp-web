@@ -1,5 +1,5 @@
 ﻿namespace SFA.DAS.Admin.Roatp.Web.Models.Session;
-public class AddProviderSessionModel
+public class AddProviderSessionModel : ISessionModel
 {
     public int Ukprn { get; set; }
     public required string LegalName { get; set; }
@@ -9,9 +9,11 @@ public class AddProviderSessionModel
     public int? ProviderTypeId { get; set; }
     public bool? OffersApprenticeships { get; set; }
     public bool? OffersApprenticeshipUnits { get; set; }
+    public int? OrganisationTypeId { get; set; }
     public void ResetModel()
     {
         OffersApprenticeships = null;
         OffersApprenticeshipUnits = null;
+        OrganisationTypeId = null;
     }
 }

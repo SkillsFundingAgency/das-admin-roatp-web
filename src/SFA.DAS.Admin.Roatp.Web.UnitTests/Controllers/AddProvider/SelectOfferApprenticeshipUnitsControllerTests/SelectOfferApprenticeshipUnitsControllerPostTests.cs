@@ -15,7 +15,7 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.AddProvider.SelectOfferA
 public class SelectOfferApprenticeshipUnitsControllerPostTests
 {
     [Test, MoqAutoData]
-    public void Post_Index_SubmitModelIsValidAndOfferApprenticeshipUnitsTrue_SetsSessionAndRedirectsToCorrectAction(
+    public void Post_Index_SubmitModelIsValid_SetsSessionAndRedirectsToCorrectAction(
         [Frozen] Mock<IValidator<OfferApprenticeshipUnitsSubmitModel>> validator,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] SelectOfferApprenticeshipUnitsController sut)
@@ -46,45 +46,7 @@ public class SelectOfferApprenticeshipUnitsControllerPostTests
         result.Should().NotBeNull();
         var redirectResult = result as RedirectToRouteResult;
         redirectResult.Should().NotBeNull();
-        redirectResult.RouteName.Should().Be(RouteNames.SelectOfferApprenticeshipUnits);
-        sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
-        sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.Is<AddProviderSessionModel>(m =>
-            m.OffersApprenticeshipUnits == sessionModel.OffersApprenticeshipUnits)), Times.Once);
-    }
-
-    [Test, MoqAutoData]
-    public void Post_Index_SubmitModelIsValidAndOfferApprenticeshipUnitsFalse_SetsSessionAndRedirectsToCorrectAction(
-        [Frozen] Mock<IValidator<OfferApprenticeshipUnitsSubmitModel>> validator,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Greedy] SelectOfferApprenticeshipUnitsController sut)
-    {
-        // Arrange
-        var sessionModel = new AddProviderSessionModel()
-        {
-            Ukprn = 12345678,
-            LegalName = "LegalName",
-            TradingName = "TradingName",
-            CompanyNumber = "12345678",
-            CharityNumber = "12345678",
-            ProviderTypeId = 1,
-            OffersApprenticeships = false,
-            OffersApprenticeshipUnits = false
-        };
-
-        OfferApprenticeshipUnitsSubmitModel submitModel = new() { IsApprenticeshipUnitsOffered = false };
-
-        validator.Setup(x => x.Validate(It.Is<OfferApprenticeshipUnitsSubmitModel>(m => m.IsApprenticeshipUnitsOffered == submitModel.IsApprenticeshipUnitsOffered))).Returns(new ValidationResult());
-
-        sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(sessionModel);
-
-        // Act
-        var result = sut.Index(submitModel);
-
-        // Assert
-        result.Should().NotBeNull();
-        var redirectResult = result as RedirectToRouteResult;
-        redirectResult.Should().NotBeNull();
-        redirectResult.RouteName.Should().Be(RouteNames.SelectOfferApprenticeshipUnits);
+        redirectResult.RouteName.Should().Be(RouteNames.SelectOrganisationType);
         sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
         sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.Is<AddProviderSessionModel>(m =>
             m.OffersApprenticeshipUnits == sessionModel.OffersApprenticeshipUnits)), Times.Once);
@@ -125,28 +87,8 @@ public class SelectOfferApprenticeshipUnitsControllerPostTests
         viewResult!.Model.Should().NotBeNull();
         viewResult!.Model.Should().BeOfType<OfferApprenticeshipUnitsViewModel>();
         sut.ModelState.ErrorCount.Should().Be(1);
-        sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
+        sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Never());
         sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.Is<AddProviderSessionModel>(m =>
             m.OffersApprenticeships == sessionModel.OffersApprenticeships)), Times.Never);
-    }
-
-    [Test, MoqAutoData]
-    public void Post_Index_SessionIsNull_RedirectsToHome(
-    [Frozen] Mock<ISessionService> sessionServiceMock,
-    [Greedy] SelectOfferApprenticeshipUnitsController sut)
-    {
-        // Arrange
-        sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(() => null!);
-        OfferApprenticeshipUnitsSubmitModel submitModel = new();
-
-        // Act
-        var result = sut.Index(submitModel);
-
-        // Assert
-        result.Should().NotBeNull();
-        var redirectResult = result! as RedirectToRouteResult;
-        redirectResult.Should().NotBeNull();
-        redirectResult!.RouteName.Should().Be(RouteNames.Home);
-        sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
     }
 }
