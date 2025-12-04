@@ -14,6 +14,8 @@ public class HomeController(IOptions<ApplicationConfiguration> _configuration, I
     [Authorize(Roles = Roles.RoatpAdminTeam)]
     public IActionResult Index()
     {
+        _sessionService.Delete(SessionKeys.AddProvider);
+
         string searchUrl = Url.RouteUrl(RouteNames.SelectProvider)!;
         string addProviderUrl = Url.RouteUrl(RouteNames.AddProvider)!;
         string allowedListUrl = new UriBuilder(_configuration.Value.AdminServicesBaseUrl) { Path = ExternalPaths.AdminServiceAllowedList }.Uri.ToString();
