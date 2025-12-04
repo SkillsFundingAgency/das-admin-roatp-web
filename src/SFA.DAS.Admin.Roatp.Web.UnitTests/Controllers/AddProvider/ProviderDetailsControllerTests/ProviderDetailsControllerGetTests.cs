@@ -14,26 +14,6 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.AddProvider.ProviderDeta
 public class ProviderDetailsControllerGetTests
 {
     [Test, MoqAutoData]
-    public void Get_Index_SessionIsNull_RedirectsToAddProvider(
-        [Frozen] Mock<ISessionService> sessionServiceMock)
-    {
-        // Arrange
-        sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(() => null!);
-
-        var sut = new ProviderDetailsController(sessionServiceMock.Object);
-
-        // Act
-        var result = sut.Index();
-
-        // Assert
-        result.Should().NotBeNull();
-        var redirectResult = result! as RedirectToRouteResult;
-        redirectResult.Should().NotBeNull();
-        redirectResult!.RouteName.Should().Be(RouteNames.AddProvider);
-        sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
-    }
-
-    [Test, MoqAutoData]
     public void Get_Index_SessionReturnsData_ReturnsViewWithModel(
         [Frozen] Mock<ISessionService> sessionServiceMock)
     {

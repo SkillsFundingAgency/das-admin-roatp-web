@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
+using SFA.DAS.Admin.Roatp.Web.Filters;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Models.Constants;
@@ -11,6 +12,7 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.AddProvider;
 
 [Route("providers/new/provider-type", Name = RouteNames.SelectProviderType)]
+[RequiresSessionModel<AddProviderSessionModel>(SessionKeys.AddProvider, RouteNames.Home)]
 public class SelectProviderTypeController(ISessionService _sessionService, IValidator<SelectProviderTypeSubmitModel> _validator) : Controller
 {
     [HttpGet]
@@ -18,11 +20,9 @@ public class SelectProviderTypeController(ISessionService _sessionService, IVali
     {
         var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
 
-        if (sessionModel == null) return RedirectToRoute(RouteNames.Home);
-
         var model = new SelectProviderTypeViewModel
         {
-            ProviderTypes = BuildProviderTypes(sessionModel.ProviderTypeId ?? 0),
+            ProviderTypes = BuildProviderTypes(sessionModel!.ProviderTypeId ?? 0),
             SelectedProviderTypeId = sessionModel.ProviderTypeId ?? 0
         };
 
@@ -32,10 +32,6 @@ public class SelectProviderTypeController(ISessionService _sessionService, IVali
     [HttpPost]
     public IActionResult Index(SelectProviderTypeSubmitModel submitModel)
     {
-        var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
-
-        if (sessionModel == null) return RedirectToRoute(RouteNames.Home);
-
         var result = _validator.Validate(submitModel);
 
         if (!result.IsValid)
@@ -50,7 +46,9 @@ public class SelectProviderTypeController(ISessionService _sessionService, IVali
             return View(viewModel);
         }
 
-        if (sessionModel.ProviderTypeId != submitModel.SelectedProviderTypeId)
+        var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
+
+        if (sessionModel!.ProviderTypeId != submitModel.SelectedProviderTypeId)
         {
             sessionModel.ResetModel();
         }
@@ -61,7 +59,7 @@ public class SelectProviderTypeController(ISessionService _sessionService, IVali
 
         if (submitModel.SelectedProviderTypeId == (int)ProviderType.Supporting)
         {
-            return RedirectToRoute(RouteNames.SelectProviderType);
+            return RedirectToRoute(RouteNames.SelectOrganisationType);
         }
 
         return RedirectToRoute(RouteNames.SelectOfferApprenticeships);

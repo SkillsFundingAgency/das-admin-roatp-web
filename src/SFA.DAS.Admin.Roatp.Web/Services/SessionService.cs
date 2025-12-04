@@ -9,7 +9,7 @@ public class SessionService(IHttpContextAccessor _httpContextAccessor) : ISessio
 
     public string? Get(string key) => _httpContextAccessor.HttpContext?.Session.GetString(key);
 
-    public T Get<T>(string key)
+    public T? Get<T>(string key)
     {
         var json = Get(key);
         return (string.IsNullOrEmpty(json) ? default : JsonSerializer.Deserialize<T>(json))!;

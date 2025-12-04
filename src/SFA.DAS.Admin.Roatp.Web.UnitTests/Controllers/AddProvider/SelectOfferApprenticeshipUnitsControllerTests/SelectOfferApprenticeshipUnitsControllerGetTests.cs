@@ -52,27 +52,7 @@ public class SelectOfferApprenticeshipUnitsControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public void Get_Index_SessionIsNull_RedirectsToHome(
-    [Frozen] Mock<ISessionService> sessionServiceMock,
-    [Greedy] SelectOfferApprenticeshipUnitsController sut)
-    {
-        // Arrange
-        sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(() => null!);
-
-
-        // Act
-        var result = sut.Index();
-
-        // Assert
-        result.Should().NotBeNull();
-        var redirectResult = result! as RedirectToRouteResult;
-        redirectResult.Should().NotBeNull();
-        redirectResult!.RouteName.Should().Be(RouteNames.Home);
-        sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
-    }
-
-    [Test, MoqAutoData]
-    public void Get_Index_SessionReturnSupportingProvider_RedirectsToSelectProviderType(
+    public void Get_Index_SessionReturnSupportingProvider_RedirectsToHome(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] SelectOfferApprenticeshipUnitsController sut)
     {
@@ -93,7 +73,7 @@ public class SelectOfferApprenticeshipUnitsControllerGetTests
         result.Should().NotBeNull();
         var redirectResult = result! as RedirectToRouteResult;
         redirectResult.Should().NotBeNull();
-        redirectResult!.RouteName.Should().Be(RouteNames.SelectProviderType);
+        redirectResult!.RouteName.Should().Be(RouteNames.Home);
         sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
     }
 

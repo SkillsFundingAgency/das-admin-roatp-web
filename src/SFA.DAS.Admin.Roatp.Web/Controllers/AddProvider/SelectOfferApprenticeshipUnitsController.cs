@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
+using SFA.DAS.Admin.Roatp.Web.Filters;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Models.Session;
@@ -10,6 +11,7 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.AddProvider;
 
 [Route("providers/new/offer-apprenticeship-units", Name = RouteNames.SelectOfferApprenticeshipUnits)]
+[RequiresSessionModel<AddProviderSessionModel>(SessionKeys.AddProvider, RouteNames.Home)]
 public class SelectOfferApprenticeshipUnitsController(ISessionService _sessionService, IValidator<OfferApprenticeshipUnitsSubmitModel> _validator) : Controller
 {
     [HttpGet]
@@ -17,9 +19,7 @@ public class SelectOfferApprenticeshipUnitsController(ISessionService _sessionSe
     {
         var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
 
-        if (sessionModel == null) return RedirectToRoute(RouteNames.Home);
-
-        if (sessionModel.ProviderTypeId == (int)ProviderType.Supporting) return RedirectToRoute(RouteNames.SelectProviderType);
+        if (sessionModel!.ProviderTypeId == (int)ProviderType.Supporting) return RedirectToRoute(RouteNames.Home);
 
         var viewModel = new OfferApprenticeshipUnitsViewModel
         {
@@ -32,10 +32,6 @@ public class SelectOfferApprenticeshipUnitsController(ISessionService _sessionSe
     [HttpPost]
     public IActionResult Index(OfferApprenticeshipUnitsSubmitModel submitModel)
     {
-        var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
-
-        if (sessionModel == null) return RedirectToRoute(RouteNames.Home);
-
         var result = _validator.Validate(submitModel);
 
         if (!result.IsValid)
@@ -51,16 +47,13 @@ public class SelectOfferApprenticeshipUnitsController(ISessionService _sessionSe
             return View(viewModel);
         }
 
-        sessionModel.OffersApprenticeshipUnits = submitModel.IsApprenticeshipUnitsOffered;
+        var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
+
+        sessionModel!.OffersApprenticeshipUnits = submitModel.IsApprenticeshipUnitsOffered;
 
         _sessionService.Set(SessionKeys.AddProvider, sessionModel);
 
-        if (submitModel.IsApprenticeshipUnitsOffered == false)
-        {
-            return RedirectToRoute(RouteNames.SelectOfferApprenticeshipUnits);
-        }
-
-        return RedirectToRoute(RouteNames.SelectOfferApprenticeshipUnits);
+        return RedirectToRoute(RouteNames.SelectOrganisationType);
     }
 
     private static List<ApprenticeshipUnitsSelectionModel> BuildApprenticeshipTypesChoices(bool? selectedId)
