@@ -53,7 +53,7 @@ public class ProviderDetailsControllerGetTests
         var addProvideLink = Guid.NewGuid().ToString();
         var providerDetailsLink = Guid.NewGuid().ToString();
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.ProviderDetails, providerDetailsLink)
+            .AddUrlForRoute(RouteNames.SelectProviderType, providerDetailsLink)
             .AddUrlForRoute(RouteNames.AddProvider, addProvideLink);
 
         // Act
@@ -63,7 +63,7 @@ public class ProviderDetailsControllerGetTests
         result.Should().NotBeNull();
         result!.Model.Should().NotBeNull();
         var model = result!.Model as ProviderDetailsViewModel;
-        model!.AddProviderRouteUrl.Should().Be(providerDetailsLink);
+        model!.SelectProviderTypeUrl.Should().Be(providerDetailsLink);
         model!.SelectProviderUrl.Should().Be(addProvideLink);
         model.Ukprn.Should().Be(sessionModel.Ukprn);
         model.LegalName!.Should().Be(sessionModel.LegalName);
@@ -93,7 +93,7 @@ public class ProviderDetailsControllerGetTests
         var addProvideLink = Guid.NewGuid().ToString();
         var providerDetailsLink = Guid.NewGuid().ToString();
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.ProviderDetails, providerDetailsLink)
+            .AddUrlForRoute(RouteNames.SelectProviderType, providerDetailsLink)
             .AddUrlForRoute(RouteNames.AddProvider, addProvideLink);
 
         // Act
@@ -103,7 +103,7 @@ public class ProviderDetailsControllerGetTests
         result.Should().NotBeNull();
         result!.Model.Should().NotBeNull();
         var model = result!.Model as ProviderDetailsViewModel;
-        model!.AddProviderRouteUrl.Should().Be(providerDetailsLink);
+        model!.SelectProviderTypeUrl.Should().Be(providerDetailsLink);
         model!.SelectProviderUrl.Should().Be(addProvideLink);
         model.Ukprn.Should().Be(sessionModel.Ukprn);
         model.LegalName!.Should().Be(sessionModel.LegalName);

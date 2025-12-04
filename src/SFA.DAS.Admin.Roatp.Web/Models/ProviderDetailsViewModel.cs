@@ -7,6 +7,6 @@ public class ProviderDetailsViewModel : IBackLink
     public string? TradingName { get; set; }
     public string? CharityNumber { get; set; }
     public string? CompanyNumber { get; set; }
-    public string AddProviderRouteUrl { get; set; } = "#";
+    public string SelectProviderTypeUrl { get; set; } = "#";
     public string SelectProviderUrl { get; set; } = "#";
 }

@@ -19,4 +19,5 @@ public static class RouteNames
     public const string AddProvider = nameof(AddProvider);
     public const string ProviderNotFoundInUkrlp = nameof(ProviderNotFoundInUkrlp);
     public const string ProviderDetails = nameof(ProviderDetails);
+    public const string SelectProviderType = nameof(SelectProviderType);
 }

@@ -11,7 +11,7 @@ using System.Net;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.AddProvider;
 
 [Route("providers/new")]
-public class SelectProviderController(IValidator<AddProviderSubmitModel> _validator, ISessionService _sessionService, IOuterApiClient _outerApiClient) : Controller
+public class SelectProviderController(IValidator<SelectProviderSubmitModel> _validator, ISessionService _sessionService, IOuterApiClient _outerApiClient) : Controller
 {
     public const string ExistingUkprnValidationMessage = "This is an existing UKPRN for";
 
@@ -21,20 +21,20 @@ public class SelectProviderController(IValidator<AddProviderSubmitModel> _valida
     {
         _sessionService.Delete(SessionKeys.AddProvider);
 
-        AddProviderViewModel model = new();
+        SelectProviderViewModel model = new();
 
         return View(model);
     }
 
     [HttpPost]
     [Route("select", Name = RouteNames.AddProvider)]
-    public async Task<IActionResult> Index(AddProviderSubmitModel submitModel, CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(SelectProviderSubmitModel submitModel, CancellationToken cancellationToken)
     {
         var result = _validator.Validate(submitModel);
 
         if (!result.IsValid)
         {
-            var viewModel = new AddProviderViewModel() { Ukprn = submitModel.Ukprn };
+            var viewModel = new SelectProviderViewModel() { Ukprn = submitModel.Ukprn };
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
@@ -49,9 +49,9 @@ public class SelectProviderController(IValidator<AddProviderSubmitModel> _valida
         {
             GetOrganisationResponse organisationResponse = organisationApiResponse.Content!;
 
-            var viewModel = new AddProviderViewModel() { Ukprn = submitModel.Ukprn };
+            var viewModel = new SelectProviderViewModel() { Ukprn = submitModel.Ukprn };
 
-            ModelState.AddModelError(nameof(AddProviderSubmitModel.Ukprn), $"{ExistingUkprnValidationMessage} '{organisationResponse.LegalName}'");
+            ModelState.AddModelError(nameof(SelectProviderSubmitModel.Ukprn), $"{ExistingUkprnValidationMessage} '{organisationResponse.LegalName}'");
 
             return View(viewModel);
         }

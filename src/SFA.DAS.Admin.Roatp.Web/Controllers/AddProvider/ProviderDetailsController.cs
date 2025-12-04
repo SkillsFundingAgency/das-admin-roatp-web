@@ -25,7 +25,7 @@ public class ProviderDetailsController(ISessionService _sessionService) : Contro
             TradingName = sessionModel.TradingName ?? NotApplicableValue,
             CompanyNumber = sessionModel.CompanyNumber ?? NotApplicableValue,
             CharityNumber = sessionModel.CharityNumber ?? NotApplicableValue,
-            AddProviderRouteUrl = Url.RouteUrl(RouteNames.ProviderDetails)!,
+            SelectProviderTypeUrl = Url.RouteUrl(RouteNames.SelectProviderType)!,
             SelectProviderUrl = Url.RouteUrl(RouteNames.AddProvider)!
         };
 
