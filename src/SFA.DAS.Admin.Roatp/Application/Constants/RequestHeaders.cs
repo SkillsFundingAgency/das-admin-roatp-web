@@ -2,4 +2,5 @@
 public static class RequestHeaders
 {
     public const string RequestingUserIdHeader = "X-RequestingUserId";
+    public const string RequestingUserNameHeader = "X-RequestingUserName";
 }

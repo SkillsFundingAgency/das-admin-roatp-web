@@ -36,8 +36,9 @@ public class OrganisationPatchService(IOuterApiClient _outerApiClient, IHttpCont
         if (!ChangeMade(patchDoc)) return false;
 
         string userDisplayName = _contextAccessor.HttpContext!.User.UserDisplayName();
+        string userId = _contextAccessor.HttpContext!.User.UserId();
 
-        var response = await _outerApiClient.PatchOrganisation(ukprn, userDisplayName, patchDoc, cancellationToken);
+        var response = await _outerApiClient.PatchOrganisation(ukprn, userId, userDisplayName, patchDoc, cancellationToken);
 
         return response.StatusCode == HttpStatusCode.NoContent;
     }
