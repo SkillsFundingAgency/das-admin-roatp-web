@@ -10,10 +10,12 @@ public class AddProviderSessionModel : ISessionModel
     public bool? OffersApprenticeships { get; set; }
     public bool? OffersApprenticeshipUnits { get; set; }
     public int? OrganisationTypeId { get; set; }
+    public string? OrganisationType { get; set; }
     public void ResetModel()
     {
         OffersApprenticeships = null;
         OffersApprenticeshipUnits = null;
         OrganisationTypeId = null;
+        OrganisationType = null;
     }
 }
