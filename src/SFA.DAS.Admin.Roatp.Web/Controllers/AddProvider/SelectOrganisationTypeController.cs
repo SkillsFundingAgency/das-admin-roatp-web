@@ -43,12 +43,12 @@ public class SelectOrganisationTypeController(ISessionService _sessionService, I
     {
         var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
 
+        var organisationTypesResponse = await _organisationTypesService.GetOrganisationTypes(cancellationToken);
+
         var result = _validator.Validate(submitModel);
 
         if (!result.IsValid)
         {
-            var organisationTypesResponse = await _organisationTypesService.GetOrganisationTypes(cancellationToken);
-
             List<OrganisationTypeModel> organisationTypes = new List<OrganisationTypeModel>();
 
             foreach (var organisationType in organisationTypesResponse)
@@ -69,9 +69,10 @@ public class SelectOrganisationTypeController(ISessionService _sessionService, I
         }
 
         sessionModel!.OrganisationTypeId = submitModel.OrganisationTypeId;
+        sessionModel!.OrganisationType = organisationTypesResponse.FirstOrDefault(o => o.Id == submitModel.OrganisationTypeId)?.Description;
 
         _sessionService.Set(SessionKeys.AddProvider, sessionModel);
 
-        return RedirectToRoute(RouteNames.SelectOrganisationType);
+        return RedirectToRoute(RouteNames.ProviderDetailsSummary);
     }
 }

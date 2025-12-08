@@ -39,12 +39,12 @@ public class SelectOrganisationTypeControllerPostTests
         result.Should().NotBeNull();
         var redirectResult = result as RedirectToRouteResult;
         redirectResult.Should().NotBeNull();
-        redirectResult.RouteName.Should().Be(RouteNames.SelectOrganisationType);
+        redirectResult.RouteName.Should().Be(RouteNames.ProviderDetailsSummary);
         sessionModel.OrganisationTypeId.Should().Be(submitModel.OrganisationTypeId);
         sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
         sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.Is<AddProviderSessionModel>(m =>
             m.OrganisationTypeId == sessionModel.OrganisationTypeId)), Times.Once);
-        organisationTypesServiceMock.Verify(x => x.GetOrganisationTypes(It.IsAny<CancellationToken>()), Times.Never());
+        organisationTypesServiceMock.Verify(x => x.GetOrganisationTypes(It.IsAny<CancellationToken>()), Times.Once());
     }
 
     [Test, MoqAutoData]

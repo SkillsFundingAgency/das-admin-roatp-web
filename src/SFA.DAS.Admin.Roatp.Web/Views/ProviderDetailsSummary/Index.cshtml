@@ -1,0 +1,105 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SFA.DAS.Admin.Roatp.Web.Extensions
+@using SFA.DAS.Admin.Roatp.Web.Infrastructure
+@using SFA.DAS.Admin.Roatp.Web.Models
+@model SFA.DAS.Admin.Roatp.Web.Models.ProviderDetailsSummaryViewModel
+@{
+    ViewData["Title"] = "Confirm details";
+
+    var errors = ViewData.ModelState.Values
+        .SelectMany(v => v.Errors)
+        .Select(e => e.ErrorMessage)
+        .Distinct()
+        .ToList();
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+        <div class="govuk-error-summary" role="alert" data-valmsg-summary="true" tabindex="-1">
+            <h2 class="govuk-error-summary__title">
+                There is a problem
+            </h2>
+            <div class="govuk-error-summary__body">
+                <ul class="govuk-list govuk-error-summary__list">
+                    @foreach (var error in errors)
+                    {
+                       <li class="govuk-error-message">@error</li>
+                    }            
+                </ul>
+            </div>
+        </div>
+        }
+
+        <form asp-route="@RouteNames.ProviderDetailsSummary" method="POST" enctype="multipart/form-data">
+            <input type="hidden" asp-for="IsSupportingProvider" />
+            <input type="hidden" asp-for="OffersApprenticeshipsText" />
+            <input type="hidden" asp-for="OffersApprenticeshipUnitsText" />
+            <div class="govuk-form-group govuk-!-margin-bottom-0">
+                <fieldset class="govuk-fieldset">
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                    <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">
+                        Confirm details
+                    </h1>
+                </legend>
+                <p class="govuk-body govuk-!-margin-bottom-5">
+                    Review the details for <strong>@Model.LegalName</strong>.<br />
+                    If you want to change the UKPRN, you will need to start again.
+                </p>
+                <div class="govuk-!-width">
+                    <p class="govuk-body">
+                        <table class="govuk-table">
+                            <tbody class="govuk-table__body">
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">UKPRN</th>
+                                    <td class="govuk-table__cell">@Model.Ukprn</td>
+                                    <td class="govuk-table__cell"></td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Legal name</th>
+                                    <td class="govuk-table__cell">@Model.LegalName</td>
+                                    <td class="govuk-table__cell"></td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Trading name</th>
+                                    <td class="govuk-table__cell">@Model.TradingName</td>
+                                    <td class="govuk-table__cell"></td>
+                                </tr>
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Provider route</th>
+                                    <td class="govuk-table__cell">@Model.ProviderRoute</td>
+                                    <td class="govuk-table__cell"><a href="@Model.ProviderTypeChangeLink" class="govuk-link">Change</a></td>
+                                </tr>
+                                @if (!Model.IsSupportingProvider)
+                                {
+                                    <tr class="govuk-table__row">
+                                        <th scope="row" class="govuk-table__header">Offers<br />apprenticeships</th>
+                                        <td class="govuk-table__cell">@Model.OffersApprenticeshipsText</td>
+                                        <td class="govuk-table__cell"><a href="@Model.OffersApprenticeshipsChangeLink" class="govuk-link">Change</a></td>
+                                    </tr>
+                                    <tr class="govuk-table__row">
+                                        <th scope="row" class="govuk-table__header">Offers<br />apprenticeship units</th>
+                                        <td class="govuk-table__cell">@Model.OffersApprenticeshipUnitsText</td>
+                                        <td class="govuk-table__cell"><a href="@Model.OffersApprenticeshipUnitsChangeLink" class="govuk-link">Change</a></td>
+                                    </tr>
+                                }
+                                <tr class="govuk-table__row">
+                                    <th scope="row" class="govuk-table__header">Type of organisation</th>
+                                    <td class="govuk-table__cell">@Model.OrganisationType</td>
+                                    <td class="govuk-table__cell"><a href="@Model.OrganisationTypeChangeLink" class="govuk-link">Change</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </p>
+                </div>
+            </fieldset>
+        </div>
+            <div class="govuk-button-group">
+                <button type="submit" id="confirm" class="govuk-button" data-disable-on-submit="true">Confirm and add organisation</button>
+                <a class="govuk-link" href ="@Model.ManageProviderLink">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

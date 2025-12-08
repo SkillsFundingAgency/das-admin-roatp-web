@@ -23,4 +23,5 @@ public static class RouteNames
     public const string SelectOfferApprenticeships = nameof(SelectOfferApprenticeships);
     public const string SelectOfferApprenticeshipUnits = nameof(SelectOfferApprenticeshipUnits);
     public const string SelectOrganisationType = nameof(SelectOrganisationType);
+    public const string ProviderDetailsSummary = nameof(ProviderDetailsSummary);
 }
