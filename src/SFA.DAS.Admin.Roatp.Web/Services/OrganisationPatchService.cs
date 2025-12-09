@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Microsoft.AspNetCore.JsonPatch;
+﻿using Microsoft.AspNetCore.JsonPatch;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
@@ -38,9 +37,8 @@ public class OrganisationPatchService(IOuterApiClient _outerApiClient, IHttpCont
         string userDisplayName = _contextAccessor.HttpContext!.User.UserDisplayName();
         string userId = _contextAccessor.HttpContext!.User.UserId();
 
-        var response = await _outerApiClient.PatchOrganisation(ukprn, userId, userDisplayName, patchDoc, cancellationToken);
-
-        return response.StatusCode == HttpStatusCode.NoContent;
+        await _outerApiClient.PatchOrganisation(ukprn, userId, userDisplayName, patchDoc, cancellationToken);
+        return true;
     }
 
     private static bool ChangeMade(JsonPatchDocument<PatchOrganisationModel> model)
