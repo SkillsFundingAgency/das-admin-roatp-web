@@ -91,4 +91,43 @@ public class SelectOfferApprenticeshipsControllerPostTests
         sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.Is<AddProviderSessionModel>(m =>
             m.OffersApprenticeships == sessionModel.OffersApprenticeships)), Times.Never);
     }
+
+    [Test, MoqAutoData]
+    public void Post_Index_SubmitModelIsValidAndRedirectedFromSummaryPageIsTrue_SetsSessionAndRedirectsToProviderDetailsSummary(
+        [Frozen] Mock<IValidator<OfferApprenticeshipsSubmitModel>> validator,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] SelectOfferApprenticeshipsController sut)
+    {
+        // Arrange
+        var sessionModel = new AddProviderSessionModel()
+        {
+            Ukprn = 12345678,
+            LegalName = "LegalName",
+            TradingName = "TradingName",
+            CompanyNumber = "12345678",
+            CharityNumber = "12345678",
+            ProviderTypeId = 1,
+            OffersApprenticeships = true,
+            OffersApprenticeshipUnits = true,
+            RedirectedFromSummaryPage = true,
+        };
+
+        OfferApprenticeshipsSubmitModel submitModel = new() { IsApprenticeshipsOffered = true };
+
+        validator.Setup(x => x.Validate(It.Is<OfferApprenticeshipsSubmitModel>(m => m.IsApprenticeshipsOffered == submitModel.IsApprenticeshipsOffered))).Returns(new ValidationResult());
+
+        sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(sessionModel);
+
+        // Act
+        var result = sut.Index(submitModel);
+
+        // Assert
+        result.Should().NotBeNull();
+        var redirectResult = result as RedirectToRouteResult;
+        redirectResult.Should().NotBeNull();
+        redirectResult.RouteName.Should().Be(RouteNames.ProviderDetailsSummary);
+        sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
+        sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.Is<AddProviderSessionModel>(m =>
+            m.OffersApprenticeships == sessionModel.OffersApprenticeships && m.OffersApprenticeshipUnits == sessionModel.OffersApprenticeshipUnits)), Times.Once);
+    }
 }

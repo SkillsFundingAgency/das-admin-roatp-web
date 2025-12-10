@@ -53,6 +53,11 @@ public class SelectOfferApprenticeshipUnitsController(ISessionService _sessionSe
 
         _sessionService.Set(SessionKeys.AddProvider, sessionModel);
 
+        if (sessionModel.RedirectedFromSummaryPage)
+        {
+            return RedirectToRoute(RouteNames.ProviderDetailsSummary);
+        }
+
         return RedirectToRoute(RouteNames.SelectOrganisationType);
     }
 

@@ -2,6 +2,7 @@
 using FluentValidation.TestHelper;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Validators;
+using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Validators;
 public class ProviderDetailsSummaryViewModelValidatiorTests
@@ -14,29 +15,95 @@ public class ProviderDetailsSummaryViewModelValidatiorTests
         _validator = new ProviderDetailsSummaryViewModelValidatior();
     }
 
-    [Test]
-    public void TestValidator_IsNotSupprotingProviderAndHasNotSelectedACourseType_Invalid_ReturnsExpectedErrorMessage()
+    [Test, MoqAutoData]
+    public void TestValidator_IsNotSupprotingProviderAndHasNotSelectedACourseType_Invalid_ReturnsExpectedErrorMessage(ProviderDetailsSummaryViewModel viewModel)
     {
-        var result = _validator.TestValidate(new ProviderDetailsSummaryViewModel() { IsSupportingProvider = false, OffersApprenticeshipsText = "No", OffersApprenticeshipUnitsText = "No" });
+        viewModel.IsSupportingProvider = false;
+        viewModel.OffersApprenticeshipsText = "No";
+        viewModel.OffersApprenticeshipUnitsText = "No";
+
+        var result = _validator.TestValidate(viewModel);
 
         result.IsValid.Should().BeFalse();
-        result.ShouldHaveValidationErrorFor(s => s.IsSupportingProvider)
+        result.ShouldHaveValidationErrorFor(s => s)
             .WithErrorMessage(ProviderDetailsSummaryViewModelValidatior.RequiredCourseTypeSelectionErrorMessage);
     }
 
-    [Test]
-    public void TestValidator_IsNotSupprotingProviderAndHasSelectedACourseType_Valid_ReturnsValid()
+    [Test, MoqAutoData]
+    public void TestValidator_IsNotSupprotingProviderAndHasSelectedACourseType_Valid_ReturnsValid(ProviderDetailsSummaryViewModel viewModel)
     {
-        var result = _validator.TestValidate(new ProviderDetailsSummaryViewModel() { IsSupportingProvider = false, OffersApprenticeshipsText = "Yes", OffersApprenticeshipUnitsText = "No" });
+        viewModel.IsSupportingProvider = false;
+        viewModel.OffersApprenticeshipsText = "Yes";
+        viewModel.OffersApprenticeshipUnitsText = "No";
+
+        var result = _validator.TestValidate(viewModel);
 
         result.IsValid.Should().BeTrue();
-        result.ShouldNotHaveValidationErrorFor(s => s.IsSupportingProvider);
+        result.ShouldNotHaveValidationErrorFor(s => s);
     }
 
-    [Test]
-    public void TestValidator_IsSupprotingProvider_Valid_ReturnsValid()
+    [Test, MoqAutoData]
+    public void TestValidator_IsSupprotingProvider_Valid_ReturnsValid(ProviderDetailsSummaryViewModel viewModel)
     {
-        var result = _validator.TestValidate(new ProviderDetailsSummaryViewModel() { IsSupportingProvider = true });
+        viewModel.IsSupportingProvider = true;
+
+        var result = _validator.TestValidate(viewModel);
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Test, MoqAutoData]
+    public void TestValidator_IsNotSupprotingProviderAndCourseTypeIsMissing_Invalid_ReturnsExpectedErrorMessage(ProviderDetailsSummaryViewModel viewModel)
+    {
+        viewModel.IsSupportingProvider = false;
+        viewModel.OffersApprenticeshipsText = null;
+        viewModel.OffersApprenticeshipUnitsText = null;
+
+        var result = _validator.TestValidate(viewModel);
+
+        result.IsValid.Should().BeFalse();
+        result.ShouldHaveValidationErrorFor(s => s)
+            .WithErrorMessage(ProviderDetailsSummaryViewModelValidatior.RequiredFieldsNotSetErrorMessage);
+    }
+
+    [Test, MoqAutoData]
+    public void TestValidator_IsSupprotingProviderAndCourseTypeIsMissing_Valid_ReturnsValid(ProviderDetailsSummaryViewModel viewModel)
+    {
+        viewModel.IsSupportingProvider = true;
+        viewModel.OffersApprenticeshipsText = null;
+        viewModel.OffersApprenticeshipUnitsText = null;
+
+        var result = _validator.TestValidate(viewModel);
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Test, MoqAutoData]
+    public void TestValidator_ProviderRouteIsMissing_Invalid_ReturnsExpectedErrorMessage(ProviderDetailsSummaryViewModel viewModel)
+    {
+        viewModel.ProviderRoute = null;
+
+        var result = _validator.TestValidate(viewModel);
+
+        result.IsValid.Should().BeFalse();
+        result.ShouldHaveValidationErrorFor(s => s.ProviderRoute)
+            .WithErrorMessage(ProviderDetailsSummaryViewModelValidatior.RequiredFieldsNotSetErrorMessage);
+    }
+
+    [Test, MoqAutoData]
+    public void TestValidator_OrganisationTypeIsMissing_Invalid_ReturnsExpectedErrorMessage(ProviderDetailsSummaryViewModel viewModel)
+    {
+        viewModel.OrganisationType = null;
+
+        var result = _validator.TestValidate(viewModel);
+
+        result.IsValid.Should().BeFalse();
+        result.ShouldHaveValidationErrorFor(s => s.OrganisationType)
+            .WithErrorMessage(ProviderDetailsSummaryViewModelValidatior.RequiredFieldsNotSetErrorMessage);
+    }
+
+    [Test, MoqAutoData]
+    public void TestValidator_AllRequiredDataPopulated_Valid_ReturnsValid(ProviderDetailsSummaryViewModel viewModel)
+    {
+        var result = _validator.TestValidate(viewModel);
         result.IsValid.Should().BeTrue();
     }
 }

@@ -19,7 +19,7 @@ public class ProviderDetailsSummaryControllerPostTest
         [Greedy] ProviderDetailsSummaryController sut,
         AddProviderSessionModel sessionModel)
     {
-        var viewModel = new ProviderDetailsSummaryViewModel() { IsSupportingProvider = false, OffersApprenticeshipsText = "Yes", OffersApprenticeshipUnitsText = "No" };
+        var viewModel = new ProviderDetailsSummaryViewModel() { Ukprn = 12345, IsSupportingProvider = false, OffersApprenticeshipsText = "Yes", OffersApprenticeshipUnitsText = "No" };
 
         validator.Setup(x => x.Validate(It.Is<ProviderDetailsSummaryViewModel>(m => m.IsSupportingProvider == viewModel.IsSupportingProvider))).Returns(new ValidationResult());
 
@@ -39,7 +39,7 @@ public class ProviderDetailsSummaryControllerPostTest
         [Greedy] ProviderDetailsSummaryController sut,
         AddProviderSessionModel sessionModel)
     {
-        var viewModel = new ProviderDetailsSummaryViewModel();
+        var viewModel = new ProviderDetailsSummaryViewModel() { Ukprn = 12345 };
 
         var validationResult = new ValidationResult();
         validationResult.Errors.Add(new ValidationFailure("Field", "Error"));

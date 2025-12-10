@@ -21,11 +21,18 @@ public class SelectOrganisationTypeControllerPostTests
         [Frozen] Mock<IOrganisationTypesService> organisationTypesServiceMock,
         [Frozen] Mock<IValidator<OrganisationTypeSubmitModel>> validator,
         [Greedy] SelectOrganisationTypeController sut,
-        List<OrganisationTypeModel> organisationTypes,
         AddProviderSessionModel sessionModel)
     {
         //Arrange
         OrganisationTypeSubmitModel submitModel = new() { OrganisationTypeId = 1 };
+        var organisationTypes = new List<OrganisationTypeModel>
+        {
+            new OrganisationTypeModel
+            {
+                Id = 1,
+                Description = "Test"
+            }
+        };
 
         validator.Setup(x => x.Validate(It.Is<OrganisationTypeSubmitModel>(m => m.OrganisationTypeId == submitModel.OrganisationTypeId))).Returns(new ValidationResult());
         sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(sessionModel);
@@ -41,10 +48,35 @@ public class SelectOrganisationTypeControllerPostTests
         redirectResult.Should().NotBeNull();
         redirectResult.RouteName.Should().Be(RouteNames.ProviderDetailsSummary);
         sessionModel.OrganisationTypeId.Should().Be(submitModel.OrganisationTypeId);
+        sessionModel.OrganisationType.Should().Be("Test");
         sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
         sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.Is<AddProviderSessionModel>(m =>
             m.OrganisationTypeId == sessionModel.OrganisationTypeId)), Times.Once);
         organisationTypesServiceMock.Verify(x => x.GetOrganisationTypes(It.IsAny<CancellationToken>()), Times.Once());
+    }
+
+    [Test, MoqAutoData]
+    public async Task Post_Index_NotMatchingOrganiationType_SetOrganisationTypeToNull(
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IOrganisationTypesService> organisationTypesServiceMock,
+        [Frozen] Mock<IValidator<OrganisationTypeSubmitModel>> validator,
+        [Greedy] SelectOrganisationTypeController sut,
+        AddProviderSessionModel sessionModel)
+    {
+        //Arrange
+        OrganisationTypeSubmitModel submitModel = new() { OrganisationTypeId = 1 };
+        var organisationTypes = new List<OrganisationTypeModel>();
+
+        validator.Setup(x => x.Validate(It.Is<OrganisationTypeSubmitModel>(m => m.OrganisationTypeId == submitModel.OrganisationTypeId))).Returns(new ValidationResult());
+        sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(sessionModel);
+        organisationTypesServiceMock.Setup(x => x.GetOrganisationTypes(It.IsAny<CancellationToken>()))!
+            .ReturnsAsync(organisationTypes);
+
+        // Act
+        await sut.Index(submitModel, CancellationToken.None);
+
+        // Assert
+        sessionModel.OrganisationType.Should().BeNull();
     }
 
     [Test, MoqAutoData]
