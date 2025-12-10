@@ -19,6 +19,10 @@ public class SelectOrganisationTypeController(ISessionService _sessionService, I
     {
         var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider)!;
 
+        sessionModel.RedirectedFromSummaryPage = false;
+
+        _sessionService.Set(SessionKeys.AddProvider, sessionModel);
+
         var organisationTypesResponse = await _organisationTypesService.GetOrganisationTypes(cancellationToken);
 
         List<OrganisationTypeModel> organisationTypes = new List<OrganisationTypeModel>();

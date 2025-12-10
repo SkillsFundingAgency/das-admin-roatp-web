@@ -4,11 +4,9 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Web.Controllers.AddProvider;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
-using SFA.DAS.Admin.Roatp.Web.Models.Constants;
 using SFA.DAS.Admin.Roatp.Web.Models.Session;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
@@ -24,7 +22,6 @@ public class SelectProviderTypeControllerPostTests
     {
         // Arrange
         var providerTypeId = 1;
-        var providerTypes = BuildProviderTypes(providerTypeId);
         var sessionModel = new AddProviderSessionModel()
         {
             Ukprn = 12345678,
@@ -63,7 +60,6 @@ public class SelectProviderTypeControllerPostTests
     {
         // Arrange
         var providerTypeId = 3;
-        var providerTypes = BuildProviderTypes(providerTypeId);
         var sessionModel = new AddProviderSessionModel()
         {
             Ukprn = 12345678,
@@ -102,7 +98,6 @@ public class SelectProviderTypeControllerPostTests
     {
         // Arrange
         var providerTypeId = 1;
-        var providerTypes = BuildProviderTypes(providerTypeId);
         var sessionModel = new AddProviderSessionModel()
         {
             Ukprn = 12345678,
@@ -176,13 +171,42 @@ public class SelectProviderTypeControllerPostTests
             m.ProviderTypeId == sessionModel.ProviderTypeId)), Times.Never);
     }
 
-    private static List<AddProviderTypeSelectionModel> BuildProviderTypes(int providerTypeId)
+    [Test, MoqAutoData]
+    public void Post_Index_SubmitModelIsValidAndRedirectedFromSummaryPageIsTrue_SetsSessionAndRedirectsToProviderDetailsSummary(
+        [Frozen] Mock<IValidator<SelectProviderTypeSubmitModel>> validator,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] SelectProviderTypeController sut)
     {
-        return new List<AddProviderTypeSelectionModel>
+        // Arrange
+        var providerTypeId = 3;
+        var sessionModel = new AddProviderSessionModel()
         {
-            new() { Description = ProviderTypeDescription.Main, Id = (int)ProviderType.Main, IsSelected = providerTypeId == (int)ProviderType.Main },
-            new() { Description = ProviderTypeDescription.Employer, Id = (int)ProviderType.Employer, IsSelected = providerTypeId == (int)ProviderType.Employer },
-            new() { Description = ProviderTypeDescription.Supporting, Id = (int)ProviderType.Supporting, IsSelected = providerTypeId == (int)ProviderType.Supporting },
+            Ukprn = 12345678,
+            LegalName = "LegalName",
+            TradingName = "TradingName",
+            CompanyNumber = "12345678",
+            CharityNumber = "12345678",
+            ProviderTypeId = providerTypeId,
+            OffersApprenticeships = null,
+            RedirectedFromSummaryPage = true
         };
+
+        SelectProviderTypeSubmitModel submitModel = new() { SelectedProviderTypeId = providerTypeId };
+
+        validator.Setup(x => x.Validate(It.Is<SelectProviderTypeSubmitModel>(m => m.SelectedProviderTypeId == submitModel.SelectedProviderTypeId))).Returns(new ValidationResult());
+
+        sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(sessionModel);
+
+        // Act
+        var result = sut.Index(submitModel);
+
+        // Assert
+        result.Should().NotBeNull();
+        var redirectResult = result as RedirectToRouteResult;
+        redirectResult.Should().NotBeNull();
+        redirectResult.RouteName.Should().Be(RouteNames.ProviderDetailsSummary);
+        sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
+        sessionServiceMock.Verify(s => s.Set(SessionKeys.AddProvider, It.Is<AddProviderSessionModel>(m =>
+            m.ProviderTypeId == sessionModel.ProviderTypeId && m.OffersApprenticeships == sessionModel.OffersApprenticeships)), Times.Never);
     }
 }

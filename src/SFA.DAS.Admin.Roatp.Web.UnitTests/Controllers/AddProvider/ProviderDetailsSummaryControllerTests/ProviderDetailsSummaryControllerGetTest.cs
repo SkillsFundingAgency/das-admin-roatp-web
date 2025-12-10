@@ -20,17 +20,28 @@ public class ProviderDetailsSummaryControllerGetTest
         [Frozen] Mock<IValidator<ProviderDetailsSummaryViewModel>> validator,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ProviderDetailsSummaryController sut,
-        AddProviderSessionModel sessionModel,
-        string manageProviderLink)
+        AddProviderSessionModel sessionModel
+        )
     {
-        var submitModel = new ProviderDetailsSummaryViewModel() { IsSupportingProvider = false, OffersApprenticeshipsText = "Yes", OffersApprenticeshipUnitsText = "No" };
+        // Arrange
+        string manageProviderLink = Guid.NewGuid().ToString();
+        string providerTypeChangeLink = Guid.NewGuid().ToString();
+        string offersApprenticeshipsChangeLink = Guid.NewGuid().ToString();
+        string offersApprenticeshipUnitsChangeLink = Guid.NewGuid().ToString();
+        string organisationTypeChangeLink = Guid.NewGuid().ToString();
+
+        var submitModel = new ProviderDetailsSummaryViewModel() { Ukprn = 12345, IsSupportingProvider = false, OffersApprenticeshipsText = "Yes", OffersApprenticeshipUnitsText = "No" };
 
         validator.Setup(x => x.Validate(It.Is<ProviderDetailsSummaryViewModel>(m => m.IsSupportingProvider == submitModel.IsSupportingProvider))).Returns(new ValidationResult());
 
         sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(sessionModel);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.Home, manageProviderLink);
+            .AddUrlForRoute(RouteNames.Home, manageProviderLink)
+            .AddUrlForRoute(RouteNames.SelectProviderType, providerTypeChangeLink)
+            .AddUrlForRoute(RouteNames.SelectOfferApprenticeships, offersApprenticeshipsChangeLink)
+            .AddUrlForRoute(RouteNames.SelectOfferApprenticeshipUnits, offersApprenticeshipUnitsChangeLink)
+            .AddUrlForRoute(RouteNames.SelectOrganisationType, organisationTypeChangeLink);
 
         // Act
         var result = sut.Index() as ViewResult;
@@ -43,6 +54,11 @@ public class ProviderDetailsSummaryControllerGetTest
         sut.ModelState.ErrorCount.Should().Be(0);
         model!.Ukprn.Should().Be(sessionModel.Ukprn);
         model!.LegalName.Should().BeEquivalentTo(sessionModel.LegalName);
+        model.ManageProviderLink.Should().Be(manageProviderLink);
+        model.ProviderTypeChangeLink.Should().Be(providerTypeChangeLink);
+        model.OffersApprenticeshipsChangeLink.Should().Be(offersApprenticeshipsChangeLink);
+        model.OffersApprenticeshipUnitsChangeLink.Should().Be(offersApprenticeshipUnitsChangeLink);
+        model.OrganisationTypeChangeLink.Should().Be(organisationTypeChangeLink);
         sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
     }
 
@@ -54,12 +70,11 @@ public class ProviderDetailsSummaryControllerGetTest
         AddProviderSessionModel sessionModel,
         string manageProviderLink)
     {
-        var viewModel = new ProviderDetailsSummaryViewModel();
-
+        // Arrange
         var validationResult = new ValidationResult();
         validationResult.Errors.Add(new ValidationFailure("Field", "Error"));
 
-        validator.Setup(x => x.Validate(It.Is<ProviderDetailsSummaryViewModel>((m => m.IsSupportingProvider == viewModel.IsSupportingProvider)))).Returns(validationResult);
+        validator.Setup(x => x.Validate(It.IsAny<ProviderDetailsSummaryViewModel>())).Returns(validationResult);
 
         sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(sessionModel);
 

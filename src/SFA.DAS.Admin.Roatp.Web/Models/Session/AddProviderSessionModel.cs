@@ -11,11 +11,13 @@ public class AddProviderSessionModel : ISessionModel
     public bool? OffersApprenticeshipUnits { get; set; }
     public int? OrganisationTypeId { get; set; }
     public string? OrganisationType { get; set; }
+    public bool RedirectedFromSummaryPage { get; set; }
     public void ResetModel()
     {
         OffersApprenticeships = null;
         OffersApprenticeshipUnits = null;
         OrganisationTypeId = null;
         OrganisationType = null;
+        RedirectedFromSummaryPage = false;
     }
 }

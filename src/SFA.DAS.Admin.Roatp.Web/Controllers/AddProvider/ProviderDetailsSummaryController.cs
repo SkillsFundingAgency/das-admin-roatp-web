@@ -18,6 +18,10 @@ public class ProviderDetailsSummaryController(ISessionService _sessionService, I
     {
         var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider)!;
 
+        sessionModel.RedirectedFromSummaryPage = true;
+
+        _sessionService.Set(SessionKeys.AddProvider, sessionModel);
+
         ProviderDetailsSummaryViewModel viewModel = sessionModel;
 
         var result = _validator.Validate(viewModel);
@@ -28,6 +32,10 @@ public class ProviderDetailsSummaryController(ISessionService _sessionService, I
         }
 
         viewModel.ManageProviderLink = Url.RouteUrl(RouteNames.Home)!;
+        viewModel.ProviderTypeChangeLink = Url.RouteUrl(RouteNames.SelectProviderType)!;
+        viewModel.OffersApprenticeshipsChangeLink = Url.RouteUrl(RouteNames.SelectOfferApprenticeships)!;
+        viewModel.OffersApprenticeshipUnitsChangeLink = Url.RouteUrl(RouteNames.SelectOfferApprenticeshipUnits)!;
+        viewModel.OrganisationTypeChangeLink = Url.RouteUrl(RouteNames.SelectOrganisationType)!;
 
         return View(viewModel);
     }

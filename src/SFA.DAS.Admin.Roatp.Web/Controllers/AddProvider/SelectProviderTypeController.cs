@@ -48,6 +48,11 @@ public class SelectProviderTypeController(ISessionService _sessionService, IVali
 
         var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider);
 
+        if (sessionModel!.ProviderTypeId == submitModel.SelectedProviderTypeId && sessionModel.RedirectedFromSummaryPage)
+        {
+            return RedirectToRoute(RouteNames.ProviderDetailsSummary);
+        }
+
         if (sessionModel!.ProviderTypeId != submitModel.SelectedProviderTypeId)
         {
             sessionModel.ResetModel();

@@ -72,7 +72,7 @@
                                     <td class="govuk-table__cell">@Model.ProviderRoute</td>
                                     <td class="govuk-table__cell"><a href="@Model.ProviderTypeChangeLink" class="govuk-link">Change</a></td>
                                 </tr>
-                                @if (!Model.IsSupportingProvider)
+                                @if (!Model.IsSupportingProvider == true)
                                 {
                                     <tr class="govuk-table__row">
                                         <th scope="row" class="govuk-table__header">Offers<br />apprenticeships</th>
