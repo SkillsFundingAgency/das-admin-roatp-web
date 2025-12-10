@@ -3,7 +3,6 @@ using Refit;
 using SFA.DAS.Admin.Roatp.Application.Constants;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
-using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.Infrastructure;
 public interface IOuterApiClient
@@ -18,7 +17,7 @@ public interface IOuterApiClient
     Task<ApiResponse<GetOrganisationResponse>> GetOrganisation(int ukprn, CancellationToken cancellationToken);
 
     [Patch("/organisations/{ukprn}")]
-    Task<ApiResponse<HttpStatusCode>> PatchOrganisation(int ukprn, [Header(RequestHeaders.RequestingUserIdHeader)] string userId, [Body] JsonPatchDocument<PatchOrganisationModel> patchDoc, CancellationToken cancellationToken);
+    Task PatchOrganisation(int ukprn, [Header(RequestHeaders.RequestingUserIdHeader)] string userId, [Header(RequestHeaders.RequestingUserNameHeader)] string userName, [Body] JsonPatchDocument<PatchOrganisationModel> patchDoc, CancellationToken cancellationToken);
 
     [Get("/removed-reasons")]
     Task<GetRemovalReasonsResponse> GetRemovalReasons(CancellationToken cancellationToken);

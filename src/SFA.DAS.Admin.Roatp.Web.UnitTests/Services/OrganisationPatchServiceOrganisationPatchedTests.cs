@@ -1,11 +1,9 @@
-﻿using System.Net;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using AutoFixture.NUnit3;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Moq;
-using Refit;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
@@ -33,7 +31,7 @@ public class OrganisationPatchServiceOrganisationPatchedTests
 
         changed.Should().Be(false);
         outerApiClientMock.Verify(
-            c => c.PatchOrganisation(ukprn, It.IsAny<string>(),
+            c => c.PatchOrganisation(ukprn, It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<JsonPatchDocument<PatchOrganisationModel>>(), cancellationToken), Times.Never);
     }
 
@@ -56,10 +54,7 @@ public class OrganisationPatchServiceOrganisationPatchedTests
         getOrganisationResponse.RemovedReasonId = organisationDetails.RemovedReasonId;
         getOrganisationResponse.OrganisationTypeId = organisationDetails.OrganisationTypeId;
 
-        ApiResponse<HttpStatusCode> apiResponse = new ApiResponse<HttpStatusCode>(new HttpResponseMessage(HttpStatusCode.NoContent), HttpStatusCode.NoContent, new RefitSettings(), null);
-
-        outerApiClientMock.Setup(x => x.PatchOrganisation(ukprn, It.IsAny<string>(), It.IsAny<JsonPatchDocument<PatchOrganisationModel>>(), cancellationToken))!
-            .ReturnsAsync(apiResponse);
+        outerApiClientMock.Setup(x => x.PatchOrganisation(ukprn, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<JsonPatchDocument<PatchOrganisationModel>>(), cancellationToken)).Returns(Task.FromResult(true));
 
         var user = new ClaimsPrincipal(new ClaimsIdentity(
             new Claim[]
@@ -75,7 +70,7 @@ public class OrganisationPatchServiceOrganisationPatchedTests
 
         changed.Should().Be(true);
         outerApiClientMock.Verify(
-            c => c.PatchOrganisation(ukprn, It.IsAny<string>(),
+            c => c.PatchOrganisation(ukprn, It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<JsonPatchDocument<PatchOrganisationModel>>(), cancellationToken), Times.Once);
     }
 
