@@ -22,6 +22,7 @@ public static class AddApplicationRegistrationsExtension
         services.AddTransient<IOrganisationsService, OrganisationsService>();
         services.AddTransient<IOrganisationPatchService, OrganisationPatchService>();
         services.AddTransient<IOrganisationTypesService, OrganisationTypesService>();
+        services.AddTransient<IPostOrganisationService, PostOrganisationService>();
 
         services.AddOuterApi(outerApiConfig!);
 

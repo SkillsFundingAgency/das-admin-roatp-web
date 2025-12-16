@@ -92,4 +92,56 @@ public class ProviderDetailsSummaryControllerGetTest
         sut.ModelState.ErrorCount.Should().Be(1);
         sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
     }
+
+    [Test, MoqAutoData]
+    public void Get_AddProviderConfirmation_ReturnsView(
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] ProviderDetailsSummaryController sut,
+        AddProviderSessionModel sessionModel)
+    {
+        // Arrange
+        sessionModel.OrganisationSubmitted = true;
+
+        sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(sessionModel);
+
+        var dashboardLink = Guid.NewGuid().ToString();
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.Home, dashboardLink);
+
+        // Act
+        var result = sut.AddProviderConfirmation() as ViewResult;
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.Model.Should().NotBeNull();
+        var model = result!.Model as AddProviderConfirmationViewModel;
+        model!.DashboardLink.Should().Be(dashboardLink);
+        sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
+    }
+
+    [Test, MoqAutoData]
+    public void Get_AddProviderConfirmation_OrganisationSubmittedIsFalse_RedirectsToHome(
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] ProviderDetailsSummaryController sut,
+        AddProviderSessionModel sessionModel)
+    {
+        // Arrange
+        sessionModel.OrganisationSubmitted = false;
+
+        sessionServiceMock.Setup(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider)).Returns(sessionModel);
+
+        var dashboardLink = Guid.NewGuid().ToString();
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.Home, dashboardLink);
+
+        // Act
+        var result = sut.AddProviderConfirmation();
+
+        // Assert
+        result.Should().NotBeNull();
+        var redirectResult = result as RedirectToRouteResult;
+        redirectResult.Should().NotBeNull();
+        redirectResult.RouteName.Should().Be(RouteNames.Home);
+        sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
+    }
 }

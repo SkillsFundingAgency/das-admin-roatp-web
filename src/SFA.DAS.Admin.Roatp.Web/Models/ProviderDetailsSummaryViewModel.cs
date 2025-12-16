@@ -18,6 +18,7 @@ public class ProviderDetailsSummaryViewModel : IBackLink
     public string OffersApprenticeshipUnitsChangeLink { get; set; } = "#";
     public string OrganisationTypeChangeLink { get; set; } = "#";
     public string ManageProviderLink { get; set; } = "#";
+
     public static implicit operator ProviderDetailsSummaryViewModel(AddProviderSessionModel sessionModel) => new ProviderDetailsSummaryViewModel
     {
         Ukprn = sessionModel.Ukprn,

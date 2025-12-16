@@ -11,7 +11,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.AddProvider;
 
 [Route("providers/new/provider-details-summary", Name = RouteNames.ProviderDetailsSummary)]
 [RequiresSessionModel<AddProviderSessionModel>(SessionKeys.AddProvider, RouteNames.Home)]
-public class ProviderDetailsSummaryController(ISessionService _sessionService, IValidator<ProviderDetailsSummaryViewModel> _validator) : Controller
+public class ProviderDetailsSummaryController(ISessionService _sessionService, IValidator<ProviderDetailsSummaryViewModel> _validator, IPostOrganisationService _postOrganisationService) : Controller
 {
     [HttpGet]
     public IActionResult Index()
@@ -41,7 +41,7 @@ public class ProviderDetailsSummaryController(ISessionService _sessionService, I
     }
 
     [HttpPost]
-    public IActionResult Index(ProviderDetailsSummaryViewModel viewModel)
+    public async Task<IActionResult> Index(ProviderDetailsSummaryViewModel viewModel, CancellationToken cancellationToken)
     {
         var result = _validator.Validate(viewModel);
 
@@ -50,6 +50,34 @@ public class ProviderDetailsSummaryController(ISessionService _sessionService, I
             return RedirectToRoute(RouteNames.ProviderDetailsSummary);
         }
 
-        return RedirectToRoute(RouteNames.ProviderDetailsSummary);
+        var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider)!;
+
+        await _postOrganisationService.PostOrganisation(sessionModel, cancellationToken);
+
+        sessionModel.OrganisationSubmitted = true;
+
+        _sessionService.Set(SessionKeys.AddProvider, sessionModel);
+
+        return RedirectToRoute(RouteNames.AddProviderConfirmation);
+    }
+
+    [HttpGet]
+    [Route("providers/new/provider-added", Name = RouteNames.AddProviderConfirmation)]
+    public IActionResult AddProviderConfirmation()
+    {
+        var sessionModel = _sessionService.Get<AddProviderSessionModel>(SessionKeys.AddProvider)!;
+
+        if (!sessionModel.OrganisationSubmitted)
+        {
+            return RedirectToRoute(RouteNames.Home);
+        }
+
+        var viewModel = new AddProviderConfirmationViewModel()
+        {
+            LegalName = sessionModel.LegalName,
+            DashboardLink = Url.RouteUrl(RouteNames.Home)!
+        };
+
+        return View(viewModel);
     }
 }
