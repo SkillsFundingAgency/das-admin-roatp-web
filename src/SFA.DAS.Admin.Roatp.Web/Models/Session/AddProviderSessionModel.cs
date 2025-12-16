@@ -12,6 +12,7 @@ public class AddProviderSessionModel : ISessionModel
     public int? OrganisationTypeId { get; set; }
     public string? OrganisationType { get; set; }
     public bool RedirectedFromSummaryPage { get; set; }
+    public bool OrganisationSubmitted { get; set; }
     public void ResetModel()
     {
         OffersApprenticeships = null;

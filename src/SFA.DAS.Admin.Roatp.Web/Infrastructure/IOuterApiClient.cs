@@ -33,4 +33,7 @@ public interface IOuterApiClient
 
     [Get("/organisations/{ukprn}/ukrlp-data")]
     Task<ApiResponse<GetUkrlpResponse>> GetUkrlp(int ukprn, CancellationToken cancellationToken);
+
+    [Post("/organisations")]
+    Task PostOrganisation(PostOrganisationCommand command, CancellationToken cancellationToken);
 }
