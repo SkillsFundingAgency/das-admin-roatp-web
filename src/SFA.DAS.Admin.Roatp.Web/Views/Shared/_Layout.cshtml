@@ -78,8 +78,10 @@
             <div class="govuk-service-navigation__container das-header__navigation__container">
                 <div class="das-header__service-user-name-wrap">
                     <span class="govuk-service-navigation__service-name">
-                        <span class="govuk-service-navigation__text">Apprenticeship service admin</span>
-                    </span>
+                        <a href="/" class="govuk-service-navigation__link">
+                          Apprenticeship service admin
+                        </a>
+                      </span>
                     @if (User.Identity?.IsAuthenticated == true)
                     {
                         <p class="das-header__user-name">@User.UserDisplayName()</p>
