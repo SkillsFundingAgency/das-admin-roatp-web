@@ -78,6 +78,8 @@ public class ProviderDetailsSummaryController(ISessionService _sessionService, I
             DashboardLink = Url.RouteUrl(RouteNames.Home)!
         };
 
+        _sessionService.Delete(SessionKeys.AddProvider);
+
         return View(viewModel);
     }
 }

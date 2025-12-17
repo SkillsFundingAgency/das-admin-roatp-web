@@ -117,6 +117,7 @@ public class ProviderDetailsSummaryControllerGetTest
         var model = result!.Model as AddProviderConfirmationViewModel;
         model!.DashboardLink.Should().Be(dashboardLink);
         sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProvider), Times.Once());
     }
 
     [Test, MoqAutoData]
@@ -143,5 +144,6 @@ public class ProviderDetailsSummaryControllerGetTest
         redirectResult.Should().NotBeNull();
         redirectResult.RouteName.Should().Be(RouteNames.Home);
         sessionServiceMock.Verify(s => s.Get<AddProviderSessionModel>(SessionKeys.AddProvider), Times.Once());
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProvider), Times.Never());
     }
 }
