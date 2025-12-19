@@ -10,14 +10,12 @@
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <div class="govuk-form-group">
-            <fieldset class="govuk-fieldset">
-                <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+ 
                     <span class="govuk-caption-l">Organisation details</span>
                     <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">
                         Details for @Model.Ukprn
                     </h1>
-                </legend>
+      
                 <div class="govuk-!-width das-highlight">
                     <p class="govuk-body no-bottom-margin">
                         <strong>UKPRN:</strong> @Model.Ukprn
@@ -37,7 +35,7 @@
                     </p>
                 </div>
                 <div class="govuk-!-width">
-                    <p class="govuk-body">
+              
                         <h2 class="govuk-heading-l govuk-!-margin-bottom-5">
                             Update training provider information
                         </h2>
@@ -71,12 +69,12 @@
                             <tr class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">Type of provider</th>
                                 <td class="govuk-table__cell">@Model.ProviderType</td>
-                                    <td class="govuk-table__cell"><a href="@Model.ProviderTypeChangeLink" class="govuk-link">Change</a></td>
+                                <td class="govuk-table__cell"><a href="@Model.ProviderTypeChangeLink" class="govuk-link">Change</a></td>
                             </tr>
                             <tr class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">Type of organisation</th>
                                 <td class="govuk-table__cell">@Model.OrganisationType</td>
-                                    <td class="govuk-table__cell"><a href="@Model.OrganisationTypeChangeLink" class="govuk-link">Change</a></td>
+                                <td class="govuk-table__cell"><a href="@Model.OrganisationTypeChangeLink" class="govuk-link">Change</a></td>
                             </tr>
                             @if (!Model.IsSupportingProvider)
                             {
@@ -88,27 +86,27 @@
                                 <tr class="govuk-table__row">
                                     <th scope="row" class="govuk-table__header">Offers apprenticeship units</th>
                                     <td class="govuk-table__cell">@Model.OffersShortCoursesText</td>
-                                        <td class="govuk-table__cell"><a href="@Model.OffersApprenticeshipUnitsChangeLink" class="govuk-link">Change</a></td>
+                                    <td class="govuk-table__cell"><a href="@Model.OffersApprenticeshipUnitsChangeLink" class="govuk-link">Change</a></td>
                                 </tr>
                             }
                             </tbody>
                         </table>
+                        
                         <table class="govuk-table">
-                        <caption class="govuk-table__caption govuk-table__caption--m">Training provider account management</caption>
-                        <tbody class="govuk-table__body">
-                        <tr class="govuk-table__row">
-                            <th scope="row" class="govuk-table__header govuk-!-width-one-third">Application date</th>
-                            <td class="govuk-table__cell  govuk-!-width-two-thirds">@Model.ApplicationDeterminedDateText</td>
-                        </tr>
-                        <tr class="govuk-table__row">
-                            <th scope="row" class="govuk-table__header">Charity registration number</th>
-                            <td class="govuk-table__cell  govuk-!-width-two-thirds">@Model.CharityNumberText</td>
-                        </tr>
+                            <caption class="govuk-table__caption govuk-table__caption--m">Training provider account management</caption>
+                            <tbody class="govuk-table__body">
+                            <tr class="govuk-table__row">
+                                <th scope="row" class="govuk-table__header govuk-!-width-one-third">Application date</th>
+                                <td class="govuk-table__cell  govuk-!-width-two-thirds">@Model.ApplicationDeterminedDateText</td>
+                            </tr>
+                            <tr class="govuk-table__row">
+                                <th scope="row" class="govuk-table__header">Charity registration number</th>
+                                <td class="govuk-table__cell  govuk-!-width-two-thirds">@Model.CharityNumberText</td>
+                            </tr>
                         </table>
-                    </p>
-                </div>
+                    
+          
 
-            </fieldset>
         </div>
     </div>
 </div>
