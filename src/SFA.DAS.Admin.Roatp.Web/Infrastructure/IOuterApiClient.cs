@@ -5,6 +5,7 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 
 namespace SFA.DAS.Admin.Roatp.Web.Infrastructure;
+
 public interface IOuterApiClient
 {
     [Get("/ping")]
@@ -27,9 +28,6 @@ public interface IOuterApiClient
 
     [Put("/organisations/{ukprn}/course-types")]
     Task PutCourseTypes(int ukprn, [Body] UpdateCourseTypesModel updateCourseTypesModel, CancellationToken cancellationToken);
-
-    [Delete("/organisations/{ukprn}/short-courses")]
-    Task DeleteShortCourses(int ukprn, [Header(RequestHeaders.RequestingUserIdHeader)] string userId, CancellationToken cancellationToken);
 
     [Get("/organisations/{ukprn}/ukrlp-data")]
     Task<ApiResponse<GetUkrlpResponse>> GetUkrlp(int ukprn, CancellationToken cancellationToken);
