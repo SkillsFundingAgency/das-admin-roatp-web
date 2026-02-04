@@ -5,6 +5,7 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Models;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models;
+
 public class ProviderSummaryViewModelTests
 {
     [Test, AutoData]
@@ -192,12 +193,13 @@ public class ProviderSummaryViewModelTests
     )
     {
         var allowedCourseTypes = new List<AllowedCourseType>();
-        if (offersApprenticeships) allowedCourseTypes.Add(new AllowedCourseType { LearningType = LearningType.Standard, CourseTypeId = 1, CourseTypeName = "course type" });
-        if (offersShortCourses) allowedCourseTypes.Add(new AllowedCourseType { LearningType = LearningType.ShortCourse, CourseTypeId = 1, CourseTypeName = "AppenticeshipUnit" });
+        if (offersApprenticeships) allowedCourseTypes.Add(new AllowedCourseType { CourseTypeId = CourseTypes.Apprenticeship, CourseTypeName = nameof(CourseTypes.Apprenticeship) });
+        if (offersShortCourses) allowedCourseTypes.Add(new AllowedCourseType { CourseTypeId = CourseTypes.ShortCourse, CourseTypeName = nameof(CourseTypes.ShortCourse) });
 
         response.AllowedCourseTypes = allowedCourseTypes;
 
         var sut = (ProviderSummaryViewModel)response;
+
         sut.OffersApprenticeshipsText.Should().Be(expectedOffersApprenticeshipText);
         sut.OffersShortCoursesText.Should().Be(expectedOffersShortCoursesText);
     }

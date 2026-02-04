@@ -1,4 +1,5 @@
-﻿using AutoFixture.NUnit3;
+﻿using System.Net;
+using AutoFixture.NUnit3;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -11,9 +12,9 @@ using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
-using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ProviderTypeUpdateControllerTests;
+
 public class ProviderTypeUpdateControllerPostTests
 {
     [Test, MoqAutoData]
@@ -141,7 +142,7 @@ public class ProviderTypeUpdateControllerPostTests
     {
         var allowedCourseTypes = new List<AllowedCourseType>
         {
-            new() { CourseTypeId = 1, CourseTypeName = "Apprenticeship", LearningType = LearningType.Standard }
+            new() { CourseTypeId = 1, CourseTypeName = nameof(CourseTypes.Apprenticeship) }
         };
         getOrganisationResponse.AllowedCourseTypes = allowedCourseTypes;
         getOrganisationResponse.ProviderType = providerType;
@@ -177,8 +178,8 @@ public class ProviderTypeUpdateControllerPostTests
     {
         var allowedCourseTypes = new List<AllowedCourseType>
         {
-            new() { CourseTypeId = 1, CourseTypeName = "Apprenticeship", LearningType = LearningType.Standard },
-            new() { CourseTypeId = 2, CourseTypeName = "AppenticeshipUnit", LearningType = LearningType.ShortCourse}
+            new() { CourseTypeId = 1, CourseTypeName = nameof(CourseTypes.Apprenticeship) },
+            new() { CourseTypeId = 2, CourseTypeName = nameof(CourseTypes.ShortCourse)}
         };
 
         getOrganisationResponse.AllowedCourseTypes = allowedCourseTypes;

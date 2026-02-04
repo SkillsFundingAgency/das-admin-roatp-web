@@ -1,11 +1,11 @@
-﻿using FluentValidation;
+﻿using System.Net;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Services;
-using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
@@ -25,7 +25,7 @@ public class ApprenticeshipsUpdateController(IOuterApiClient _outerApiClient, IS
         bool? containsApprenticeships = null;
         if (sessionModel.CourseTypeIds.Count > 0)
         {
-            containsApprenticeships = sessionModel.CourseTypeIds.Any(a => a == (int)LearningType.Standard);
+            containsApprenticeships = sessionModel.CourseTypeIds.Any(a => a == CourseTypes.Apprenticeship);
         }
 
         var model = new OfferApprenticeshipsViewModel

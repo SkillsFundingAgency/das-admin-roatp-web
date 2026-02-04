@@ -1,4 +1,5 @@
-﻿using AutoFixture.NUnit3;
+﻿using System.Net;
+using AutoFixture.NUnit3;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -15,10 +16,10 @@ using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
-using System.Net;
 using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ApprenticeshipUnitsUpdateControllerTests;
+
 public class ApprenticeshipUnitsUpdateControllerPostTests
 {
     [Test, MoqAutoData]
@@ -57,12 +58,12 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
 
         var courseTypes = new List<AllowedCourseType>
         {
-            new() { CourseTypeId = CourseTypes.Apprenticeship, CourseTypeName = "Apprenticeship", LearningType = LearningType.Standard }
+            new() { CourseTypeId = CourseTypes.Apprenticeship, CourseTypeName = nameof(CourseTypes.Apprenticeship) }
         };
 
         if (containsApprenticeshipUnits)
         {
-            courseTypes.Add(new() { CourseTypeId = CourseTypes.ApprenticeshipUnit, CourseTypeName = "AppenticeshipUnit", LearningType = LearningType.ShortCourse });
+            courseTypes.Add(new() { CourseTypeId = CourseTypes.ShortCourse, CourseTypeName = nameof(CourseTypes.ShortCourse) });
         }
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
@@ -111,8 +112,8 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
             HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
         };
         var courseTypes = new List<AllowedCourseType>();
-        if (isStandardCourseTypePresent) courseTypes.Add(new AllowedCourseType { CourseTypeId = 1, CourseTypeName = "Apprenticeship", LearningType = LearningType.Standard });
-        if (isShortCourseTypePresent) courseTypes.Add(new AllowedCourseType { CourseTypeId = 2, CourseTypeName = "AppenticeshipUnit", LearningType = LearningType.ShortCourse });
+        if (isStandardCourseTypePresent) courseTypes.Add(new AllowedCourseType { CourseTypeId = 1, CourseTypeName = nameof(CourseTypes.Apprenticeship) });
+        if (isShortCourseTypePresent) courseTypes.Add(new AllowedCourseType { CourseTypeId = 2, CourseTypeName = nameof(CourseTypes.ShortCourse) });
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
         var currentCourseTypeIds = getOrganisationResponse.AllowedCourseTypes
@@ -128,11 +129,11 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         var expectedCourseTypeIds = currentCourseTypeIds;
         if (isShortCourseTypePresent)
         {
-            expectedCourseTypeIds = currentCourseTypeIds.Where(a => a != CourseTypes.ApprenticeshipUnit).ToList();
+            expectedCourseTypeIds = currentCourseTypeIds.Where(a => a != CourseTypes.ShortCourse).ToList();
         }
         else
         {
-            expectedCourseTypeIds.Add(CourseTypes.ApprenticeshipUnit);
+            expectedCourseTypeIds.Add(CourseTypes.ShortCourse);
         }
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
@@ -181,7 +182,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         {
             HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
         };
-        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = "AppenticeshipUnit", LearningType = LearningType.ShortCourse } };
+        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = nameof(CourseTypes.ShortCourse) } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
         var currentCourseTypeIds = getOrganisationResponse.AllowedCourseTypes

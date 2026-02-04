@@ -3,6 +3,6 @@
 public static class CourseTypes
 {
     public const int Apprenticeship = 1;
-    public const int ApprenticeshipUnit = 2;
+    public const int ShortCourse = 2;
 
 }
