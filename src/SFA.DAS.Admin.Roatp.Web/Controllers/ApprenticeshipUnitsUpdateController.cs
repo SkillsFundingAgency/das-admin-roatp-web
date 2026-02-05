@@ -82,7 +82,7 @@ public class ApprenticeshipUnitsUpdateController(IOuterApiClient _outerApiClient
         {
             if (model.ApprenticeshipUnitsSelectionId is true)
             {
-                sessionModel!.CourseTypeIds.Add(CourseTypes.ApprenticeshipUnit);
+                sessionModel!.CourseTypeIds.Add(CourseTypes.ShortCourse);
             }
 
             await UpdateProviderTypeAndCourseTypes(_outerApiClient, _organisationPatchService, ukprn,
@@ -97,7 +97,7 @@ public class ApprenticeshipUnitsUpdateController(IOuterApiClient _outerApiClient
     {
         if (selectedApprenticeshipUnits == null) return true;
         var containsApprenticeshipUnits =
-            organisationResponse.AllowedCourseTypes.Any(a => a.CourseTypeId == CourseTypes.ApprenticeshipUnit);
+            organisationResponse.AllowedCourseTypes.Any(a => a.CourseTypeId == CourseTypes.ShortCourse);
 
         return selectedApprenticeshipUnits != containsApprenticeshipUnits;
     }
@@ -153,7 +153,7 @@ public class ApprenticeshipUnitsUpdateController(IOuterApiClient _outerApiClient
     private static ApprenticeshipUnitsUpdateViewModel BuildViewModelFromCurrentCourseTypes(List<AllowedCourseType> allowedCourseTypes)
     {
         var containsApprenticeshipUnits =
-            allowedCourseTypes.Any(a => a.CourseTypeId == CourseTypes.ApprenticeshipUnit);
+            allowedCourseTypes.Any(a => a.CourseTypeId == CourseTypes.ShortCourse);
 
         var containsApprenticeships =
             allowedCourseTypes.Any(a => a.CourseTypeId == CourseTypes.Apprenticeship);
@@ -169,7 +169,7 @@ public class ApprenticeshipUnitsUpdateController(IOuterApiClient _outerApiClient
 
     private static UpdateCourseTypesModel RemoveShortCoursesFromCourseTypes(IEnumerable<AllowedCourseType> courseTypes, string userDisplayName)
     {
-        var courseTypeIdsToKeep = courseTypes.Where(x => x.CourseTypeId != CourseTypes.ApprenticeshipUnit)
+        var courseTypeIdsToKeep = courseTypes.Where(x => x.CourseTypeId != CourseTypes.ShortCourse)
             .Select(a => a.CourseTypeId).ToList();
         var courseTypesModel = new UpdateCourseTypesModel(courseTypeIdsToKeep, userDisplayName);
         return courseTypesModel;
@@ -178,7 +178,7 @@ public class ApprenticeshipUnitsUpdateController(IOuterApiClient _outerApiClient
     private static UpdateCourseTypesModel AddShortCoursesToCourseTypes(IEnumerable<AllowedCourseType> courseTypes, string userDisplayName)
     {
         var courseTypeIds = courseTypes.Select(a => a.CourseTypeId).ToList();
-        courseTypeIds.Add(CourseTypes.ApprenticeshipUnit);
+        courseTypeIds.Add(CourseTypes.ShortCourse);
         var courseTypesModel = new UpdateCourseTypesModel(courseTypeIds, userDisplayName);
         return courseTypesModel;
     }

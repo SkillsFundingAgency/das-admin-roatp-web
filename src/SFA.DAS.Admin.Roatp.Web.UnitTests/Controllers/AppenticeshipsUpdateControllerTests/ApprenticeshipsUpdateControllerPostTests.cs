@@ -1,4 +1,5 @@
-﻿using AutoFixture.NUnit3;
+﻿using System.Net;
+using AutoFixture.NUnit3;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -14,9 +15,9 @@ using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
-using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.AppenticeshipsUpdateControllerTests;
+
 public class ApprenticeshipsUpdateControllerPostTests
 {
     [Test, MoqAutoData]
@@ -58,11 +59,9 @@ public class ApprenticeshipsUpdateControllerPostTests
         {
             HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
         };
-        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = "AppenticeshipUnit", LearningType = LearningType.ShortCourse } };
+        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = "ShortCourse" } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
-        var currentCourseTypeIds = getOrganisationResponse.AllowedCourseTypes
-            .Select(a => a.CourseTypeId).ToList();
 
         submitModel.IsApprenticeshipsOffered = selectedNoId;
 
@@ -103,7 +102,7 @@ public class ApprenticeshipsUpdateControllerPostTests
         {
             HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
         };
-        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = "AppenticeshipUnit", LearningType = LearningType.ShortCourse } };
+        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = nameof(CourseTypes.ShortCourse) } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
 
@@ -145,7 +144,7 @@ public class ApprenticeshipsUpdateControllerPostTests
         {
             HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
         };
-        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = "AppenticeshipUnit", LearningType = LearningType.ShortCourse } };
+        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = nameof(CourseTypes.ShortCourse) } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
         submitModel.IsApprenticeshipsOffered = selectedNoId;
