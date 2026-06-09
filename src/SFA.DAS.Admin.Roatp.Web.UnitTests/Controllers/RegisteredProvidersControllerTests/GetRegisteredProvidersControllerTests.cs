@@ -1,4 +1,4 @@
-﻿using AutoFixture.NUnit3;
+﻿using AutoFixture.NUnit4;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -8,6 +8,7 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.RegisteredProvidersControllerTests;
+
 public class GetRegisteredProvidersControllerTests
 {
     private const string SearchTerm = "test";
@@ -105,9 +106,9 @@ public class GetRegisteredProvidersControllerTests
     [TestCase("ab")]
     [TestCase(" AB ")]
     [TestCase("")]
-    public async Task GetOrganisations_LessThan3Characters_NoResultsExpected(string searchTerm)
+    public async Task GetOrganisations_LessThan3Characters_NoResultsExpected(string? searchTerm)
     {
-        Mock<IOrganisationsService> organisationServiceMock = new Mock<IOrganisationsService>();
+        Mock<IOrganisationsService> organisationServiceMock = new();
 
         var controller = new RegisteredProvidersController(organisationServiceMock.Object);
 

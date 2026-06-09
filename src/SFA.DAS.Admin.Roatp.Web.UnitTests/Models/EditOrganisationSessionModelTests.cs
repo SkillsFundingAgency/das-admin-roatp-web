@@ -1,9 +1,10 @@
-﻿using AutoFixture.NUnit3;
+﻿using AutoFixture.NUnit4;
 using FluentAssertions;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models;
+
 public class EditOrganisationSessionModelTests
 {
     [Test, AutoData]
