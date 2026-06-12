@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using Newtonsoft.Json.Converters;
 using SFA.DAS.Admin.Roatp.Web.AppStart;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Validators;
 using SFA.DAS.Api.Common.Infrastructure;
@@ -18,7 +19,7 @@ builder.Services
         builder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
         builder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Information);
     })
-    .AddApplicationInsightsTelemetry();
+    .AddTelemetryRegistration((IConfigurationRoot)builder.Configuration);
 
 builder.Services.Configure<CookiePolicyOptions>(options =>
     {
