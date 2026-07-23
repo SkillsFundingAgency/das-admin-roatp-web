@@ -1,0 +1,61 @@
+@model SFA.DAS.Admin.Roatp.Web.Models.RestrictedCourses.RestrictedCoursesViewModel
+@{
+    ViewBag.Title = "View and manage restricted courses";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl">View and manage restricted courses</h1>
+        <p class="govuk-body">The courses on this page have been restricted. This means that we manage who is allowed to deliver them.</p>
+    </div>
+</div>
+
+<div class="app-action-panel govuk-!-margin-bottom-8 govuk-!-margin-top-2">
+    <h2 class="govuk-heading-m">Restrict a new course</h2>
+    <p class="govuk-body">This will not impact training providers who currently have learners on this course, or remove it from their offering in Course management.</p>
+    <p class="govuk-body">It will stop training providers who don’t yet offer it from adding it to their account in Course management.</p>
+    <button type="button" class="govuk-button govuk-!-margin-bottom-0" data-module="govuk-button">
+        Restrict a new course
+    </button>
+</div>
+
+<h2 class="govuk-heading-m">List of restricted courses</h2>
+<p class="govuk-body">Select a course to view which training providers are allowed to deliver it.</p>
+<p class="govuk-body">You can add new training providers, or stop them from delivering it by adding a last date for new starts.</p>
+
+<div class="app-search-results-header govuk-!-margin-top-6">
+    <p class="govuk-body govuk-!-font-weight-bold govuk-!-margin-bottom-0">@Model.TotalCountDescription</p>
+    <p class="govuk-body govuk-!-margin-bottom-0">
+        Sorted by: <span class="govuk-!-font-weight-bold">Name of course</span>
+    </p>
+</div>
+
+<hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-3 govuk-!-margin-bottom-3">
+
+@if (Model.Courses.Any())
+{
+    <ul class="govuk-list app-restricted-courses-list">
+        @foreach (var course in Model.Courses)
+        {
+            <li class="app-restricted-courses-list__item">
+                <strong class="govuk-!-margin-bottom-4 govuk-tag @course.LearningTypeTagClass app-tag">@course.LearningTypeDescription</strong>
+                <div class="app-restricted-courses-list__content">
+                    <div class="app-restricted-courses-list__details">
+                        <h3 class="govuk-heading-m govuk-!-margin-bottom-1">@course.DisplayTitle</h3>
+                        <dl class="das-definition-list das-definition-list--meta govuk-!-margin-bottom-1">
+                            <dt class="das-definition-list__title">LARS Code</dt>
+                            <dd class="das-definition-list__definition">@course.LarsCode</dd>
+                        </dl>
+                    </div>
+                    <div class="app-restricted-courses-list__actions">
+                        <a class="govuk-link govuk-link--no-visited-state" href="#">Manage providers</a>
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p class="govuk-body">There are no restricted courses.</p>
+}

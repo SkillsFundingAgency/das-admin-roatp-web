@@ -2,6 +2,8 @@
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Refit;
+using SFA.DAS.Admin.Roatp.Application.RestrictedCourses.Queries.GetRestrictedCourses;
+using SFA.DAS.Admin.Roatp.Domain.Interfaces;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Http.Configuration;
@@ -24,7 +26,10 @@ public static class AddApplicationRegistrationsExtension
         services.AddTransient<IOrganisationTypesService, OrganisationTypesService>();
         services.AddTransient<IPostOrganisationService, PostOrganisationService>();
 
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetRestrictedCoursesQueryHandler).Assembly));
+
         services.AddOuterApi(outerApiConfig!);
+        services.AddTransient<IRestrictedCoursesApiClient, RestrictedCoursesApiClient>();
 
         return services;
     }
