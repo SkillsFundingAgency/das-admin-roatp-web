@@ -41,29 +41,6 @@
     margin-bottom: 20px;
 }
 
-.das-filter {
-    margin-bottom: 30px;
-    border: 1px solid #b1b4b6;
-}
-
-.das-filter__header {
-    background-color: #f3f2f1;
-    padding: 10px 15px;
-    border-bottom: 1px solid #b1b4b6;
-}
-
-.das-filter__heading {
-    font-family: "GDS Transport", arial, sans-serif;
-    font-size: 19px;
-    font-weight: 700;
-    margin: 0;
-    color: #0b0c0c;
-}
-
-.das-filter__body {
-    padding: 15px;
-}
-
 .app-search-results-header {
     display: flex;
     flex-wrap: wrap;
