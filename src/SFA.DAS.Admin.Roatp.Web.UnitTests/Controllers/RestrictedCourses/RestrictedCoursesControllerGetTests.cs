@@ -22,7 +22,6 @@ public class RestrictedCoursesControllerGetTests
     {
         var response = new GetRestrictedCoursesResponse
         {
-            TotalCount = 16,
             Courses =
             [
                 new RestrictedCourseModel
