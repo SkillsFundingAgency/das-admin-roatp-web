@@ -13,4 +13,12 @@ public class RestrictedCourseItemViewModel
     public string DisplayTitle => $"{Title} (Level {Level})";
     public string LearningTypeDescription => LearningType.GetDescription();
     public string LearningTypeTagClass => LearningType.GetTagClass();
+
+    public static implicit operator RestrictedCourseItemViewModel(RestrictedCourseModel course) => new()
+    {
+        LarsCode = course.LarsCode,
+        Title = course.Title,
+        Level = course.Level,
+        LearningType = course.LearningType
+    };
 }

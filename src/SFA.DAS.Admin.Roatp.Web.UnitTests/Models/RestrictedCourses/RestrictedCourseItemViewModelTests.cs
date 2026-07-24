@@ -29,4 +29,23 @@ public class RestrictedCourseItemViewModelTests
 
         model.DisplayTitle.Should().Be("Bricklaying (Level 2)");
     }
+
+    [Test]
+    public void ImplicitConversion_MapsRestrictedCourseModel()
+    {
+        var course = new RestrictedCourseModel
+        {
+            LarsCode = "124",
+            Title = "Bricklaying",
+            Level = 2,
+            LearningType = LearningType.ApprenticeshipUnit
+        };
+
+        RestrictedCourseItemViewModel model = course;
+
+        model.LarsCode.Should().Be("124");
+        model.Title.Should().Be("Bricklaying");
+        model.Level.Should().Be(2);
+        model.LearningType.Should().Be(LearningType.ApprenticeshipUnit);
+    }
 }

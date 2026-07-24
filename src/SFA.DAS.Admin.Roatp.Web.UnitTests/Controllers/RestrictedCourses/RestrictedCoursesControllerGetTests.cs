@@ -1,11 +1,11 @@
 using AutoFixture.NUnit4;
 using FluentAssertions;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using SFA.DAS.Admin.Roatp.Application.RestrictedCourses.Queries.GetRestrictedCourses;
 using SFA.DAS.Admin.Roatp.Domain.Models;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers;
+using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.RestrictedCourses;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
@@ -17,25 +17,27 @@ public class RestrictedCoursesControllerGetTests
 {
     [Test, MoqAutoData]
     public async Task Index_ReturnsViewWithMappedModel(
-        [Frozen] Mock<IMediator> mediatorMock,
-        [Greedy] RestrictedCoursesController sut,
-        GetRestrictedCoursesQueryResult queryResult)
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Greedy] RestrictedCoursesController sut)
     {
-        queryResult.TotalCount = 16;
-        queryResult.Courses =
-        [
-            new RestrictedCourseModel
-            {
-                LarsCode = 124,
-                Title = "Bricklaying",
-                Level = 2,
-                LearningType = LearningType.Apprenticeship
-            }
-        ];
+        var response = new GetRestrictedCoursesResponse
+        {
+            TotalCount = 16,
+            Courses =
+            [
+                new RestrictedCourseModel
+                {
+                    LarsCode = "124",
+                    Title = "Bricklaying",
+                    Level = 2,
+                    LearningType = LearningType.Apprenticeship
+                }
+            ]
+        };
 
-        mediatorMock
-            .Setup(m => m.Send(It.IsAny<GetRestrictedCoursesQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(queryResult);
+        outerApiClientMock
+            .Setup(c => c.GetRestrictedCourses(true, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
 
         sut.AddUrlHelperMock();
 
@@ -47,13 +49,11 @@ public class RestrictedCoursesControllerGetTests
         model!.TotalCount.Should().Be(16);
         model.TotalCountDescription.Should().Be("16 courses");
         model.Courses.Should().HaveCount(1);
-        model.Courses[0].LarsCode.Should().Be(124);
+        model.Courses[0].LarsCode.Should().Be("124");
         model.Courses[0].DisplayTitle.Should().Be("Bricklaying (Level 2)");
         model.Courses[0].LearningTypeDescription.Should().Be("Apprenticeship");
         model.Courses[0].LearningTypeTagClass.Should().Be("govuk-tag--blue");
 
-        mediatorMock.Verify(m => m.Send(
-            It.IsAny<GetRestrictedCoursesQuery>(),
-            It.IsAny<CancellationToken>()), Times.Once);
+        outerApiClientMock.Verify(c => c.GetRestrictedCourses(true, It.IsAny<CancellationToken>()), Times.Once);
     }
 }
