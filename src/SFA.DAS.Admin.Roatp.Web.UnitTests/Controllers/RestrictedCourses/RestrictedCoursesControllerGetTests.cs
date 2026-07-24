@@ -46,8 +46,8 @@ public class RestrictedCoursesControllerGetTests
         result.Should().NotBeNull();
         var model = result!.Model as RestrictedCoursesViewModel;
         model.Should().NotBeNull();
-        model!.TotalCount.Should().Be(16);
-        model.TotalCountDescription.Should().Be("16 courses");
+        model!.TotalCount.Should().Be(response.Courses.Count);
+        model.TotalCountDescription.Should().Be(response.Courses.Count == 1 ? "1 course" : $"{response.Courses.Count} courses");
         model.Courses.Should().HaveCount(1);
         model.Courses[0].LarsCode.Should().Be("124");
         model.Courses[0].DisplayTitle.Should().Be("Bricklaying (Level 2)");

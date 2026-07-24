@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.RestrictedCourses;
 
@@ -12,7 +13,7 @@ public class RestrictedCoursesController(IOuterApiClient outerApiClient) : Contr
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
-        var response = await outerApiClient.GetRestrictedCourses(restricted: true, cancellationToken);
+        GetRestrictedCoursesResponse response = await outerApiClient.GetRestrictedCourses(restricted: true, cancellationToken);
 
         RestrictedCoursesViewModel model = response;
 
