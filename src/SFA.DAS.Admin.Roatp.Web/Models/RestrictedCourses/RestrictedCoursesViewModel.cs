@@ -16,6 +16,6 @@ public class RestrictedCoursesViewModel : IBackLink
     public static implicit operator RestrictedCoursesViewModel(GetRestrictedCoursesResponse response) => new()
     {
         TotalCount = response?.Courses.Count ?? 0,
-        Courses = response?.Courses.Select(course => (RestrictedCourseItemViewModel)course).ToList() ?? []
+        Courses = response?.Courses.Select(course => (RestrictedCourseItemViewModel)course) ?? []
     };
 }

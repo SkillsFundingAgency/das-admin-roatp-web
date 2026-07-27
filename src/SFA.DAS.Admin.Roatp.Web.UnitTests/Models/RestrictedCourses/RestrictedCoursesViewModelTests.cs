@@ -89,4 +89,34 @@ public class RestrictedCoursesViewModelTests
 
         model.TotalCountDescription.Should().Be("2 courses");
     }
+
+    [Test]
+    public void HasCourses_ReturnsTrueWhenCoursesArePresent()
+    {
+        var model = new RestrictedCoursesViewModel
+        {
+            Courses =
+            [
+                new RestrictedCourseItemViewModel
+                {
+                    LarsCode = "163",
+                    Title = "Business Administrator",
+                    Level = 4,
+                    LearningType = LearningType.Apprenticeship
+                }
+            ]
+        };
+
+        model.HasCourses.Should().BeTrue();
+        model.HasNoCourses.Should().BeFalse();
+    }
+
+    [Test]
+    public void HasCourses_ReturnsFalseWhenNoCoursesArePresent()
+    {
+        var model = new RestrictedCoursesViewModel();
+
+        model.HasCourses.Should().BeFalse();
+        model.HasNoCourses.Should().BeTrue();
+    }
 }
