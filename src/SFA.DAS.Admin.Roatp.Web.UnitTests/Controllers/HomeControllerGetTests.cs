@@ -25,12 +25,10 @@ public class HomeControllerGetTests
         var selectOrganisationLink = Guid.NewGuid().ToString();
         string addProviderUrl = Guid.NewGuid().ToString();
         string restrictedCoursesUrl = Guid.NewGuid().ToString();
-        string dashboardUrl = Guid.NewGuid().ToString();
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.SelectProvider, selectOrganisationLink)
             .AddUrlForRoute(RouteNames.AddProvider, addProviderUrl)
-            .AddUrlForRoute(RouteNames.RestrictedCourses, restrictedCoursesUrl)
-            .AddUrlForRoute(RouteNames.Dashboard, dashboardUrl);
+            .AddUrlForRoute(RouteNames.RestrictedCourses, restrictedCoursesUrl);
 
         mockOptions.Setup(c => c.Value).Returns(configuration);
 
@@ -43,7 +41,7 @@ public class HomeControllerGetTests
         model.AddUkprnToAllowListUrl.Should().Be(allowedListUrl);
         model.SearchForTrainingProviderUrl.Should().Be(selectOrganisationLink);
         model.ViewRestrictedCoursesUrl.Should().Be(restrictedCoursesUrl);
-        model.BackLinkUrl.Should().Be(dashboardUrl);
+        model.Should().BeAssignableTo<IBackLink>();
         _sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProvider), Times.Once());
     }
 

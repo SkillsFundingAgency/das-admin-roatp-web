@@ -29,12 +29,15 @@ public class RestrictedCoursesViewModelTests
 
         model.TotalCount.Should().Be(response.Courses.Count);
         model.TotalCountDescription.Should().Be("1 course");
+        model.HasCourses.Should().BeTrue();
+        model.HasNoCourses.Should().BeFalse();
         model.Courses.Should().ContainSingle();
-        model.Courses[0].LarsCode.Should().Be("163");
-        model.Courses[0].Title.Should().Be("Business Administrator");
-        model.Courses[0].Level.Should().Be(4);
-        model.Courses[0].LearningType.Should().Be(LearningType.Apprenticeship);
-        model.Courses[0].DisplayTitle.Should().Be("Business Administrator (Level 4)");
+        var course = model.Courses.Single();
+        course.LarsCode.Should().Be("163");
+        course.Title.Should().Be("Business Administrator");
+        course.Level.Should().Be(4);
+        course.LearningType.Should().Be(LearningType.Apprenticeship);
+        course.DisplayTitle.Should().Be("Business Administrator (Level 4)");
     }
 
     [Test]
@@ -42,14 +45,14 @@ public class RestrictedCoursesViewModelTests
     {
         var response = new GetRestrictedCoursesResponse();
 
-
         RestrictedCoursesViewModel model = response;
 
         model.TotalCount.Should().Be(response.Courses.Count);
         model.TotalCountDescription.Should().Be("0 courses");
+        model.HasCourses.Should().BeFalse();
+        model.HasNoCourses.Should().BeTrue();
         model.Courses.Should().BeEmpty();
     }
-
 
     [Test]
     public void TotalCountDescription_ReturnsSingularTextForOneCourse()

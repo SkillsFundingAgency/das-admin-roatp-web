@@ -1,14 +1,11 @@
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 
 namespace SFA.DAS.Admin.Roatp.Web.Extensions;
 
-[ExcludeFromCodeCoverage]
 public static class EnumExtensions
 {
-
     public static string GetDescription(this Enum enumValue)
     {
         return enumValue.GetType()

@@ -32,30 +32,24 @@
 
 <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-3 govuk-!-margin-bottom-3">
 
-@if (Model.Courses.Any())
-{
-    <ul class="govuk-list app-restricted-courses-list">
-        @foreach (var course in Model.Courses)
-        {
-            <li class="app-restricted-courses-list__item">
-                <strong class="govuk-!-margin-bottom-4 govuk-tag @course.LearningTypeTagClass app-tag">@course.LearningTypeDescription</strong>
-                <div class="app-restricted-courses-list__content">
-                    <div class="app-restricted-courses-list__details">
-                        <h3 class="govuk-heading-m govuk-!-margin-bottom-1">@course.DisplayTitle</h3>
-                        <dl class="das-definition-list das-definition-list--meta govuk-!-margin-bottom-1">
-                            <dt class="das-definition-list__title">LARS Code</dt>
-                            <dd class="das-definition-list__definition">@course.LarsCode</dd>
-                        </dl>
-                    </div>
-                    <div class="app-restricted-courses-list__actions">
-                        <a class="govuk-link govuk-link--no-visited-state" href="#">Manage providers</a>
-                    </div>
+<ul asp-show="Model.HasCourses" class="govuk-list app-search-results-list">
+    @foreach (var course in Model.Courses)
+    {
+        <li class="app-search-results-list__item">
+            <strong class="govuk-!-margin-bottom-4 govuk-tag @course.LearningTypeTagClass app-tag">@course.LearningTypeDescription</strong>
+            <div class="app-search-results-list__content">
+                <div class="app-search-results-list__details">
+                    <h3 class="govuk-heading-m govuk-!-margin-bottom-1">@course.DisplayTitle</h3>
+                    <dl class="das-definition-list das-definition-list--meta govuk-!-margin-bottom-1">
+                        <dt class="das-definition-list__title">LARS Code</dt>
+                        <dd class="das-definition-list__definition">@course.LarsCode</dd>
+                    </dl>
                 </div>
-            </li>
-        }
-    </ul>
-}
-else
-{
-    <p class="govuk-body">There are no restricted courses.</p>
-}
+                <div class="app-search-results-list__actions">
+                    <a class="govuk-link govuk-link--no-visited-state" href="#">Manage providers</a>
+                </div>
+            </div>
+        </li>
+    }
+</ul>
+<p asp-show="Model.HasNoCourses" class="govuk-body">There are no restricted courses.</p>

@@ -46,12 +46,14 @@ public class RestrictedCoursesControllerGetTests
         var model = result!.Model as RestrictedCoursesViewModel;
         model.Should().NotBeNull();
         model!.TotalCount.Should().Be(response.Courses.Count);
-        model.TotalCountDescription.Should().Be(response.Courses.Count == 1 ? "1 course" : $"{response.Courses.Count} courses");
+        model.TotalCountDescription.Should().Be("1 course");
+        model.HasCourses.Should().BeTrue();
         model.Courses.Should().HaveCount(1);
-        model.Courses[0].LarsCode.Should().Be("124");
-        model.Courses[0].DisplayTitle.Should().Be("Bricklaying (Level 2)");
-        model.Courses[0].LearningTypeDescription.Should().Be("Apprenticeship");
-        model.Courses[0].LearningTypeTagClass.Should().Be("govuk-tag--blue");
+        var course = model.Courses.Single();
+        course.LarsCode.Should().Be("124");
+        course.DisplayTitle.Should().Be("Bricklaying (Level 2)");
+        course.LearningTypeDescription.Should().Be("Apprenticeship");
+        course.LearningTypeTagClass.Should().Be("govuk-tag--blue");
 
         outerApiClientMock.Verify(c => c.GetRestrictedCourses(true, It.IsAny<CancellationToken>()), Times.Once);
     }

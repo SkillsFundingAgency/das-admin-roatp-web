@@ -12,7 +12,12 @@ public class RestrictedCourseItemViewModelTests
     [TestCase(LearningType.ApprenticeshipUnit, "govuk-tag--purple", "Apprenticeship unit")]
     public void LearningType_ReturnsExpectedTagClassAndDescription(LearningType learningType, string expectedClass, string expectedDescription)
     {
-        var model = new RestrictedCourseItemViewModel { LearningType = learningType };
+        var model = new RestrictedCourseItemViewModel
+        {
+            LarsCode = "1",
+            Title = "Course",
+            LearningType = learningType
+        };
 
         model.LearningTypeTagClass.Should().Be(expectedClass);
         model.LearningTypeDescription.Should().Be(expectedDescription);
@@ -23,6 +28,7 @@ public class RestrictedCourseItemViewModelTests
     {
         var model = new RestrictedCourseItemViewModel
         {
+            LarsCode = "124",
             Title = "Bricklaying",
             Level = 2
         };
