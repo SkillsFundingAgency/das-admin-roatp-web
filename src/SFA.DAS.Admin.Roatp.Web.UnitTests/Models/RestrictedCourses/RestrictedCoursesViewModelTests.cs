@@ -55,6 +55,20 @@ public class RestrictedCoursesViewModelTests
     }
 
     [Test]
+    public void ImplicitConversion_MapsNullResponseToEmptyViewModel()
+    {
+        GetRestrictedCoursesResponse? response = null;
+
+        RestrictedCoursesViewModel model = response!;
+
+        model.TotalCount.Should().Be(0);
+        model.TotalCountDescription.Should().Be("0 courses");
+        model.HasCourses.Should().BeFalse();
+        model.HasNoCourses.Should().BeTrue();
+        model.Courses.Should().BeEmpty();
+    }
+
+    [Test]
     public void TotalCountDescription_ReturnsSingularTextForOneCourse()
     {
         var model = new RestrictedCoursesViewModel
