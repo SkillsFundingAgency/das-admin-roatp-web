@@ -34,4 +34,9 @@ public interface IOuterApiClient
 
     [Post("/organisations")]
     Task PostOrganisation(PostOrganisationCommand command, CancellationToken cancellationToken);
+
+    [Get("/restricted-courses")]
+    Task<GetRestrictedCoursesResponse> GetRestrictedCourses(
+        [Query] bool restricted,
+        CancellationToken cancellationToken);
 }

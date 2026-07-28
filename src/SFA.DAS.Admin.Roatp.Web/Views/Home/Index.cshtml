@@ -1,27 +1,49 @@
 ﻿@model ManageTrainingProviderViewModel
 @{
-    ViewBag.Title = "Roatp Admin Home Page";
+    ViewBag.Title = "Manage training provider information and restricted courses";
 }
 
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-one-half">
-        <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">Manage training provider information</h1>
-        <p class="govuk-body govuk-!-margin-bottom-8">Search and edit existing providers, or add new ones.</p>
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">Manage training provider information and restricted courses</h1>
+        <p class="govuk-body govuk-!-margin-bottom-8">Search and edit existing providers, or add new ones. View, manage or add restricted courses.</p>
+
+        <div class="govuk-grid-row app-flex-row">
+            <div class="govuk-grid-column-one-half">
+                <div class="app-feature-box">
+                    <h2 class="govuk-heading-s app-feature-box__heading">
+                        <a href="@Model.SearchForTrainingProviderUrl" class="govuk-link govuk-link--no-visited-state">Manage training provider information and delivery</a>
+                    </h2>
+                    <p class="govuk-body app-feature-box__content">Find and update existing providers using their UKPRN.</p>
+                </div>
+            </div>
+            <div class="govuk-grid-column-one-half">
+                <div class="app-feature-box">
+                    <h2 class="govuk-heading-s app-feature-box__heading">
+                        <a href="@Model.AddUkprnToAllowListUrl" class="govuk-link govuk-link--no-visited-state">Add a UKPRN to the allow list</a>
+                    </h2>
+                    <p class="govuk-body app-feature-box__content">Add or remove organisations from the allow list.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="govuk-grid-row app-flex-row">
+            <div class="govuk-grid-column-one-half">
+                <div class="app-feature-box">
+                    <h2 class="govuk-heading-s app-feature-box__heading">
+                        <a href="@Model.AddANewTrainingProviderUrl" class="govuk-link govuk-link--no-visited-state">Add a new training provider</a>
+                    </h2>
+                    <p class="govuk-body app-feature-box__content">Add a training provider for apprenticeship units and apprenticeships.</p>
+                </div>
+            </div>
+            <div class="govuk-grid-column-one-half">
+                <div class="app-feature-box">
+                    <h2 class="govuk-heading-s app-feature-box__heading">
+                        <a href="@Model.ViewRestrictedCoursesUrl" class="govuk-link govuk-link--no-visited-state">View and manage restricted courses</a>
+                    </h2>
+                    <p class="govuk-body app-feature-box__content">Add or manage restricted course. Add or remove providers from restricted courses.</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-
-<div class="app-flex-row">
-    <div class="app-feature-box">
-        <h2 class="govuk-heading-s app-feature-box__heading"><a href="@Model.SearchForTrainingProviderUrl" class="govuk-link govuk-link--no-visited-state">Search for a training provider</a></h2>
-        <p class="app-feature-box__content">Find and update existing providers using their UKPRN.</p>
-    </div>
-    <div class="app-feature-box">
-        <h2 class="govuk-heading-s app-feature-box__heading"><a href="@Model.AddUkprnToAllowListUrl" class="govuk-link govuk-link--no-visited-state">Add a UKPRN to the allow list</a></h2>
-        <p class="app-feature-box__content">Add or remove organisations from the allow list.</p>
-    </div>
-    <div class="app-feature-box">
-        <h2 class="govuk-heading-s app-feature-box__heading"><a href="@Model.AddANewTrainingProviderUrl" class="govuk-link govuk-link--no-visited-state">Add a new training provider</a></h2>
-        <p class="app-feature-box__content">Add a training provider for short courses and apprentices.  </p>
-    </div>
-</div>
-
