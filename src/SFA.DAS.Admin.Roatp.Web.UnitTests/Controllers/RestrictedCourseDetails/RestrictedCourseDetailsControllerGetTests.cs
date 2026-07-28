@@ -108,7 +108,7 @@ public class RestrictedCourseDetailsControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingRestrictedCourseDetails_AndApiFails_ThenRedirectsToRestrictedCourses(
+    public async Task WhenGettingRestrictedCourseDetails_AndLarsCodeIsInvalid_ThenRedirectsToRestrictedCourses(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] RestrictedCourseDetailsController sut,
         string larsCode)

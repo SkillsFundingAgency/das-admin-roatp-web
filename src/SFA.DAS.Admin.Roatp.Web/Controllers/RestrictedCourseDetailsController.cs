@@ -1,26 +1,26 @@
-using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.RestrictedCourses;
+using SFA.DAS.Admin.Roatp.Web.Validators.Common;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
 [Route("restricted-courses/{larsCode}", Name = RouteNames.RestrictedCourseDetails)]
-public class RestrictedCourseDetailsController(IOuterApiClient outerApiClient) : Controller
+public class RestrictedCourseDetailsController(LarsCodeValidator larsCodeValidator) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Index([FromRoute] string larsCode, CancellationToken cancellationToken)
     {
-        var apiResponse = await outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
+        var courseDetails = await larsCodeValidator.GetCourseDetailsAsync(larsCode, cancellationToken);
 
-        if (apiResponse.StatusCode != HttpStatusCode.OK || apiResponse.Content is null)
+        if (courseDetails is null)
         {
             return RedirectToRoute(RouteNames.RestrictedCourses);
         }
 
-        RestrictedCourseDetailsViewModel model = apiResponse.Content;
+        RestrictedCourseDetailsViewModel model = courseDetails;
         model.BackLinkUrl = Url.RouteUrl(RouteNames.RestrictedCourses)!;
         model.PageUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!;
 
