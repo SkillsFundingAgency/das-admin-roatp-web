@@ -7,7 +7,7 @@ using SFA.DAS.Testing.AutoFixture;
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models.RestrictedCourses;
 
 [TestFixture]
-public class AllowedProviderItemViewModelTests
+public class AllowedProviderViewModelTests
 {
     [Test, MoqAutoData]
     public void WhenConvertingProvider_AndNoLastStartDate_ThenMapsOpenToNewStarts(
@@ -15,7 +15,7 @@ public class AllowedProviderItemViewModelTests
     {
         provider.LastDateStarts = null;
 
-        AllowedProviderItemViewModel model = provider;
+        AllowedProviderViewModel model = provider;
 
         model.DeliveryStatus.Should().Be(DeliveryStatus.OpenToNewStarts);
         model.DeliveryStatusDescription.Should().Be("Open to new starts");
@@ -30,7 +30,7 @@ public class AllowedProviderItemViewModelTests
         var date = DateTime.UtcNow.Date.AddDays(10);
         provider.LastDateStarts = date;
 
-        AllowedProviderItemViewModel model = provider;
+        AllowedProviderViewModel model = provider;
 
         model.DeliveryStatus.Should().Be(DeliveryStatus.LastStartDateAdded);
         model.DeliveryStatusDescription.Should().Be("Last start date added");
@@ -46,7 +46,7 @@ public class AllowedProviderItemViewModelTests
         var date = DateTime.UtcNow.Date.AddDays(-10);
         provider.LastDateStarts = date;
 
-        AllowedProviderItemViewModel model = provider;
+        AllowedProviderViewModel model = provider;
 
         model.DeliveryStatus.Should().Be(DeliveryStatus.ClosedToNewStarts);
         model.DeliveryStatusDescription.Should().Be("Closed to new starts");
@@ -61,7 +61,7 @@ public class AllowedProviderItemViewModelTests
     {
         provider.LastDateStarts = null;
 
-        AllowedProviderItemViewModel model = provider;
+        AllowedProviderViewModel model = provider;
 
         model.LastStartDateText.Should().BeEmpty();
     }
@@ -70,7 +70,7 @@ public class AllowedProviderItemViewModelTests
     public void WhenConvertingProvider_ThenMapsUkprnAndProviderName(
         ProviderCourseModel provider)
     {
-        AllowedProviderItemViewModel model = provider;
+        AllowedProviderViewModel model = provider;
 
         model.Ukprn.Should().Be(provider.Ukprn);
         model.ProviderName.Should().Be(provider.ProviderName);
@@ -79,7 +79,7 @@ public class AllowedProviderItemViewModelTests
     [Test]
     public void ChangeUrl_DefaultsToHash()
     {
-        var model = new AllowedProviderItemViewModel
+        var model = new AllowedProviderViewModel
         {
             ProviderName = "Provider"
         };

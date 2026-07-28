@@ -24,7 +24,7 @@ public class RestrictedCourseDetailsController(LarsCodeValidator larsCodeValidat
         model.BackLinkUrl = Url.RouteUrl(RouteNames.RestrictedCourses)!;
         model.PageUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!;
 
-        foreach (var provider in model.Providers)
+        foreach (var provider in model.AllowedProviders)
         {
             provider.ChangeUrl = model.PageUrl;
         }

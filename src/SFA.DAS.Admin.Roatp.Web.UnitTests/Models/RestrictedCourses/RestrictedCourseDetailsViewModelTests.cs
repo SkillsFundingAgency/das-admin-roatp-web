@@ -31,9 +31,9 @@ public class RestrictedCourseDetailsViewModelTests
         model.Sector.Should().Be("Education and early years");
         model.StatusText.Should().Be("Restricted");
         model.ProviderCountDescription.Should().Be("2 providers");
-        model.Providers.Select(p => p.ProviderName).Should().ContainInOrder("Alpha Training", "Zebra Training");
-        model.Providers.First().DeliveryStatus.Should().Be(DeliveryStatus.ClosedToNewStarts);
-        model.Providers.Last().DeliveryStatus.Should().Be(DeliveryStatus.OpenToNewStarts);
+        model.AllowedProviders.Select(p => p.ProviderName).Should().ContainInOrder("Alpha Training", "Zebra Training");
+        model.AllowedProviders.First().DeliveryStatus.Should().Be(DeliveryStatus.ClosedToNewStarts);
+        model.AllowedProviders.Last().DeliveryStatus.Should().Be(DeliveryStatus.OpenToNewStarts);
     }
 
     [Test, MoqAutoData]

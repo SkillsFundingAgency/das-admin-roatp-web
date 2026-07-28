@@ -5,28 +5,6 @@ using SFA.DAS.Admin.Roatp.Web.Extensions;
 
 namespace SFA.DAS.Admin.Roatp.Web.Models.RestrictedCourses;
 
-public class AllowedProviderItemViewModel
-{
-    public int Ukprn { get; set; }
-    public required string ProviderName { get; set; }
-    public DateTime? LastDateStarts { get; set; }
-    public DeliveryStatus DeliveryStatus { get; set; }
-
-    public string DeliveryStatusDescription => DeliveryStatus.GetDescription();
-    public string DeliveryStatusTagClass => DeliveryStatus.GetTagClass();
-    public bool HasLastStartDate => LastDateStarts.HasValue;
-    public string LastStartDateText => LastDateStarts.HasValue ? LastDateStarts.Value.ToScreenString() : string.Empty;
-    public string ChangeUrl { get; set; } = "#";
-
-    public static implicit operator AllowedProviderItemViewModel(ProviderCourseModel provider) => new()
-    {
-        Ukprn = provider.Ukprn,
-        ProviderName = provider.ProviderName,
-        LastDateStarts = provider.LastDateStarts,
-        DeliveryStatus = provider.LastDateStarts.ToDeliveryStatus()
-    };
-}
-
 public class RestrictedCourseDetailsViewModel : ICustomBackLink
 {
     public required string LarsCode { get; set; }
@@ -35,14 +13,14 @@ public class RestrictedCourseDetailsViewModel : ICustomBackLink
     public required string Sector { get; set; }
     public LearningType LearningType { get; set; }
     public bool IsCourseRestricted { get; set; }
-    public IEnumerable<AllowedProviderItemViewModel> Providers { get; set; } = [];
+    public IEnumerable<AllowedProviderViewModel> AllowedProviders { get; set; } = [];
 
     public string DisplayTitle => Level > 0 ? $"{CourseName} (Level {Level})" : CourseName;
     public string LearningTypeDescription => LearningType.GetDescription();
     public string StatusText => IsCourseRestricted ? "Restricted" : "Not restricted";
-    public bool HasProviders => Providers.Any();
+    public bool HasProviders => AllowedProviders.Any();
     public bool HasNoProviders => !HasProviders;
-    public int ProviderCount => Providers.Count();
+    public int ProviderCount => AllowedProviders.Count();
     public string ProviderCountDescription => "provider".ToQuantity(ProviderCount);
 
     public string BackLinkUrl { get; set; } = "#";
@@ -58,9 +36,9 @@ public class RestrictedCourseDetailsViewModel : ICustomBackLink
             Sector = response.Route,
             LearningType = response.LearningType,
             IsCourseRestricted = response.IsCourseRestricted,
-            Providers = response.Providers
+            AllowedProviders = response.Providers
             .OrderBy(provider => provider.ProviderName, StringComparer.OrdinalIgnoreCase)
-            .Select(provider => (AllowedProviderItemViewModel)provider)
+            .Select(provider => (AllowedProviderViewModel)provider)
             .ToList()
         };
 }

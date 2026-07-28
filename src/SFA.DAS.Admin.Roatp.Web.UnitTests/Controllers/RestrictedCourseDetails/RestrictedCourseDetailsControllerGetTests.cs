@@ -72,10 +72,10 @@ public class RestrictedCourseDetailsControllerGetTests
         model.ProviderCountDescription.Should().Be("2 providers");
         model.BackLinkUrl.Should().Be(backUrl);
         model.BackLinkText.Should().Be("Back to restricted courses");
-        model.Providers.Select(p => p.ProviderName).Should().ContainInOrder("ACORN SKILLS TRAINING", "BABINGTON LTD");
-        model.Providers.First().DeliveryStatus.Should().Be(DeliveryStatus.OpenToNewStarts);
-        model.Providers.Last().DeliveryStatus.Should().Be(DeliveryStatus.LastStartDateAdded);
-        model.Providers.Should().OnlyContain(p => p.ChangeUrl == pageUrl);
+        model.AllowedProviders.Select(p => p.ProviderName).Should().ContainInOrder("ACORN SKILLS TRAINING", "BABINGTON LTD");
+        model.AllowedProviders.First().DeliveryStatus.Should().Be(DeliveryStatus.OpenToNewStarts);
+        model.AllowedProviders.Last().DeliveryStatus.Should().Be(DeliveryStatus.LastStartDateAdded);
+        model.AllowedProviders.Should().OnlyContain(p => p.ChangeUrl == pageUrl);
 
         outerApiClientMock.Verify(c => c.GetAllowedProvidersForCourse(larsCode, It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -104,7 +104,7 @@ public class RestrictedCourseDetailsControllerGetTests
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.HasNoProviders.Should().BeTrue();
-        model.Providers.Should().BeEmpty();
+        model.AllowedProviders.Should().BeEmpty();
     }
 
     [Test, MoqAutoData]
