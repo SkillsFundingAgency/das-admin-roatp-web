@@ -18,9 +18,16 @@ public class HomeController(IOptions<ApplicationConfiguration> _configuration, I
 
         string searchUrl = Url.RouteUrl(RouteNames.SelectProvider)!;
         string addProviderUrl = Url.RouteUrl(RouteNames.AddProvider)!;
+        string restrictedCoursesUrl = Url.RouteUrl(RouteNames.RestrictedCourses)!;
         string allowedListUrl = new UriBuilder(_configuration.Value.AdminServicesBaseUrl) { Path = ExternalPaths.AdminServiceAllowedList }.Uri.ToString();
 
-        return View(new ManageTrainingProviderViewModel { SearchForTrainingProviderUrl = searchUrl, AddANewTrainingProviderUrl = addProviderUrl, AddUkprnToAllowListUrl = allowedListUrl });
+        return View(new ManageTrainingProviderViewModel
+        {
+            SearchForTrainingProviderUrl = searchUrl,
+            AddANewTrainingProviderUrl = addProviderUrl,
+            AddUkprnToAllowListUrl = allowedListUrl,
+            ViewRestrictedCoursesUrl = restrictedCoursesUrl
+        });
     }
 
     [Route("/dashboard", Name = RouteNames.Dashboard)]
