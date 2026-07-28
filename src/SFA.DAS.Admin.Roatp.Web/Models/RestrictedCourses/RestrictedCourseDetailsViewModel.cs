@@ -49,13 +49,12 @@ public class RestrictedCourseDetailsViewModel : ICustomBackLink
     public string BackLinkText => "Back to restricted courses";
     public string PageUrl { get; set; } = "#";
 
-    public static RestrictedCourseDetailsViewModel FromResponse(
-        GetRestrictedCourseDetailsResponse response,
-        int level) => new()
+    public static implicit operator RestrictedCourseDetailsViewModel(
+        GetRestrictedCourseDetailsResponse response) => new()
         {
             LarsCode = response.LarsCode,
             CourseName = response.CourseName,
-            Level = level,
+            Level = response.Level,
             Sector = response.Route,
             LearningType = response.LearningType,
             IsCourseRestricted = response.IsCourseRestricted,

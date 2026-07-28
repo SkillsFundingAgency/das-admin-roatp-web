@@ -16,6 +16,7 @@ public class RestrictedCourseDetailsViewModelTests
             LarsCode = "105",
             IfateReferenceNumber = "ST0001",
             CourseName = "Academic professional",
+            Level = 7,
             Route = "Education and early years",
             LearningType = LearningType.Apprenticeship,
             IsCourseRestricted = true,
@@ -26,7 +27,7 @@ public class RestrictedCourseDetailsViewModelTests
             ]
         };
 
-        var model = RestrictedCourseDetailsViewModel.FromResponse(response, level: 7);
+        RestrictedCourseDetailsViewModel model = response;
 
         model.DisplayTitle.Should().Be("Academic professional (Level 7)");
         model.LearningTypeDescription.Should().Be("Apprenticeship");
@@ -52,7 +53,7 @@ public class RestrictedCourseDetailsViewModelTests
             Providers = []
         };
 
-        var model = RestrictedCourseDetailsViewModel.FromResponse(response, level: 7);
+        RestrictedCourseDetailsViewModel model = response;
 
         model.HasProviders.Should().BeFalse();
         model.HasNoProviders.Should().BeTrue();

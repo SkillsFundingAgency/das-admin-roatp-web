@@ -11,7 +11,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 public class RestrictedCourseDetailsController(IOuterApiClient outerApiClient) : Controller
 {
     [HttpGet]
-    public async Task<IActionResult> Index(string larsCode, int? level, CancellationToken cancellationToken)
+    public async Task<IActionResult> Index([FromRoute] string larsCode, CancellationToken cancellationToken)
     {
         var apiResponse = await outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
 
@@ -20,10 +20,9 @@ public class RestrictedCourseDetailsController(IOuterApiClient outerApiClient) :
             return RedirectToRoute(RouteNames.RestrictedCourses);
         }
 
-        var courseLevel = level ?? await GetCourseLevel(larsCode, cancellationToken);
-        var model = RestrictedCourseDetailsViewModel.FromResponse(apiResponse.Content, courseLevel);
+        RestrictedCourseDetailsViewModel model = apiResponse.Content;
         model.BackLinkUrl = Url.RouteUrl(RouteNames.RestrictedCourses)!;
-        model.PageUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode, level = courseLevel })!;
+        model.PageUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!;
 
         foreach (var provider in model.Providers)
         {
@@ -31,11 +30,5 @@ public class RestrictedCourseDetailsController(IOuterApiClient outerApiClient) :
         }
 
         return View(model);
-    }
-
-    private async Task<int> GetCourseLevel(string larsCode, CancellationToken cancellationToken)
-    {
-        var restrictedCourses = await outerApiClient.GetRestrictedCourses(restricted: true, cancellationToken);
-        return restrictedCourses.Courses.FirstOrDefault(course => course.LarsCode == larsCode)?.Level ?? 0;
     }
 }

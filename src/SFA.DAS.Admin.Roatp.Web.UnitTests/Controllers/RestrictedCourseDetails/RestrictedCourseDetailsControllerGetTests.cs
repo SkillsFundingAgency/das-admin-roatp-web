@@ -23,7 +23,6 @@ public class RestrictedCourseDetailsControllerGetTests
         [Greedy] RestrictedCourseDetailsController sut)
     {
         const string larsCode = "105";
-        const int level = 7;
         var pageUrl = Guid.NewGuid().ToString();
         var backUrl = Guid.NewGuid().ToString();
 
@@ -32,6 +31,7 @@ public class RestrictedCourseDetailsControllerGetTests
             LarsCode = larsCode,
             IfateReferenceNumber = "ST0001",
             CourseName = "Academic professional",
+            Level = 7,
             Route = "Education and early years",
             LearningType = LearningType.Apprenticeship,
             IsCourseRestricted = true,
@@ -61,7 +61,7 @@ public class RestrictedCourseDetailsControllerGetTests
             .AddUrlForRoute(RouteNames.RestrictedCourses, backUrl)
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, pageUrl);
 
-        var result = await sut.Index(larsCode, level, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(larsCode, CancellationToken.None) as ViewResult;
 
         result.Should().NotBeNull();
         var model = result!.Model as RestrictedCourseDetailsViewModel;
@@ -69,6 +69,7 @@ public class RestrictedCourseDetailsControllerGetTests
         model!.DisplayTitle.Should().Be("Academic professional (Level 7)");
         model.Sector.Should().Be("Education and early years");
         model.LarsCode.Should().Be(larsCode);
+        model.Level.Should().Be(7);
         model.StatusText.Should().Be("Restricted");
         model.HasProviders.Should().BeTrue();
         model.ProviderCount.Should().Be(2);
@@ -95,6 +96,7 @@ public class RestrictedCourseDetailsControllerGetTests
             LarsCode = larsCode,
             IfateReferenceNumber = "ST0001",
             CourseName = "Academic professional",
+            Level = 7,
             Route = "Education and early years",
             LearningType = LearningType.Apprenticeship,
             IsCourseRestricted = true,
@@ -110,7 +112,7 @@ public class RestrictedCourseDetailsControllerGetTests
             .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, "/restricted-courses/105");
 
-        var result = await sut.Index(larsCode, 7, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(larsCode, CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.HasNoProviders.Should().BeTrue();
@@ -127,7 +129,7 @@ public class RestrictedCourseDetailsControllerGetTests
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
                 new HttpResponseMessage(HttpStatusCode.NotFound), null, new RefitSettings(), null));
 
-        var result = await sut.Index("105", 7, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index("105", CancellationToken.None) as RedirectToRouteResult;
 
         result.Should().NotBeNull();
         result!.RouteName.Should().Be(RouteNames.RestrictedCourses);
@@ -144,6 +146,7 @@ public class RestrictedCourseDetailsControllerGetTests
             LarsCode = larsCode,
             IfateReferenceNumber = "ST0001",
             CourseName = "Academic professional",
+            Level = 7,
             Route = "Education and early years",
             IsCourseRestricted = true,
             Providers = []
@@ -173,7 +176,7 @@ public class RestrictedCourseDetailsControllerGetTests
             .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, "/restricted-courses/105");
 
-        var result = await sut.Index(larsCode, null, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(larsCode, CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.DisplayTitle.Should().Be("Academic professional (Level 7)");
