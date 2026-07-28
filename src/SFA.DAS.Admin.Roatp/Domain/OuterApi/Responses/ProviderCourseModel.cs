@@ -4,5 +4,5 @@ public class ProviderCourseModel
 {
     public int Ukprn { get; set; }
     public required string ProviderName { get; set; }
-    public DateTime? DateLastStarts { get; set; }
+    public DateTime? LastDateStarts { get; set; }
 }

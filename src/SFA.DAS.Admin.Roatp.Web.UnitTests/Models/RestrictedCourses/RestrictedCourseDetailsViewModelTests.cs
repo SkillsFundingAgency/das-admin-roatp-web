@@ -20,8 +20,8 @@ public class RestrictedCourseDetailsViewModelTests
         response.IsCourseRestricted = true;
         response.Providers =
         [
-            new ProviderCourseModel { Ukprn = 2, ProviderName = "Zebra Training", DateLastStarts = null },
-            new ProviderCourseModel { Ukprn = 1, ProviderName = "Alpha Training", DateLastStarts = DateTime.UtcNow.Date.AddDays(-1) }
+            new ProviderCourseModel { Ukprn = 2, ProviderName = "Zebra Training", LastDateStarts = null },
+            new ProviderCourseModel { Ukprn = 1, ProviderName = "Alpha Training", LastDateStarts = DateTime.UtcNow.Date.AddDays(-1) }
         ];
 
         RestrictedCourseDetailsViewModel model = response;

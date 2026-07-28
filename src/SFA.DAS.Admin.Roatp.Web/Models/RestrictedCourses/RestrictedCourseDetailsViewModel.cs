@@ -8,22 +8,22 @@ namespace SFA.DAS.Admin.Roatp.Web.Models.RestrictedCourses;
 public class AllowedProviderItemViewModel
 {
     public int Ukprn { get; set; }
-    public string ProviderName { get; set; } = string.Empty;
-    public DateTime? DateLastStarts { get; set; }
+    public required string ProviderName { get; set; }
+    public DateTime? LastDateStarts { get; set; }
     public DeliveryStatus DeliveryStatus { get; set; }
 
     public string DeliveryStatusDescription => DeliveryStatus.GetDescription();
     public string DeliveryStatusTagClass => DeliveryStatus.GetTagClass();
-    public bool HasLastStartDate => DateLastStarts.HasValue;
-    public string LastStartDateText => DateLastStarts.HasValue ? DateLastStarts.Value.ToScreenString() : string.Empty;
+    public bool HasLastStartDate => LastDateStarts.HasValue;
+    public string LastStartDateText => LastDateStarts.HasValue ? LastDateStarts.Value.ToScreenString() : string.Empty;
     public string ChangeUrl { get; set; } = "#";
 
     public static implicit operator AllowedProviderItemViewModel(ProviderCourseModel provider) => new()
     {
         Ukprn = provider.Ukprn,
         ProviderName = provider.ProviderName,
-        DateLastStarts = provider.DateLastStarts,
-        DeliveryStatus = provider.DateLastStarts.ToDeliveryStatus()
+        LastDateStarts = provider.LastDateStarts,
+        DeliveryStatus = provider.LastDateStarts.ToDeliveryStatus()
     };
 }
 

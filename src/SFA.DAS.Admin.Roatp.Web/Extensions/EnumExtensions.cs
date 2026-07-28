@@ -36,15 +36,15 @@ public static class EnumExtensions
         };
     }
 
-    public static DeliveryStatus ToDeliveryStatus(this DateTime? dateLastStarts, DateTime? today = null)
+    public static DeliveryStatus ToDeliveryStatus(this DateTime? lastDateStarts, DateTime? today = null)
     {
-        if (!dateLastStarts.HasValue)
+        if (!lastDateStarts.HasValue)
         {
             return DeliveryStatus.OpenToNewStarts;
         }
 
         var comparisonDate = (today ?? DateTime.UtcNow).Date;
-        return dateLastStarts.Value.Date >= comparisonDate
+        return lastDateStarts.Value.Date >= comparisonDate
             ? DeliveryStatus.LastStartDateAdded
             : DeliveryStatus.ClosedToNewStarts;
     }

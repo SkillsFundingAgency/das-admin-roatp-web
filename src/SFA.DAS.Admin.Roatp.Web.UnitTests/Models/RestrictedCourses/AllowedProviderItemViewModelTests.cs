@@ -13,7 +13,7 @@ public class AllowedProviderItemViewModelTests
     public void WhenConvertingProvider_AndNoLastStartDate_ThenMapsOpenToNewStarts(
         ProviderCourseModel provider)
     {
-        provider.DateLastStarts = null;
+        provider.LastDateStarts = null;
 
         AllowedProviderItemViewModel model = provider;
 
@@ -28,7 +28,7 @@ public class AllowedProviderItemViewModelTests
         ProviderCourseModel provider)
     {
         var date = DateTime.UtcNow.Date.AddDays(10);
-        provider.DateLastStarts = date;
+        provider.LastDateStarts = date;
 
         AllowedProviderItemViewModel model = provider;
 

@@ -38,13 +38,13 @@ public class RestrictedCourseDetailsControllerGetTests
             {
                 Ukprn = 10019900,
                 ProviderName = "BABINGTON LTD",
-                DateLastStarts = DateTime.UtcNow.Date.AddDays(30)
+                LastDateStarts = DateTime.UtcNow.Date.AddDays(30)
             },
             new ProviderCourseModel
             {
                 Ukprn = 10000001,
                 ProviderName = "ACORN SKILLS TRAINING",
-                DateLastStarts = null
+                LastDateStarts = null
             }
         ];
 
