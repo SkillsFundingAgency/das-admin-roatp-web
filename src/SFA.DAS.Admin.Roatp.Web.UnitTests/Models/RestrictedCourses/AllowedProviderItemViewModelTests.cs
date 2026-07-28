@@ -33,8 +33,57 @@ public class AllowedProviderItemViewModelTests
         AllowedProviderItemViewModel model = provider;
 
         model.DeliveryStatus.Should().Be(DeliveryStatus.LastStartDateAdded);
+        model.DeliveryStatusDescription.Should().Be("Last start date added");
         model.DeliveryStatusTagClass.Should().Be("govuk-tag--orange");
         model.HasLastStartDate.Should().BeTrue();
         model.LastStartDateText.Should().Be(date.ToString("dd MMM yyyy"));
+    }
+
+    [Test, MoqAutoData]
+    public void WhenConvertingProvider_AndPastLastStartDate_ThenMapsClosedToNewStarts(
+        ProviderCourseModel provider)
+    {
+        var date = DateTime.UtcNow.Date.AddDays(-10);
+        provider.LastDateStarts = date;
+
+        AllowedProviderItemViewModel model = provider;
+
+        model.DeliveryStatus.Should().Be(DeliveryStatus.ClosedToNewStarts);
+        model.DeliveryStatusDescription.Should().Be("Closed to new starts");
+        model.DeliveryStatusTagClass.Should().Be("govuk-tag--grey");
+        model.HasLastStartDate.Should().BeTrue();
+        model.LastStartDateText.Should().Be(date.ToString("dd MMM yyyy"));
+    }
+
+    [Test, MoqAutoData]
+    public void WhenConvertingProvider_AndNoLastStartDate_ThenLastStartDateTextIsEmpty(
+        ProviderCourseModel provider)
+    {
+        provider.LastDateStarts = null;
+
+        AllowedProviderItemViewModel model = provider;
+
+        model.LastStartDateText.Should().BeEmpty();
+    }
+
+    [Test, MoqAutoData]
+    public void WhenConvertingProvider_ThenMapsUkprnAndProviderName(
+        ProviderCourseModel provider)
+    {
+        AllowedProviderItemViewModel model = provider;
+
+        model.Ukprn.Should().Be(provider.Ukprn);
+        model.ProviderName.Should().Be(provider.ProviderName);
+    }
+
+    [Test]
+    public void ChangeUrl_DefaultsToHash()
+    {
+        var model = new AllowedProviderItemViewModel
+        {
+            ProviderName = "Provider"
+        };
+
+        model.ChangeUrl.Should().Be("#");
     }
 }

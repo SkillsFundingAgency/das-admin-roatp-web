@@ -49,4 +49,44 @@ public class RestrictedCourseDetailsViewModelTests
         model.HasNoProviders.Should().BeTrue();
         model.ProviderCountDescription.Should().Be("0 providers");
     }
+
+    [Test, MoqAutoData]
+    public void WhenMappingFromResponse_AndLevelIsZero_ThenDisplayTitleExcludesLevel(
+        GetRestrictedCourseDetailsResponse response)
+    {
+        response.CourseName = "Academic professional";
+        response.Level = 0;
+        response.Providers = [];
+
+        RestrictedCourseDetailsViewModel model = response;
+
+        model.DisplayTitle.Should().Be("Academic professional");
+    }
+
+    [Test, MoqAutoData]
+    public void WhenIsCourseRestrictedIsFalse_ThenStatusTextIsNotRestricted(
+        GetRestrictedCourseDetailsResponse response)
+    {
+        response.IsCourseRestricted = false;
+        response.Providers = [];
+
+        RestrictedCourseDetailsViewModel model = response;
+
+        model.StatusText.Should().Be("Not restricted");
+    }
+
+    [Test]
+    public void BackLinkText_ReturnsExpectedText()
+    {
+        var model = new RestrictedCourseDetailsViewModel
+        {
+            LarsCode = "124",
+            CourseName = "Course",
+            Sector = "Sector"
+        };
+
+        model.BackLinkText.Should().Be("Back to restricted courses");
+        model.BackLinkUrl.Should().Be("#");
+        model.PageUrl.Should().Be("#");
+    }
 }
