@@ -24,4 +24,28 @@ public static class EnumExtensions
             _ => string.Empty
         };
     }
+
+    public static string GetTagClass(this DeliveryStatus deliveryStatus)
+    {
+        return deliveryStatus switch
+        {
+            DeliveryStatus.OpenToNewStarts => "govuk-tag--green",
+            DeliveryStatus.LastStartDateAdded => "govuk-tag--orange",
+            DeliveryStatus.ClosedToNewStarts => "govuk-tag--grey",
+            _ => string.Empty
+        };
+    }
+
+    public static DeliveryStatus ToDeliveryStatus(this DateTime? dateLastStarts, DateTime? today = null)
+    {
+        if (!dateLastStarts.HasValue)
+        {
+            return DeliveryStatus.OpenToNewStarts;
+        }
+
+        var comparisonDate = (today ?? DateTime.UtcNow).Date;
+        return dateLastStarts.Value.Date >= comparisonDate
+            ? DeliveryStatus.LastStartDateAdded
+            : DeliveryStatus.ClosedToNewStarts;
+    }
 }

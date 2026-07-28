@@ -39,4 +39,9 @@ public interface IOuterApiClient
     Task<GetRestrictedCoursesResponse> GetRestrictedCourses(
         [Query] bool restricted,
         CancellationToken cancellationToken);
+
+    [Get("/courses/{larsCode}/providers/allowed")]
+    Task<ApiResponse<GetRestrictedCourseDetailsResponse>> GetAllowedProvidersForCourse(
+        string larsCode,
+        CancellationToken cancellationToken);
 }

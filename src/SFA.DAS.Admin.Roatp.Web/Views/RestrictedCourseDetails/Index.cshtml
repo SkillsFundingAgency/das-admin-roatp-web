@@ -1,0 +1,76 @@
+@model SFA.DAS.Admin.Roatp.Web.Models.RestrictedCourses.RestrictedCourseDetailsViewModel
+@{
+    ViewBag.Title = Model.DisplayTitle;
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <span class="govuk-caption-xl">View and manage restricted courses</span>
+        <h1 class="govuk-heading-xl">@Model.DisplayTitle</h1>
+
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">Type</dt>
+                <dd class="govuk-summary-list__value">@Model.LearningTypeDescription</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">Sector</dt>
+                <dd class="govuk-summary-list__value">@Model.Sector</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">LARS code</dt>
+                <dd class="govuk-summary-list__value">@Model.LarsCode</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">Status</dt>
+                <dd class="govuk-summary-list__value">@Model.StatusText</dd>
+            </div>
+        </dl>
+    </div>
+</div>
+
+<div class="app-action-panel govuk-!-margin-bottom-8">
+    <h2 class="govuk-heading-m">Add a new training provider to this course</h2>
+    <p class="govuk-body">We manage the delivery of this course. Adding a new training provider will allow them to add this course to their offering in Course management.</p>
+    <a class="govuk-button govuk-!-margin-bottom-0" href="@Model.PageUrl" data-module="govuk-button">
+        Add a training provider
+    </a>
+</div>
+
+<hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-6">
+
+<h2 class="govuk-heading-m">Training providers allowed to offer this course on Find apprenticeship training</h2>
+
+<div asp-show="Model.HasProviders">
+    <p class="govuk-body">We use the last date for new starts to open or close courses to different training providers.</p>
+    <p class="govuk-body">You can stop a training provider from offering this course by adding a last date for new starts.</p>
+    <p class="govuk-body">You can also change, extend or remove the last start date if you want a training provider to continue delivering it.</p>
+
+    <div class="app-results-header govuk-!-margin-top-6">
+        <p class="govuk-body govuk-!-font-weight-bold govuk-!-margin-bottom-0">@Model.ProviderCountDescription</p>
+        <p class="govuk-body govuk-!-margin-bottom-0">
+            Sorted by: <span class="govuk-!-font-weight-bold">Name of provider</span>
+        </p>
+    </div>
+
+    <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-3 govuk-!-margin-bottom-3">
+
+    <ul class="govuk-list app-results-list">
+        @foreach (var provider in Model.Providers)
+        {
+            <li class="app-results-list__item">
+                <div class="app-results-list__content govuk-!-margin-bottom-2">
+                    <strong class="govuk-tag @provider.DeliveryStatusTagClass app-tag">@provider.DeliveryStatusDescription</strong>
+                    <div class="app-results-list__actions">
+                        <a class="govuk-link govuk-link--no-visited-state" href="@provider.ChangeUrl">Change</a>
+                    </div>
+                </div>
+                <h3 class="govuk-heading-m govuk-!-margin-bottom-1">@provider.ProviderName</h3>
+                <p class="govuk-body govuk-!-margin-bottom-1">UKPRN: @provider.Ukprn</p>
+                <p asp-show="provider.HasLastStartDate" class="govuk-body govuk-!-margin-bottom-0">Last start date: @provider.LastStartDateText</p>
+            </li>
+        }
+    </ul>
+</div>
+
+<p asp-show="Model.HasNoProviders" class="govuk-body">No providers offer this course yet.</p>

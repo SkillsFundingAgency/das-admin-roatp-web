@@ -46,7 +46,10 @@
                     </dl>
                 </div>
                 <div class="app-results-list__actions">
-                    <a class="govuk-link govuk-link--no-visited-state" href="#">Manage providers</a>
+                    <a class="govuk-link govuk-link--no-visited-state"
+                       asp-route="@RouteNames.RestrictedCourseDetails"
+                       asp-route-larsCode="@course.LarsCode"
+                       asp-route-level="@course.Level">Manage providers</a>
                 </div>
             </div>
         </li>
