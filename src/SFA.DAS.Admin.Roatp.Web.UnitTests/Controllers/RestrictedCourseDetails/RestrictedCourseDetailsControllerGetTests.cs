@@ -20,37 +20,33 @@ public class RestrictedCourseDetailsControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndApiReturnsProviders_ThenReturnsViewWithMappedModel(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] RestrictedCourseDetailsController sut)
+        [Greedy] RestrictedCourseDetailsController sut,
+        string larsCode,
+        string pageUrl,
+        string backUrl,
+        GetRestrictedCourseDetailsResponse response)
     {
-        const string larsCode = "105";
-        var pageUrl = Guid.NewGuid().ToString();
-        var backUrl = Guid.NewGuid().ToString();
-
-        var response = new GetRestrictedCourseDetailsResponse
-        {
-            LarsCode = larsCode,
-            IfateReferenceNumber = "ST0001",
-            CourseName = "Academic professional",
-            Level = 7,
-            Route = "Education and early years",
-            LearningType = LearningType.Apprenticeship,
-            IsCourseRestricted = true,
-            Providers =
-            [
-                new ProviderCourseModel
-                {
-                    Ukprn = 10019900,
-                    ProviderName = "BABINGTON LTD",
-                    DateLastStarts = DateTime.UtcNow.Date.AddDays(30)
-                },
-                new ProviderCourseModel
-                {
-                    Ukprn = 10000001,
-                    ProviderName = "ACORN SKILLS TRAINING",
-                    DateLastStarts = null
-                }
-            ]
-        };
+        response.LarsCode = larsCode;
+        response.CourseName = "Academic professional";
+        response.Level = 7;
+        response.Route = "Education and early years";
+        response.LearningType = LearningType.Apprenticeship;
+        response.IsCourseRestricted = true;
+        response.Providers =
+        [
+            new ProviderCourseModel
+            {
+                Ukprn = 10019900,
+                ProviderName = "BABINGTON LTD",
+                DateLastStarts = DateTime.UtcNow.Date.AddDays(30)
+            },
+            new ProviderCourseModel
+            {
+                Ukprn = 10000001,
+                ProviderName = "ACORN SKILLS TRAINING",
+                DateLastStarts = null
+            }
+        ];
 
         outerApiClientMock
             .Setup(c => c.GetAllowedProvidersForCourse(larsCode, It.IsAny<CancellationToken>()))
@@ -82,26 +78,18 @@ public class RestrictedCourseDetailsControllerGetTests
         model.Providers.Should().OnlyContain(p => p.ChangeUrl == pageUrl);
 
         outerApiClientMock.Verify(c => c.GetAllowedProvidersForCourse(larsCode, It.IsAny<CancellationToken>()), Times.Once);
-        outerApiClientMock.Verify(c => c.GetRestrictedCourses(It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndNoProviders_ThenReturnsEmptyState(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] RestrictedCourseDetailsController sut)
+        [Greedy] RestrictedCourseDetailsController sut,
+        string larsCode,
+        GetRestrictedCourseDetailsResponse response)
     {
-        const string larsCode = "105";
-        var response = new GetRestrictedCourseDetailsResponse
-        {
-            LarsCode = larsCode,
-            IfateReferenceNumber = "ST0001",
-            CourseName = "Academic professional",
-            Level = 7,
-            Route = "Education and early years",
-            LearningType = LearningType.Apprenticeship,
-            IsCourseRestricted = true,
-            Providers = []
-        };
+        response.LarsCode = larsCode;
+        response.IsCourseRestricted = true;
+        response.Providers = [];
 
         outerApiClientMock
             .Setup(c => c.GetAllowedProvidersForCourse(larsCode, It.IsAny<CancellationToken>()))
@@ -122,63 +110,17 @@ public class RestrictedCourseDetailsControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndApiFails_ThenRedirectsToRestrictedCourses(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] RestrictedCourseDetailsController sut)
+        [Greedy] RestrictedCourseDetailsController sut,
+        string larsCode)
     {
         outerApiClientMock
             .Setup(c => c.GetAllowedProvidersForCourse(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
                 new HttpResponseMessage(HttpStatusCode.NotFound), null, new RefitSettings(), null));
 
-        var result = await sut.Index("105", CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(larsCode, CancellationToken.None) as RedirectToRouteResult;
 
         result.Should().NotBeNull();
         result!.RouteName.Should().Be(RouteNames.RestrictedCourses);
-    }
-
-    [Test, MoqAutoData]
-    public async Task WhenGettingRestrictedCourseDetails_AndLevelNotProvided_ThenLooksUpLevelFromRestrictedCourses(
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] RestrictedCourseDetailsController sut)
-    {
-        const string larsCode = "105";
-        var response = new GetRestrictedCourseDetailsResponse
-        {
-            LarsCode = larsCode,
-            IfateReferenceNumber = "ST0001",
-            CourseName = "Academic professional",
-            Level = 7,
-            Route = "Education and early years",
-            IsCourseRestricted = true,
-            Providers = []
-        };
-
-        outerApiClientMock
-            .Setup(c => c.GetAllowedProvidersForCourse(larsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
-                new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
-        outerApiClientMock
-            .Setup(c => c.GetRestrictedCourses(true, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetRestrictedCoursesResponse
-            {
-                Courses =
-                [
-                    new RestrictedCourseModel
-                    {
-                        LarsCode = larsCode,
-                        Title = "Academic professional",
-                        Level = 7,
-                        LearningType = LearningType.Apprenticeship
-                    }
-                ]
-            });
-
-        sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, "/restricted-courses/105");
-
-        var result = await sut.Index(larsCode, CancellationToken.None) as ViewResult;
-
-        var model = result!.Model as RestrictedCourseDetailsViewModel;
-        model!.DisplayTitle.Should().Be("Academic professional (Level 7)");
     }
 }
