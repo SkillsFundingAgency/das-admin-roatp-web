@@ -69,19 +69,22 @@ public class LarsCodeServiceTests
         result.Should().BeNull();
     }
 
-    [Test]
-    [MoqInlineAutoData(null)]
-    [MoqInlineAutoData("")]
-    [MoqInlineAutoData("   ")]
-    public async Task WhenGettingCourseDetails_AndLarsCodeIsBlank_ThenReturnsNullWithoutCallingApi(
-        string? larsCode,
+    [Test, MoqAutoData]
+    public async Task WhenGettingCourseDetails_AndApiReturnsNonSuccessNonNotFound_ThenThrows(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] LarsCodeService sut)
+        [Frozen] Mock<IHttpContextAccessor> httpContextAccessorMock,
+        [Greedy] LarsCodeService sut,
+        string larsCode)
     {
-        var result = await sut.GetCourseDetailsAsync(larsCode!, CancellationToken.None);
+        httpContextAccessorMock.Setup(a => a.HttpContext).Returns(new DefaultHttpContext());
+        outerApiClientMock
+            .Setup(c => c.GetAllowedProvidersForCourse(larsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
+                new HttpResponseMessage(HttpStatusCode.InternalServerError), null, new RefitSettings(), null));
 
-        result.Should().BeNull();
-        outerApiClientMock.Verify(c => c.GetAllowedProvidersForCourse(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        var act = () => sut.GetCourseDetailsAsync(larsCode, CancellationToken.None);
+
+        await act.Should().ThrowAsync<HttpRequestException>();
     }
 
     [Test, MoqAutoData]

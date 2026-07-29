@@ -1,3 +1,4 @@
+using System.Net;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 
@@ -9,11 +10,6 @@ public class LarsCodeService(IOuterApiClient outerApiClient, IHttpContextAccesso
 
     public async Task<GetRestrictedCourseDetailsResponse?> GetCourseDetailsAsync(string larsCode, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(larsCode))
-        {
-            return null;
-        }
-
         var cache = GetCache();
 
         if (cache.TryGetValue(larsCode, out var cached))
@@ -23,7 +19,13 @@ public class LarsCodeService(IOuterApiClient outerApiClient, IHttpContextAccesso
 
         var response = await outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
 
-        var courseDetails = response.IsSuccessStatusCode ? response.Content : null;
+        if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
+        {
+            throw new HttpRequestException(
+                $"Failed to retrieve course details for LARS code '{larsCode}'. Status code: {response.StatusCode}.");
+        }
+
+        var courseDetails = response.StatusCode == HttpStatusCode.NotFound ? null : response.Content;
         cache[larsCode] = courseDetails;
 
         return courseDetails;
