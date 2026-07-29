@@ -5,8 +5,8 @@
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-        <span class="govuk-caption-xl">View and manage restricted courses</span>
-        <h1 class="govuk-heading-xl">@Model.DisplayTitle</h1>
+        <span class="govuk-caption-xl govuk-!-margin-bottom-2">View and manage restricted courses</span>
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">@Model.DisplayTitle</h1>
 
         <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
@@ -66,8 +66,14 @@
                     </div>
                 </div>
                 <h3 class="govuk-heading-m govuk-!-margin-bottom-1">@provider.ProviderName</h3>
-                <p class="govuk-body govuk-!-margin-bottom-1">UKPRN: @provider.Ukprn</p>
-                <p asp-show="provider.HasLastStartDate" class="govuk-body govuk-!-margin-bottom-0">Last start date: @provider.LastStartDateText</p>
+                <dl class="das-definition-list das-definition-list--meta govuk-!-margin-bottom-1">
+                    <dt class="das-definition-list__title">UKPRN</dt>
+                    <dd class="das-definition-list__definition">@provider.Ukprn</dd>
+                </dl>
+                <dl asp-show="provider.HasLastStartDate"  class="das-definition-list das-definition-list--meta govuk-!-margin-bottom-1">
+                    <dt class="das-definition-list__title">Last start date</dt>
+                    <dd class="das-definition-list__definition">@provider.LastStartDateText</dd>
+                </dl>
             </li>
         }
     </ul>
