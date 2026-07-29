@@ -1,6 +1,5 @@
 using FluentValidation;
-using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
-using SFA.DAS.Admin.Roatp.Web.Infrastructure;
+using SFA.DAS.Admin.Roatp.Web.Services;
 
 namespace SFA.DAS.Admin.Roatp.Web.Validators.Common;
 
@@ -8,39 +7,14 @@ public class LarsCodeValidator : AbstractValidator<string>
 {
     public const string LarsCodeValidationMessage = "Invalid LARS code";
 
-    private readonly IOuterApiClient _outerApiClient;
-
-    public LarsCodeValidator(IOuterApiClient outerApiClient)
+    public LarsCodeValidator(ILarsCodeService larsCodeService)
     {
-        _outerApiClient = outerApiClient;
-
         RuleFor(larsCode => larsCode)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
             .WithMessage(LarsCodeValidationMessage)
-            .MustAsync(BeValidLarsCode)
+            .MustAsync(async (larsCode, cancellationToken) =>
+                await larsCodeService.GetCourseDetailsAsync(larsCode, cancellationToken) is not null)
             .WithMessage(LarsCodeValidationMessage);
     }
-
-    public async Task<GetRestrictedCourseDetailsResponse?> GetCourseDetailsAsync(
-        string larsCode,
-        CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(larsCode))
-        {
-            return null;
-        }
-
-        var response = await _outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
-
-        if (!response.IsSuccessStatusCode || response.Content is null)
-        {
-            return null;
-        }
-
-        return response.Content;
-    }
-
-    private async Task<bool> BeValidLarsCode(string larsCode, CancellationToken cancellationToken)
-        => await GetCourseDetailsAsync(larsCode, cancellationToken) is not null;
 }

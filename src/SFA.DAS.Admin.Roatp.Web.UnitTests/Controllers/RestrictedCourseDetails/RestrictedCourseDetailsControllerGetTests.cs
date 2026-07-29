@@ -1,14 +1,13 @@
-using System.Net;
 using AutoFixture.NUnit4;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Refit;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.RestrictedCourses;
+using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -18,8 +17,8 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.RestrictedCourseDetails;
 public class RestrictedCourseDetailsControllerGetTests
 {
     [Test, MoqAutoData]
-    public async Task WhenGettingRestrictedCourseDetails_AndApiReturnsProviders_ThenReturnsViewWithMappedModel(
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+    public async Task WhenGettingRestrictedCourseDetails_AndLarsCodeIsValid_ThenReturnsViewWithMappedModel(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
         string larsCode,
         string pageUrl,
@@ -48,10 +47,9 @@ public class RestrictedCourseDetailsControllerGetTests
             }
         ];
 
-        outerApiClientMock
-            .Setup(c => c.GetAllowedProvidersForCourse(larsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
-                new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourses, backUrl)
@@ -77,12 +75,12 @@ public class RestrictedCourseDetailsControllerGetTests
         model.AllowedProviders.Last().DeliveryStatus.Should().Be(DeliveryStatus.LastStartDateAdded);
         model.AllowedProviders.Should().OnlyContain(p => p.ChangeUrl == pageUrl);
 
-        outerApiClientMock.Verify(c => c.GetAllowedProvidersForCourse(larsCode, It.IsAny<CancellationToken>()), Times.Once);
+        larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndNoProviders_ThenReturnsEmptyState(
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
         string larsCode,
         GetRestrictedCourseDetailsResponse response)
@@ -91,10 +89,9 @@ public class RestrictedCourseDetailsControllerGetTests
         response.IsCourseRestricted = true;
         response.Providers = [];
 
-        outerApiClientMock
-            .Setup(c => c.GetAllowedProvidersForCourse(larsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
-                new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
@@ -108,19 +105,18 @@ public class RestrictedCourseDetailsControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingRestrictedCourseDetails_AndLarsCodeIsInvalid_ThenRedirectsToRestrictedCourses(
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+    public async Task WhenGettingRestrictedCourseDetails_AndLarsCodeIsInvalid_ThenReturnsNotFound(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
         string larsCode)
     {
-        outerApiClientMock
-            .Setup(c => c.GetAllowedProvidersForCourse(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
-                new HttpResponseMessage(HttpStatusCode.NotFound), null, new RefitSettings(), null));
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetRestrictedCourseDetailsResponse?)null);
 
-        var result = await sut.Index(larsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(larsCode, CancellationToken.None);
 
-        result.Should().NotBeNull();
-        result!.RouteName.Should().Be(RouteNames.RestrictedCourses);
+        result.Should().BeOfType<NotFoundResult>();
+        larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()), Times.Once);
     }
 }
