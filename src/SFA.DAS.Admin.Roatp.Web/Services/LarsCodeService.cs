@@ -3,9 +3,9 @@ using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 
 namespace SFA.DAS.Admin.Roatp.Web.Services;
 
-public class LarsCodeService(IOuterApiClient outerApiClient) : ILarsCodeService
+public class LarsCodeService(IOuterApiClient outerApiClient, IHttpContextAccessor httpContextAccessor) : ILarsCodeService
 {
-    private readonly Dictionary<string, GetRestrictedCourseDetailsResponse?> _cache = new(StringComparer.OrdinalIgnoreCase);
+    private const string CacheItemsKey = "LarsCodeService.Cache";
 
     public async Task<GetRestrictedCourseDetailsResponse?> GetCourseDetailsAsync(string larsCode, CancellationToken cancellationToken)
     {
@@ -14,7 +14,9 @@ public class LarsCodeService(IOuterApiClient outerApiClient) : ILarsCodeService
             return null;
         }
 
-        if (_cache.TryGetValue(larsCode, out var cached))
+        var cache = GetCache();
+
+        if (cache.TryGetValue(larsCode, out var cached))
         {
             return cached;
         }
@@ -22,8 +24,22 @@ public class LarsCodeService(IOuterApiClient outerApiClient) : ILarsCodeService
         var response = await outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
 
         var courseDetails = response.IsSuccessStatusCode ? response.Content : null;
-        _cache[larsCode] = courseDetails;
+        cache[larsCode] = courseDetails;
 
         return courseDetails;
+    }
+
+    private Dictionary<string, GetRestrictedCourseDetailsResponse?> GetCache()
+    {
+        var httpContext = httpContextAccessor.HttpContext
+            ?? throw new InvalidOperationException("HttpContext is not available.");
+
+        if (httpContext.Items[CacheItemsKey] is not Dictionary<string, GetRestrictedCourseDetailsResponse?> cache)
+        {
+            cache = new Dictionary<string, GetRestrictedCourseDetailsResponse?>(StringComparer.OrdinalIgnoreCase);
+            httpContext.Items[CacheItemsKey] = cache;
+        }
+
+        return cache;
     }
 }
