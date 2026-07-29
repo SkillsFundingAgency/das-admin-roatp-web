@@ -5,7 +5,7 @@ using SFA.DAS.Admin.Roatp.Web.Extensions;
 
 namespace SFA.DAS.Admin.Roatp.Web.Models.RestrictedCourses;
 
-public class RestrictedCourseDetailsViewModel : ICourseDisplayModel, IBackLink
+public class RestrictedCourseDetailsViewModel : ICourseDisplayModel, IBackLink, ILarsCode
 {
     public required string LarsCode { get; set; }
     public required string CourseName { get; set; }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
+using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Models.RestrictedCourses;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.Validators.Common;
@@ -16,7 +17,9 @@ public class RestrictedCourseDetailsController(
     [HttpGet]
     public async Task<IActionResult> Index([FromRoute] string larsCode, CancellationToken cancellationToken)
     {
-        var validationResult = await larsCodeValidator.ValidateAsync(larsCode, cancellationToken);
+        var validationResult = await larsCodeValidator.ValidateAsync(
+            new LarsCodeModel { LarsCode = larsCode },
+            cancellationToken);
 
         if (!validationResult.IsValid)
         {
