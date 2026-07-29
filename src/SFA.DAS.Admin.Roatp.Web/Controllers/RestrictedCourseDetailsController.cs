@@ -26,12 +26,11 @@ public class RestrictedCourseDetailsController(
         var courseDetails = await larsCodeService.GetCourseDetailsAsync(larsCode, cancellationToken);
 
         RestrictedCourseDetailsViewModel model = courseDetails!;
-        model.BackLinkUrl = Url.RouteUrl(RouteNames.RestrictedCourses)!;
-        model.PageUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!;
+        model.RestrictedCourseDetailsPageUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!;
 
         foreach (var provider in model.AllowedProviders)
         {
-            provider.ChangeUrl = model.PageUrl;
+            provider.ChangeUrl = model.RestrictedCourseDetailsPageUrl;
         }
 
         return View(model);

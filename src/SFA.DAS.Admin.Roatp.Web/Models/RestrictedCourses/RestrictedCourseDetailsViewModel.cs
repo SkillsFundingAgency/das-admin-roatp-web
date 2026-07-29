@@ -5,7 +5,7 @@ using SFA.DAS.Admin.Roatp.Web.Extensions;
 
 namespace SFA.DAS.Admin.Roatp.Web.Models.RestrictedCourses;
 
-public class RestrictedCourseDetailsViewModel : ICourseDisplayModel, ICustomBackLink
+public class RestrictedCourseDetailsViewModel : ICourseDisplayModel, IBackLink
 {
     public required string LarsCode { get; set; }
     public required string CourseName { get; set; }
@@ -24,9 +24,7 @@ public class RestrictedCourseDetailsViewModel : ICourseDisplayModel, ICustomBack
     public int ProviderCount => AllowedProviders.Count();
     public string ProviderCountDescription => "provider".ToQuantity(ProviderCount);
 
-    public string BackLinkUrl { get; set; } = "#";
-    public string BackLinkText => "Back to restricted courses";
-    public string PageUrl { get; set; } = "#";
+    public string RestrictedCourseDetailsPageUrl { get; set; } = "#";
 
 
     public static implicit operator RestrictedCourseDetailsViewModel(

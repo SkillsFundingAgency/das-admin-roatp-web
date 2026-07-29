@@ -21,8 +21,6 @@ public class RestrictedCourseDetailsControllerGetTests
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
         string larsCode,
-        string pageUrl,
-        string backUrl,
         GetRestrictedCourseDetailsResponse response)
     {
         response.LarsCode = larsCode;
@@ -52,8 +50,8 @@ public class RestrictedCourseDetailsControllerGetTests
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourses, backUrl)
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, pageUrl);
+            .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
 
         var result = await sut.Index(larsCode, CancellationToken.None) as ViewResult;
 
@@ -68,12 +66,10 @@ public class RestrictedCourseDetailsControllerGetTests
         model.HasProviders.Should().BeTrue();
         model.ProviderCount.Should().Be(2);
         model.ProviderCountDescription.Should().Be("2 providers");
-        model.BackLinkUrl.Should().Be(backUrl);
-        model.BackLinkText.Should().Be("Back to restricted courses");
         model.AllowedProviders.Select(p => p.ProviderName).Should().ContainInOrder("ACORN SKILLS TRAINING", "BABINGTON LTD");
         model.AllowedProviders.First().DeliveryStatus.Should().Be(DeliveryStatus.OpenToNewStarts);
         model.AllowedProviders.Last().DeliveryStatus.Should().Be(DeliveryStatus.LastStartDateAdded);
-        model.AllowedProviders.Should().OnlyContain(p => p.ChangeUrl == pageUrl);
+        model.AllowedProviders.Should().OnlyContain(p => p.ChangeUrl == model.RestrictedCourseDetailsPageUrl);
 
         larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
@@ -95,7 +91,7 @@ public class RestrictedCourseDetailsControllerGetTests
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, "/restricted-courses/105");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
 
         var result = await sut.Index(larsCode, CancellationToken.None) as ViewResult;
 

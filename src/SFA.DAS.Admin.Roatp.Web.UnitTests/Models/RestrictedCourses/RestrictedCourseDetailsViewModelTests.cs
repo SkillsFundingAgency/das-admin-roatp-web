@@ -73,8 +73,6 @@ public class RestrictedCourseDetailsViewModelTests
             Sector = "Sector"
         };
 
-        model.BackLinkText.Should().Be("Back to restricted courses");
-        model.BackLinkUrl.Should().Be("#");
-        model.PageUrl.Should().Be("#");
+        model.RestrictedCourseDetailsPageUrl.Should().Be("#");
     }
 }
