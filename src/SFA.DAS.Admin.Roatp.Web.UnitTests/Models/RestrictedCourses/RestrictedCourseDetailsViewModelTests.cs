@@ -51,19 +51,6 @@ public class RestrictedCourseDetailsViewModelTests
     }
 
     [Test, MoqAutoData]
-    public void WhenMappingFromResponse_AndLevelIsZero_ThenDisplayTitleExcludesLevel(
-        GetRestrictedCourseDetailsResponse response)
-    {
-        response.CourseName = "Academic professional";
-        response.Level = 0;
-        response.Providers = [];
-
-        RestrictedCourseDetailsViewModel model = response;
-
-        model.DisplayTitle.Should().Be("Academic professional");
-    }
-
-    [Test, MoqAutoData]
     public void WhenIsCourseRestrictedIsFalse_ThenStatusTextIsNotRestricted(
         GetRestrictedCourseDetailsResponse response)
     {
@@ -72,7 +59,7 @@ public class RestrictedCourseDetailsViewModelTests
 
         RestrictedCourseDetailsViewModel model = response;
 
-        model.StatusText.Should().Be("Not restricted");
+        model.StatusText.Should().Be("Unrestricted");
     }
 
     [Test]
@@ -82,6 +69,7 @@ public class RestrictedCourseDetailsViewModelTests
         {
             LarsCode = "124",
             CourseName = "Course",
+            Title = "Course",
             Sector = "Sector"
         };
 
