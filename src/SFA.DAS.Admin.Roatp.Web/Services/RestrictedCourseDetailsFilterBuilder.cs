@@ -23,7 +23,7 @@ public static class RestrictedCourseDetailsFilterBuilder
         IUrlHelper urlHelper)
     {
         var selectedFilters = new Dictionary<FilterType, IEnumerable<string>>();
-        AddSelectedFilter(selectedFilters, FilterType.SearchTerm, request.SearchTerm.Trim());
+        AddSelectedFilter(selectedFilters, FilterType.SearchTerm, request.SearchTerm?.Trim());
         AddSelectedFilter(
             selectedFilters,
             FilterType.DeliveryStatus,
