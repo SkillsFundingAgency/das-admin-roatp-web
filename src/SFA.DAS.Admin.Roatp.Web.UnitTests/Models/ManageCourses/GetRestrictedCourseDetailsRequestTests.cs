@@ -8,41 +8,88 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models.ManageCourses;
 public class GetRestrictedCourseDetailsRequestTests
 {
     [Test]
-    public void HasProviderNameFilter_WhenProviderNameIsBlank_ThenIsFalse()
+    public void HasSearchTermFilter_WhenSearchTermIsEmpty_ThenIsFalse()
     {
-        new GetRestrictedCourseDetailsRequest { SearchTerm = null }.HasSearchTermFilter.Should().BeFalse();
-        new GetRestrictedCourseDetailsRequest { SearchTerm = "   " }.HasSearchTermFilter.Should().BeFalse();
+        var request = new GetRestrictedCourseDetailsRequest();
+
+        var result = request.HasSearchTermFilter;
+
+        result.Should().BeFalse();
     }
 
     [Test]
-    public void HasProviderNameFilter_WhenProviderNameHasValue_ThenIsTrue()
+    public void HasSearchTermFilter_WhenSearchTermIsWhitespace_ThenIsFalse()
     {
-        new GetRestrictedCourseDetailsRequest { SearchTerm = "Beacon" }.HasSearchTermFilter.Should().BeTrue();
+        var request = new GetRestrictedCourseDetailsRequest { SearchTerm = "   " };
+
+        var result = request.HasSearchTermFilter;
+
+        result.Should().BeFalse();
+    }
+
+    [Test]
+    public void HasSearchTermFilter_WhenSearchTermHasValue_ThenIsTrue()
+    {
+        var request = new GetRestrictedCourseDetailsRequest { SearchTerm = "Beacon" };
+
+        var result = request.HasSearchTermFilter;
+
+        result.Should().BeTrue();
     }
 
     [Test]
     public void HasDeliveryStatusFilter_WhenNoStatuses_ThenIsFalse()
     {
-        new GetRestrictedCourseDetailsRequest().HasDeliveryStatusFilter.Should().BeFalse();
+        var request = new GetRestrictedCourseDetailsRequest();
+
+        var result = request.HasDeliveryStatusFilter;
+
+        result.Should().BeFalse();
     }
 
     [Test]
     public void HasDeliveryStatusFilter_WhenStatusesSelected_ThenIsTrue()
     {
-        new GetRestrictedCourseDetailsRequest
+        var request = new GetRestrictedCourseDetailsRequest
         {
             DeliveryStatus = [DeliveryStatus.OpenToNewStarts]
-        }.HasDeliveryStatusFilter.Should().BeTrue();
+        };
+
+        var result = request.HasDeliveryStatusFilter;
+
+        result.Should().BeTrue();
     }
 
     [Test]
-    public void HasFilters_WhenEitherFilterPresent_ThenIsTrue()
+    public void HasFilters_WhenSearchTermPresent_ThenIsTrue()
     {
-        new GetRestrictedCourseDetailsRequest { SearchTerm = "Beacon" }.HasFilters.Should().BeTrue();
-        new GetRestrictedCourseDetailsRequest
+        var request = new GetRestrictedCourseDetailsRequest { SearchTerm = "Beacon" };
+
+        var result = request.HasFilters;
+
+        result.Should().BeTrue();
+    }
+
+    [Test]
+    public void HasFilters_WhenDeliveryStatusPresent_ThenIsTrue()
+    {
+        var request = new GetRestrictedCourseDetailsRequest
         {
             DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
-        }.HasFilters.Should().BeTrue();
-        new GetRestrictedCourseDetailsRequest().HasFilters.Should().BeFalse();
+        };
+
+        var result = request.HasFilters;
+
+        result.Should().BeTrue();
+    }
+
+    [Test]
+    public void HasFilters_WhenNoFiltersPresent_ThenIsFalse()
+    {
+        var request = new GetRestrictedCourseDetailsRequest();
+
+        var result = request.HasFilters;
+
+        result.Should().BeFalse();
     }
 }

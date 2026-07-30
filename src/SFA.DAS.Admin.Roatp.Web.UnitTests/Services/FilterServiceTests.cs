@@ -1,6 +1,5 @@
 using FluentAssertions;
 using SFA.DAS.Admin.Roatp.Web.Models.Filters.FilterComponents;
-using SFA.DAS.Admin.Roatp.Web.Services;
 using static SFA.DAS.Admin.Roatp.Web.Services.FilterService;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Services;
@@ -172,26 +171,74 @@ public class FilterServiceTests
     }
 
     [Test]
-    public void AddSelectedFilter_WithSingleValue_ThenAddsWhenNotBlank()
+    public void CreateClearFilterSections_AndSelectedFiltersIncludesEmptyFilter_ThenIgnoresEmptyFilterInClearLinks()
+    {
+        var selectedFilters = new Dictionary<FilterType, IEnumerable<string>>
+        {
+            [FilterType.SearchTerm] = ["Beacon"],
+            [FilterType.DeliveryStatus] = []
+        };
+
+        var result = CreateClearFilterSections(selectedFilters, ClearFiltersBaseUrl);
+
+        result.Should().ContainSingle();
+        result[0].FilterType.Should().Be(FilterType.SearchTerm);
+        result[0].Items.Single().ClearLink.Should().Be(ClearFiltersBaseUrl);
+    }
+
+    [Test]
+    public void CreateClearFilterSections_AndSelectedFiltersIncludesWhitespace_ThenOmitsWhitespaceFromClearLink()
+    {
+        var selectedFilters = new Dictionary<FilterType, IEnumerable<string>>
+        {
+            [FilterType.SearchTerm] = ["Beacon"],
+            [FilterType.DeliveryStatus] = ["OpenToNewStarts", "   "]
+        };
+
+        var clearProviderLink = CreateClearFilterSections(selectedFilters, ClearFiltersBaseUrl)
+            .Single(section => section.FilterType == FilterType.SearchTerm)
+            .Items.Single().ClearLink;
+
+        clearProviderLink.Should().Be($"{ClearFiltersBaseUrl}?DeliveryStatus=OpenToNewStarts");
+    }
+
+    [Test]
+    public void AddSelectedFilter_WithSingleValueAndValueIsBlank_ThenDoesNotAdd()
     {
         var filters = new Dictionary<FilterType, IEnumerable<string>>();
 
         AddSelectedFilter(filters, FilterType.SearchTerm, "  ");
+
         filters.Should().BeEmpty();
+    }
+
+    [Test]
+    public void AddSelectedFilter_WithSingleValueAndValueIsNotBlank_ThenAddsValue()
+    {
+        var filters = new Dictionary<FilterType, IEnumerable<string>>();
 
         AddSelectedFilter(filters, FilterType.SearchTerm, "Beacon");
+
         filters[FilterType.SearchTerm].Should().BeEquivalentTo(["Beacon"]);
     }
 
     [Test]
-    public void AddSelectedFilter_WithMultipleValues_ThenAddsNonBlankValues()
+    public void AddSelectedFilter_WithMultipleValues_AndAllValuesAreBlank_ThenDoesNotAdd()
     {
         var filters = new Dictionary<FilterType, IEnumerable<string>>();
 
         AddSelectedFilter(filters, FilterType.DeliveryStatus, ["", "  "]);
+
         filters.Should().BeEmpty();
+    }
+
+    [Test]
+    public void AddSelectedFilter_WithMultipleValuesAndSomeValuesAreBlank_ThenAddsNonBlankValues()
+    {
+        var filters = new Dictionary<FilterType, IEnumerable<string>>();
 
         AddSelectedFilter(filters, FilterType.DeliveryStatus, ["Open", "", "Closed"]);
+
         filters[FilterType.DeliveryStatus].Should().BeEquivalentTo(["Open", "Closed"]);
     }
 }
