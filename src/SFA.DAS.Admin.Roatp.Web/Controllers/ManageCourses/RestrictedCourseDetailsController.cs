@@ -17,7 +17,10 @@ public class RestrictedCourseDetailsController(
     public const string ViewPath = "~/Views/ManageCourses/RestrictedCourseDetails/Index.cshtml";
 
     [HttpGet]
-    public async Task<IActionResult> Index([FromRoute] string larsCode, CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(
+        [FromRoute] string larsCode,
+        GetRestrictedCourseDetailsRequest request,
+        CancellationToken cancellationToken)
     {
         var validationResult = await larsCodeValidator.ValidateAsync(
             new LarsCodeModel { LarsCode = larsCode },
@@ -32,6 +35,11 @@ public class RestrictedCourseDetailsController(
 
         RestrictedCourseDetailsViewModel model = courseDetails!;
         model.RestrictedCourseDetailsPageUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!;
+        model.HasActiveFilters = request.HasFilters;
+        model.Filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, larsCode, Url);
+        model.AllowedProviders = RestrictedCourseDetailsFilterBuilder
+            .ApplyFilters(model.AllowedProviders, request)
+            .ToList();
 
         foreach (var provider in model.AllowedProviders)
         {
