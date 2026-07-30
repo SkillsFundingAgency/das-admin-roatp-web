@@ -26,4 +26,5 @@ public static class RouteNames
     public const string ProviderDetailsSummary = nameof(ProviderDetailsSummary);
     public const string AddProviderConfirmation = nameof(AddProviderConfirmation);
     public const string RestrictedCourses = nameof(RestrictedCourses);
+    public const string RestrictedCourseDetails = nameof(RestrictedCourseDetails);
 }

@@ -6,7 +6,7 @@ using DescriptionAttribute = System.ComponentModel.DescriptionAttribute;
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Extensions;
 
 [TestFixture]
-public class EnumExtensionsTests
+public class EnumExtensionsLearningTypeTests
 {
     [TestCase(LearningType.Apprenticeship, "Apprenticeship")]
     [TestCase(LearningType.ApprenticeshipUnit, "Apprenticeship unit")]

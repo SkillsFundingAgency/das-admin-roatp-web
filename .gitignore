@@ -355,3 +355,4 @@ appsettings.*
 
 
 *.orig
+/.github/copilot-instructions.md
