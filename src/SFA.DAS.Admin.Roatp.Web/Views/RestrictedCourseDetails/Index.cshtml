@@ -8,24 +8,24 @@
         <span class="govuk-caption-xl govuk-!-margin-bottom-2">View and manage restricted courses</span>
         <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">@Model.DisplayTitle</h1>
 
-        <dl class="govuk-summary-list">
-            <div class="govuk-summary-list__row">
+        <div class="govuk-summary-list">
+            <dl class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">Type</dt>
                 <dd class="govuk-summary-list__value">@Model.LearningTypeDescription</dd>
-            </div>
-            <div class="govuk-summary-list__row">
+            </dl>
+            <dl class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">Sector</dt>
                 <dd class="govuk-summary-list__value">@Model.Sector</dd>
-            </div>
-            <div class="govuk-summary-list__row">
+            </dl>
+            <dl class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">LARS code</dt>
                 <dd class="govuk-summary-list__value">@Model.LarsCode</dd>
-            </div>
-            <div class="govuk-summary-list__row">
+            </dl>
+            <dl class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">Status</dt>
                 <dd class="govuk-summary-list__value">@Model.StatusText</dd>
-            </div>
-        </dl>
+            </dl>
+        </div>
     </div>
 </div>
 
