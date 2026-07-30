@@ -3,7 +3,7 @@ using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 
-namespace SFA.DAS.Admin.Roatp.Web.Models.RestrictedCourses;
+namespace SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 
 public class RestrictedCourseDetailsViewModel : ICourseDisplayModel, IBackLink, ILarsCode
 {

@@ -4,14 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
-using SFA.DAS.Admin.Roatp.Web.Controllers;
+using SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
-using SFA.DAS.Admin.Roatp.Web.Models.RestrictedCourses;
+using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.RestrictedCourseDetails;
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses;
 
 [TestFixture]
 public class RestrictedCourseDetailsControllerGetTests
@@ -56,7 +56,8 @@ public class RestrictedCourseDetailsControllerGetTests
         var result = await sut.Index(larsCode, CancellationToken.None) as ViewResult;
 
         result.Should().NotBeNull();
-        var model = result!.Model as RestrictedCourseDetailsViewModel;
+        result!.ViewName.Should().Be(RestrictedCourseDetailsController.ViewPath);
+        var model = result.Model as RestrictedCourseDetailsViewModel;
         model.Should().NotBeNull();
         model!.DisplayTitle.Should().Be("Academic professional (Level 7)");
         model.Sector.Should().Be("Education and early years");

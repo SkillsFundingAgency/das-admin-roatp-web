@@ -1,10 +1,10 @@
 ﻿using FluentAssertions;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
-using SFA.DAS.Admin.Roatp.Web.Models.RestrictedCourses;
+using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models.RestrictedCourses;
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models.ManageCourses;
 
 [TestFixture]
 public class AllowedProviderViewModelTests
