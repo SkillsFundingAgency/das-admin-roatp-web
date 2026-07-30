@@ -24,13 +24,13 @@ public class RestrictedCourseDetailsFilterBuilderTests
 
         var byName = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
             providers,
-            new GetRestrictedCourseDetailsRequest { ProviderName = "acorn" });
+            new GetRestrictedCourseDetailsRequest { SearchTerm = "acorn" });
 
         byName.Should().ContainSingle(p => p.ProviderName == "ACORN SKILLS TRAINING");
 
         var byUkprn = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
             providers,
-            new GetRestrictedCourseDetailsRequest { ProviderName = "10019900" });
+            new GetRestrictedCourseDetailsRequest { SearchTerm = "10019900" });
 
         byUkprn.Should().ContainSingle(p => p.Ukprn == 10019900);
     }
@@ -60,7 +60,7 @@ public class RestrictedCourseDetailsFilterBuilderTests
         var urlHelper = CreateUrlHelper();
         var request = new GetRestrictedCourseDetailsRequest
         {
-            ProviderName = "Beacon",
+            SearchTerm = "Beacon",
             DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
         };
 
@@ -71,14 +71,14 @@ public class RestrictedCourseDetailsFilterBuilderTests
         filters.FilterSections.Should().HaveCount(2);
         filters.ClearFilterSections.Should().HaveCount(2);
         filters.ClearFilterSections.Should().Contain(section =>
-            section.Title == ProviderNameSectionHeading
+            section.Title == SearchTermSectionHeading
             && section.Items.Single().DisplayText == "Beacon");
         filters.ClearFilterSections.Should().Contain(section =>
             section.Title == DeliveryStatusSectionHeading
             && section.Items.Single().DisplayText == "Last start date added");
 
         var clearProviderLink = filters.ClearFilterSections
-            .Single(section => section.Title == ProviderNameSectionHeading)
+            .Single(section => section.Title == SearchTermSectionHeading)
             .Items.Single().ClearLink;
 
         clearProviderLink.Should().Be("/restricted-courses/105?DeliveryStatus=LastStartDateAdded");
@@ -90,7 +90,7 @@ public class RestrictedCourseDetailsFilterBuilderTests
         var urlHelper = CreateUrlHelper();
         var request = new GetRestrictedCourseDetailsRequest
         {
-            ProviderName = "Beacon"
+            SearchTerm = "Beacon"
         };
 
         var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, "105", urlHelper.Object);
@@ -113,7 +113,7 @@ public class RestrictedCourseDetailsFilterBuilderTests
             providers,
             new GetRestrictedCourseDetailsRequest
             {
-                ProviderName = "Beacon",
+                SearchTerm = "Beacon",
                 DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
             });
 

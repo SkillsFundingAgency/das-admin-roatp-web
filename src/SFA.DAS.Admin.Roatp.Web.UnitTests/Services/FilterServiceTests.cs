@@ -14,17 +14,17 @@ public class FilterServiceTests
     public void CreateInputFilterSection_ThenReturnsTextBoxSectionWithValues()
     {
         var section = CreateInputFilterSection(
-            "provider-name-input",
-            ProviderNameSectionHeading,
-            ProviderNameSectionSubHeading,
-            nameof(FilterType.ProviderName),
+            "search-term-input",
+            SearchTermSectionHeading,
+            SearchTermSectionSubHeading,
+            nameof(FilterType.SearchTerm),
             "Beacon");
 
         section.Should().BeOfType<TextBoxFilterSectionViewModel>();
-        section.Id.Should().Be("provider-name-input");
-        section.For.Should().Be(nameof(FilterType.ProviderName));
-        section.Heading.Should().Be(ProviderNameSectionHeading);
-        section.SubHeading.Should().Be(ProviderNameSectionSubHeading);
+        section.Id.Should().Be("search-term-input");
+        section.For.Should().Be(nameof(FilterType.SearchTerm));
+        section.Heading.Should().Be(SearchTermSectionHeading);
+        section.SubHeading.Should().Be(SearchTermSectionSubHeading);
         section.FilterComponentType.Should().Be(FilterComponentType.TextBox);
         ((TextBoxFilterSectionViewModel)section).InputValue.Should().Be("Beacon");
     }
@@ -92,7 +92,7 @@ public class FilterServiceTests
     {
         var selectedFilters = new Dictionary<FilterType, IEnumerable<string>>
         {
-            [FilterType.ProviderName] = []
+            [FilterType.SearchTerm] = []
         };
 
         var result = CreateClearFilterSections(selectedFilters, ClearFiltersBaseUrl);
@@ -105,14 +105,14 @@ public class FilterServiceTests
     {
         var selectedFilters = new Dictionary<FilterType, IEnumerable<string>>
         {
-            [FilterType.ProviderName] = ["Beacon"]
+            [FilterType.SearchTerm] = ["Beacon"]
         };
 
         var result = CreateClearFilterSections(selectedFilters, ClearFiltersBaseUrl);
 
         result.Should().ContainSingle();
-        result[0].Title.Should().Be(ProviderNameSectionHeading);
-        result[0].FilterType.Should().Be(FilterType.ProviderName);
+        result[0].Title.Should().Be(SearchTermSectionHeading);
+        result[0].FilterType.Should().Be(FilterType.SearchTerm);
         result[0].Items.Single().DisplayText.Should().Be("Beacon");
         result[0].Items.Single().ClearLink.Should().Be(ClearFiltersBaseUrl);
     }
@@ -122,7 +122,7 @@ public class FilterServiceTests
     {
         var selectedFilters = new Dictionary<FilterType, IEnumerable<string>>
         {
-            [FilterType.ProviderName] = ["Beacon"],
+            [FilterType.SearchTerm] = ["Beacon"],
             [FilterType.DeliveryStatus] = ["Open to new starts", "Closed to new starts"]
         };
 
@@ -141,7 +141,7 @@ public class FilterServiceTests
         result.Should().HaveCount(2);
 
         var clearProviderLink = result
-            .Single(section => section.FilterType == FilterType.ProviderName)
+            .Single(section => section.FilterType == FilterType.SearchTerm)
             .Items.Single().ClearLink;
 
         clearProviderLink.Should().Be(
@@ -152,7 +152,7 @@ public class FilterServiceTests
             .Items.Single(item => item.DisplayText == "Open to new starts")
             .ClearLink;
 
-        clearOpenLink.Should().Be($"{ClearFiltersBaseUrl}?ProviderName=Beacon&DeliveryStatus=ClosedToNewStarts");
+        clearOpenLink.Should().Be($"{ClearFiltersBaseUrl}?SearchTerm=Beacon&DeliveryStatus=ClosedToNewStarts");
     }
 
     [Test]
@@ -160,7 +160,7 @@ public class FilterServiceTests
     {
         var selectedFilters = new Dictionary<FilterType, IEnumerable<string>>
         {
-            [FilterType.ProviderName] = ["Beacon & Co"],
+            [FilterType.SearchTerm] = ["Beacon & Co"],
             [FilterType.DeliveryStatus] = ["OpenToNewStarts"]
         };
 
@@ -168,7 +168,7 @@ public class FilterServiceTests
             .Single(section => section.FilterType == FilterType.DeliveryStatus)
             .Items.Single().ClearLink;
 
-        clearDeliveryLink.Should().Be($"{ClearFiltersBaseUrl}?ProviderName=Beacon%20%26%20Co");
+        clearDeliveryLink.Should().Be($"{ClearFiltersBaseUrl}?SearchTerm=Beacon%20%26%20Co");
     }
 
     [Test]
@@ -176,11 +176,11 @@ public class FilterServiceTests
     {
         var filters = new Dictionary<FilterType, IEnumerable<string>>();
 
-        AddSelectedFilter(filters, FilterType.ProviderName, "  ");
+        AddSelectedFilter(filters, FilterType.SearchTerm, "  ");
         filters.Should().BeEmpty();
 
-        AddSelectedFilter(filters, FilterType.ProviderName, "Beacon");
-        filters[FilterType.ProviderName].Should().BeEquivalentTo(["Beacon"]);
+        AddSelectedFilter(filters, FilterType.SearchTerm, "Beacon");
+        filters[FilterType.SearchTerm].Should().BeEquivalentTo(["Beacon"]);
     }
 
     [Test]

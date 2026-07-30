@@ -8,8 +8,8 @@ public static class FilterService
 {
     public const string ClearFilter = "clearFilter";
 
-    public const string ProviderNameSectionHeading = "Provider name";
-    public const string ProviderNameSectionSubHeading = "Search by name or UKPRN";
+    public const string SearchTermSectionHeading = "Provider name";
+    public const string SearchTermSectionSubHeading = "Search by name or UKPRN";
     public const string DeliveryStatusSectionHeading = "Delivery status";
 
     public enum FilterComponentType
@@ -20,13 +20,13 @@ public static class FilterService
 
     public enum FilterType
     {
-        ProviderName,
+        SearchTerm,
         DeliveryStatus
     }
 
     public static Dictionary<FilterType, string> ClearFilterSectionHeadings { get; } = new()
     {
-        { FilterType.ProviderName, ProviderNameSectionHeading },
+        { FilterType.SearchTerm, SearchTermSectionHeading },
         { FilterType.DeliveryStatus, DeliveryStatusSectionHeading }
     };
 

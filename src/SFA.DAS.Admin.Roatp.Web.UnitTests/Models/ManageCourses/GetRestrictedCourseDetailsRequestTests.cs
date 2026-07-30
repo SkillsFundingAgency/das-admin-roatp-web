@@ -10,14 +10,14 @@ public class GetRestrictedCourseDetailsRequestTests
     [Test]
     public void HasProviderNameFilter_WhenProviderNameIsBlank_ThenIsFalse()
     {
-        new GetRestrictedCourseDetailsRequest { ProviderName = null }.HasProviderNameFilter.Should().BeFalse();
-        new GetRestrictedCourseDetailsRequest { ProviderName = "   " }.HasProviderNameFilter.Should().BeFalse();
+        new GetRestrictedCourseDetailsRequest { SearchTerm = null }.HasSearchTermFilter.Should().BeFalse();
+        new GetRestrictedCourseDetailsRequest { SearchTerm = "   " }.HasSearchTermFilter.Should().BeFalse();
     }
 
     [Test]
     public void HasProviderNameFilter_WhenProviderNameHasValue_ThenIsTrue()
     {
-        new GetRestrictedCourseDetailsRequest { ProviderName = "Beacon" }.HasProviderNameFilter.Should().BeTrue();
+        new GetRestrictedCourseDetailsRequest { SearchTerm = "Beacon" }.HasSearchTermFilter.Should().BeTrue();
     }
 
     [Test]
@@ -38,7 +38,7 @@ public class GetRestrictedCourseDetailsRequestTests
     [Test]
     public void HasFilters_WhenEitherFilterPresent_ThenIsTrue()
     {
-        new GetRestrictedCourseDetailsRequest { ProviderName = "Beacon" }.HasFilters.Should().BeTrue();
+        new GetRestrictedCourseDetailsRequest { SearchTerm = "Beacon" }.HasFilters.Should().BeTrue();
         new GetRestrictedCourseDetailsRequest
         {
             DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]

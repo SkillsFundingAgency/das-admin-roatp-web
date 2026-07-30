@@ -38,7 +38,7 @@ public class RestrictedCourseDetailsControllerFilterTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
 
-        var request = new GetRestrictedCourseDetailsRequest { ProviderName = "Beacon" };
+        var request = new GetRestrictedCourseDetailsRequest { SearchTerm = "Beacon" };
 
         var result = await sut.Index(larsCode, request, CancellationToken.None) as ViewResult;
 
@@ -107,7 +107,7 @@ public class RestrictedCourseDetailsControllerFilterTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
 
-        var request = new GetRestrictedCourseDetailsRequest { ProviderName = "Beacon" };
+        var request = new GetRestrictedCourseDetailsRequest { SearchTerm = "Beacon" };
 
         var result = await sut.Index(larsCode, request, CancellationToken.None) as ViewResult;
 

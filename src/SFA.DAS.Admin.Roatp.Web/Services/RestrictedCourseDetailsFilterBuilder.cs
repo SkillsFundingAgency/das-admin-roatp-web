@@ -11,13 +11,19 @@ namespace SFA.DAS.Admin.Roatp.Web.Services;
 
 public static class RestrictedCourseDetailsFilterBuilder
 {
+    private const string SearchTermInputId = "search-term-input";
+    private const string DeliveryStatusFilterId = "delivery-status-filter";
+    private const string OpenToNewStartsDescription = "Training providers offer this course on Find apprenticeship training.";
+    private const string LastStartDateAddedDescription = "Training providers cannot accept new learners after this date.";
+    private const string ClosedToNewStartsDescription = "Training providers are no longer allowed to offer this course.";
+
     public static FiltersViewModel CreateFiltersViewModel(
         GetRestrictedCourseDetailsRequest request,
         string larsCode,
         IUrlHelper urlHelper)
     {
         var selectedFilters = new Dictionary<FilterType, IEnumerable<string>>();
-        AddSelectedFilter(selectedFilters, FilterType.ProviderName, request.ProviderName?.Trim());
+        AddSelectedFilter(selectedFilters, FilterType.SearchTerm, request.SearchTerm.Trim());
         AddSelectedFilter(
             selectedFilters,
             FilterType.DeliveryStatus,
@@ -40,13 +46,13 @@ public static class RestrictedCourseDetailsFilterBuilder
             FilterSections =
             [
                 CreateInputFilterSection(
-                    "provider-name-input",
-                    ProviderNameSectionHeading,
-                    ProviderNameSectionSubHeading,
-                    nameof(FilterType.ProviderName),
-                    request.ProviderName),
+                    SearchTermInputId,
+                    SearchTermSectionHeading,
+                    SearchTermSectionSubHeading,
+                    nameof(FilterType.SearchTerm),
+                    request.SearchTerm),
                 CreateCheckboxListFilterSection(
-                    "delivery-status-filter",
+                    DeliveryStatusFilterId,
                     nameof(FilterType.DeliveryStatus),
                     DeliveryStatusSectionHeading,
                     null,
@@ -65,9 +71,9 @@ public static class RestrictedCourseDetailsFilterBuilder
     {
         var filtered = providers;
 
-        if (request.HasProviderNameFilter)
+        if (request.HasSearchTermFilter)
         {
-            var searchTerm = request.ProviderName!.Trim();
+            var searchTerm = request.SearchTerm.Trim();
             filtered = filtered.Where(provider =>
                 provider.ProviderName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
                 || provider.Ukprn.ToString().Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
@@ -88,15 +94,15 @@ public static class RestrictedCourseDetailsFilterBuilder
             CreateDeliveryStatusItem(
                 DeliveryStatus.OpenToNewStarts,
                 request,
-                "Training providers offer this course on Find apprenticeship training."),
+                OpenToNewStartsDescription),
             CreateDeliveryStatusItem(
                 DeliveryStatus.LastStartDateAdded,
                 request,
-                "Training providers cannot accept new learners after this date."),
+                LastStartDateAddedDescription),
             CreateDeliveryStatusItem(
                 DeliveryStatus.ClosedToNewStarts,
                 request,
-                "Training providers are no longer allowed to offer this course.")
+                ClosedToNewStartsDescription)
         ];
 
     private static FilterItemViewModel CreateDeliveryStatusItem(

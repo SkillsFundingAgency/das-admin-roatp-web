@@ -26,7 +26,7 @@ public class FiltersViewModelTests
             [
                 new ClearFilterSectionViewModel
                 {
-                    FilterType = FilterService.FilterType.ProviderName,
+                    FilterType = FilterService.FilterType.SearchTerm,
                     Title = "Provider name",
                     Items = [new ClearFilterItemViewModel { DisplayText = "Beacon", ClearLink = "/" }]
                 }
