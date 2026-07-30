@@ -1,7 +1,7 @@
 using Humanizer;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 
-namespace SFA.DAS.Admin.Roatp.Web.Models.RestrictedCourses;
+namespace SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 
 public class RestrictedCoursesViewModel : IBackLink
 {

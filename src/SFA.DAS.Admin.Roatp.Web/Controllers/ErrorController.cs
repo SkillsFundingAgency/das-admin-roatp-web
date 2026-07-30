@@ -9,14 +9,19 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 [Route("[Controller]")]
 public class ErrorController(IOptions<ApplicationConfiguration> _applicationConfiguration, ILogger<ErrorController> _logger) : Controller
 {
+    public const string PageNotFoundViewName = "PageNotFound";
+    public const string ServiceErrorViewName = "ServiceError";
+    public const string AccessDeniedViewName = "AccessDenied";
+
     [Route("{status}")]
     [HttpGet]
     public IActionResult Index([FromRoute] int status, [FromQuery] string returnUrl)
     {
         return status switch
         {
-            403 => Handle403(),
-            _ => View("~/Views/Error/ServiceError.cshtml")
+            StatusCodes.Status403Forbidden => Handle403(),
+            StatusCodes.Status404NotFound => View(PageNotFoundViewName),
+            _ => View(ServiceErrorViewName)
         };
     }
 
@@ -30,6 +35,6 @@ public class ErrorController(IOptions<ApplicationConfiguration> _applicationConf
             _logger.LogError("AccessDenied - User '{UserName}' does not have a valid role. They have the following roles: '{Roles}'", userName, string.Join(",", roles));
         }
         var model = new AccessDeniedViewModel(_applicationConfiguration.Value.DfESignInServiceHelpUrl);
-        return View("~/Views/Error/AccessDenied.cshtml", model);
+        return View(AccessDeniedViewName, model);
     }
 }

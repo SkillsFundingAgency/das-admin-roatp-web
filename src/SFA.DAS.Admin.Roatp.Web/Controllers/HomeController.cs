@@ -11,6 +11,8 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 [Route("", Name = RouteNames.Home)]
 public class HomeController(IOptions<ApplicationConfiguration> _configuration, ISessionService _sessionService) : Controller
 {
+    private const string ReturnToDashboard = "Return to dashboard";
+
     [Authorize(Roles = Roles.RoatpAdminTeam)]
     public IActionResult Index()
     {
@@ -20,13 +22,16 @@ public class HomeController(IOptions<ApplicationConfiguration> _configuration, I
         string addProviderUrl = Url.RouteUrl(RouteNames.AddProvider)!;
         string restrictedCoursesUrl = Url.RouteUrl(RouteNames.RestrictedCourses)!;
         string allowedListUrl = new UriBuilder(_configuration.Value.AdminServicesBaseUrl) { Path = ExternalPaths.AdminServiceAllowedList }.Uri.ToString();
+        string dashboardUrl = Url.RouteUrl(RouteNames.Dashboard)!;
 
         return View(new ManageTrainingProviderViewModel
         {
             SearchForTrainingProviderUrl = searchUrl,
             AddANewTrainingProviderUrl = addProviderUrl,
             AddUkprnToAllowListUrl = allowedListUrl,
-            ViewRestrictedCoursesUrl = restrictedCoursesUrl
+            ViewRestrictedCoursesUrl = restrictedCoursesUrl,
+            BackLinkUrl = dashboardUrl,
+            BackLinkText = ReturnToDashboard
         });
     }
 

@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
-using SFA.DAS.Admin.Roatp.Web.Controllers;
+using SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
-using SFA.DAS.Admin.Roatp.Web.Models.RestrictedCourses;
+using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.RestrictedCourses;
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses;
 
 [TestFixture]
 public class RestrictedCoursesControllerGetTests
@@ -43,7 +43,8 @@ public class RestrictedCoursesControllerGetTests
         var result = await sut.Index(CancellationToken.None) as ViewResult;
 
         result.Should().NotBeNull();
-        var model = result!.Model as RestrictedCoursesViewModel;
+        result!.ViewName.Should().Be(RestrictedCoursesController.ViewPath);
+        var model = result.Model as RestrictedCoursesViewModel;
         model.Should().NotBeNull();
         model!.TotalCount.Should().Be(response.Courses.Count);
         model.TotalCountDescription.Should().Be("1 course");
