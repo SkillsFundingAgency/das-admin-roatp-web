@@ -2,6 +2,7 @@ using Humanizer;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
+using SFA.DAS.Admin.Roatp.Web.Models.Filters;
 
 namespace SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 
@@ -20,12 +21,14 @@ public class RestrictedCourseDetailsViewModel : ICourseDisplayModel, IBackLink, 
     public string LearningTypeDescription => LearningType.GetDescription();
     public string StatusText => IsCourseRestricted ? "Restricted" : "Unrestricted";
     public bool HasProviders => AllowedProviders.Any();
-    public bool HasNoProviders => !HasProviders;
+    public bool HasNoProviders => !HasActiveFilters && !HasProviders;
+    public bool HasNoFilterResults => HasActiveFilters && !HasProviders;
     public int ProviderCount => AllowedProviders.Count();
     public string ProviderCountDescription => "provider".ToQuantity(ProviderCount);
 
     public string RestrictedCourseDetailsPageUrl { get; set; } = "#";
-
+    public bool HasActiveFilters { get; set; }
+    public FiltersViewModel Filters { get; set; } = new() { Route = string.Empty };
 
     public static implicit operator RestrictedCourseDetailsViewModel(
         GetRestrictedCourseDetailsResponse response) => new()

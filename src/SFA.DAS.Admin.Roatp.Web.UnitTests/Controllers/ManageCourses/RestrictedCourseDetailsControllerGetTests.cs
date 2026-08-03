@@ -53,7 +53,7 @@ public class RestrictedCourseDetailsControllerGetTests
             .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
 
-        var result = await sut.Index(larsCode, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(larsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
         result.Should().NotBeNull();
         result!.ViewName.Should().Be(RestrictedCourseDetailsController.ViewPath);
@@ -67,6 +67,9 @@ public class RestrictedCourseDetailsControllerGetTests
         model.HasProviders.Should().BeTrue();
         model.ProviderCount.Should().Be(2);
         model.ProviderCountDescription.Should().Be("2 providers");
+        model.HasActiveFilters.Should().BeFalse();
+        model.Filters.ShowFilterOptions.Should().BeFalse();
+        model.Filters.FilterSections.Should().HaveCount(2);
         model.AllowedProviders.Select(p => p.ProviderName).Should().ContainInOrder("ACORN SKILLS TRAINING", "BABINGTON LTD");
         model.AllowedProviders.First().DeliveryStatus.Should().Be(DeliveryStatus.OpenToNewStarts);
         model.AllowedProviders.Last().DeliveryStatus.Should().Be(DeliveryStatus.LastStartDateAdded);
@@ -94,10 +97,11 @@ public class RestrictedCourseDetailsControllerGetTests
             .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
 
-        var result = await sut.Index(larsCode, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(larsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.HasNoProviders.Should().BeTrue();
+        model.HasNoFilterResults.Should().BeFalse();
         model.AllowedProviders.Should().BeEmpty();
     }
 
@@ -111,7 +115,7 @@ public class RestrictedCourseDetailsControllerGetTests
             .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetRestrictedCourseDetailsResponse?)null);
 
-        var result = await sut.Index(larsCode, CancellationToken.None);
+        var result = await sut.Index(larsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
         larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()), Times.Once);
