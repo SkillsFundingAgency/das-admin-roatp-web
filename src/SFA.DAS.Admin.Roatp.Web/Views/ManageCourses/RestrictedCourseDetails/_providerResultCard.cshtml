@@ -1,16 +1,14 @@
 @model SFA.DAS.Admin.Roatp.Web.Models.ManageCourses.RestrictedCourseDetailsViewModel
 
 <div asp-show="@Model.HasProviders">
-    <div class="app-results-header">
+    <div class="app-results-header govuk-!-margin-bottom-3">
         <p class="govuk-body govuk-!-font-weight-bold govuk-!-margin-bottom-0">@Model.ProviderCountDescription</p>
         <p class="govuk-body govuk-!-margin-bottom-0">
             Sorted by: <span class="govuk-!-font-weight-bold">Name of provider</span>
         </p>
     </div>
 
-    <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-3 govuk-!-margin-bottom-3">
-
-    <ul class="govuk-list app-results-list">
+    <ul class="govuk-list app-results-list app-results-list--bordered">
         @foreach (var provider in Model.AllowedProviders)
         {
             <li class="app-results-list__item">
@@ -25,7 +23,7 @@
                     <dt class="das-definition-list__title">UKPRN</dt>
                     <dd class="das-definition-list__definition">@provider.Ukprn</dd>
                 </dl>
-                <dl asp-show="provider.HasLastStartDate" class="das-definition-list das-definition-list--meta govuk-!-margin-bottom-1">
+                <dl asp-show="provider.HasLastStartDate" class="das-definition-list das-definition-list--meta govuk-!-margin-bottom-0">
                     <dt class="das-definition-list__title">Last start date</dt>
                     <dd class="das-definition-list__definition">@provider.LastStartDateText</dd>
                 </dl>
