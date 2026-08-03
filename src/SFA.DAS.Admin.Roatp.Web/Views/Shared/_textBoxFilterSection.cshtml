@@ -1,0 +1,17 @@
+@using SFA.DAS.Admin.Roatp.Web.Models.Filters.FilterComponents
+@model TextBoxFilterSectionViewModel
+
+<div class="govuk-form-group">
+    <label for="@Model.Id" class="govuk-label das-filter__search-label">
+        @Model.Heading
+    </label>
+    @if (!string.IsNullOrWhiteSpace(Model.SubHeading))
+    {
+        <p class="govuk-hint">@Model.SubHeading</p>
+    }
+    <input id="@Model.Id"
+           name="@Model.For"
+           value="@Model.InputValue"
+           class="govuk-input"
+           type="text">
+</div>

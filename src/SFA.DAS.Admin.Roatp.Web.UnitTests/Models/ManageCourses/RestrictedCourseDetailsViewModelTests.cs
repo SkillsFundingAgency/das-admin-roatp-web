@@ -63,6 +63,23 @@ public class RestrictedCourseDetailsViewModelTests
     }
 
     [Test]
+    public void WhenFiltersAppliedWithNoMatches_ThenShowsNoFilterResults()
+    {
+        var model = new RestrictedCourseDetailsViewModel
+        {
+            LarsCode = "124",
+            CourseName = "Course",
+            Title = "Course",
+            Sector = "Sector",
+            HasActiveFilters = true,
+            AllowedProviders = []
+        };
+
+        model.HasNoFilterResults.Should().BeTrue();
+        model.HasNoProviders.Should().BeFalse();
+    }
+
+    [Test]
     public void BackLinkText_ReturnsExpectedText()
     {
         var model = new RestrictedCourseDetailsViewModel
