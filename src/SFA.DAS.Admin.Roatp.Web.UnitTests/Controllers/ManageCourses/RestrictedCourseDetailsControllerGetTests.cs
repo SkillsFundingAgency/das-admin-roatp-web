@@ -51,7 +51,8 @@ public class RestrictedCourseDetailsControllerGetTests
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}")
+            .AddUrlForRoute(RouteNames.AddLastDateStarts, "/add-last-date-starts");
 
         var result = await sut.Index(larsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
@@ -73,7 +74,7 @@ public class RestrictedCourseDetailsControllerGetTests
         model.AllowedProviders.Select(p => p.ProviderName).Should().ContainInOrder("ACORN SKILLS TRAINING", "BABINGTON LTD");
         model.AllowedProviders.First().DeliveryStatus.Should().Be(DeliveryStatus.OpenToNewStarts);
         model.AllowedProviders.Last().DeliveryStatus.Should().Be(DeliveryStatus.LastStartDateAdded);
-        model.AllowedProviders.Should().OnlyContain(p => p.ChangeUrl == model.RestrictedCourseDetailsPageUrl);
+        model.AllowedProviders.Should().OnlyContain(p => p.ChangeUrl == "/add-last-date-starts");
 
         larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
