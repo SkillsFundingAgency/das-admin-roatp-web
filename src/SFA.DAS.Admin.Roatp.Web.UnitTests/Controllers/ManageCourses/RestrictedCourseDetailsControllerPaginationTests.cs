@@ -97,6 +97,65 @@ public class RestrictedCourseDetailsControllerPaginationTests
         model.Pagination.Pages.Should().BeEmpty();
     }
 
+    [Test, MoqAutoData]
+    public async Task WhenGettingRestrictedCourseDetails_AndPageNumberIsLessThanOne_ThenReturnsFirstPage(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Greedy] RestrictedCourseDetailsController sut,
+        string larsCode,
+        GetRestrictedCourseDetailsResponse response)
+    {
+        response.LarsCode = larsCode;
+        response.IsCourseRestricted = true;
+        response.Providers = CreateProviders(15);
+
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+
+        var request = new GetRestrictedCourseDetailsRequest { PageNumber = 0 };
+
+        var result = await sut.Index(larsCode, request, CancellationToken.None) as ViewResult;
+
+        var model = result!.Model as RestrictedCourseDetailsViewModel;
+        model!.ProviderCount.Should().Be(15);
+        model.AllowedProviders.Should().HaveCount(PaginationViewModel.DefaultPageSize);
+        model.Pagination.PageNumber.Should().Be(1);
+        model.Pagination.Pages.Should().NotContain(p => p.Title == PaginationViewModel.PreviousPageTitle);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingRestrictedCourseDetails_AndPageNumberExceedsTotalPages_ThenReturnsLastPage(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Greedy] RestrictedCourseDetailsController sut,
+        string larsCode,
+        GetRestrictedCourseDetailsResponse response)
+    {
+        response.LarsCode = larsCode;
+        response.IsCourseRestricted = true;
+        response.Providers = CreateProviders(15);
+
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+
+        var request = new GetRestrictedCourseDetailsRequest { PageNumber = 99 };
+
+        var result = await sut.Index(larsCode, request, CancellationToken.None) as ViewResult;
+
+        var model = result!.Model as RestrictedCourseDetailsViewModel;
+        model!.ProviderCount.Should().Be(15);
+        model.AllowedProviders.Should().HaveCount(5);
+        model.Pagination.PageNumber.Should().Be(2);
+        model.Pagination.Pages.Should().Contain(p => p.Title == PaginationViewModel.PreviousPageTitle);
+        model.Pagination.Pages.Should().NotContain(p => p.Title == PaginationViewModel.NextPageTitle);
+    }
+
     private static List<ProviderCourseModel> CreateProviders(int count)
         => Enumerable.Range(1, count)
             .Select(i => new ProviderCourseModel

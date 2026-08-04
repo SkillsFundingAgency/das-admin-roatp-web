@@ -47,14 +47,14 @@ public sealed class PaginationViewModel
 
         var (startPage, endPage) = GetPageRange(PageNumber, totalCount, pageSize);
 
-        AddPreviousLinkIfApplicable(totalPages, PageNumber);
+        AddPreviousLinkIfApplicable(PageNumber);
         AddPageLinks(PageNumber, startPage, endPage);
         AddNextLinkIfApplicable(totalPages, PageNumber);
     }
 
-    private void AddPreviousLinkIfApplicable(int totalPages, int currentPage)
+    private void AddPreviousLinkIfApplicable(int currentPage)
     {
-        if (currentPage > 1 && totalPages > 1)
+        if (currentPage > 1)
         {
             Pages.Add(new(PreviousPageTitle, GetPageLink(currentPage - 1)));
         }
