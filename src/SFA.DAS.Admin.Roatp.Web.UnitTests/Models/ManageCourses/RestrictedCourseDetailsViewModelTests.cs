@@ -34,6 +34,7 @@ public class RestrictedCourseDetailsViewModelTests
         model.AllowedProviders.Select(p => p.ProviderName).Should().ContainInOrder("Alpha Training", "Zebra Training");
         model.AllowedProviders.First().DeliveryStatus.Should().Be(DeliveryStatus.ClosedToNewStarts);
         model.AllowedProviders.Last().DeliveryStatus.Should().Be(DeliveryStatus.OpenToNewStarts);
+        model.ShowProviderResults.Should().BeTrue();
     }
 
     [Test, MoqAutoData]
@@ -47,6 +48,7 @@ public class RestrictedCourseDetailsViewModelTests
 
         model.HasProviders.Should().BeFalse();
         model.HasNoProviders.Should().BeTrue();
+        model.ShowProviderResults.Should().BeFalse();
         model.ProviderCountDescription.Should().Be("0 providers");
     }
 
@@ -77,6 +79,7 @@ public class RestrictedCourseDetailsViewModelTests
 
         model.HasNoFilterResults.Should().BeTrue();
         model.HasNoProviders.Should().BeFalse();
+        model.ShowProviderResults.Should().BeTrue();
     }
 
     [Test]

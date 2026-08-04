@@ -4,10 +4,14 @@
 }
 
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-column-full">
         <span class="govuk-caption-xl govuk-!-margin-bottom-2">View and manage restricted courses</span>
         <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">@Model.DisplayTitle</h1>
+    </div>
+</div>
 
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
         <div class="govuk-summary-list">
             <dl class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">Type</dt>
@@ -41,19 +45,23 @@
 
 <h2 class="govuk-heading-m">Training providers allowed to offer this course on Find apprenticeship training</h2>
 
-<p class="govuk-body">We use the last date for new starts to open or close courses to different training providers.</p>
-<p class="govuk-body">You can stop a training provider from offering this course by adding a last date for new starts.</p>
-<p class="govuk-body">You can also change, extend or remove the last start date if you want a training provider to continue delivering it.</p>
+<p asp-show="Model.HasNoProviders" class="govuk-body">No providers offer this course yet.</p>
 
-<div class="govuk-grid-row govuk-!-margin-top-6">
-    <div class="govuk-grid-column-one-third">
-        @await Html.PartialAsync("_filters", Model.Filters)
-    </div>
+<div asp-show="Model.ShowProviderResults">
+    <p class="govuk-body">We use the last date for new starts to open or close courses to different training providers.</p>
+    <p class="govuk-body">You can stop a training provider from offering this course by adding a last date for new starts.</p>
+    <p class="govuk-body">You can also change, extend or remove the last start date if you want a training provider to continue delivering it.</p>
 
-    <div class="govuk-grid-column-two-thirds">
-        @await Html.PartialAsync("~/Views/ManageCourses/RestrictedCourseDetails/_providerResultCard.cshtml", Model)
-        <div class="govuk-!-margin-top-4">
-            @await Html.PartialAsync("_pagination", Model.Pagination)
+    <div class="govuk-grid-row govuk-!-margin-top-6">
+        <div class="govuk-grid-column-one-third">
+            @await Html.PartialAsync("_filters", Model.Filters)
+        </div>
+
+        <div class="govuk-grid-column-two-thirds">
+            @await Html.PartialAsync("~/Views/ManageCourses/RestrictedCourseDetails/_providerResultCard.cshtml", Model)
+            <div class="govuk-!-margin-top-4">
+                @await Html.PartialAsync("_pagination", Model.Pagination)
+            </div>
         </div>
     </div>
 </div>

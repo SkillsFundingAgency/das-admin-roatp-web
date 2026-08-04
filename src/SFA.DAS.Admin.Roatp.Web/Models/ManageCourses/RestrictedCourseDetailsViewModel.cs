@@ -25,6 +25,7 @@ public class RestrictedCourseDetailsViewModel : ICourseDisplayModel, IBackLink, 
     public bool HasProviders => TotalProviderCount > 0;
     public bool HasNoProviders => !HasActiveFilters && !HasProviders;
     public bool HasNoFilterResults => HasActiveFilters && !HasProviders;
+    public bool ShowProviderResults => !HasNoProviders;
     public int ProviderCount => TotalProviderCount;
     public string ProviderCountDescription => "provider".ToQuantity(ProviderCount);
 

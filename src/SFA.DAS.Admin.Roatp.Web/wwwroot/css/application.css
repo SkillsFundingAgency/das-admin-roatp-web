@@ -74,13 +74,14 @@
 
 .app-results-list__content {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: flex-start;
     gap: 15px;
 }
 
-.app-results-list__content .govuk-heading-m {
+.app-results-list__content .govuk-heading-m,
+.app-results-list__content .govuk-heading-s {
     margin-top: 0;
     flex: 1 1 auto;
     min-width: 0;
@@ -88,6 +89,7 @@
 
 .app-results-list__actions {
     flex: 0 0 auto;
+    white-space: nowrap;
     text-align: right;
 }
 
