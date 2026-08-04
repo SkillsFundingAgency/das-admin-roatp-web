@@ -109,7 +109,7 @@ public sealed class PaginationViewModel
             {
                 endPage = Math.Min(totalPages, startPage + 5);
             }
-            else if (endPage == totalPages)
+            else
             {
                 startPage = Math.Max(1, endPage - 5);
             }
