@@ -115,18 +115,6 @@ public sealed class PaginationViewModel
             }
         }
 
-        if (totalPages > 6 && endPage - startPage < 5)
-        {
-            if (startPage == 1)
-            {
-                endPage = startPage + 5;
-            }
-            else if (endPage == totalPages)
-            {
-                startPage = endPage - 5;
-            }
-        }
-
         return (startPage, endPage);
     }
 }

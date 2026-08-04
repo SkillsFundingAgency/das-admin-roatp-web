@@ -4,11 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
+using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Models.Shared;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models.Shared;
 
-public sealed class WhenCreatingPaginationViewModel
+public sealed class PaginationViewModelTests
 {
     private const int PageSize = PaginationViewModel.DefaultPageSize;
 
@@ -30,7 +31,7 @@ public sealed class WhenCreatingPaginationViewModel
     }
 
     [Test]
-    public void Then_Page_Number_Should_Be_Set()
+    public void WhenCreatingPaginationViewModel_AndPageNumberIsProvided_ThenPageNumberIsSet()
     {
         var sut = new PaginationViewModel(
             1,
@@ -46,7 +47,7 @@ public sealed class WhenCreatingPaginationViewModel
     [TestCase(1, 0)]
     [TestCase(1, 10)]
     [TestCase(3, 10)]
-    public void Then_Returns_Empty_Model(int currentPage, int totalCount)
+    public void WhenCreatingPaginationViewModel_AndTotalCountDoesNotExceedPageSize_ThenReturnsEmptyModel(int currentPage, int totalCount)
     {
         var sut = new PaginationViewModel(
             currentPage,
@@ -64,7 +65,7 @@ public sealed class WhenCreatingPaginationViewModel
     [TestCase(1, 70, 0)]
     [TestCase(2, 20, 1)]
     [TestCase(7, 70, 6)]
-    public void Then_Model_Adds_Previous_Link(int currentPage, int totalCount, int expectedPageNumberInPreviousLink)
+    public void WhenCreatingPaginationViewModel_AndNotOnFirstPage_ThenModelAddsPreviousLink(int currentPage, int totalCount, int expectedPageNumberInPreviousLink)
     {
         var sut = new PaginationViewModel(
             currentPage,
@@ -89,7 +90,7 @@ public sealed class WhenCreatingPaginationViewModel
     [TestCase(1, 10, 0)]
     [TestCase(2, 20, 0)]
     [TestCase(1, 20, 2)]
-    public void Then_Model_Adds_Next_Link(int currentPage, int totalCount, int expectedPageNumberInTheNextLink)
+    public void WhenCreatingPaginationViewModel_AndNotOnLastPage_ThenModelAddsNextLink(int currentPage, int totalCount, int expectedPageNumberInTheNextLink)
     {
         var sut = new PaginationViewModel(
             currentPage,
@@ -112,7 +113,7 @@ public sealed class WhenCreatingPaginationViewModel
     }
 
     [Test]
-    public void Then_Model_Sets_Correct_Page_Links()
+    public void WhenCreatingPaginationViewModel_AndMultiplePagesExist_ThenModelSetsCorrectPageLinks()
     {
         var sut = new PaginationViewModel(
             2,
@@ -139,7 +140,7 @@ public sealed class WhenCreatingPaginationViewModel
     }
 
     [Test]
-    public void When_Params_Do_Not_Contain_PageNumber_Then_PageNumber_Is_Added_And_Correct_Page_Links_Are_Set()
+    public void WhenCreatingPaginationViewModel_AndParamsDoNotContainPageNumber_ThenPageNumberIsAddedAndCorrectPageLinksAreSet()
     {
         var sut = new PaginationViewModel(
             1,
@@ -157,12 +158,35 @@ public sealed class WhenCreatingPaginationViewModel
         }
     }
 
+    [Test]
+    public void WhenCreatingPaginationViewModel_AndParamsContainPageNumber_ThenPageNumberIsUpdatedInLinks()
+    {
+        var queryParams = new List<(string, string)>
+        {
+            (nameof(GetRestrictedCourseDetailsRequest.SearchTerm), "Beacon"),
+            ("PageNumber", "1")
+        };
+
+        var sut = new PaginationViewModel(
+            1,
+            20,
+            PageSize,
+            _urlHelperMock.Object,
+            RouteNames.RestrictedCourseDetails,
+            queryParams);
+
+        sut.Pages.Should().Contain(p =>
+            p.Title == "2"
+            && p.Url!.Contains("PageNumber=2")
+            && p.Url.Contains("SearchTerm=Beacon"));
+    }
+
     [TestCase(1, 10, 0, 0)]
     [TestCase(2, 11, 2, 1)]
     [TestCase(3, 70, 6, 1)]
     [TestCase(4, 70, 6, 2)]
     [TestCase(9, 90, 6, 4)]
-    public void Then_Model_Creates_Correct_Number_Of_Page_Links(
+    public void WhenCreatingPaginationViewModel_AndGivenCurrentPageAndTotalCount_ThenModelCreatesCorrectNumberOfPageLinks(
         int currentPage,
         int totalCount,
         int expectedPageLinksCount,
@@ -203,7 +227,7 @@ public sealed class WhenCreatingPaginationViewModel
     [TestCase(7, 70, 10, 2, 7)]
     [TestCase(7, 80, 10, 3, 8)]
     [TestCase(20, 100, 10, 5, 10)]
-    public void Then_Get_Page_Range_Adjusts_Correctly(
+    public void WhenGettingPageRange_AndGivenCurrentPageAndTotalRecords_ThenPageRangeAdjustsCorrectly(
         int currentPage,
         int totalRecords,
         int pageSize,
@@ -220,7 +244,7 @@ public sealed class WhenCreatingPaginationViewModel
     }
 
     [Test]
-    public void When_Url_Is_Set_Then_Page_Link_Has_Link_Is_True()
+    public void WhenCreatingPageLink_AndUrlIsSet_ThenHasLinkIsTrue()
     {
         var pageLink = new PageLink("Title", "//dummyurl");
 
@@ -228,9 +252,25 @@ public sealed class WhenCreatingPaginationViewModel
     }
 
     [Test]
-    public void When_Url_Is_Not_Set_Then_Page_Link_Has_Link_Is_False()
+    public void WhenCreatingPageLink_AndUrlIsNotSet_ThenHasLinkIsFalse()
     {
         var pageLink = new PageLink("Title", string.Empty);
+
+        pageLink.HasLink.Should().BeFalse();
+    }
+
+    [Test]
+    public void WhenCreatingPageLink_AndUrlIsNull_ThenHasLinkIsFalse()
+    {
+        var pageLink = new PageLink("Title", null);
+
+        pageLink.HasLink.Should().BeFalse();
+    }
+
+    [Test]
+    public void WhenCreatingPageLink_AndUrlIsWhitespace_ThenHasLinkIsFalse()
+    {
+        var pageLink = new PageLink("Title", "   ");
 
         pageLink.HasLink.Should().BeFalse();
     }
