@@ -92,4 +92,37 @@ public class GetRestrictedCourseDetailsRequestTests
 
         result.Should().BeFalse();
     }
+
+    [Test]
+    public void PageNumber_WhenNotSet_ThenDefaultsToOne()
+    {
+        var request = new GetRestrictedCourseDetailsRequest();
+
+        request.PageNumber.Should().Be(1);
+    }
+
+    [Test]
+    public void ToQueryString_WhenFiltersPresent_ThenIncludesSearchTermAndDeliveryStatus()
+    {
+        var request = new GetRestrictedCourseDetailsRequest
+        {
+            SearchTerm = " Beacon ",
+            DeliveryStatus = [DeliveryStatus.OpenToNewStarts, DeliveryStatus.ClosedToNewStarts]
+        };
+
+        var result = request.ToQueryString();
+
+        result.Should().Contain((nameof(GetRestrictedCourseDetailsRequest.SearchTerm), "Beacon"));
+        result.Should().Contain((nameof(GetRestrictedCourseDetailsRequest.DeliveryStatus), nameof(DeliveryStatus.OpenToNewStarts)));
+        result.Should().Contain((nameof(GetRestrictedCourseDetailsRequest.DeliveryStatus), nameof(DeliveryStatus.ClosedToNewStarts)));
+        result.Should().NotContain(q => q.Item1 == nameof(GetRestrictedCourseDetailsRequest.PageNumber));
+    }
+
+    [Test]
+    public void ToQueryString_WhenNoFiltersPresent_ThenReturnsEmpty()
+    {
+        var request = new GetRestrictedCourseDetailsRequest();
+
+        request.ToQueryString().Should().BeEmpty();
+    }
 }

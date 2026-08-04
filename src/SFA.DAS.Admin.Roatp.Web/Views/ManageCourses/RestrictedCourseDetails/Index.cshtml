@@ -52,5 +52,8 @@
 
     <div class="govuk-grid-column-two-thirds">
         @await Html.PartialAsync("~/Views/ManageCourses/RestrictedCourseDetails/_providerResultCard.cshtml", Model)
+        <div class="govuk-!-margin-top-4">
+            @await Html.PartialAsync("_pagination", Model.Pagination)
+        </div>
     </div>
 </div>

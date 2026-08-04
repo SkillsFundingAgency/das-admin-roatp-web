@@ -3,6 +3,7 @@ using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Models.Filters;
+using SFA.DAS.Admin.Roatp.Web.Models.Shared;
 
 namespace SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 
@@ -16,22 +17,31 @@ public class RestrictedCourseDetailsViewModel : ICourseDisplayModel, IBackLink, 
     public LearningType LearningType { get; set; }
     public bool IsCourseRestricted { get; set; }
     public IEnumerable<AllowedProviderViewModel> AllowedProviders { get; set; } = [];
+    public int TotalProviderCount { get; set; }
 
     public string DisplayTitle => this.GetDisplayTitle();
     public string LearningTypeDescription => LearningType.GetDescription();
     public string StatusText => IsCourseRestricted ? "Restricted" : "Unrestricted";
-    public bool HasProviders => AllowedProviders.Any();
+    public bool HasProviders => TotalProviderCount > 0;
     public bool HasNoProviders => !HasActiveFilters && !HasProviders;
     public bool HasNoFilterResults => HasActiveFilters && !HasProviders;
-    public int ProviderCount => AllowedProviders.Count();
+    public int ProviderCount => TotalProviderCount;
     public string ProviderCountDescription => "provider".ToQuantity(ProviderCount);
 
     public string RestrictedCourseDetailsPageUrl { get; set; } = "#";
     public bool HasActiveFilters { get; set; }
     public FiltersViewModel Filters { get; set; } = new() { Route = string.Empty };
+    public PaginationViewModel Pagination { get; set; } = null!;
 
     public static implicit operator RestrictedCourseDetailsViewModel(
-        GetRestrictedCourseDetailsResponse response) => new()
+        GetRestrictedCourseDetailsResponse response)
+    {
+        var providers = response.Providers
+            .OrderBy(provider => provider.ProviderName, StringComparer.OrdinalIgnoreCase)
+            .Select(provider => (AllowedProviderViewModel)provider)
+            .ToList();
+
+        return new()
         {
             LarsCode = response.LarsCode,
             CourseName = response.CourseName,
@@ -40,9 +50,8 @@ public class RestrictedCourseDetailsViewModel : ICourseDisplayModel, IBackLink, 
             Sector = response.Route,
             LearningType = response.LearningType,
             IsCourseRestricted = response.IsCourseRestricted,
-            AllowedProviders = response.Providers
-            .OrderBy(provider => provider.ProviderName, StringComparer.OrdinalIgnoreCase)
-            .Select(provider => (AllowedProviderViewModel)provider)
-            .ToList()
+            AllowedProviders = providers,
+            TotalProviderCount = providers.Count
         };
+    }
 }
