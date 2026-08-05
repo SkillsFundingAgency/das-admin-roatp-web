@@ -22,6 +22,41 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses;
 public class AddLastDateStartsControllerTests
 {
     [Test, MoqAutoData]
+    public async Task WhenGettingAddLastDateStarts_AndProviderHasLastDateStarts_ThenPrepopulatesDateFields(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Greedy] AddLastDateStartsController sut,
+        string larsCode,
+        GetRestrictedCourseDetailsResponse response,
+        GetOrganisationResponse organisation)
+    {
+        const int ukprn = 10007938;
+        var lastDateStarts = new DateTime(2027, 3, 15, 0, 0, 0, DateTimeKind.Unspecified);
+        response.LarsCode = larsCode;
+        response.CourseName = "Academic professional";
+        response.Level = 7;
+        response.Providers =
+        [
+            new ProviderCourseModel { Ukprn = ukprn, ProviderName = "BP TRAINING", LastDateStarts = lastDateStarts }
+        ];
+
+        SetupValidUkprn(ukprnServiceMock, ukprn, organisation);
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+
+        var result = await sut.Index(larsCode, ukprn, CancellationToken.None) as ViewResult;
+
+        var model = result!.Model as AddLastDateStartsViewModel;
+        model!.Day.Should().Be("15");
+        model.Month.Should().Be("03");
+        model.Year.Should().Be("2027");
+    }
+
+    [Test, MoqAutoData]
     public async Task WhenGettingAddLastDateStarts_AndProviderExists_ThenReturnsView(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
@@ -172,11 +207,11 @@ public class AddLastDateStartsControllerTests
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IValidator<AddLastDateStartsSubmitModel>> validatorMock,
         [Greedy] AddLastDateStartsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response,
         GetOrganisationResponse organisation)
     {
         const int ukprn = 10007938;
+        const string larsCode = "123456";
         response.LarsCode = larsCode;
         response.CourseName = "Academic professional";
         response.Level = 7;

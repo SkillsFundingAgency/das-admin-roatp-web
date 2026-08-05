@@ -1,6 +1,8 @@
 using AutoFixture.NUnit4;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
@@ -104,6 +106,41 @@ public class RestrictedCourseDetailsControllerGetTests
         model!.HasNoProviders.Should().BeTrue();
         model.HasNoFilterResults.Should().BeFalse();
         model.AllowedProviders.Should().BeEmpty();
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingRestrictedCourseDetails_AndTempDataContainsSuccessBannerMessage_ThenModelHasSuccessBannerMessage(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Greedy] RestrictedCourseDetailsController sut,
+        string larsCode,
+        GetRestrictedCourseDetailsResponse response,
+        string successMessage)
+    {
+        response.LarsCode = larsCode;
+        response.IsCourseRestricted = true;
+        response.Providers = [];
+
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+
+        sut.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+        sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>())
+        {
+            [AddLastDateStartsController.SuccessBannerTempDataKey] = successMessage
+        };
+
+        var result = await sut.Index(larsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
+
+        var model = result!.Model as RestrictedCourseDetailsViewModel;
+        model!.AddLastDateStartsSuccessBannerMessage.Should().Be(successMessage);
     }
 
     [Test, MoqAutoData]

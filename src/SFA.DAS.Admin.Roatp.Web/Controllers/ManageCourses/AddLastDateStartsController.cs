@@ -112,15 +112,27 @@ public class AddLastDateStartsController(
 
         RestrictedCourseDetailsViewModel courseDisplay = courseDetails;
 
+        var day = submitModel?.Day;
+        var month = submitModel?.Month;
+        var year = submitModel?.Year;
+
+        if (submitModel is null && provider.LastDateStarts.HasValue)
+        {
+            var lastDateStarts = provider.LastDateStarts.Value;
+            day = lastDateStarts.Day.ToString("00");
+            month = lastDateStarts.Month.ToString("00");
+            year = lastDateStarts.Year.ToString();
+        }
+
         return new AddLastDateStartsViewModel
         {
             LarsCode = larsCode,
             Ukprn = ukprn,
             ProviderName = provider.ProviderName,
             CourseDisplayTitle = courseDisplay.DisplayTitle,
-            Day = submitModel?.Day,
-            Month = submitModel?.Month,
-            Year = submitModel?.Year,
+            Day = day,
+            Month = month,
+            Year = year,
             CourseLastDateStarts = courseDetails.LastDateStarts,
             CancelUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!
         };
