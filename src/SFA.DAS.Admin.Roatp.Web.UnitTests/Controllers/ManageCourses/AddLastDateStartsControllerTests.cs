@@ -236,6 +236,81 @@ public class AddLastDateStartsControllerTests
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
+    [Test, MoqAutoData]
+    public async Task WhenGettingAddLastDateStarts_AndLarsCodeIsInvalid_ThenReturnsNotFound(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Greedy] AddLastDateStartsController sut,
+        string larsCode)
+    {
+        const int ukprn = 10007938;
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetRestrictedCourseDetailsResponse?)null);
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+
+        var result = await sut.Index(larsCode, ukprn, CancellationToken.None);
+
+        result.Should().BeOfType<NotFoundResult>();
+        larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingAddLastDateStarts_AndCourseDetailsBecomeUnavailable_ThenReturnsNotFound(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Greedy] AddLastDateStartsController sut,
+        string larsCode,
+        GetRestrictedCourseDetailsResponse response,
+        GetOrganisationResponse organisation)
+    {
+        const int ukprn = 10007938;
+        response.LarsCode = larsCode;
+
+        SetupValidUkprn(ukprnServiceMock, ukprn, organisation);
+        larsCodeServiceMock
+            .SetupSequence(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response)
+            .ReturnsAsync((GetRestrictedCourseDetailsResponse?)null);
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+
+        var result = await sut.Index(larsCode, ukprn, CancellationToken.None);
+
+        result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenPostingAddLastDateStarts_AndProviderDoesNotExist_ThenReturnsNotFound(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Greedy] AddLastDateStartsController sut,
+        string larsCode,
+        GetRestrictedCourseDetailsResponse response)
+    {
+        const int ukprn = 10007938;
+        response.LarsCode = larsCode;
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+        ukprnServiceMock
+            .Setup(s => s.GetOrganisationAsync(ukprn, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetOrganisationResponse?)null);
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+
+        var result = await sut.Index(
+            larsCode,
+            ukprn,
+            new AddLastDateStartsSubmitModel { Day = "15", Month = "03", Year = "2027" },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NotFoundResult>();
+    }
+
     private static void SetupValidUkprn(
         Mock<IUkprnService> ukprnServiceMock,
         int ukprn,

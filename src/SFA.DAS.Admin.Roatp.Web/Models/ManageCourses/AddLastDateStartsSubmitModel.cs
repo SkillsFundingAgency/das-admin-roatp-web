@@ -20,7 +20,7 @@ public class AddLastDateStartsSubmitModel
 
         try
         {
-            date = new DateTime(year, month, day);
+            date = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Unspecified);
             return true;
         }
         catch (ArgumentOutOfRangeException)

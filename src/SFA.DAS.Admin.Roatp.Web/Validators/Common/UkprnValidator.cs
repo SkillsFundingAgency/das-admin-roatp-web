@@ -5,12 +5,11 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 
 namespace SFA.DAS.Admin.Roatp.Web.Validators.Common;
 
-public class UkprnValidator : AbstractValidator<IUkprn>
+public partial class UkprnValidator : AbstractValidator<IUkprn>
 {
     public const string UkprnEmptyValidationMessage = "UKPRN is empty";
     public const string UkprnInvalidValidationMessage = "UKPRN is invalid";
-
-    private static readonly Regex UkprnFormatRegex = new(@"^1\d{7}$", RegexOptions.Compiled);
+    private const string UkprnFormatRegex = @"^1\d{7}$";
 
     public UkprnValidator(IUkprnService ukprnService)
     {
@@ -18,7 +17,7 @@ public class UkprnValidator : AbstractValidator<IUkprn>
             .Cascade(CascadeMode.Stop)
             .Must(ukprn => ukprn != 0)
             .WithMessage(UkprnEmptyValidationMessage)
-            .Must(ukprn => UkprnFormatRegex.IsMatch(ukprn.ToString()))
+            .Must(ukprn => Regex.IsMatch(ukprn.ToString(), UkprnFormatRegex))
             .WithMessage(UkprnInvalidValidationMessage)
             .MustAsync(async (ukprn, cancellationToken) =>
                 await ukprnService.GetOrganisationAsync(ukprn, cancellationToken) is not null)
