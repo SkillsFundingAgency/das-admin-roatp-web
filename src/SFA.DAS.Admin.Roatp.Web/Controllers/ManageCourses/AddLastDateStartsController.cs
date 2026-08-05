@@ -15,6 +15,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 [Route("restricted-courses/{larsCode}/providers/{ukprn}/add-last-date-starts", Name = RouteNames.AddLastDateStarts)]
 public class AddLastDateStartsController(
     LarsCodeValidator larsCodeValidator,
+    UkprnValidator ukprnValidator,
     ILarsCodeService larsCodeService,
     IOuterApiClient outerApiClient,
     IValidator<AddLastDateStartsSubmitModel> validator) : Controller
@@ -79,11 +80,20 @@ public class AddLastDateStartsController(
         AddLastDateStartsSubmitModel? submitModel,
         CancellationToken cancellationToken)
     {
-        var validationResult = await larsCodeValidator.ValidateAsync(
+        var larsCodeValidationResult = await larsCodeValidator.ValidateAsync(
             new LarsCodeModel { LarsCode = larsCode },
             cancellationToken);
 
-        if (!validationResult.IsValid)
+        if (!larsCodeValidationResult.IsValid)
+        {
+            return null;
+        }
+
+        var ukprnValidationResult = await ukprnValidator.ValidateAsync(
+            new UkprnModel { Ukprn = ukprn },
+            cancellationToken);
+
+        if (!ukprnValidationResult.IsValid)
         {
             return null;
         }

@@ -1,15 +1,27 @@
-﻿using FluentValidation;
+﻿using System.Text.RegularExpressions;
+using FluentValidation;
+using SFA.DAS.Admin.Roatp.Web.Models;
+using SFA.DAS.Admin.Roatp.Web.Services;
 
 namespace SFA.DAS.Admin.Roatp.Web.Validators.Common;
 
-public static class UkprnValidator
+public class UkprnValidator : AbstractValidator<IUkprn>
 {
-    public const string UkprnFormatValidationMessage = "Enter a UKPRN using 8 digits";
+    public const string UkprnEmptyValidationMessage = "UKPRN is empty";
+    public const string UkprnInvalidValidationMessage = "UKPRN is invalid";
 
-    public static IRuleBuilderOptions<T, string> MustBeValidUkprnFormat<T>(this IRuleBuilder<T, string> ruleBuilder)
-        => ruleBuilder
-            .NotEmpty()
-            .WithMessage(UkprnFormatValidationMessage)
-            .Matches(@"^1\d{7}$")
-            .WithMessage(UkprnFormatValidationMessage);
+    private static readonly Regex UkprnFormatRegex = new(@"^1\d{7}$", RegexOptions.Compiled);
+
+    public UkprnValidator(IUkprnService ukprnService)
+    {
+        RuleFor(model => model.Ukprn)
+            .Cascade(CascadeMode.Stop)
+            .Must(ukprn => ukprn != 0)
+            .WithMessage(UkprnEmptyValidationMessage)
+            .Must(ukprn => UkprnFormatRegex.IsMatch(ukprn.ToString()))
+            .WithMessage(UkprnInvalidValidationMessage)
+            .MustAsync(async (ukprn, cancellationToken) =>
+                await ukprnService.GetOrganisationAsync(ukprn, cancellationToken) is not null)
+            .WithMessage(UkprnInvalidValidationMessage);
+    }
 }
