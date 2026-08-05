@@ -52,7 +52,7 @@ public class RestrictedCourseDetailsController(
                 new { larsCode, ukprn = provider.Ukprn })!;
         }
 
-        model.SuccessBannerMessage = TempData?[AddLastDateStartsController.SuccessBannerTempDataKey] as string;
+        model.AddLastDateStartsSuccessBannerMessage = TempData?[AddLastDateStartsController.SuccessBannerTempDataKey] as string;
 
         return View(ViewPath, model);
     }
