@@ -4,7 +4,7 @@
 }
 
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-column-full">
         <h1 class="govuk-heading-xl">View and manage restricted courses</h1>
         <p class="govuk-body">The courses on this page have been restricted. This means that we manage who is allowed to deliver them.</p>
     </div>
@@ -18,6 +18,8 @@
         Restrict a new course
     </button>
 </div>
+
+<hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-6">
 
 <h2 class="govuk-heading-m">List of restricted courses</h2>
 <p class="govuk-body">Select a course to view which training providers are allowed to deliver it.</p>
@@ -35,18 +37,18 @@
     {
         <li class="app-results-list__item">
             <strong class="govuk-tag @course.LearningTypeTagClass app-tag govuk-!-margin-bottom-2">@course.LearningTypeDescription</strong>
+            <dl class="das-definition-list das-definition-list--meta govuk-!-margin-top-1 govuk-!-margin-bottom-1">
+                <dt class="das-definition-list__title">LARS Code</dt>
+                <dd class="das-definition-list__definition">@course.LarsCode</dd>
+            </dl>
             <div class="app-results-list__content">
-                <h3 class="govuk-heading-m govuk-!-margin-bottom-0">@course.DisplayTitle</h3>
+                <h3 class="govuk-heading-s govuk-!-margin-bottom-0">@course.DisplayTitle</h3>
                 <div class="app-results-list__actions">
                     <a class="govuk-link govuk-link--no-visited-state"
                        asp-route="@RouteNames.RestrictedCourseDetails"
                        asp-route-larsCode="@course.LarsCode">Manage providers</a>
                 </div>
             </div>
-            <dl class="das-definition-list das-definition-list--meta govuk-!-margin-top-1 govuk-!-margin-bottom-0">
-                <dt class="das-definition-list__title">LARS Code</dt>
-                <dd class="das-definition-list__definition">@course.LarsCode</dd>
-            </dl>
         </li>
     }
 </ul>

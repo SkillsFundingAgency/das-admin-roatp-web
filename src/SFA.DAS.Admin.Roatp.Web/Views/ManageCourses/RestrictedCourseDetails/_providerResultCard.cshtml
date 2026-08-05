@@ -18,7 +18,7 @@
                         <a class="govuk-link govuk-link--no-visited-state" href="@provider.ChangeUrl">Change</a>
                     </div>
                 </div>
-                <h3 class="govuk-heading-m govuk-!-margin-bottom-1">@provider.ProviderName</h3>
+                <h3 class="govuk-heading-s govuk-!-margin-bottom-1">@provider.ProviderName</h3>
                 <dl class="das-definition-list das-definition-list--meta govuk-!-margin-bottom-1">
                     <dt class="das-definition-list__title">UKPRN</dt>
                     <dd class="das-definition-list__definition">@provider.Ukprn</dd>
@@ -42,5 +42,3 @@
     </ul>
     <p class="govuk-body">Change your search using the filters on this page.</p>
 </div>
-
-<p asp-show="@Model.HasNoProviders" class="govuk-body">No providers offer this course yet.</p>

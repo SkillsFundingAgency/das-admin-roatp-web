@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
+using SFA.DAS.Admin.Roatp.Web.Models.Shared;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.Validators.Common;
 
@@ -37,7 +38,12 @@ public class RestrictedCourseDetailsController(
         model.RestrictedCourseDetailsPageUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!;
         model.HasActiveFilters = request.HasFilters;
         model.Filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, larsCode, Url);
-        model.AllowedProviders = RestrictedCourseDetailsFilterBuilder.ApplyFilters(model.AllowedProviders, request).ToList();
+
+        var filteredProviders = RestrictedCourseDetailsFilterBuilder
+            .ApplyFilters(model.AllowedProviders, request)
+            .ToList();
+
+        ApplyPagination(model, filteredProviders, request);
 
         foreach (var provider in model.AllowedProviders)
         {
@@ -45,5 +51,30 @@ public class RestrictedCourseDetailsController(
         }
 
         return View(ViewPath, model);
+    }
+
+    private void ApplyPagination(
+        RestrictedCourseDetailsViewModel model,
+        List<AllowedProviderViewModel> filteredProviders,
+        GetRestrictedCourseDetailsRequest request)
+    {
+        var pageSize = PaginationViewModel.DefaultPageSize;
+        var totalCount = filteredProviders.Count;
+        var totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)pageSize));
+        var pageNumber = request.PageNumber < 1 ? 1 : Math.Min(request.PageNumber, totalPages);
+
+        model.TotalProviderCount = totalCount;
+        model.AllowedProviders = filteredProviders
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        model.Pagination = new PaginationViewModel(
+            pageNumber,
+            model.TotalProviderCount,
+            pageSize,
+            Url,
+            RouteNames.RestrictedCourseDetails,
+            request.ToQueryString());
     }
 }
