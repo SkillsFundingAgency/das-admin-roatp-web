@@ -47,12 +47,8 @@ public class RestrictedCourseDetailsController(
 
         foreach (var provider in model.AllowedProviders)
         {
-            provider.ChangeUrl = Url.RouteUrl(
-                RouteNames.AddLastDateStarts,
-                new { larsCode, ukprn = provider.Ukprn })!;
+            provider.ChangeUrl = model.RestrictedCourseDetailsPageUrl;
         }
-
-        model.SuccessBannerMessage = TempData?[AddLastDateStartsController.SuccessBannerTempDataKey] as string;
 
         return View(ViewPath, model);
     }
