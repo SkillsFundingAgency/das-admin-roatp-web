@@ -4,15 +4,15 @@ using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 
 namespace SFA.DAS.Admin.Roatp.Web.Validators;
 
-public class AddLastDateStartsViewModelValidator : AbstractValidator<AddLastDateStartsViewModel>
+public class AddLastDateStartsSubmitModelValidator : AbstractValidator<AddLastDateStartsSubmitModel>
 {
     public static readonly DateTime MinimumLastDateStarts = new(2014, 9, 1);
 
     public const string EnterValidDateErrorMessage = "Enter a valid date";
     public const string DateMustBeAfterMinimumErrorMessage = "The last start date must be after 1 September 2014";
-    public const string DateFieldName = nameof(AddLastDateStartsViewModel.Day);
+    public const string DateFieldName = nameof(AddLastDateStartsSubmitModel.Day);
 
-    public AddLastDateStartsViewModelValidator()
+    public AddLastDateStartsSubmitModelValidator()
     {
         RuleFor(model => model)
             .Custom((model, context) =>

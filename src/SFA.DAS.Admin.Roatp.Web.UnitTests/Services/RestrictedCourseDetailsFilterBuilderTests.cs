@@ -137,6 +137,23 @@ public class RestrictedCourseDetailsFilterBuilderTests
     }
 
     [Test]
+    public void WhenCreatingFiltersViewModel_AndSearchTermIsNullOrWhitespace_ThenSearchTermFilterNotAdded()
+    {
+        var urlHelper = CreateUrlHelper();
+        var request = new GetRestrictedCourseDetailsRequest
+        {
+            SearchTerm = "   ",
+            DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
+        };
+
+        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, "105", urlHelper.Object);
+
+        filters.ClearFilterSections.Should().ContainSingle();
+        filters.ClearFilterSections.Should().NotContain(section => section.Title == SearchTermSectionHeading);
+        filters.ClearFilterSections.Should().Contain(section => section.Title == DeliveryStatusSectionHeading);
+    }
+
+    [Test]
     public void WhenCreatingFiltersViewModel_AndNoFiltersSelected_ThenHasNoClearSections()
     {
         var urlHelper = CreateUrlHelper();

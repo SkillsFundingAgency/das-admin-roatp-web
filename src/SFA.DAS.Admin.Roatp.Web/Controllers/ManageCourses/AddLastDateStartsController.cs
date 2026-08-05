@@ -17,7 +17,7 @@ public class AddLastDateStartsController(
     LarsCodeValidator larsCodeValidator,
     ILarsCodeService larsCodeService,
     IOuterApiClient outerApiClient,
-    IValidator<AddLastDateStartsViewModel> validator) : Controller
+    IValidator<AddLastDateStartsSubmitModel> validator) : Controller
 {
     public const string ViewPath = "~/Views/ManageCourses/AddLastDateStarts/Index.cshtml";
     public const string SuccessBannerTempDataKey = "LastDateStartsSuccessMessage";
@@ -36,7 +36,7 @@ public class AddLastDateStartsController(
     public async Task<IActionResult> Index(
         [FromRoute] string larsCode,
         [FromRoute] int ukprn,
-        AddLastDateStartsViewModel submitModel,
+        AddLastDateStartsSubmitModel submitModel,
         CancellationToken cancellationToken)
     {
         var model = await BuildViewModelAsync(larsCode, ukprn, submitModel, cancellationToken);
@@ -45,14 +45,17 @@ public class AddLastDateStartsController(
             return NotFound();
         }
 
-        var validationResult = await validator.ValidateAsync(model, cancellationToken);
+        submitModel.CourseLastDateStarts = model.CourseLastDateStarts;
+
+        var validationResult = await validator.ValidateAsync(submitModel, cancellationToken);
         if (!validationResult.IsValid)
         {
+            ModelState.Clear();
             ModelState.AddValidationErrors(validationResult.Errors);
             return View(ViewPath, model);
         }
 
-        model.TryGetEnteredDate(out var lastDateStarts);
+        submitModel.TryGetEnteredDate(out var lastDateStarts);
 
         await outerApiClient.UpsertProviderAllowedCourse(
             ukprn,
@@ -73,7 +76,7 @@ public class AddLastDateStartsController(
     private async Task<AddLastDateStartsViewModel?> BuildViewModelAsync(
         string larsCode,
         int ukprn,
-        AddLastDateStartsViewModel? submitModel,
+        AddLastDateStartsSubmitModel? submitModel,
         CancellationToken cancellationToken)
     {
         var validationResult = await larsCodeValidator.ValidateAsync(
@@ -105,9 +108,9 @@ public class AddLastDateStartsController(
             Ukprn = ukprn,
             ProviderName = provider.ProviderName,
             CourseDisplayTitle = courseDisplay.DisplayTitle,
-            Day = submitModel?.Day ?? string.Empty,
-            Month = submitModel?.Month ?? string.Empty,
-            Year = submitModel?.Year ?? string.Empty,
+            Day = submitModel?.Day,
+            Month = submitModel?.Month,
+            Year = submitModel?.Year,
             CourseLastDateStarts = courseDetails.LastDateStarts,
             CancelUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!
         };

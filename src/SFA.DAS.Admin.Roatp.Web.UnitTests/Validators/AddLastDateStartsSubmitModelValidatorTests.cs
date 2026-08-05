@@ -7,12 +7,12 @@ using SFA.DAS.Admin.Roatp.Web.Validators;
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Validators;
 
 [TestFixture]
-public class AddLastDateStartsViewModelValidatorTests
+public class AddLastDateStartsSubmitModelValidatorTests
 {
-    private AddLastDateStartsViewModelValidator _sut = null!;
+    private AddLastDateStartsSubmitModelValidator _sut = null!;
 
     [SetUp]
-    public void SetUp() => _sut = new AddLastDateStartsViewModelValidator();
+    public void SetUp() => _sut = new AddLastDateStartsSubmitModelValidator();
 
     [Test]
     public void WhenDateFieldsAreBlank_ThenReturnsEnterValidDateError()
@@ -21,8 +21,8 @@ public class AddLastDateStartsViewModelValidatorTests
 
         var result = _sut.TestValidate(model);
 
-        result.ShouldHaveValidationErrorFor(AddLastDateStartsViewModelValidator.DateFieldName)
-            .WithErrorMessage(AddLastDateStartsViewModelValidator.EnterValidDateErrorMessage);
+        result.ShouldHaveValidationErrorFor(AddLastDateStartsSubmitModelValidator.DateFieldName)
+            .WithErrorMessage(AddLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
     }
 
     [Test]
@@ -32,8 +32,8 @@ public class AddLastDateStartsViewModelValidatorTests
 
         var result = _sut.TestValidate(model);
 
-        result.ShouldHaveValidationErrorFor(AddLastDateStartsViewModelValidator.DateFieldName)
-            .WithErrorMessage(AddLastDateStartsViewModelValidator.EnterValidDateErrorMessage);
+        result.ShouldHaveValidationErrorFor(AddLastDateStartsSubmitModelValidator.DateFieldName)
+            .WithErrorMessage(AddLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
     }
 
     [Test]
@@ -43,8 +43,8 @@ public class AddLastDateStartsViewModelValidatorTests
 
         var result = _sut.TestValidate(model);
 
-        result.ShouldHaveValidationErrorFor(AddLastDateStartsViewModelValidator.DateFieldName)
-            .WithErrorMessage(AddLastDateStartsViewModelValidator.EnterValidDateErrorMessage);
+        result.ShouldHaveValidationErrorFor(AddLastDateStartsSubmitModelValidator.DateFieldName)
+            .WithErrorMessage(AddLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
     }
 
     [Test]
@@ -54,8 +54,8 @@ public class AddLastDateStartsViewModelValidatorTests
 
         var result = _sut.TestValidate(model);
 
-        result.ShouldHaveValidationErrorFor(AddLastDateStartsViewModelValidator.DateFieldName)
-            .WithErrorMessage(AddLastDateStartsViewModelValidator.DateMustBeAfterMinimumErrorMessage);
+        result.ShouldHaveValidationErrorFor(AddLastDateStartsSubmitModelValidator.DateFieldName)
+            .WithErrorMessage(AddLastDateStartsSubmitModelValidator.DateMustBeAfterMinimumErrorMessage);
     }
 
     [Test]
@@ -65,8 +65,8 @@ public class AddLastDateStartsViewModelValidatorTests
 
         var result = _sut.TestValidate(model);
 
-        result.ShouldHaveValidationErrorFor(AddLastDateStartsViewModelValidator.DateFieldName)
-            .WithErrorMessage(AddLastDateStartsViewModelValidator.DateMustBeAfterMinimumErrorMessage);
+        result.ShouldHaveValidationErrorFor(AddLastDateStartsSubmitModelValidator.DateFieldName)
+            .WithErrorMessage(AddLastDateStartsSubmitModelValidator.DateMustBeAfterMinimumErrorMessage);
     }
 
     [Test]
@@ -77,7 +77,7 @@ public class AddLastDateStartsViewModelValidatorTests
 
         var result = _sut.TestValidate(model);
 
-        result.ShouldHaveValidationErrorFor(AddLastDateStartsViewModelValidator.DateFieldName)
+        result.ShouldHaveValidationErrorFor(AddLastDateStartsSubmitModelValidator.DateFieldName)
             .WithErrorMessage(
                 $"The latest start date for this course is {courseEndDate.ToScreenString()}. It is set by LARs and cannot be changed. Your chosen last date for new starts must come before this.");
     }
@@ -106,21 +106,16 @@ public class AddLastDateStartsViewModelValidatorTests
         result.ShouldNotHaveAnyValidationErrors();
     }
 
-    private static AddLastDateStartsViewModel CreateModel(
+    private static AddLastDateStartsSubmitModel CreateModel(
         string day = "",
         string month = "",
         string year = "",
         DateTime? courseLastDateStarts = null)
         => new()
         {
-            LarsCode = "105",
-            Ukprn = 10007938,
-            ProviderName = "BP TRAINING",
-            CourseDisplayTitle = "Academic professional (Level 7)",
             Day = day,
             Month = month,
             Year = year,
-            CourseLastDateStarts = courseLastDateStarts,
-            CancelUrl = "/restricted-courses/105"
+            CourseLastDateStarts = courseLastDateStarts
         };
 }
