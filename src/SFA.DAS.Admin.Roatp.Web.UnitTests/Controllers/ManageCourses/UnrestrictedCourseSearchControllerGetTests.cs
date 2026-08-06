@@ -13,7 +13,7 @@ public class UnrestrictedCourseSearchControllerGetTests
 {
     [Test, MoqAutoData]
     public void WhenGettingUnrestrictedCourseSearch_ThenReturnsViewWithModel(
-        [Frozen] IValidator<UnrestrictedCourseSearchViewModel> validator,
+        [Frozen] IValidator<UnrestrictedCourseSearchSubmitModel> validator,
         [Greedy] UnrestrictedCourseSearchController controller)
     {
         var actual = controller.Index() as ViewResult;

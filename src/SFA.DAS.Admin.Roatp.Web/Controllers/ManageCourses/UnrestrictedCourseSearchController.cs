@@ -9,7 +9,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
 [Route("unrestricted-courses/search", Name = RouteNames.UnrestrictedCourseSearch)]
-public class UnrestrictedCourseSearchController(IValidator<UnrestrictedCourseSearchViewModel> validator) : Controller
+public class UnrestrictedCourseSearchController(IValidator<UnrestrictedCourseSearchSubmitModel> validator) : Controller
 {
     public const string ViewPath = "~/Views/ManageCourses/UnrestrictedCourseSearch/Index.cshtml";
 
@@ -20,14 +20,19 @@ public class UnrestrictedCourseSearchController(IValidator<UnrestrictedCourseSea
     }
 
     [HttpPost]
-    public IActionResult Index(UnrestrictedCourseSearchViewModel model)
+    public IActionResult Index(UnrestrictedCourseSearchSubmitModel submitModel)
     {
-        var result = validator.Validate(model);
+        var result = validator.Validate(submitModel);
 
         if (!result.IsValid)
         {
             ModelState.AddValidationErrors(result.Errors);
-            return View(ViewPath, new UnrestrictedCourseSearchViewModel());
+            return View(ViewPath, new UnrestrictedCourseSearchViewModel
+            {
+                LarsCode = submitModel.LarsCode,
+                Title = submitModel.Title,
+                Level = submitModel.Level
+            });
         }
 
         return RedirectToRoute(RouteNames.UnrestrictedCourseSearch);

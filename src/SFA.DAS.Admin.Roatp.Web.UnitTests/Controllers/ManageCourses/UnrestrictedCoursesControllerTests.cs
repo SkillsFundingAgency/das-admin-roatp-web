@@ -13,12 +13,13 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses;
 public class UnrestrictedCoursesControllerTests
 {
     [Test, MoqAutoData]
-    public async Task WhenGettingUnrestrictedCourses_AndQueryIsEmpty_ThenReturnsEmptyList(
+    public async Task WhenGettingUnrestrictedCourses_AndSearchTermIsEmpty_ThenReturnsEmptyList(
         [Frozen] Mock<IUnrestrictedCoursesService> serviceMock,
         [Greedy] UnrestrictedCoursesController sut,
         CancellationToken cancellationToken)
     {
-        var result = await sut.Index(" ", cancellationToken) as OkObjectResult;
+        const string searchTerm = " ";
+        var result = await sut.Index(searchTerm, cancellationToken) as OkObjectResult;
 
         result.Should().NotBeNull();
         result!.Value.Should().BeEquivalentTo(Array.Empty<UnrestrictedCourseSearchItem>());
@@ -26,7 +27,7 @@ public class UnrestrictedCoursesControllerTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingUnrestrictedCourses_AndQueryMatchesTitle_ThenReturnsMatchingCourses(
+    public async Task WhenGettingUnrestrictedCourses_AndSearchTermMatchesTitle_ThenReturnsMatchingCourses(
         [Frozen] Mock<IUnrestrictedCoursesService> serviceMock,
         [Greedy] UnrestrictedCoursesController sut,
         CancellationToken cancellationToken)
@@ -38,18 +39,19 @@ public class UnrestrictedCoursesControllerTests
         };
         serviceMock.Setup(x => x.GetUnrestrictedCourses(cancellationToken)).ReturnsAsync(courses);
 
-        var result = await sut.Index("soft", cancellationToken) as OkObjectResult;
+        const string searchTerm = "soft";
+        var result = await sut.Index(searchTerm, cancellationToken) as OkObjectResult;
 
         result.Should().NotBeNull();
         var matched = result!.Value as IEnumerable<UnrestrictedCourseSearchItem>;
         matched.Should().ContainSingle();
         matched!.Single().LarsCode.Should().Be("100");
-        matched.Single().SearchTerm.Should().Be("Software developer (Level 4)");
+        matched.Single().DisplayTitle.Should().Be("Software developer (Level 4)");
         matched.Single().Level.Should().Be(4);
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingUnrestrictedCourses_AndQueryMatchesLevel_ThenReturnsMatchingCourses(
+    public async Task WhenGettingUnrestrictedCourses_AndSearchTermMatchesLevel_ThenReturnsMatchingCourses(
         [Frozen] Mock<IUnrestrictedCoursesService> serviceMock,
         [Greedy] UnrestrictedCoursesController sut,
         CancellationToken cancellationToken)
@@ -61,18 +63,19 @@ public class UnrestrictedCoursesControllerTests
         };
         serviceMock.Setup(x => x.GetUnrestrictedCourses(cancellationToken)).ReturnsAsync(courses);
 
-        var result = await sut.Index("Level 4", cancellationToken) as OkObjectResult;
+        const string searchTerm = "Level 4";
+        var result = await sut.Index(searchTerm, cancellationToken) as OkObjectResult;
 
         result.Should().NotBeNull();
         var matched = result!.Value as IEnumerable<UnrestrictedCourseSearchItem>;
         matched.Should().ContainSingle();
         matched!.Single().LarsCode.Should().Be("100");
-        matched.Single().SearchTerm.Should().Be("Software developer (Level 4)");
+        matched.Single().DisplayTitle.Should().Be("Software developer (Level 4)");
         matched.Single().Level.Should().Be(4);
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingUnrestrictedCourses_AndQueryMatchesLarsCodeOnly_ThenReturnsEmptyList(
+    public async Task WhenGettingUnrestrictedCourses_AndSearchTermMatchesLarsCodeOnly_ThenReturnsEmptyList(
         [Frozen] Mock<IUnrestrictedCoursesService> serviceMock,
         [Greedy] UnrestrictedCoursesController sut,
         CancellationToken cancellationToken)
@@ -84,7 +87,8 @@ public class UnrestrictedCoursesControllerTests
         };
         serviceMock.Setup(x => x.GetUnrestrictedCourses(cancellationToken)).ReturnsAsync(courses);
 
-        var result = await sut.Index("123", cancellationToken) as OkObjectResult;
+        const string searchTerm = "123";
+        var result = await sut.Index(searchTerm, cancellationToken) as OkObjectResult;
 
         result.Should().NotBeNull();
         var matched = result!.Value as IEnumerable<UnrestrictedCourseSearchItem>;

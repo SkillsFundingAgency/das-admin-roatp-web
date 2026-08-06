@@ -12,10 +12,9 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 public class UnrestrictedCoursesController(IUnrestrictedCoursesService unrestrictedCoursesService) : Controller
 {
     [HttpGet]
-    public async Task<IActionResult> Index([FromQuery] string query, CancellationToken cancellationToken)
+    public async Task<IActionResult> Index([FromQuery] string searchTerm, CancellationToken cancellationToken)
     {
-        query ??= string.Empty;
-        var searchTerm = query.Trim();
+        searchTerm = (searchTerm ?? string.Empty).Trim();
         if (searchTerm.Length < 1) return Ok(Array.Empty<UnrestrictedCourseSearchItem>());
 
         var courses = await unrestrictedCoursesService.GetUnrestrictedCourses(cancellationToken);

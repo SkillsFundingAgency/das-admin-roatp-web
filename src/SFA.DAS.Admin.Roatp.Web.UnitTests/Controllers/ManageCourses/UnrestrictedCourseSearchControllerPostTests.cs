@@ -15,13 +15,13 @@ public class UnrestrictedCourseSearchControllerPostTests
 {
     [Test, MoqAutoData]
     public void WhenPostingUnrestrictedCourseSearch_AndModelIsValid_ThenRedirectsToSearchPage(
-        UnrestrictedCourseSearchViewModel viewModel,
-        [Frozen] Mock<IValidator<UnrestrictedCourseSearchViewModel>> validator,
+        UnrestrictedCourseSearchSubmitModel submitModel,
+        [Frozen] Mock<IValidator<UnrestrictedCourseSearchSubmitModel>> validator,
         [Greedy] UnrestrictedCourseSearchController controller)
     {
-        validator.Setup(x => x.Validate(viewModel)).Returns(new ValidationResult());
+        validator.Setup(x => x.Validate(submitModel)).Returns(new ValidationResult());
 
-        var actual = controller.Index(viewModel);
+        var actual = controller.Index(submitModel);
 
         actual.Should().NotBeNull();
         var result = actual as RedirectToRouteResult;
@@ -31,21 +31,25 @@ public class UnrestrictedCourseSearchControllerPostTests
 
     [Test, MoqAutoData]
     public void WhenPostingUnrestrictedCourseSearch_AndModelIsInvalid_ThenReloadsView(
-        UnrestrictedCourseSearchViewModel viewModel,
-        [Frozen] Mock<IValidator<UnrestrictedCourseSearchViewModel>> validator,
+        UnrestrictedCourseSearchSubmitModel submitModel,
+        [Frozen] Mock<IValidator<UnrestrictedCourseSearchSubmitModel>> validator,
         [Greedy] UnrestrictedCourseSearchController controller)
     {
         var validationResult = new ValidationResult();
         validationResult.Errors.Add(new ValidationFailure("SearchTerm", "Error"));
 
-        validator.Setup(x => x.Validate(viewModel)).Returns(validationResult);
+        validator.Setup(x => x.Validate(submitModel)).Returns(validationResult);
 
-        var actual = controller.Index(viewModel);
+        var actual = controller.Index(submitModel);
 
         actual.Should().NotBeNull();
         var result = actual as ViewResult;
         result.Should().NotBeNull();
         result!.ViewName.Should().Be(UnrestrictedCourseSearchController.ViewPath);
-        result.Model.Should().BeOfType<UnrestrictedCourseSearchViewModel>();
+        var model = result.Model as UnrestrictedCourseSearchViewModel;
+        model.Should().NotBeNull();
+        model!.LarsCode.Should().Be(submitModel.LarsCode);
+        model.Title.Should().Be(submitModel.Title);
+        model.Level.Should().Be(submitModel.Level);
     }
 }

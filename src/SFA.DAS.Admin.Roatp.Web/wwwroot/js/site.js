@@ -29,7 +29,8 @@ AutoComplete.prototype.init = function () {
 
 AutoComplete.prototype.getSuggestions = function (query, updateResults) {
     let results = [];
-    let apiUrl = this.apiUrl + "?query=" + encodeURIComponent(query)
+    let paramName = this.mode === 'course' ? 'searchTerm' : 'query'
+    let apiUrl = this.apiUrl + "?" + paramName + "=" + encodeURIComponent(query)
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
@@ -51,10 +52,9 @@ AutoComplete.prototype.onConfirm = function (option) {
     }
 
     if (this.mode === 'course') {
-        document.getElementById("Title").value = option.title ?? option.Title ?? '';
-        var level = option.level ?? option.Level;
-        document.getElementById("Level").value = (level === undefined || level === null) ? '' : level;
-        document.getElementById("LarsCode").value = option.larsCode ?? option.LarsCode ?? '';
+        document.getElementById("Title").value = option.title;
+        document.getElementById("Level").value = option.level;
+        document.getElementById("LarsCode").value = option.larsCode;
         return;
     }
 
@@ -63,15 +63,15 @@ AutoComplete.prototype.onConfirm = function (option) {
 }
 
 function inputValueTemplate(result) {
-    if (result && result.searchTerm) {
-        return result.searchTerm;
+    if (result && result.displayTitle) {
+        return result.displayTitle;
     }
     return result && [result.legalName, result.ukprn].filter(Boolean).join(' UKPRN: ')
 }
 
 function suggestionTemplate(result) {
-    if (result && result.searchTerm) {
-        return result.searchTerm;
+    if (result && result.displayTitle) {
+        return result.displayTitle;
     }
     return result && [result.legalName, result.ukprn].filter(Boolean).join(' UKPRN: ')
 }
