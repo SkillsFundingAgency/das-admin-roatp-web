@@ -12,7 +12,7 @@ using SFA.DAS.Admin.Roatp.Web.Validators.Common;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
-[Route("restricted-courses/{larsCode}/providers/{ukprn}/add-last-date-starts", Name = RouteNames.AddLastDateStarts)]
+[Route("restricted-courses/{larsCode}/providers/{ukprn}/add-last-start-date", Name = RouteNames.AddLastDateStarts)]
 public class AddLastDateStartsController(
     LarsCodeValidator larsCodeValidator,
     UkprnValidator ukprnValidator,
