@@ -20,25 +20,25 @@ public class UnrestrictedCoursesController(IUnrestrictedCoursesService unrestric
 
         var courses = await unrestrictedCoursesService.GetUnrestrictedCourses(cancellationToken);
 
-        var matchedCourses = courses
-            .Where(course => MatchesSearchTerm(course, searchTerm))
-            .OrderBy(course => course.Title)
-            .ThenBy(course => course.Level)
-            .Select(course => (UnrestrictedCourseSearchItem)course)
-            .Take(100)
-            .ToList();
+        var matchedCourses = SearchCourses(courses, searchTerm);
 
         return Ok(matchedCourses);
     }
 
+    private static IEnumerable<UnrestrictedCourseSearchItem> SearchCourses(IEnumerable<RestrictedCourseModel> courses, string searchTerm)
+    {
+        return courses
+            .Where(course => MatchesSearchTerm(course, searchTerm))
+            .OrderBy(course => course.Title)
+            .ThenBy(course => course.Level)
+            .Select(course => (UnrestrictedCourseSearchItem)course)
+            .Take(100);
+    }
+
     private static bool MatchesSearchTerm(RestrictedCourseModel course, string searchTerm)
     {
-        var levelLabel = $"Level {course.Level}";
         var displayTitle = $"{course.Title} (Level {course.Level})";
 
-        return course.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
-               || levelLabel.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
-               || course.Level.ToString().Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
-               || displayTitle.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
+        return displayTitle.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
     }
 }
