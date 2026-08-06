@@ -51,9 +51,10 @@ AutoComplete.prototype.onConfirm = function (option) {
     }
 
     if (this.mode === 'course') {
-        document.getElementById("Title").value = option.title;
-        document.getElementById("Level").value = option.level;
-        document.getElementById("LarsCode").value = option.larsCode;
+        document.getElementById("Title").value = option.title ?? option.Title ?? '';
+        var level = option.level ?? option.Level;
+        document.getElementById("Level").value = (level === undefined || level === null) ? '' : level;
+        document.getElementById("LarsCode").value = option.larsCode ?? option.LarsCode ?? '';
         return;
     }
 
@@ -62,15 +63,15 @@ AutoComplete.prototype.onConfirm = function (option) {
 }
 
 function inputValueTemplate(result) {
-    if (result && result.displayTitle) {
-        return result.displayTitle;
+    if (result && result.searchTerm) {
+        return result.searchTerm;
     }
     return result && [result.legalName, result.ukprn].filter(Boolean).join(' UKPRN: ')
 }
 
 function suggestionTemplate(result) {
-    if (result && result.displayTitle) {
-        return result.displayTitle;
+    if (result && result.searchTerm) {
+        return result.searchTerm;
     }
     return result && [result.legalName, result.ukprn].filter(Boolean).join(' UKPRN: ')
 }

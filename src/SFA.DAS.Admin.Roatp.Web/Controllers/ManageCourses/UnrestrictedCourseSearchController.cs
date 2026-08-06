@@ -1,4 +1,4 @@
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
@@ -8,7 +8,7 @@ using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
-[Route("Unrestricted-courses/search", Name = RouteNames.UnrestrictedCourseSearch)]
+[Route("unrestricted-courses/search", Name = RouteNames.UnrestrictedCourseSearch)]
 public class UnrestrictedCourseSearchController(IValidator<UnrestrictedCourseSearchViewModel> validator) : Controller
 {
     public const string ViewPath = "~/Views/ManageCourses/UnrestrictedCourseSearch/Index.cshtml";

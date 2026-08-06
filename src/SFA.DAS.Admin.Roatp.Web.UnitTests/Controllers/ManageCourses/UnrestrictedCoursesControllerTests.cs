@@ -44,7 +44,31 @@ public class UnrestrictedCoursesControllerTests
         var matched = result!.Value as IEnumerable<UnrestrictedCourseSearchItem>;
         matched.Should().ContainSingle();
         matched!.Single().LarsCode.Should().Be("100");
-        matched.Single().DisplayTitle.Should().Be("Software developer (Level 4)");
+        matched.Single().SearchTerm.Should().Be("Software developer (Level 4)");
+        matched.Single().Level.Should().Be(4);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingUnrestrictedCourses_AndQueryMatchesLevel_ThenReturnsMatchingCourses(
+        [Frozen] Mock<IUnrestrictedCoursesService> serviceMock,
+        [Greedy] UnrestrictedCoursesController sut,
+        CancellationToken cancellationToken)
+    {
+        var courses = new List<RestrictedCourseModel>
+        {
+            new() { LarsCode = "100", Title = "Software developer", Level = 4, LearningType = LearningType.Apprenticeship },
+            new() { LarsCode = "200", Title = "Business administrator", Level = 3, LearningType = LearningType.Apprenticeship }
+        };
+        serviceMock.Setup(x => x.GetUnrestrictedCourses(cancellationToken)).ReturnsAsync(courses);
+
+        var result = await sut.Index("Level 4", cancellationToken) as OkObjectResult;
+
+        result.Should().NotBeNull();
+        var matched = result!.Value as IEnumerable<UnrestrictedCourseSearchItem>;
+        matched.Should().ContainSingle();
+        matched!.Single().LarsCode.Should().Be("100");
+        matched.Single().SearchTerm.Should().Be("Software developer (Level 4)");
+        matched.Single().Level.Should().Be(4);
     }
 
     [Test, MoqAutoData]

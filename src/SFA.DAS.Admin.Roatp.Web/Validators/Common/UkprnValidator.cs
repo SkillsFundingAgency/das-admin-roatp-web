@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 
 namespace SFA.DAS.Admin.Roatp.Web.Validators.Common;
 
