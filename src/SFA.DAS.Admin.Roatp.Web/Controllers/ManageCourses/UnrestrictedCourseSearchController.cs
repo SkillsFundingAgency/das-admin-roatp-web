@@ -8,28 +8,28 @@ using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
-[Route("restricted-courses/search", Name = RouteNames.SearchCourseToRestrict)]
-public class SearchCourseToRestrictController(IValidator<SearchCourseToRestrictViewModel> validator) : Controller
+[Route("Unrestricted-courses/search", Name = RouteNames.UnrestrictedCourseSearch)]
+public class UnrestrictedCourseSearchController(IValidator<UnrestrictedCourseSearchViewModel> validator) : Controller
 {
-    public const string ViewPath = "~/Views/ManageCourses/SearchCourseToRestrict/Index.cshtml";
+    public const string ViewPath = "~/Views/ManageCourses/UnrestrictedCourseSearch/Index.cshtml";
 
     [HttpGet]
     public IActionResult Index()
     {
-        return View(ViewPath, new SearchCourseToRestrictViewModel());
+        return View(ViewPath, new UnrestrictedCourseSearchViewModel());
     }
 
     [HttpPost]
-    public IActionResult Index(SearchCourseToRestrictViewModel model)
+    public IActionResult Index(UnrestrictedCourseSearchViewModel model)
     {
         var result = validator.Validate(model);
 
         if (!result.IsValid)
         {
             ModelState.AddValidationErrors(result.Errors);
-            return View(ViewPath, new SearchCourseToRestrictViewModel());
+            return View(ViewPath, new UnrestrictedCourseSearchViewModel());
         }
 
-        return RedirectToRoute(RouteNames.SearchCourseToRestrict);
+        return RedirectToRoute(RouteNames.UnrestrictedCourseSearch);
     }
 }

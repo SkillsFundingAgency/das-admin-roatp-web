@@ -1,6 +1,6 @@
 namespace SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 
-public class SearchCourseToRestrictViewModel : IBackLink
+public class UnrestrictedCourseSearchViewModel : IBackLink
 {
     public string? SearchTerm =>
         string.IsNullOrWhiteSpace(LarsCode)

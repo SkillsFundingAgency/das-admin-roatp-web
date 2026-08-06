@@ -20,9 +20,7 @@ public class UnrestrictedCoursesController(IUnrestrictedCoursesService unrestric
         var courses = await unrestrictedCoursesService.GetUnrestrictedCourses(cancellationToken);
 
         var matchedCourses = courses
-            .Where(course =>
-                course.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
-                || course.LarsCode.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+            .Where(course => course.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
             .OrderBy(course => course.Title)
             .Select(course => (UnrestrictedCourseSearchItem)course)
             .Take(100);

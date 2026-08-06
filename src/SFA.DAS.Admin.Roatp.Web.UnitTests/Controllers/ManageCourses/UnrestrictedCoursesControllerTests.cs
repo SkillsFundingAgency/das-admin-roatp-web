@@ -48,7 +48,7 @@ public class UnrestrictedCoursesControllerTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingUnrestrictedCourses_AndQueryMatchesLarsCode_ThenReturnsMatchingCourses(
+    public async Task WhenGettingUnrestrictedCourses_AndQueryMatchesLarsCodeOnly_ThenReturnsEmptyList(
         [Frozen] Mock<IUnrestrictedCoursesService> serviceMock,
         [Greedy] UnrestrictedCoursesController sut,
         CancellationToken cancellationToken)
@@ -64,7 +64,6 @@ public class UnrestrictedCoursesControllerTests
 
         result.Should().NotBeNull();
         var matched = result!.Value as IEnumerable<UnrestrictedCourseSearchItem>;
-        matched.Should().ContainSingle();
-        matched!.Single().LarsCode.Should().Be("12345");
+        matched.Should().BeEmpty();
     }
 }

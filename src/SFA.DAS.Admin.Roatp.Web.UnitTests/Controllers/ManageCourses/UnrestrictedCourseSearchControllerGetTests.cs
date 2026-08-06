@@ -9,17 +9,17 @@ using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses;
 
-public class SearchCourseToRestrictControllerGetTests
+public class UnrestrictedCourseSearchControllerGetTests
 {
     [Test, MoqAutoData]
-    public void WhenGettingSearchCourseToRestrict_ThenReturnsViewWithModel(
-        [Frozen] IValidator<SearchCourseToRestrictViewModel> validator,
-        [Greedy] SearchCourseToRestrictController controller)
+    public void WhenGettingUnrestrictedCourseSearch_ThenReturnsViewWithModel(
+        [Frozen] IValidator<UnrestrictedCourseSearchViewModel> validator,
+        [Greedy] UnrestrictedCourseSearchController controller)
     {
         var actual = controller.Index() as ViewResult;
 
         actual.Should().NotBeNull();
-        actual!.ViewName.Should().Be(SearchCourseToRestrictController.ViewPath);
-        actual.Model.Should().BeOfType<SearchCourseToRestrictViewModel>();
+        actual!.ViewName.Should().Be(UnrestrictedCourseSearchController.ViewPath);
+        actual.Model.Should().BeOfType<UnrestrictedCourseSearchViewModel>();
     }
 }

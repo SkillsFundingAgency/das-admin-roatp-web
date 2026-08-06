@@ -11,13 +11,13 @@ using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses;
 
-public class SearchCourseToRestrictControllerPostTests
+public class UnrestrictedCourseSearchControllerPostTests
 {
     [Test, MoqAutoData]
-    public void WhenPostingSearchCourseToRestrict_AndModelIsValid_ThenRedirectsToSearchPage(
-        SearchCourseToRestrictViewModel viewModel,
-        [Frozen] Mock<IValidator<SearchCourseToRestrictViewModel>> validator,
-        [Greedy] SearchCourseToRestrictController controller)
+    public void WhenPostingUnrestrictedCourseSearch_AndModelIsValid_ThenRedirectsToSearchPage(
+        UnrestrictedCourseSearchViewModel viewModel,
+        [Frozen] Mock<IValidator<UnrestrictedCourseSearchViewModel>> validator,
+        [Greedy] UnrestrictedCourseSearchController controller)
     {
         validator.Setup(x => x.Validate(viewModel)).Returns(new ValidationResult());
 
@@ -26,14 +26,14 @@ public class SearchCourseToRestrictControllerPostTests
         actual.Should().NotBeNull();
         var result = actual as RedirectToRouteResult;
         result.Should().NotBeNull();
-        result!.RouteName.Should().Be(RouteNames.SearchCourseToRestrict);
+        result!.RouteName.Should().Be(RouteNames.UnrestrictedCourseSearch);
     }
 
     [Test, MoqAutoData]
-    public void WhenPostingSearchCourseToRestrict_AndModelIsInvalid_ThenReloadsView(
-        SearchCourseToRestrictViewModel viewModel,
-        [Frozen] Mock<IValidator<SearchCourseToRestrictViewModel>> validator,
-        [Greedy] SearchCourseToRestrictController controller)
+    public void WhenPostingUnrestrictedCourseSearch_AndModelIsInvalid_ThenReloadsView(
+        UnrestrictedCourseSearchViewModel viewModel,
+        [Frozen] Mock<IValidator<UnrestrictedCourseSearchViewModel>> validator,
+        [Greedy] UnrestrictedCourseSearchController controller)
     {
         var validationResult = new ValidationResult();
         validationResult.Errors.Add(new ValidationFailure("SearchTerm", "Error"));
@@ -45,7 +45,7 @@ public class SearchCourseToRestrictControllerPostTests
         actual.Should().NotBeNull();
         var result = actual as ViewResult;
         result.Should().NotBeNull();
-        result!.ViewName.Should().Be(SearchCourseToRestrictController.ViewPath);
-        result.Model.Should().BeOfType<SearchCourseToRestrictViewModel>();
+        result!.ViewName.Should().Be(UnrestrictedCourseSearchController.ViewPath);
+        result.Model.Should().BeOfType<UnrestrictedCourseSearchViewModel>();
     }
 }

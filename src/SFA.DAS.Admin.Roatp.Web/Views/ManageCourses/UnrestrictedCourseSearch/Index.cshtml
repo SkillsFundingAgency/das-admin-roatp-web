@@ -1,5 +1,5 @@
 @using SFA.DAS.Admin.Roatp.Web.Infrastructure
-@model SFA.DAS.Admin.Roatp.Web.Models.ManageCourses.SearchCourseToRestrictViewModel
+@model SFA.DAS.Admin.Roatp.Web.Models.ManageCourses.UnrestrictedCourseSearchViewModel
 @{
     ViewData["Title"] = "Search for the course you want to restrict";
 }
@@ -7,7 +7,7 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <partial name="_validationSummary" />
-        <form asp-route="@RouteNames.SearchCourseToRestrict" method="POST">
+        <form asp-route="@RouteNames.UnrestrictedCourseSearch" method="POST">
             <div class="govuk-form-group">
                 <fieldset class="govuk-fieldset">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">

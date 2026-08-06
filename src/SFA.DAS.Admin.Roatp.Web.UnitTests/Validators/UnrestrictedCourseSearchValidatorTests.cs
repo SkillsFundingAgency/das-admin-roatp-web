@@ -5,30 +5,30 @@ using SFA.DAS.Admin.Roatp.Web.Validators;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Validators;
 
-public class SearchCourseToRestrictValidatorTests
+public class UnrestrictedCourseSearchValidatorTests
 {
-    private SearchCourseToRestrictValidator _validator = null!;
+    private UnrestrictedCourseSearchValidator _validator = null!;
 
     [SetUp]
     public void Setup()
     {
-        _validator = new SearchCourseToRestrictValidator();
+        _validator = new UnrestrictedCourseSearchValidator();
     }
 
     [Test]
     public void WhenValidatingSearchTerm_AndNoCourseSelected_ThenReturnsExpectedErrorMessage()
     {
-        var result = _validator.TestValidate(new SearchCourseToRestrictViewModel());
+        var result = _validator.TestValidate(new UnrestrictedCourseSearchViewModel());
 
         result.IsValid.Should().BeFalse();
         result.ShouldHaveValidationErrorFor(c => c.SearchTerm)
-            .WithErrorMessage(SearchCourseToRestrictValidator.NoCourseSelectedErrorMessage);
+            .WithErrorMessage(UnrestrictedCourseSearchValidator.NoCourseSelectedErrorMessage);
     }
 
     [Test]
     public void WhenValidatingSearchTerm_AndCourseIsSelected_ThenIsValid()
     {
-        var result = _validator.TestValidate(new SearchCourseToRestrictViewModel
+        var result = _validator.TestValidate(new UnrestrictedCourseSearchViewModel
         {
             LarsCode = "123",
             Title = "Software developer",
