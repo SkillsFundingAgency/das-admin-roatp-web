@@ -30,8 +30,7 @@ public class UnrestrictedCoursesController(IUnrestrictedCoursesService unrestric
             .Where(course => MatchesSearchTerm(course, searchTerm))
             .OrderBy(course => course.Title)
             .ThenBy(course => course.Level)
-            .Select(course => (UnrestrictedCourseSearchItem)course)
-            .Take(100);
+            .Select(course => (UnrestrictedCourseSearchItem)course);
     }
 
     private static bool MatchesSearchTerm(RestrictedCourseModel course, string searchTerm)

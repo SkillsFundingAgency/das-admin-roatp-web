@@ -16,7 +16,7 @@ public class UnrestrictedCourseSearchSubmitModelValidatorTests
     }
 
     [Test]
-    public void WhenValidatingLarsCode_AndNoCourseSelected_ThenReturnsExpectedErrorMessage()
+    public void WhenValidatingSearchTerm_AndNoCourseSelected_ThenReturnsExpectedErrorMessage()
     {
         var result = _validator.TestValidate(new UnrestrictedCourseSearchSubmitModel());
 
@@ -26,11 +26,10 @@ public class UnrestrictedCourseSearchSubmitModelValidatorTests
     }
 
     [Test]
-    public void WhenValidatingLarsCode_AndCourseIsSelected_ThenIsValid()
+    public void WhenValidatingSearchTerm_AndCourseIsSelected_ThenIsValid()
     {
         var result = _validator.TestValidate(new UnrestrictedCourseSearchSubmitModel
         {
-            LarsCode = "123",
             Title = "Software developer",
             Level = 4
         });

@@ -48,8 +48,7 @@ public class UnrestrictedCourseSearchControllerPostTests
         result!.ViewName.Should().Be(UnrestrictedCourseSearchController.ViewPath);
         var model = result.Model as UnrestrictedCourseSearchViewModel;
         model.Should().NotBeNull();
-        model!.LarsCode.Should().Be(submitModel.LarsCode);
-        model.Title.Should().Be(submitModel.Title);
+        model!.Title.Should().Be(submitModel.Title);
         model.Level.Should().Be(submitModel.Level);
     }
 }

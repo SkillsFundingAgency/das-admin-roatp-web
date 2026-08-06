@@ -10,9 +10,8 @@ public class UnrestrictedCourseSearchSubmitModelValidator : AbstractValidator<Un
 
     public UnrestrictedCourseSearchSubmitModelValidator()
     {
-        RuleFor(s => s.LarsCode)
+        RuleFor(s => s.SearchTerm)
             .NotEmpty()
-            .WithMessage(NoCourseSelectedErrorMessage)
-            .OverridePropertyName(nameof(UnrestrictedCourseSearchSubmitModel.SearchTerm));
+            .WithMessage(NoCourseSelectedErrorMessage);
     }
 }

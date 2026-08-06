@@ -29,7 +29,6 @@ public class UnrestrictedCourseSearchController(IValidator<UnrestrictedCourseSea
             ModelState.AddValidationErrors(result.Errors);
             return View(ViewPath, new UnrestrictedCourseSearchViewModel
             {
-                LarsCode = submitModel.LarsCode,
                 Title = submitModel.Title,
                 Level = submitModel.Level
             });
