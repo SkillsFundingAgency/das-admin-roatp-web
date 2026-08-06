@@ -18,6 +18,9 @@ if ($backLinkOrHome) {
 
 function AutoComplete(selectField) {
     this.selectElement = selectField
+    this.apiUrl = selectField.getAttribute('data-autocomplete-url') || '/registeredProviders'
+    this.minLength = parseInt(selectField.getAttribute('data-autocomplete-min-length') || '2', 10)
+    this.mode = selectField.getAttribute('data-autocomplete-mode') || 'provider'
 }
 
 AutoComplete.prototype.init = function () {
@@ -26,7 +29,7 @@ AutoComplete.prototype.init = function () {
 
 AutoComplete.prototype.getSuggestions = function (query, updateResults) {
     let results = [];
-    let apiUrl = "/registeredProviders?query=" + query
+    let apiUrl = this.apiUrl + "?query=" + encodeURIComponent(query)
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
@@ -43,16 +46,32 @@ AutoComplete.prototype.getSuggestions = function (query, updateResults) {
 
 
 AutoComplete.prototype.onConfirm = function (option) {
-    // Populate form fields with selected option
+    if (!option) {
+        return;
+    }
+
+    if (this.mode === 'course') {
+        document.getElementById("Title").value = option.title;
+        document.getElementById("Level").value = option.level;
+        document.getElementById("LarsCode").value = option.larsCode;
+        return;
+    }
+
     document.getElementById("LegalName").value = option.legalName;
     document.getElementById("Ukprn").value = option.ukprn;
 }
 
 function inputValueTemplate(result) {
+    if (result && result.displayTitle) {
+        return result.displayTitle;
+    }
     return result && [result.legalName, result.ukprn].filter(Boolean).join(' UKPRN: ')
 }
 
 function suggestionTemplate(result) {
+    if (result && result.displayTitle) {
+        return result.displayTitle;
+    }
     return result && [result.legalName, result.ukprn].filter(Boolean).join(' UKPRN: ')
 }
 
@@ -60,15 +79,15 @@ AutoComplete.prototype.autoComplete = function () {
     let that = this
     accessibleAutocomplete.enhanceSelectElement({
         selectElement: that.selectElement,
-        minLength: 2,
+        minLength: that.minLength,
         autoselect: false,
         defaultValue: '',
         displayMenu: 'overlay',
         placeholder: '',
-        source: that.getSuggestions,
+        source: that.getSuggestions.bind(that),
         showAllValues: false,
         confirmOnBlur: false,
-        onConfirm: that.onConfirm,
+        onConfirm: that.onConfirm.bind(that),
         templates: {
             inputValue: inputValueTemplate,
             suggestion: suggestionTemplate

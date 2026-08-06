@@ -20,6 +20,7 @@ public static class AddApplicationRegistrationsExtension
 
         services.AddTransient<ISessionService, SessionService>();
         services.AddTransient<IOrganisationsService, OrganisationsService>();
+        services.AddTransient<IUnrestrictedCoursesService, UnrestrictedCoursesService>();
         services.AddTransient<IOrganisationPatchService, OrganisationPatchService>();
         services.AddTransient<IOrganisationTypesService, OrganisationTypesService>();
         services.AddTransient<IPostOrganisationService, PostOrganisationService>();
