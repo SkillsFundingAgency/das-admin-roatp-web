@@ -270,7 +270,7 @@ public class AddLastDateStartsControllerTests
             ukprn,
             larsCode,
             It.Is<UpsertProviderAllowedCourseRequest>(r =>
-                r.LastDateStarts == new DateTime(2027, 3, 15)
+                r.LastDateStarts == new DateTime(2027, 3, 15, 0, 0, 0, DateTimeKind.Unspecified)
                 && r.UserId == "jane@education.gov.uk"
                 && r.UserDisplayName == "Jane Denver"),
             It.IsAny<CancellationToken>()), Times.Once);
@@ -338,6 +338,39 @@ public class AddLastDateStartsControllerTests
         ukprnServiceMock
             .Setup(s => s.GetOrganisationAsync(ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetOrganisationResponse?)null);
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+
+        var result = await sut.Index(
+            larsCode,
+            ukprn,
+            new AddLastDateStartsSubmitModel { Day = "15", Month = "03", Year = "2027" },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenPostingAddLastDateStarts_AndProviderDoesNotExistOnCourse_ThenReturnsNotFound(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Greedy] AddLastDateStartsController sut,
+        string larsCode,
+        GetRestrictedCourseDetailsResponse response,
+        GetOrganisationResponse organisation)
+    {
+        const int ukprn = 10007938;
+        response.LarsCode = larsCode;
+        response.Providers =
+        [
+            new ProviderCourseModel { Ukprn = 11111111, ProviderName = "Other", LastDateStarts = null }
+        ];
+
+        SetupValidUkprn(ukprnServiceMock, ukprn, organisation);
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
