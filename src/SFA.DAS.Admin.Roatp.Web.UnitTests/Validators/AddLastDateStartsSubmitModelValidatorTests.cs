@@ -65,17 +65,13 @@ public class AddLastDateStartsSubmitModelValidatorTests
     }
 
     [Test]
-    public async Task WhenDateIsOnOrBeforeMinimum_ThenReturnsMinimumDateError()
+    public async Task WhenDateEqualsMinimum_ThenPasses()
     {
         var model = CreateModel(day: "01", month: "09", year: "2014");
 
         var result = await _sut.TestValidateAsync(model);
 
-        result.ShouldHaveValidationErrorFor(AddLastDateStartsSubmitModelValidator.DateFieldName)
-            .WithErrorMessage(AddLastDateStartsSubmitModelValidator.DateMustBeAfterMinimumErrorMessage);
-        _larsCodeServiceMock.Verify(
-            s => s.GetCourseDetailsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Never);
+        result.ShouldNotHaveValidationErrorFor(AddLastDateStartsSubmitModelValidator.DateFieldName);
     }
 
     [Test]
@@ -93,23 +89,23 @@ public class AddLastDateStartsSubmitModelValidatorTests
     }
 
     [Test]
-    public async Task WhenDateIsOnOrAfterCourseLastDateStarts_ThenReturnsLarsEndDateError()
+    public async Task WhenDateIsAfterCourseLastDateStarts_ThenReturnsLarsEndDateError()
     {
         var courseEndDate = new DateTime(2027, 6, 1, 0, 0, 0, DateTimeKind.Unspecified);
-        var model = CreateModel(day: "01", month: "06", year: "2027", courseLastDateStarts: courseEndDate);
+        var model = CreateModel(day: "02", month: "06", year: "2027", courseLastDateStarts: courseEndDate);
 
         var result = await _sut.TestValidateAsync(model);
 
         result.ShouldHaveValidationErrorFor(AddLastDateStartsSubmitModelValidator.DateFieldName)
             .WithErrorMessage(
-                $"The latest start date for this course is {courseEndDate.ToScreenString()}. It is set by LARs and cannot be changed. Your chosen last date for new starts must come before this.");
+                $"This course has an operational end date in LARs. It has been set by Skills England for {courseEndDate.ToScreenString()}. Your last date for new starts must come on or before this date.");
         _larsCodeServiceMock.Verify(
             s => s.GetCourseDetailsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
     [Test]
-    public async Task WhenDateIsOnOrAfterCourseLastDateStartsFromApi_ThenReturnsLarsEndDateError()
+    public async Task WhenDateIsAfterCourseLastDateStartsFromApi_ThenReturnsLarsEndDateError()
     {
         const string larsCode = "123";
         var courseEndDate = new DateTime(2027, 6, 1, 0, 0, 0, DateTimeKind.Unspecified);
@@ -124,13 +120,13 @@ public class AddLastDateStartsSubmitModelValidatorTests
                 LastDateStarts = courseEndDate
             });
 
-        var model = CreateModel(day: "01", month: "06", year: "2027", larsCode: larsCode);
+        var model = CreateModel(day: "02", month: "06", year: "2027", larsCode: larsCode);
 
         var result = await _sut.TestValidateAsync(model);
 
         result.ShouldHaveValidationErrorFor(AddLastDateStartsSubmitModelValidator.DateFieldName)
             .WithErrorMessage(
-                $"The latest start date for this course is {courseEndDate.ToScreenString()}. It is set by LARs and cannot be changed. Your chosen last date for new starts must come before this.");
+                $"This course has an operational end date in LARs. It has been set by Skills England for {courseEndDate.ToScreenString()}. Your last date for new starts must come on or before this date.");
         _larsCodeServiceMock.Verify(
             s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()),
             Times.Once);

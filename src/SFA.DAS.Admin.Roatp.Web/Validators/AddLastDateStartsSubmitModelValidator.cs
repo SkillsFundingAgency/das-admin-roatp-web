@@ -10,7 +10,7 @@ public class AddLastDateStartsSubmitModelValidator : AbstractValidator<AddLastDa
     public static readonly DateTime MinimumLastDateStarts = new(2014, 9, 1, 0, 0, 0, DateTimeKind.Unspecified);
 
     public const string EnterValidDateErrorMessage = "Enter a valid date";
-    public const string DateMustBeAfterMinimumErrorMessage = "The last start date must be after 1 September 2014";
+    public const string DateMustBeAfterMinimumErrorMessage = "The last start date must be on or after 1 September 2014";
     public const string DateFieldName = nameof(AddLastDateStartsSubmitModel.Day);
 
     public AddLastDateStartsSubmitModelValidator(ILarsCodeService larsCodeService)
@@ -24,7 +24,7 @@ public class AddLastDateStartsSubmitModelValidator : AbstractValidator<AddLastDa
                     return;
                 }
 
-                if (enteredDate.Date <= MinimumLastDateStarts)
+                if (enteredDate.Date < MinimumLastDateStarts)
                 {
                     context.AddFailure(DateFieldName, DateMustBeAfterMinimumErrorMessage);
                     return;
@@ -38,11 +38,11 @@ public class AddLastDateStartsSubmitModelValidator : AbstractValidator<AddLastDa
                 }
 
                 if (courseLastDateStarts.HasValue
-                    && enteredDate.Date >= courseLastDateStarts.Value.Date)
+                    && enteredDate.Date > courseLastDateStarts.Value.Date)
                 {
                     context.AddFailure(
                         DateFieldName,
-                        $"The latest start date for this course is {courseLastDateStarts.Value.ToScreenString()}. It is set by LARs and cannot be changed. Your chosen last date for new starts must come before this.");
+                        $"This course has an operational end date in LARs. It has been set by Skills England for {courseLastDateStarts.Value.ToScreenString()}. Your last date for new starts must come on or before this date.");
                 }
             });
     }
