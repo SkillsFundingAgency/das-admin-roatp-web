@@ -5,6 +5,7 @@ public class AddLastDateStartsSubmitModel
     public string? Day { get; set; }
     public string? Month { get; set; }
     public string? Year { get; set; }
+    public string? LarsCode { get; set; }
     public DateTime? CourseLastDateStarts { get; set; }
 
     public bool TryGetEnteredDate(out DateTime date)

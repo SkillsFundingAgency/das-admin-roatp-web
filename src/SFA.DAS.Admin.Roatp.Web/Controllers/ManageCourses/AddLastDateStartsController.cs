@@ -29,6 +29,11 @@ public class AddLastDateStartsController(
         [FromRoute] int ukprn,
         CancellationToken cancellationToken)
     {
+        if (!await LarsCodeAndUkprnValidAsync(larsCode, ukprn, cancellationToken))
+        {
+            return NotFound();
+        }
+
         var model = await BuildViewModelAsync(larsCode, ukprn, null, cancellationToken);
         return model is null ? NotFound() : View(ViewPath, model);
     }
@@ -40,13 +45,17 @@ public class AddLastDateStartsController(
         AddLastDateStartsSubmitModel submitModel,
         CancellationToken cancellationToken)
     {
+        if (!await LarsCodeAndUkprnValidAsync(larsCode, ukprn, cancellationToken))
+        {
+            return NotFound();
+        }
+
+        submitModel.LarsCode = larsCode;
         var model = await BuildViewModelAsync(larsCode, ukprn, submitModel, cancellationToken);
         if (model is null)
         {
             return NotFound();
         }
-
-        submitModel.CourseLastDateStarts = model.CourseLastDateStarts;
 
         var validationResult = await validator.ValidateAsync(submitModel, cancellationToken);
         if (!validationResult.IsValid)
@@ -80,24 +89,6 @@ public class AddLastDateStartsController(
         AddLastDateStartsSubmitModel? submitModel,
         CancellationToken cancellationToken)
     {
-        var larsCodeValidationResult = await larsCodeValidator.ValidateAsync(
-            new LarsCodeModel { LarsCode = larsCode },
-            cancellationToken);
-
-        if (!larsCodeValidationResult.IsValid)
-        {
-            return null;
-        }
-
-        var ukprnValidationResult = await ukprnValidator.ValidateAsync(
-            new UkprnModel { Ukprn = ukprn },
-            cancellationToken);
-
-        if (!ukprnValidationResult.IsValid)
-        {
-            return null;
-        }
-
         var courseDetails = await larsCodeService.GetCourseDetailsAsync(larsCode, cancellationToken);
         if (courseDetails is null)
         {
@@ -136,5 +127,26 @@ public class AddLastDateStartsController(
             CourseLastDateStarts = courseDetails.LastDateStarts,
             CancelUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!
         };
+    }
+
+    private async Task<bool> LarsCodeAndUkprnValidAsync(
+        string larsCode,
+        int ukprn,
+        CancellationToken cancellationToken)
+    {
+        var larsCodeValidationResult = await larsCodeValidator.ValidateAsync(
+            new LarsCodeModel { LarsCode = larsCode },
+            cancellationToken);
+
+        if (!larsCodeValidationResult.IsValid)
+        {
+            return false;
+        }
+
+        var ukprnValidationResult = await ukprnValidator.ValidateAsync(
+            new UkprnModel { Ukprn = ukprn },
+            cancellationToken);
+
+        return ukprnValidationResult.IsValid;
     }
 }

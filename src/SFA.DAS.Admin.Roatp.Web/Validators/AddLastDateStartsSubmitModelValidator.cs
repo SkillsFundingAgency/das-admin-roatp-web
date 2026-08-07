@@ -1,6 +1,7 @@
 using FluentValidation;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
+using SFA.DAS.Admin.Roatp.Web.Services;
 
 namespace SFA.DAS.Admin.Roatp.Web.Validators;
 
@@ -12,10 +13,10 @@ public class AddLastDateStartsSubmitModelValidator : AbstractValidator<AddLastDa
     public const string DateMustBeAfterMinimumErrorMessage = "The last start date must be after 1 September 2014";
     public const string DateFieldName = nameof(AddLastDateStartsSubmitModel.Day);
 
-    public AddLastDateStartsSubmitModelValidator()
+    public AddLastDateStartsSubmitModelValidator(ILarsCodeService larsCodeService)
     {
         RuleFor(model => model)
-            .Custom((model, context) =>
+            .CustomAsync(async (model, context, cancellationToken) =>
             {
                 if (!model.TryGetEnteredDate(out var enteredDate))
                 {
@@ -29,12 +30,19 @@ public class AddLastDateStartsSubmitModelValidator : AbstractValidator<AddLastDa
                     return;
                 }
 
-                if (model.CourseLastDateStarts.HasValue
-                    && enteredDate.Date >= model.CourseLastDateStarts.Value.Date)
+                var courseLastDateStarts = model.CourseLastDateStarts;
+                if (!courseLastDateStarts.HasValue && !string.IsNullOrWhiteSpace(model.LarsCode))
+                {
+                    var courseDetails = await larsCodeService.GetCourseDetailsAsync(model.LarsCode, cancellationToken);
+                    courseLastDateStarts = courseDetails?.LastDateStarts;
+                }
+
+                if (courseLastDateStarts.HasValue
+                    && enteredDate.Date >= courseLastDateStarts.Value.Date)
                 {
                     context.AddFailure(
                         DateFieldName,
-                        $"The latest start date for this course is {model.CourseLastDateStarts.Value.ToScreenString()}. It is set by LARs and cannot be changed. Your chosen last date for new starts must come before this.");
+                        $"The latest start date for this course is {courseLastDateStarts.Value.ToScreenString()}. It is set by LARs and cannot be changed. Your chosen last date for new starts must come before this.");
                 }
             });
     }

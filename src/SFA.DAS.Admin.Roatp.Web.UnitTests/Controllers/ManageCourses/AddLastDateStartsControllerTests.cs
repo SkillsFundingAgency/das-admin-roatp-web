@@ -198,6 +198,11 @@ public class AddLastDateStartsControllerTests
         var model = result!.Model as AddLastDateStartsViewModel;
         model!.ProviderName.Should().Be("BP TRAINING");
         model.CourseDisplayTitle.Should().Be("Academic professional (Level 7)");
+        validatorMock.Verify(
+            v => v.ValidateAsync(
+                It.Is<AddLastDateStartsSubmitModel>(m => m.LarsCode == larsCode),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Test, MoqAutoData]
