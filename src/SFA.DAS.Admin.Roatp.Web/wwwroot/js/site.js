@@ -18,9 +18,9 @@ if ($backLinkOrHome) {
 
 function AutoComplete(selectField) {
     this.selectElement = selectField
-    this.apiUrl = selectField.getAttribute('data-autocomplete-url') || '/registeredProviders'
-    this.minLength = parseInt(selectField.getAttribute('data-autocomplete-min-length') || '2', 10)
-    this.mode = selectField.getAttribute('data-autocomplete-mode') || 'provider'
+    this.apiUrl = selectField.dataset.autocompleteUrl || '/registeredProviders'
+    this.minLength = Number.parseInt(selectField.dataset.autocompleteMinLength || '2', 10)
+    this.mode = selectField.dataset.autocompleteMode || 'provider'
 }
 
 AutoComplete.prototype.init = function () {
@@ -61,18 +61,11 @@ AutoComplete.prototype.onConfirm = function (option) {
     document.getElementById("Ukprn").value = option.ukprn;
 }
 
-function inputValueTemplate(result) {
-    if (result && result.displayTitle) {
+function formatAutocompleteResult(result) {
+    if (result?.displayTitle) {
         return result.displayTitle;
     }
-    return result && [result.legalName, result.ukprn].filter(Boolean).join(' UKPRN: ')
-}
-
-function suggestionTemplate(result) {
-    if (result && result.displayTitle) {
-        return result.displayTitle;
-    }
-    return result && [result.legalName, result.ukprn].filter(Boolean).join(' UKPRN: ')
+    return result ? [result.legalName, result.ukprn].filter(Boolean).join(' UKPRN: ') : result;
 }
 
 AutoComplete.prototype.autoComplete = function () {
@@ -89,8 +82,8 @@ AutoComplete.prototype.autoComplete = function () {
         confirmOnBlur: false,
         onConfirm: that.onConfirm.bind(that),
         templates: {
-            inputValue: inputValueTemplate,
-            suggestion: suggestionTemplate
+            inputValue: formatAutocompleteResult,
+            suggestion: formatAutocompleteResult
         }
     });
 }

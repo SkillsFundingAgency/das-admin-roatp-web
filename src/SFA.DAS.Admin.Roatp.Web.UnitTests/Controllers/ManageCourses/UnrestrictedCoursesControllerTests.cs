@@ -27,6 +27,41 @@ public class UnrestrictedCoursesControllerTests
     }
 
     [Test, MoqAutoData]
+    public async Task WhenGettingUnrestrictedCourses_AndSearchTermIsNull_ThenReturnsEmptyList(
+        [Frozen] Mock<IUnrestrictedCoursesService> serviceMock,
+        [Greedy] UnrestrictedCoursesController sut,
+        CancellationToken cancellationToken)
+    {
+        var result = await sut.Index(null!, cancellationToken) as OkObjectResult;
+
+        result.Should().NotBeNull();
+        result!.Value.Should().BeEquivalentTo(Array.Empty<UnrestrictedCourseSearchItem>());
+        serviceMock.Verify(x => x.GetUnrestrictedCourses(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingUnrestrictedCourses_AndMultipleCoursesMatch_ThenReturnsOrderedByTitleThenLevel(
+        [Frozen] Mock<IUnrestrictedCoursesService> serviceMock,
+        [Greedy] UnrestrictedCoursesController sut,
+        CancellationToken cancellationToken)
+    {
+        var courses = new List<RestrictedCourseModel>
+        {
+            new() { LarsCode = "300", Title = "Zebra course", Level = 3, LearningType = LearningType.Apprenticeship },
+            new() { LarsCode = "100", Title = "Alpha course", Level = 5, LearningType = LearningType.Apprenticeship },
+            new() { LarsCode = "200", Title = "Alpha course", Level = 3, LearningType = LearningType.Apprenticeship }
+        };
+        serviceMock.Setup(x => x.GetUnrestrictedCourses(cancellationToken)).ReturnsAsync(courses);
+
+        var result = await sut.Index("course", cancellationToken) as OkObjectResult;
+
+        result.Should().NotBeNull();
+        var matched = result!.Value as IEnumerable<UnrestrictedCourseSearchItem>;
+        matched.Should().NotBeNull();
+        matched!.Select(c => c.LarsCode).Should().ContainInOrder("200", "100", "300");
+    }
+
+    [Test, MoqAutoData]
     public async Task WhenGettingUnrestrictedCourses_AndSearchTermMatchesTitle_ThenReturnsMatchingCourses(
         [Frozen] Mock<IUnrestrictedCoursesService> serviceMock,
         [Greedy] UnrestrictedCoursesController sut,
