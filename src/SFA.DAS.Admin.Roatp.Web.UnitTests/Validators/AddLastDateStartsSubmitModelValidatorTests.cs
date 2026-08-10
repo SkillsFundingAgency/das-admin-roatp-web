@@ -98,7 +98,7 @@ public class AddLastDateStartsSubmitModelValidatorTests
 
         result.ShouldHaveValidationErrorFor(AddLastDateStartsSubmitModelValidator.DateFieldName)
             .WithErrorMessage(
-                $"This course has an operational end date in LARs. It has been set by Skills England for {courseEndDate.ToScreenString()}. Your last date for new starts must come on or before this date.");
+                $"The latest start date for this course is {courseEndDate.ToScreenString()}. It is set by LARS and cannot be changed. Your chosen last date for new starts must come on or before this.");
         _larsCodeServiceMock.Verify(
             s => s.GetCourseDetailsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -126,7 +126,7 @@ public class AddLastDateStartsSubmitModelValidatorTests
 
         result.ShouldHaveValidationErrorFor(AddLastDateStartsSubmitModelValidator.DateFieldName)
             .WithErrorMessage(
-                $"This course has an operational end date in LARs. It has been set by Skills England for {courseEndDate.ToScreenString()}. Your last date for new starts must come on or before this date.");
+                $"The latest start date for this course is {courseEndDate.ToScreenString()}. It is set by LARS and cannot be changed. Your chosen last date for new starts must come on or before this.");
         _larsCodeServiceMock.Verify(
             s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()),
             Times.Once);

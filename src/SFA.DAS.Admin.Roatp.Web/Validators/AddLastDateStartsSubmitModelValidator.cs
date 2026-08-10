@@ -42,7 +42,7 @@ public class AddLastDateStartsSubmitModelValidator : AbstractValidator<AddLastDa
                 {
                     context.AddFailure(
                         DateFieldName,
-                        $"This course has an operational end date in LARs. It has been set by Skills England for {courseLastDateStarts.Value.ToScreenString()}. Your last date for new starts must come on or before this date.");
+                        $"The latest start date for this course is {courseLastDateStarts.Value.ToScreenString()}. It is set by LARS and cannot be changed. Your chosen last date for new starts must come on or before this.");
                 }
             });
     }
