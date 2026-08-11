@@ -19,7 +19,7 @@ public class SelectProviderSubmitModelValidatorTests
 
         var result = sut.TestValidate(new SelectProviderSubmitModel() { Ukprn = ukprn });
 
-        result.ShouldHaveValidationErrorFor(m => m.Ukprn).WithErrorMessage(UkprnValidator.UkprnFormatValidationMessage);
+        result.ShouldHaveValidationErrorFor(m => m.Ukprn).WithErrorMessage(UkprnFormatValidator.UkprnFormatValidationMessage);
     }
 
     [Test]

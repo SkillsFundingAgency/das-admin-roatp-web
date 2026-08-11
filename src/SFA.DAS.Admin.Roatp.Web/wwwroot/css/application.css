@@ -97,6 +97,30 @@
     max-width: fit-content;
 }
 
+.das-filter__body .govuk-form-group {
+    margin-bottom: 0;
+    padding-top: 5px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--govuk-border-colour, #b1b4b6);
+}
+
+.das-filter__body .govuk-form-group:last-of-type {
+    margin-bottom: 20px;
+}
+
+.das-filter__body .govuk-heading-s {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.das-filter__body .govuk-hint {
+    margin-bottom: 10px;
+}
+
+.das-filter__body .govuk-checkboxes__label {
+    font-weight: 700;
+}
+
 .navigation-flexbox {
     display: flex;
     justify-content: center;

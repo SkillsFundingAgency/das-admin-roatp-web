@@ -1,6 +1,8 @@
 using AutoFixture.NUnit4;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
@@ -51,7 +53,8 @@ public class RestrictedCourseDetailsControllerGetTests
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}")
+            .AddUrlForRoute(RouteNames.AddLastDateStarts, "/add-last-date-starts");
 
         var result = await sut.Index(larsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
@@ -73,7 +76,7 @@ public class RestrictedCourseDetailsControllerGetTests
         model.AllowedProviders.Select(p => p.ProviderName).Should().ContainInOrder("ACORN SKILLS TRAINING", "BABINGTON LTD");
         model.AllowedProviders.First().DeliveryStatus.Should().Be(DeliveryStatus.OpenToNewStarts);
         model.AllowedProviders.Last().DeliveryStatus.Should().Be(DeliveryStatus.LastStartDateAdded);
-        model.AllowedProviders.Should().OnlyContain(p => p.ChangeUrl == model.RestrictedCourseDetailsPageUrl);
+        model.AllowedProviders.Should().OnlyContain(p => p.ChangeUrl == "/add-last-date-starts");
 
         larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
@@ -103,6 +106,41 @@ public class RestrictedCourseDetailsControllerGetTests
         model!.HasNoProviders.Should().BeTrue();
         model.HasNoFilterResults.Should().BeFalse();
         model.AllowedProviders.Should().BeEmpty();
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingRestrictedCourseDetails_AndTempDataContainsSuccessBannerMessage_ThenModelHasSuccessBannerMessage(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Greedy] RestrictedCourseDetailsController sut,
+        string larsCode,
+        GetRestrictedCourseDetailsResponse response,
+        string successMessage)
+    {
+        response.LarsCode = larsCode;
+        response.IsCourseRestricted = true;
+        response.Providers = [];
+
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+
+        sut.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+        sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>())
+        {
+            [AddLastDateStartsController.SuccessBannerTempDataKey] = successMessage
+        };
+
+        var result = await sut.Index(larsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
+
+        var model = result!.Model as RestrictedCourseDetailsViewModel;
+        model!.AddLastDateStartsSuccessBannerMessage.Should().Be(successMessage);
     }
 
     [Test, MoqAutoData]

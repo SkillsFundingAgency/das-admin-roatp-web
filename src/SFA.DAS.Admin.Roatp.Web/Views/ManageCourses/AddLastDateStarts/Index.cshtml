@@ -1,0 +1,93 @@
+@model SFA.DAS.Admin.Roatp.Web.Models.ManageCourses.AddLastDateStartsViewModel
+@{
+    ViewBag.Title = "Add a last start date";
+    var dateError = ViewData.ModelState[nameof(Model.Day)]?.Errors.FirstOrDefault()?.ErrorMessage;
+    var hasDateError = !string.IsNullOrEmpty(dateError);
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <partial name="_ValidationSummary" />
+
+        <span class="govuk-caption-xl">Add a last start date</span>
+        <h1 class="govuk-heading-xl">Stop this provider from delivering @Model.CourseDisplayTitle</h1>
+
+        <p class="govuk-body">Adding a last date for new starts will close this course to new learners.</p>
+        <p class="govuk-body">The training provider will not be able to:</p>
+        <ul class="govuk-list govuk-list--bullet">
+            <li>add new learners after this date</li>
+            <li>advertise it on Find apprenticeship training</li>
+            <li>submit ILRs for learners who start after this date</li>
+        </ul>
+        <p class="govuk-body">The provider can continue to train learners who are already on the course.</p>
+
+        <div class="app-action-panel govuk-!-margin-bottom-6 govuk-!-margin-top-6">
+            <p class="govuk-body govuk-!-font-weight-bold govuk-!-margin-bottom-1">@Model.ProviderName</p>
+            <p class="govuk-body govuk-!-margin-bottom-0">UKPRN @Model.Ukprn</p>
+        </div>
+
+        <form method="post" novalidate>
+            <div class="govuk-form-group @(hasDateError ? "govuk-form-group--error" : string.Empty)">
+                <fieldset class="govuk-fieldset" role="group" aria-describedby="last-date-starts-hint@(hasDateError ? " last-date-starts-error" : string.Empty)">
+                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                        <h2 class="govuk-fieldset__heading">Last date for new starts</h2>
+                    </legend>
+                    <div id="last-date-starts-hint" class="govuk-hint">
+                        After this date, the provider will no longer be able add new starts to this course.
+                    </div>
+                    @if (hasDateError)
+                    {
+                        <p id="last-date-starts-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> @dateError
+                        </p>
+                    }
+                    <div class="govuk-date-input" id="last-date-starts">
+                        <div class="govuk-date-input__item">
+                            <div class="govuk-form-group">
+                                <label class="govuk-label govuk-date-input__label" asp-for="Day">Day</label>
+                                <input class="govuk-input govuk-date-input__input govuk-input--width-2 @(hasDateError ? "govuk-input--error" : string.Empty)"
+                                       asp-for="Day"
+                                       id="Day"
+                                       type="text"
+                                       inputmode="numeric"
+                                       maxlength="2"
+                                       autocomplete="bday-day">
+                            </div>
+                        </div>
+                        <div class="govuk-date-input__item">
+                            <div class="govuk-form-group">
+                                <label class="govuk-label govuk-date-input__label" asp-for="Month">Month</label>
+                                <input class="govuk-input govuk-date-input__input govuk-input--width-2 @(hasDateError ? "govuk-input--error" : string.Empty)"
+                                       asp-for="Month"
+                                       id="Month"
+                                       type="text"
+                                       inputmode="numeric"
+                                       maxlength="2"
+                                       autocomplete="bday-month">
+                            </div>
+                        </div>
+                        <div class="govuk-date-input__item">
+                            <div class="govuk-form-group">
+                                <label class="govuk-label govuk-date-input__label" asp-for="Year">Year</label>
+                                <input class="govuk-input govuk-date-input__input govuk-input--width-4 @(hasDateError ? "govuk-input--error" : string.Empty)"
+                                       asp-for="Year"
+                                       id="Year"
+                                       type="text"
+                                       inputmode="numeric"
+                                       maxlength="4"
+                                       autocomplete="bday-year">
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="govuk-button-group">
+                <button type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button">
+                    Confirm restriction
+                </button>
+                <a class="govuk-link" href="@Model.CancelUrl">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

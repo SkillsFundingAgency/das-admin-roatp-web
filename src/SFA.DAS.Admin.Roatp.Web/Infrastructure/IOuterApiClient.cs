@@ -44,4 +44,11 @@ public interface IOuterApiClient
     Task<ApiResponse<GetRestrictedCourseDetailsResponse>> GetAllowedProvidersForCourse(
         string larsCode,
         CancellationToken cancellationToken);
+
+    [Post("/providers/{ukprn}/allowed-courses/{larsCode}")]
+    Task UpsertProviderAllowedCourse(
+        int ukprn,
+        string larsCode,
+        [Body] UpsertProviderAllowedCourseRequest request,
+        CancellationToken cancellationToken);
 }

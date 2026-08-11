@@ -23,9 +23,9 @@
                     <dt class="das-definition-list__title">UKPRN</dt>
                     <dd class="das-definition-list__definition">@provider.Ukprn</dd>
                 </dl>
-                <dl asp-show="provider.HasLastStartDate" class="das-definition-list das-definition-list--meta govuk-!-margin-bottom-0">
+                <dl asp-show="provider.HasLastDateStarts" class="das-definition-list das-definition-list--meta govuk-!-margin-bottom-0">
                     <dt class="das-definition-list__title">Last start date</dt>
-                    <dd class="das-definition-list__definition">@provider.LastStartDateText</dd>
+                    <dd class="das-definition-list__definition">@provider.LastDateStartsText</dd>
                 </dl>
             </li>
         }
@@ -33,7 +33,7 @@
 </div>
 
 <div asp-show="@Model.HasNoFilterResults">
-    <h2 class="govuk-heading-m">No results</h2>
+    <h2 class="govuk-heading-l">No results</h2>
     <p class="govuk-body">There are no training providers that match your search.</p>
     <p class="govuk-body">You may need to:</p>
     <ul class="govuk-list govuk-list--bullet">

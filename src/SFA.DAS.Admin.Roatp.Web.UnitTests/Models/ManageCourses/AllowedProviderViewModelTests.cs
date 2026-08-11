@@ -10,7 +10,7 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models.ManageCourses;
 public class AllowedProviderViewModelTests
 {
     [Test, MoqAutoData]
-    public void WhenConvertingProvider_AndNoLastStartDate_ThenMapsOpenToNewStarts(
+    public void WhenConvertingProvider_AndNoLastDateStarts_ThenMapsOpenToNewStarts(
         ProviderCourseModel provider)
     {
         provider.LastDateStarts = null;
@@ -20,11 +20,11 @@ public class AllowedProviderViewModelTests
         model.DeliveryStatus.Should().Be(DeliveryStatus.OpenToNewStarts);
         model.DeliveryStatusDescription.Should().Be("Open to new starts");
         model.DeliveryStatusTagClass.Should().Be("govuk-tag--green");
-        model.HasLastStartDate.Should().BeFalse();
+        model.HasLastDateStarts.Should().BeFalse();
     }
 
     [Test, MoqAutoData]
-    public void WhenConvertingProvider_AndFutureLastStartDate_ThenMapsLastStartDateAdded(
+    public void WhenConvertingProvider_AndFutureLastDateStarts_ThenMapsLastStartDateAdded(
         ProviderCourseModel provider)
     {
         var date = DateTime.UtcNow.Date.AddDays(10);
@@ -35,12 +35,12 @@ public class AllowedProviderViewModelTests
         model.DeliveryStatus.Should().Be(DeliveryStatus.LastStartDateAdded);
         model.DeliveryStatusDescription.Should().Be("Last start date added");
         model.DeliveryStatusTagClass.Should().Be("govuk-tag--orange");
-        model.HasLastStartDate.Should().BeTrue();
-        model.LastStartDateText.Should().Be(date.ToString("dd MMM yyyy"));
+        model.HasLastDateStarts.Should().BeTrue();
+        model.LastDateStartsText.Should().Be(date.ToString("dd MMM yyyy"));
     }
 
     [Test, MoqAutoData]
-    public void WhenConvertingProvider_AndPastLastStartDate_ThenMapsClosedToNewStarts(
+    public void WhenConvertingProvider_AndPastLastDateStarts_ThenMapsClosedToNewStarts(
         ProviderCourseModel provider)
     {
         var date = DateTime.UtcNow.Date.AddDays(-10);
@@ -51,19 +51,19 @@ public class AllowedProviderViewModelTests
         model.DeliveryStatus.Should().Be(DeliveryStatus.ClosedToNewStarts);
         model.DeliveryStatusDescription.Should().Be("Closed to new starts");
         model.DeliveryStatusTagClass.Should().Be("govuk-tag--grey");
-        model.HasLastStartDate.Should().BeTrue();
-        model.LastStartDateText.Should().Be(date.ToString("dd MMM yyyy"));
+        model.HasLastDateStarts.Should().BeTrue();
+        model.LastDateStartsText.Should().Be(date.ToString("dd MMM yyyy"));
     }
 
     [Test, MoqAutoData]
-    public void WhenConvertingProvider_AndNoLastStartDate_ThenLastStartDateTextIsEmpty(
+    public void WhenConvertingProvider_AndNoLastDateStarts_ThenLastDateStartsTextIsEmpty(
         ProviderCourseModel provider)
     {
         provider.LastDateStarts = null;
 
         AllowedProviderViewModel model = provider;
 
-        model.LastStartDateText.Should().BeEmpty();
+        model.LastDateStartsText.Should().BeEmpty();
     }
 
     [Test, MoqAutoData]
