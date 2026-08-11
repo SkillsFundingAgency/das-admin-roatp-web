@@ -2,9 +2,9 @@
 @model TextBoxFilterSectionViewModel
 
 <div class="govuk-form-group">
-    <label for="@Model.Id" class="govuk-label das-filter__search-label">
-        @Model.Heading
-    </label>
+    <h3 class="govuk-heading-s">
+        <label for="@Model.Id">@Model.Heading</label>
+    </h3>
     @if (!string.IsNullOrWhiteSpace(Model.SubHeading))
     {
         <p class="govuk-hint">@Model.SubHeading</p>
