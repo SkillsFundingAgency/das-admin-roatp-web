@@ -6,6 +6,6 @@ public static class SessionKeys
     public const string UpdateSupportingProviderCourseTypes = "UpdateSupportingProviderCourseTypes";
     public const string AddProvider = "AddProvider";
     public const string GetOrganisationTypes = "GetOrganisationTypes";
-    public const string GetUnrestrictedCourses = "GetUnrestrictedCourses";
+   
     public const string AddRestrictedCourse = "AddRestrictedCourse";
 }
