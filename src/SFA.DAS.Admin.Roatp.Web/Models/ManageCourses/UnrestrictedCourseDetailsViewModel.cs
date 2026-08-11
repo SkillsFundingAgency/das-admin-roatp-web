@@ -17,7 +17,7 @@ public class UnrestrictedCourseDetailsViewModel : ICourseDisplayModel, IBackLink
 
     public string DisplayTitle => this.GetDisplayTitle();
     public string LearningTypeDescription => LearningType.GetDescription();
-    public string StatusText => "Unrestricted";
+    public static string StatusText => "Unrestricted";
     public bool HasProviders => Providers.Any();
     public bool HasNoProviders => !HasProviders;
     public int ProviderCount => Providers.Count();
