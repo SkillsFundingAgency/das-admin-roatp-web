@@ -14,11 +14,12 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses;
 public class UnrestrictedCourseSearchControllerPostTests
 {
     [Test, MoqAutoData]
-    public void WhenPostingUnrestrictedCourseSearch_AndModelIsValid_ThenRedirectsToSearchPage(
+    public void WhenPostingUnrestrictedCourseSearch_AndModelIsValid_ThenRedirectsToCourseDetails(
         UnrestrictedCourseSearchSubmitModel submitModel,
         [Frozen] Mock<IValidator<UnrestrictedCourseSearchSubmitModel>> validator,
         [Greedy] UnrestrictedCourseSearchController controller)
     {
+        submitModel.LarsCode = "105";
         validator.Setup(x => x.Validate(submitModel)).Returns(new ValidationResult());
 
         var actual = controller.Index(submitModel);
@@ -26,7 +27,8 @@ public class UnrestrictedCourseSearchControllerPostTests
         actual.Should().NotBeNull();
         var result = actual as RedirectToRouteResult;
         result.Should().NotBeNull();
-        result!.RouteName.Should().Be(RouteNames.UnrestrictedCourseSearch);
+        result!.RouteName.Should().Be(RouteNames.UnrestrictedCourseDetails);
+        result.RouteValues!["larsCode"].Should().Be("105");
     }
 
     [Test, MoqAutoData]
@@ -50,5 +52,6 @@ public class UnrestrictedCourseSearchControllerPostTests
         model.Should().NotBeNull();
         model!.Title.Should().Be(submitModel.Title);
         model.Level.Should().Be(submitModel.Level);
+        model.LarsCode.Should().Be(submitModel.LarsCode);
     }
 }

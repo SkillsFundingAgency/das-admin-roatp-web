@@ -54,6 +54,7 @@ AutoComplete.prototype.onConfirm = function (option) {
     if (this.mode === 'course') {
         document.getElementById("Title").value = option.title;
         document.getElementById("Level").value = option.level;
+        document.getElementById("LarsCode").value = option.larsCode;
         return;
     }
 

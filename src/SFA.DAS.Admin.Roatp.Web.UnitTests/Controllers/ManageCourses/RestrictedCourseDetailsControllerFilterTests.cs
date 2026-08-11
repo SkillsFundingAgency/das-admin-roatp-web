@@ -25,6 +25,7 @@ public class RestrictedCourseDetailsControllerFilterTests
         GetRestrictedCourseDetailsResponse response)
     {
         response.LarsCode = larsCode;
+        response.IsCourseRestricted = true;
         response.Providers =
         [
             new ProviderCourseModel { Ukprn = 10019900, ProviderName = "BABINGTON LTD", LastDateStarts = null },
@@ -59,6 +60,7 @@ public class RestrictedCourseDetailsControllerFilterTests
         GetRestrictedCourseDetailsResponse response)
     {
         response.LarsCode = larsCode;
+        response.IsCourseRestricted = true;
         response.Providers =
         [
             new ProviderCourseModel { Ukprn = 1, ProviderName = "Open Provider", LastDateStarts = null },
@@ -95,6 +97,7 @@ public class RestrictedCourseDetailsControllerFilterTests
         GetRestrictedCourseDetailsResponse response)
     {
         response.LarsCode = larsCode;
+        response.IsCourseRestricted = true;
         response.Providers =
         [
             new ProviderCourseModel { Ukprn = 10019900, ProviderName = "BABINGTON LTD", LastDateStarts = null }
