@@ -14,10 +14,9 @@ public class UnrestrictedCourseDetailsViewModel : ICourseDisplayModel, IBackLink
     public required string Sector { get; set; }
     public LearningType LearningType { get; set; }
     public IEnumerable<UnrestrictedCourseProviderViewModel> Providers { get; set; } = [];
-
     public string DisplayTitle => this.GetDisplayTitle();
     public string LearningTypeDescription => LearningType.GetDescription();
-    public static string StatusText => "Unrestricted";
+    public string StatusText { get; init; } = "Unrestricted";
     public bool HasProviders => Providers.Any();
     public bool HasNoProviders => !HasProviders;
     public int ProviderCount => Providers.Count();
@@ -40,7 +39,8 @@ public class UnrestrictedCourseDetailsViewModel : ICourseDisplayModel, IBackLink
             Title = response.CourseName,
             Sector = response.Route,
             LearningType = response.LearningType,
-            Providers = providers
+            Providers = providers,
+            StatusText = "Unrestricted"
         };
     }
 }
