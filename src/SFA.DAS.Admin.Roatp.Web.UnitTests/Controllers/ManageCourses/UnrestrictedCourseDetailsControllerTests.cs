@@ -7,6 +7,7 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
+using SFA.DAS.Admin.Roatp.Web.Models.Session;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
@@ -19,6 +20,7 @@ public class UnrestrictedCourseDetailsControllerTests
     [Test, MoqAutoData]
     public async Task WhenGettingUnrestrictedCourseDetails_AndCourseIsUnrestricted_ThenReturnsViewWithMappedModel(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] UnrestrictedCourseDetailsController sut,
         string larsCode,
         GetRestrictedCourseDetailsResponse response)
@@ -49,9 +51,6 @@ public class UnrestrictedCourseDetailsControllerTests
             .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
-        sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.UnrestrictedCourseDetails, $"/unrestricted-courses/{larsCode}");
-
         var result = await sut.Index(larsCode, CancellationToken.None) as ViewResult;
 
         result.Should().NotBeNull();
@@ -65,7 +64,7 @@ public class UnrestrictedCourseDetailsControllerTests
         model.HasProviders.Should().BeTrue();
         model.ProviderCountDescription.Should().Be("2 providers");
         model.Providers.Select(p => p.ProviderName).Should().ContainInOrder("ACORN SKILLS TRAINING", "BABINGTON LTD");
-        model.RestrictCourseUrl.Should().Be($"/unrestricted-courses/{larsCode}");
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddRestrictedCourse), Times.Once);
     }
 
     [Test, MoqAutoData]
@@ -83,9 +82,6 @@ public class UnrestrictedCourseDetailsControllerTests
             .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
-        sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.UnrestrictedCourseDetails, $"/unrestricted-courses/{larsCode}");
-
         var result = await sut.Index(larsCode, CancellationToken.None) as ViewResult;
 
         var model = result!.Model as UnrestrictedCourseDetailsViewModel;
@@ -96,6 +92,7 @@ public class UnrestrictedCourseDetailsControllerTests
     [Test, MoqAutoData]
     public async Task WhenGettingUnrestrictedCourseDetails_AndCourseIsRestricted_ThenRedirectsToRestrictedDetails(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] UnrestrictedCourseDetailsController sut,
         string larsCode,
         GetRestrictedCourseDetailsResponse response)
@@ -112,11 +109,13 @@ public class UnrestrictedCourseDetailsControllerTests
         result.Should().NotBeNull();
         result!.RouteName.Should().Be(RouteNames.RestrictedCourseDetails);
         result.RouteValues!["larsCode"].Should().Be(larsCode);
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddRestrictedCourse), Times.Once);
     }
 
     [Test, MoqAutoData]
     public async Task WhenGettingUnrestrictedCourseDetails_AndLarsCodeIsInvalid_ThenReturnsNotFound(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] UnrestrictedCourseDetailsController sut,
         string larsCode)
     {
@@ -127,5 +126,30 @@ public class UnrestrictedCourseDetailsControllerTests
         var result = await sut.Index(larsCode, CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddRestrictedCourse), Times.Once);
+    }
+
+    [Test, MoqAutoData]
+    public void WhenPostingRestrictThisCourse_ThenStoresSessionAndRedirectsToConfirm(
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] UnrestrictedCourseDetailsController sut,
+        string larsCode)
+    {
+        var submitModel = new RestrictCourseSubmitModel
+        {
+            LarsCode = larsCode,
+            DisplayName = "Academic professional (Level 7)"
+        };
+
+        var result = sut.Index(larsCode, submitModel) as RedirectToRouteResult;
+
+        result.Should().NotBeNull();
+        result!.RouteName.Should().Be(RouteNames.RestrictCourseConfirm);
+        result.RouteValues!["larsCode"].Should().Be(larsCode);
+        sessionServiceMock.Verify(s => s.Set(
+            SessionKeys.AddRestrictedCourse,
+            It.Is<AddRestrictedCourseSessionModel>(m =>
+                m.LarsCode == larsCode &&
+                m.DisplayName == "Academic professional (Level 7)")), Times.Once);
     }
 }

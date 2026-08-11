@@ -21,7 +21,6 @@ public class UnrestrictedCourseDetailsViewModel : ICourseDisplayModel, IBackLink
     public bool HasNoProviders => !HasProviders;
     public int ProviderCount => Providers.Count();
     public string ProviderCountDescription => "provider".ToQuantity(ProviderCount);
-    public string RestrictCourseUrl { get; set; } = "#";
 
     public static implicit operator UnrestrictedCourseDetailsViewModel(
         GetRestrictedCourseDetailsResponse response)
