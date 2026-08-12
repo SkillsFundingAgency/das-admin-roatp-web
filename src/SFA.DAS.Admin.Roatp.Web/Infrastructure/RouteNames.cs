@@ -30,4 +30,6 @@ public static class RouteNames
     public const string AddLastDateStarts = nameof(AddLastDateStarts);
     public const string UnrestrictedCourseSearch = nameof(UnrestrictedCourseSearch);
     public const string UnrestrictedCourses = nameof(UnrestrictedCourses);
+    public const string UnrestrictedCourseDetails = nameof(UnrestrictedCourseDetails);
+    public const string RestrictCourseConfirm = nameof(RestrictCourseConfirm);
 }

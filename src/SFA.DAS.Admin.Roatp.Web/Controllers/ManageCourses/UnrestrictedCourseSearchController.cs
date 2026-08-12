@@ -30,10 +30,11 @@ public class UnrestrictedCourseSearchController(IValidator<UnrestrictedCourseSea
             return View(ViewPath, new UnrestrictedCourseSearchViewModel
             {
                 Title = submitModel.Title,
-                Level = submitModel.Level
+                Level = submitModel.Level,
+                LarsCode = submitModel.LarsCode
             });
         }
 
-        return RedirectToRoute(RouteNames.UnrestrictedCourseSearch);
+        return RedirectToRoute(RouteNames.UnrestrictedCourseDetails, new { larsCode = submitModel.LarsCode });
     }
 }

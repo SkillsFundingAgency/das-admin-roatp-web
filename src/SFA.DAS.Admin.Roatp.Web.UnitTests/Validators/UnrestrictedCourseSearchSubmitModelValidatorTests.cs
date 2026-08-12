@@ -31,9 +31,24 @@ public class UnrestrictedCourseSearchSubmitModelValidatorTests
         var result = _validator.TestValidate(new UnrestrictedCourseSearchSubmitModel
         {
             Title = "Software developer",
-            Level = 4
+            Level = 4,
+            LarsCode = "123"
         });
 
         result.IsValid.Should().BeTrue();
+    }
+
+    [Test]
+    public void WhenValidatingSearchTerm_AndLarsCodeMissing_ThenReturnsExpectedErrorMessage()
+    {
+        var result = _validator.TestValidate(new UnrestrictedCourseSearchSubmitModel
+        {
+            Title = "Software developer",
+            Level = 4
+        });
+
+        result.IsValid.Should().BeFalse();
+        result.ShouldHaveValidationErrorFor(c => c.LarsCode)
+            .WithErrorMessage(UnrestrictedCourseSearchSubmitModelValidator.NoCourseSelectedErrorMessage);
     }
 }

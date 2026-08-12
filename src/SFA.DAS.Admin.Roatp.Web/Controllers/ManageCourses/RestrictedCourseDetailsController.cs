@@ -34,7 +34,12 @@ public class RestrictedCourseDetailsController(
 
         var courseDetails = await larsCodeService.GetCourseDetailsAsync(larsCode, cancellationToken);
 
-        RestrictedCourseDetailsViewModel model = courseDetails!;
+        if (!courseDetails!.IsCourseRestricted)
+        {
+            return RedirectToRoute(RouteNames.UnrestrictedCourseDetails, new { larsCode });
+        }
+
+        RestrictedCourseDetailsViewModel model = courseDetails;
         model.RestrictedCourseDetailsPageUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!;
         model.HasActiveFilters = request.HasFilters;
         model.Filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, larsCode, Url);

@@ -158,4 +158,25 @@ public class RestrictedCourseDetailsControllerGetTests
         result.Should().BeOfType<NotFoundResult>();
         larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingRestrictedCourseDetails_AndCourseIsUnrestricted_ThenRedirectsToUnrestrictedDetails(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Greedy] RestrictedCourseDetailsController sut,
+        string larsCode,
+        GetRestrictedCourseDetailsResponse response)
+    {
+        response.LarsCode = larsCode;
+        response.IsCourseRestricted = false;
+
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+
+        var result = await sut.Index(larsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as RedirectToRouteResult;
+
+        result.Should().NotBeNull();
+        result!.RouteName.Should().Be(RouteNames.UnrestrictedCourseDetails);
+        result.RouteValues!["larsCode"].Should().Be(larsCode);
+    }
 }
