@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Refit;
@@ -20,6 +20,7 @@ public static class AddApplicationRegistrationsExtension
 
         services.AddTransient<ISessionService, SessionService>();
         services.AddTransient<IOrganisationsService, OrganisationsService>();
+        services.AddTransient<IUnrestrictedCoursesService, UnrestrictedCoursesService>();
         services.AddTransient<IOrganisationPatchService, OrganisationPatchService>();
         services.AddTransient<IOrganisationTypesService, OrganisationTypesService>();
         services.AddTransient<IPostOrganisationService, PostOrganisationService>();

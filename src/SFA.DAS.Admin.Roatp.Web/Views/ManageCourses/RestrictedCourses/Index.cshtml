@@ -14,9 +14,11 @@
     <h2 class="govuk-heading-l">Restrict a new course</h2>
     <p class="govuk-body">This will not impact training providers who currently have learners on this course, or remove it from their offering in Course management.</p>
     <p class="govuk-body">It will stop training providers who don’t yet offer it from adding it to their account in Course management.</p>
-    <button type="button" class="govuk-button govuk-!-margin-bottom-0" data-module="govuk-button">
-        Restrict a new course
-    </button>
+    <form asp-route="@RouteNames.UnrestrictedCourseSearch" method="get" class="govuk-!-margin-bottom-0">
+        <button type="submit" class="govuk-button govuk-!-margin-bottom-0" data-module="govuk-button">
+            Restrict a new course
+        </button>
+    </form>
 </div>
 
 <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-6">

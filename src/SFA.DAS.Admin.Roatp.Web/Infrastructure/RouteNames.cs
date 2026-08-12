@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.Admin.Roatp.Web.Infrastructure;
 
@@ -28,4 +28,6 @@ public static class RouteNames
     public const string RestrictedCourses = nameof(RestrictedCourses);
     public const string RestrictedCourseDetails = nameof(RestrictedCourseDetails);
     public const string AddLastDateStarts = nameof(AddLastDateStarts);
+    public const string UnrestrictedCourseSearch = nameof(UnrestrictedCourseSearch);
+    public const string UnrestrictedCourses = nameof(UnrestrictedCourses);
 }
