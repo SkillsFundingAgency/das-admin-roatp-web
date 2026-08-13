@@ -83,7 +83,7 @@ public class RestrictedCourseDetailsViewModelTests
     }
 
     [Test]
-    public void WhenAddLastDateStartsSuccessBannerMessageIsSet_ThenHasAddLastDateStartsSuccessBannerIsTrue()
+    public void WhenSuccessBannerMessageIsSet_ThenHasSuccessBannerIsTrue()
     {
         var model = new RestrictedCourseDetailsViewModel
         {
@@ -91,14 +91,14 @@ public class RestrictedCourseDetailsViewModelTests
             CourseName = "Course",
             Title = "Course",
             Sector = "Sector",
-            AddLastDateStartsSuccessBannerMessage = "Last start date added for BP TRAINING"
+            SuccessBannerMessage = "Last start date added for BP TRAINING"
         };
 
-        model.HasAddLastDateStartsSuccessBanner.Should().BeTrue();
+        model.HasSuccessBanner.Should().BeTrue();
     }
 
     [Test]
-    public void WhenAddLastDateStartsSuccessBannerMessageIsBlank_ThenHasAddLastDateStartsSuccessBannerIsFalse()
+    public void WhenSuccessBannerMessageIsBlank_ThenHasSuccessBannerIsFalse()
     {
         var model = new RestrictedCourseDetailsViewModel
         {
@@ -106,10 +106,10 @@ public class RestrictedCourseDetailsViewModelTests
             CourseName = "Course",
             Title = "Course",
             Sector = "Sector",
-            AddLastDateStartsSuccessBannerMessage = " "
+            SuccessBannerMessage = " "
         };
 
-        model.HasAddLastDateStartsSuccessBanner.Should().BeFalse();
+        model.HasSuccessBanner.Should().BeFalse();
     }
 
     [Test]
@@ -124,6 +124,6 @@ public class RestrictedCourseDetailsViewModelTests
         };
 
         model.RestrictedCourseDetailsPageUrl.Should().Be("#");
-        model.HasAddLastDateStartsSuccessBanner.Should().BeFalse();
+        model.HasSuccessBanner.Should().BeFalse();
     }
 }

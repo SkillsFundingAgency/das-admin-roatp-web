@@ -134,13 +134,48 @@ public class RestrictedCourseDetailsControllerGetTests
         };
         sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>())
         {
-            [AddLastDateStartsController.SuccessBannerTempDataKey] = successMessage
+            [RestrictedCourseDetailsController.SuccessBannerTempDataKey] = successMessage
         };
 
         var result = await sut.Index(larsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
-        model!.AddLastDateStartsSuccessBannerMessage.Should().Be(successMessage);
+        model!.SuccessBannerMessage.Should().Be(successMessage);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingRestrictedCourseDetails_AndTempDataContainsRestrictCourseSuccessBanner_ThenModelHasSuccessBannerMessage(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Greedy] RestrictedCourseDetailsController sut,
+        string larsCode,
+        GetRestrictedCourseDetailsResponse response)
+    {
+        response.LarsCode = larsCode;
+        response.IsCourseRestricted = true;
+        response.Providers = [];
+
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+
+        sut.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+        sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>())
+        {
+            [RestrictedCourseDetailsController.SuccessBannerTempDataKey] = RestrictCourseConfirmController.SuccessBannerMessage
+        };
+
+        var result = await sut.Index(larsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
+
+        var model = result!.Model as RestrictedCourseDetailsViewModel;
+        model!.SuccessBannerMessage.Should().Be(RestrictCourseConfirmController.SuccessBannerMessage);
+        model.HasSuccessBanner.Should().BeTrue();
     }
 
     [Test, MoqAutoData]

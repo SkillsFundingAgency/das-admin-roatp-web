@@ -33,8 +33,8 @@ public class RestrictedCourseDetailsViewModel : ICourseDisplayModel, IBackLink, 
     public bool HasActiveFilters { get; set; }
     public FiltersViewModel Filters { get; set; } = new() { Route = string.Empty };
     public PaginationViewModel Pagination { get; set; } = null!;
-    public string? AddLastDateStartsSuccessBannerMessage { get; set; }
-    public bool HasAddLastDateStartsSuccessBanner => !string.IsNullOrWhiteSpace(AddLastDateStartsSuccessBannerMessage);
+    public string? SuccessBannerMessage { get; set; }
+    public bool HasSuccessBanner => !string.IsNullOrWhiteSpace(SuccessBannerMessage);
 
     public static implicit operator RestrictedCourseDetailsViewModel(
         GetRestrictedCourseDetailsResponse response)

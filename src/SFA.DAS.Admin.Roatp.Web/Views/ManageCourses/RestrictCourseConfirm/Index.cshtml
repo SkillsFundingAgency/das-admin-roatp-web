@@ -1,0 +1,41 @@
+@using SFA.DAS.Admin.Roatp.Web.Infrastructure
+@model SFA.DAS.Admin.Roatp.Web.Models.ManageCourses.RestrictCourseConfirmViewModel
+@{
+    ViewBag.Title = "Are you sure you want to restrict this course";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <span class="govuk-caption-xl govuk-!-margin-bottom-2">View and manage restricted courses</span>
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">Are you sure you want to restrict this course?</h1>
+    </div>
+    <div class="govuk-grid-column-two-thirds">
+        <div class="app-action-panel govuk-!-margin-bottom-6">
+            <p class="govuk-body govuk-!-font-weight-bold govuk-!-margin-bottom-1">@Model.DisplayName</p>
+            <p class="govuk-body govuk-!-margin-bottom-0">LARS Code: @Model.LarsCode</p>
+        </div>
+        <p class="govuk-body">
+            Training providers who currently have this course added in Course management will still be able to deliver it.
+        </p>
+        <p class="govuk-body">
+            Restricting it will stop new training providers from adding it to their account.
+        </p>
+
+        <div class="govuk-warning-text">
+            <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+            <strong class="govuk-warning-text__text">
+                <span class="govuk-visually-hidden">Warning</span>
+                Restricting a course cannot be undone.
+            </strong>
+        </div>
+
+        <form asp-route="@RouteNames.RestrictCourseConfirm" asp-route-larsCode="@Model.LarsCode" method="post">
+            <div class="govuk-button-group">
+                <button type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button">
+                    Restrict course
+                </button>
+                <a class="govuk-link" href="@Model.CancelUrl">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

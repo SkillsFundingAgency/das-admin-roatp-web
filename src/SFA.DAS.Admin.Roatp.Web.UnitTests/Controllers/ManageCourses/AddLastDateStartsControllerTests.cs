@@ -263,7 +263,7 @@ public class AddLastDateStartsControllerTests
         result.Should().NotBeNull();
         result!.RouteName.Should().Be(RouteNames.RestrictedCourseDetails);
         result.RouteValues!["larsCode"].Should().Be(larsCode);
-        sut.TempData[AddLastDateStartsController.SuccessBannerTempDataKey]
+        sut.TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey]
             .Should().Be("Last start date added for BP TRAINING");
 
         outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
