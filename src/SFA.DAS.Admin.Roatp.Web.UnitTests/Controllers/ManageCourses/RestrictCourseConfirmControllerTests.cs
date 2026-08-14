@@ -21,7 +21,7 @@ public class RestrictCourseConfirmControllerTests
 {
     private const string LarsCode = "105";
     private const string OtherLarsCode = "999";
-    private const string UnrestrictedCourseDetailsUrl = "/unrestricted-courses/" + LarsCode;
+    private const string UnrestrictedCourseDetailsUrl = $"/unrestricted-courses/{LarsCode}";
     [Test, MoqAutoData]
     public void WhenGettingConfirm_AndSessionExists_ThenReturnsViewWithCourseDetails(
         [Frozen] Mock<ISessionService> sessionServiceMock,

@@ -18,7 +18,7 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses;
 public class RestrictedCourseDetailsControllerFilterTests
 {
     private const string LarsCode = "105";
-    private const string RestrictedCourseDetailsUrl = "/restricted-courses/" + LarsCode;
+    private const string RestrictedCourseDetailsUrl = $"/restricted-courses/{LarsCode}";
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndProviderNameFilterMatches_ThenReturnsMatchingProviders(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,

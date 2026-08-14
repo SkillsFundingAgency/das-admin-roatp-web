@@ -23,7 +23,7 @@ public class AddLastDateStartsControllerTests
 {
     private const int Ukprn = 10007938;
     private const string LarsCode = "105";
-    private const string RestrictedCourseDetailsUrl = "/restricted-courses/" + LarsCode;
+    private const string RestrictedCourseDetailsUrl = $"/restricted-courses/{LarsCode}";
     private const int OtherUkprn = 10000001;
 
     [Test, MoqAutoData]
