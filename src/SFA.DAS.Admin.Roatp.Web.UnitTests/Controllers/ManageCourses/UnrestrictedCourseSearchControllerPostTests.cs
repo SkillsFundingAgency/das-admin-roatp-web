@@ -19,7 +19,6 @@ public class UnrestrictedCourseSearchControllerPostTests
         [Frozen] Mock<IValidator<UnrestrictedCourseSearchSubmitModel>> validator,
         [Greedy] UnrestrictedCourseSearchController controller)
     {
-        submitModel.LarsCode = "105";
         validator.Setup(x => x.Validate(submitModel)).Returns(new ValidationResult());
 
         var actual = controller.Index(submitModel);
@@ -28,7 +27,7 @@ public class UnrestrictedCourseSearchControllerPostTests
         var result = actual as RedirectToRouteResult;
         result.Should().NotBeNull();
         result!.RouteName.Should().Be(RouteNames.UnrestrictedCourseDetails);
-        result.RouteValues!["larsCode"].Should().Be("105");
+        result.RouteValues!["larsCode"].Should().Be(submitModel.LarsCode);
     }
 
     [Test, MoqAutoData]

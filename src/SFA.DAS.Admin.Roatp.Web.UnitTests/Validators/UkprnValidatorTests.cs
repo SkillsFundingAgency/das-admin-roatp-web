@@ -12,21 +12,22 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Validators;
 [TestFixture]
 public class UkprnValidatorTests
 {
+    private const int Ukprn = 10007938;
+
     [Test, MoqAutoData]
     public async Task WhenValidatingUkprn_AndServiceReturnsOrganisation_ThenIsValid(
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] UkprnValidator sut,
         GetOrganisationResponse organisation)
     {
-        const int ukprn = 10007938;
         ukprnServiceMock
-            .Setup(s => s.GetOrganisationAsync(ukprn, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetOrganisationAsync(Ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync(organisation);
 
-        var result = await sut.TestValidateAsync(new UkprnModel { Ukprn = ukprn });
+        var result = await sut.TestValidateAsync(new UkprnModel { Ukprn = Ukprn });
 
         result.ShouldNotHaveAnyValidationErrors();
-        ukprnServiceMock.Verify(s => s.GetOrganisationAsync(ukprn, It.IsAny<CancellationToken>()), Times.Once);
+        ukprnServiceMock.Verify(s => s.GetOrganisationAsync(Ukprn, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test, MoqAutoData]
@@ -34,12 +35,11 @@ public class UkprnValidatorTests
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] UkprnValidator sut)
     {
-        const int ukprn = 10007938;
         ukprnServiceMock
-            .Setup(s => s.GetOrganisationAsync(ukprn, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetOrganisationAsync(Ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetOrganisationResponse?)null);
 
-        var result = await sut.TestValidateAsync(new UkprnModel { Ukprn = ukprn });
+        var result = await sut.TestValidateAsync(new UkprnModel { Ukprn = Ukprn });
 
         result.ShouldHaveValidationErrorFor(x => x.Ukprn)
             .WithErrorMessage(UkprnValidator.UkprnInvalidValidationMessage);

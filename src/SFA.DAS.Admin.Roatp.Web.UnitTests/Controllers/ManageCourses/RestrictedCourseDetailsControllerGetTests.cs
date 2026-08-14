@@ -18,14 +18,15 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses;
 [TestFixture]
 public class RestrictedCourseDetailsControllerGetTests
 {
+    private const string LarsCode = "105";
+    private const string RestrictedCourseDetailsUrl = "/restricted-courses/" + LarsCode;
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndLarsCodeIsValid_ThenReturnsViewWithMappedModel(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response)
     {
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.CourseName = "Academic professional";
         response.Level = 7;
         response.Route = "Education and early years";
@@ -48,15 +49,15 @@ public class RestrictedCourseDetailsControllerGetTests
         ];
 
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}")
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.AddLastDateStarts, "/add-last-date-starts");
 
-        var result = await sut.Index(larsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
         result.Should().NotBeNull();
         result!.ViewName.Should().Be(RestrictedCourseDetailsController.ViewPath);
@@ -64,7 +65,7 @@ public class RestrictedCourseDetailsControllerGetTests
         model.Should().NotBeNull();
         model!.DisplayTitle.Should().Be("Academic professional (Level 7)");
         model.Sector.Should().Be("Education and early years");
-        model.LarsCode.Should().Be(larsCode);
+        model.LarsCode.Should().Be(LarsCode);
         model.Level.Should().Be(7);
         model.StatusText.Should().Be("Restricted");
         model.HasProviders.Should().BeTrue();
@@ -78,29 +79,28 @@ public class RestrictedCourseDetailsControllerGetTests
         model.AllowedProviders.Last().DeliveryStatus.Should().Be(DeliveryStatus.LastStartDateAdded);
         model.AllowedProviders.Should().OnlyContain(p => p.ChangeUrl == "/add-last-date-starts");
 
-        larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()), Times.Exactly(2));
+        larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndNoProviders_ThenReturnsEmptyState(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response)
     {
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.IsCourseRestricted = true;
         response.Providers = [];
 
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var result = await sut.Index(larsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.HasNoProviders.Should().BeTrue();
@@ -112,21 +112,20 @@ public class RestrictedCourseDetailsControllerGetTests
     public async Task WhenGettingRestrictedCourseDetails_AndTempDataContainsSuccessBannerMessage_ThenModelHasSuccessBannerMessage(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response,
         string successMessage)
     {
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.IsCourseRestricted = true;
         response.Providers = [];
 
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
         sut.ControllerContext = new ControllerContext
         {
@@ -137,7 +136,7 @@ public class RestrictedCourseDetailsControllerGetTests
             [RestrictedCourseDetailsController.SuccessBannerTempDataKey] = successMessage
         };
 
-        var result = await sut.Index(larsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.SuccessBannerMessage.Should().Be(successMessage);
@@ -147,20 +146,19 @@ public class RestrictedCourseDetailsControllerGetTests
     public async Task WhenGettingRestrictedCourseDetails_AndTempDataContainsRestrictCourseSuccessBanner_ThenModelHasSuccessBannerMessage(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response)
     {
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.IsCourseRestricted = true;
         response.Providers = [];
 
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
         sut.ControllerContext = new ControllerContext
         {
@@ -171,7 +169,7 @@ public class RestrictedCourseDetailsControllerGetTests
             [RestrictedCourseDetailsController.SuccessBannerTempDataKey] = RestrictCourseConfirmController.SuccessBannerMessage
         };
 
-        var result = await sut.Index(larsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.SuccessBannerMessage.Should().Be(RestrictCourseConfirmController.SuccessBannerMessage);
@@ -181,37 +179,35 @@ public class RestrictedCourseDetailsControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndLarsCodeIsInvalid_ThenReturnsNotFound(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
-        [Greedy] RestrictedCourseDetailsController sut,
-        string larsCode)
+        [Greedy] RestrictedCourseDetailsController sut)
     {
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetRestrictedCourseDetailsResponse?)null);
 
-        var result = await sut.Index(larsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None);
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
-        larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()), Times.Once);
+        larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndCourseIsUnrestricted_ThenRedirectsToUnrestrictedDetails(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response)
     {
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.IsCourseRestricted = false;
 
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
-        var result = await sut.Index(larsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as RedirectToRouteResult;
 
         result.Should().NotBeNull();
         result!.RouteName.Should().Be(RouteNames.UnrestrictedCourseDetails);
-        result.RouteValues!["larsCode"].Should().Be(larsCode);
+        result.RouteValues!["larsCode"].Should().Be(LarsCode);
     }
 }
