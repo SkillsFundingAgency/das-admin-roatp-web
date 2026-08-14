@@ -85,6 +85,7 @@ public class RestrictedCourseDetailsController(
             pageSize,
             Url,
             RouteNames.RestrictedCourseDetails,
-            request.ToQueryString());
+            request.ToQueryString(),
+            RestrictedCourseDetailsFilterBuilder.ProviderResultsFragment);
     }
 }

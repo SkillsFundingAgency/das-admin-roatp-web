@@ -81,7 +81,9 @@ public class RestrictedCourseDetailsFilterBuilderTests
             .Single(section => section.Title == SearchTermSectionHeading)
             .Items.Single().ClearLink;
 
-        clearProviderLink.Should().Be("/restricted-courses/105?DeliveryStatus=LastStartDateAdded");
+        clearProviderLink.Should().Be(
+            $"/restricted-courses/105?DeliveryStatus=LastStartDateAdded#{RestrictedCourseDetailsFilterBuilder.ProviderResultsFragment}");
+        filters.Fragment.Should().Be(RestrictedCourseDetailsFilterBuilder.ProviderResultsFragment);
     }
 
     [Test]
@@ -96,7 +98,7 @@ public class RestrictedCourseDetailsFilterBuilderTests
         var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, "105", urlHelper.Object);
 
         filters.ClearFilterSections.Single().Items.Single().ClearLink
-            .Should().Be("/restricted-courses/105");
+            .Should().Be($"/restricted-courses/105#{RestrictedCourseDetailsFilterBuilder.ProviderResultsFragment}");
     }
 
     [Test]
@@ -204,7 +206,8 @@ public class RestrictedCourseDetailsFilterBuilderTests
             .Items.Single(item => item.DisplayText == "Open to new starts")
             .ClearLink;
 
-        clearOpenLink.Should().Be("/restricted-courses/105?DeliveryStatus=ClosedToNewStarts");
+        clearOpenLink.Should().Be(
+            $"/restricted-courses/105?DeliveryStatus=ClosedToNewStarts#{RestrictedCourseDetailsFilterBuilder.ProviderResultsFragment}");
     }
 
     private static Mock<IUrlHelper> CreateUrlHelper()

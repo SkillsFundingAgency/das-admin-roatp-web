@@ -1,3 +1,4 @@
+@using SFA.DAS.Admin.Roatp.Web.Services
 @model SFA.DAS.Admin.Roatp.Web.Models.ManageCourses.RestrictedCourseDetailsViewModel
 @{
     ViewBag.Title = $"View and manage restricted courses - {Model.DisplayTitle}";
@@ -65,7 +66,7 @@
     <p class="govuk-body">You can stop a training provider from offering this course by adding a last date for new starts.</p>
     <p class="govuk-body">You can also change, extend or remove the last start date if you want a training provider to continue delivering it.</p>
 
-    <div class="govuk-grid-row govuk-!-margin-top-6">
+    <div class="govuk-grid-row govuk-!-margin-top-6" id="@RestrictedCourseDetailsFilterBuilder.ProviderResultsFragment">
         <div class="govuk-grid-column-one-third">
             @await Html.PartialAsync("_filters", Model.Filters)
         </div>

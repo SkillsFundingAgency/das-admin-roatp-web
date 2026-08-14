@@ -63,7 +63,8 @@ public static class FilterService
     public static IReadOnlyList<ClearFilterSectionViewModel> CreateClearFilterSections(
         Dictionary<FilterType, IEnumerable<string>> selectedFilters,
         string clearFiltersBaseUrl,
-        Dictionary<FilterType, Func<string, string>>? overrideValueFunctions = null)
+        Dictionary<FilterType, Func<string, string>>? overrideValueFunctions = null,
+        string? fragment = null)
     {
         if (selectedFilters.Count == 0)
         {
@@ -91,7 +92,8 @@ public static class FilterService
                         filter.Key,
                         value,
                         selectedFilters,
-                        overrideValueFunctions)
+                        overrideValueFunctions,
+                        fragment)
                 }).ToList()
             });
         }
@@ -127,12 +129,17 @@ public static class FilterService
         FilterType filterType,
         string value,
         Dictionary<FilterType, IEnumerable<string>> queryParams,
-        Dictionary<FilterType, Func<string, string>>? overrideValueFunctions)
+        Dictionary<FilterType, Func<string, string>>? overrideValueFunctions,
+        string? fragment)
     {
         var queryString = BuildQueryWithoutValue(filterType, value, queryParams, overrideValueFunctions);
-        return string.IsNullOrEmpty(queryString)
+        var clearLink = string.IsNullOrEmpty(queryString)
             ? clearFiltersBaseUrl
             : $"{clearFiltersBaseUrl}{queryString}";
+
+        return string.IsNullOrWhiteSpace(fragment)
+            ? clearLink
+            : $"{clearLink}#{fragment}";
     }
 
     private static string BuildQueryWithoutValue(
