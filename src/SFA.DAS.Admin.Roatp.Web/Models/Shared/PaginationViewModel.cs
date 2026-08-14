@@ -19,7 +19,7 @@ public sealed class PaginationViewModel
     private readonly List<(string, string)> _queryParams;
     private readonly string _routeName;
     private readonly IUrlHelper _urlHelper;
-    private readonly string? _fragment;
+    private readonly string? _filterResultsFragment;
 
     public PaginationViewModel(
         int pageNumber,
@@ -28,13 +28,13 @@ public sealed class PaginationViewModel
         IUrlHelper urlHelper,
         string routeName,
         List<(string, string)> queryParams,
-        string? fragment = null)
+        string? filterResultsFragment = null)
     {
         PageNumber = pageNumber;
         _routeName = routeName;
-        _queryParams = [..queryParams];
+        _queryParams = [.. queryParams];
         _urlHelper = urlHelper;
-        _fragment = fragment;
+        _filterResultsFragment = filterResultsFragment;
 
         if (totalCount == 0)
         {
@@ -98,9 +98,9 @@ public sealed class PaginationViewModel
 
         var pageUrl = $"{_urlHelper.RouteUrl(_routeName)}?{queryString}";
 
-        return string.IsNullOrWhiteSpace(_fragment)
+        return string.IsNullOrWhiteSpace(_filterResultsFragment)
             ? pageUrl
-            : $"{pageUrl}#{_fragment}";
+            : $"{pageUrl}#{_filterResultsFragment}";
     }
 
     public static (int startPage, int endPage) GetPageRange(int currentPage, int totalRecords, int pageSize)

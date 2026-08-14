@@ -82,8 +82,8 @@ public class RestrictedCourseDetailsFilterBuilderTests
             .Items.Single().ClearLink;
 
         clearProviderLink.Should().Be(
-            $"/restricted-courses/105?DeliveryStatus=LastStartDateAdded#{RestrictedCourseDetailsFilterBuilder.ProviderResultsFragment}");
-        filters.Fragment.Should().Be(RestrictedCourseDetailsFilterBuilder.ProviderResultsFragment);
+            $"/restricted-courses/105?DeliveryStatus=LastStartDateAdded#{RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment}");
+        filters.FilterResultsFragment.Should().Be(RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment);
     }
 
     [Test]
@@ -98,7 +98,7 @@ public class RestrictedCourseDetailsFilterBuilderTests
         var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, "105", urlHelper.Object);
 
         filters.ClearFilterSections.Single().Items.Single().ClearLink
-            .Should().Be($"/restricted-courses/105#{RestrictedCourseDetailsFilterBuilder.ProviderResultsFragment}");
+            .Should().Be($"/restricted-courses/105#{RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment}");
     }
 
     [Test]
@@ -207,7 +207,7 @@ public class RestrictedCourseDetailsFilterBuilderTests
             .ClearLink;
 
         clearOpenLink.Should().Be(
-            $"/restricted-courses/105?DeliveryStatus=ClosedToNewStarts#{RestrictedCourseDetailsFilterBuilder.ProviderResultsFragment}");
+            $"/restricted-courses/105?DeliveryStatus=ClosedToNewStarts#{RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment}");
     }
 
     private static Mock<IUrlHelper> CreateUrlHelper()

@@ -11,7 +11,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Services;
 
 public static class RestrictedCourseDetailsFilterBuilder
 {
-    public const string ProviderResultsFragment = "provider-results";
+    public const string ProviderFilterResultsFragment = "provider-results";
 
     private const string SearchTermInputId = "search-term-input";
     private const string DeliveryStatusFilterId = "delivery-status-filter";
@@ -45,7 +45,7 @@ public static class RestrictedCourseDetailsFilterBuilder
         {
             Route = RouteNames.RestrictedCourseDetails,
             LarsCode = larsCode,
-            Fragment = ProviderResultsFragment,
+            FilterResultsFragment = ProviderFilterResultsFragment,
             FilterSections =
             [
                 CreateInputFilterSection(
@@ -65,7 +65,7 @@ public static class RestrictedCourseDetailsFilterBuilder
                 selectedFilters,
                 clearFiltersBaseUrl,
                 overrideValueFunctions,
-                ProviderResultsFragment)
+                ProviderFilterResultsFragment)
         };
     }
 

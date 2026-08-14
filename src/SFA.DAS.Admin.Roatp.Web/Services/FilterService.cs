@@ -64,7 +64,7 @@ public static class FilterService
         Dictionary<FilterType, IEnumerable<string>> selectedFilters,
         string clearFiltersBaseUrl,
         Dictionary<FilterType, Func<string, string>>? overrideValueFunctions = null,
-        string? fragment = null)
+        string? filterResultsFragment = null)
     {
         if (selectedFilters.Count == 0)
         {
@@ -93,7 +93,7 @@ public static class FilterService
                         value,
                         selectedFilters,
                         overrideValueFunctions,
-                        fragment)
+                        filterResultsFragment)
                 }).ToList()
             });
         }
@@ -130,16 +130,16 @@ public static class FilterService
         string value,
         Dictionary<FilterType, IEnumerable<string>> queryParams,
         Dictionary<FilterType, Func<string, string>>? overrideValueFunctions,
-        string? fragment)
+        string? filterResultsFragment)
     {
         var queryString = BuildQueryWithoutValue(filterType, value, queryParams, overrideValueFunctions);
         var clearLink = string.IsNullOrEmpty(queryString)
             ? clearFiltersBaseUrl
             : $"{clearFiltersBaseUrl}{queryString}";
 
-        return string.IsNullOrWhiteSpace(fragment)
+        return string.IsNullOrWhiteSpace(filterResultsFragment)
             ? clearLink
-            : $"{clearLink}#{fragment}";
+            : $"{clearLink}#{filterResultsFragment}";
     }
 
     private static string BuildQueryWithoutValue(
