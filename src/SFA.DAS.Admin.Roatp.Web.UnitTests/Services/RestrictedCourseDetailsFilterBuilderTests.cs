@@ -14,7 +14,7 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Services;
 public class RestrictedCourseDetailsFilterBuilderTests
 {
     private const string LarsCode = "105";
-    private const string RestrictedCourseDetailsUrl = "/restricted-courses/" + LarsCode;
+    private const string RestrictedCourseDetailsUrl = $"/restricted-courses/{LarsCode}";
 
     [Test]
     public void WhenApplyingProviderNameFilter_ThenMatchesNameOrUkprn()

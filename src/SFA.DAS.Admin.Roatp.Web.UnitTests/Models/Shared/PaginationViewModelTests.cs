@@ -13,7 +13,7 @@ public sealed class PaginationViewModelTests
 {
     private const int PageSize = PaginationViewModel.DefaultPageSize;
     private const string LarsCode = "105";
-    private const string RestrictedCourseDetailsUrl = "/restricted-courses/" + LarsCode;
+    private const string RestrictedCourseDetailsUrl = $"/restricted-courses/{LarsCode}";
 
     private Mock<IUrlHelper> _urlHelperMock = null!;
 
