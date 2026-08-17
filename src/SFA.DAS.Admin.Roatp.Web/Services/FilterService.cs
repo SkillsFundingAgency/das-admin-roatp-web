@@ -10,7 +10,10 @@ public static class FilterService
 
     public const string SearchTermSectionHeading = "Provider name";
     public const string SearchTermSectionSubHeading = "Search by name or UKPRN";
+    public const string CourseNameSectionHeading = "Course name";
+    public const string CourseNameSectionSubHeading = "Search by course name or LARS code";
     public const string DeliveryStatusSectionHeading = "Delivery status";
+    public const string LearningTypeSectionHeading = "Training type";
 
     public enum FilterComponentType
     {
@@ -21,13 +24,15 @@ public static class FilterService
     public enum FilterType
     {
         SearchTerm,
-        DeliveryStatus
+        DeliveryStatus,
+        LearningType
     }
 
     public static Dictionary<FilterType, string> ClearFilterSectionHeadings { get; } = new()
     {
         { FilterType.SearchTerm, SearchTermSectionHeading },
-        { FilterType.DeliveryStatus, DeliveryStatusSectionHeading }
+        { FilterType.DeliveryStatus, DeliveryStatusSectionHeading },
+        { FilterType.LearningType, LearningTypeSectionHeading }
     };
 
     public static FilterSection CreateInputFilterSection(
@@ -64,7 +69,8 @@ public static class FilterService
         Dictionary<FilterType, IEnumerable<string>> selectedFilters,
         string clearFiltersBaseUrl,
         Dictionary<FilterType, Func<string, string>>? overrideValueFunctions = null,
-        string? filterResultsFragment = null)
+        string? filterResultsFragment = null,
+        Dictionary<FilterType, string>? sectionHeadingOverrides = null)
     {
         if (selectedFilters.Count == 0)
         {
@@ -80,10 +86,13 @@ public static class FilterService
                 continue;
             }
 
+            var title = sectionHeadingOverrides?.GetValueOrDefault(filter.Key)
+                        ?? ClearFilterSectionHeadings[filter.Key];
+
             clearFilterSections.Add(new ClearFilterSectionViewModel
             {
                 FilterType = filter.Key,
-                Title = ClearFilterSectionHeadings[filter.Key],
+                Title = title,
                 Items = filter.Value.Select(value => new ClearFilterItemViewModel
                 {
                     DisplayText = value,
