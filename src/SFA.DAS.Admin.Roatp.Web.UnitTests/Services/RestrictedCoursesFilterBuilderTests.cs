@@ -14,6 +14,8 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Services;
 [TestFixture]
 public class RestrictedCoursesFilterBuilderTests
 {
+    private const string RestrictedCoursesUrl = "/restricted-courses";
+
     [Test]
     public void WhenApplyingCourseNameFilter_ThenMatchesDisplayTitleOrLarsCode()
     {
@@ -81,6 +83,7 @@ public class RestrictedCoursesFilterBuilderTests
 
         filters.ShowFilterOptions.Should().BeTrue();
         filters.LarsCode.Should().BeNull();
+        filters.FilterResultsFragment.Should().Be(RestrictedCoursesFilterBuilder.RestrictedCourseFilterResultsFragment);
         filters.FilterSections.Should().HaveCount(2);
 
         var searchSection = filters.FilterSections[0].Should().BeOfType<TextBoxFilterSectionViewModel>().Subject;
@@ -105,7 +108,8 @@ public class RestrictedCoursesFilterBuilderTests
             .Single(section => section.Title == CourseNameSectionHeading)
             .Items.Single().ClearLink;
 
-        clearCourseNameLink.Should().Be("/restricted-courses?LearningType=ApprenticeshipUnit");
+        clearCourseNameLink.Should().Be(
+            $"{RestrictedCoursesUrl}?LearningType=ApprenticeshipUnit#{RestrictedCoursesFilterBuilder.RestrictedCourseFilterResultsFragment}");
     }
 
     [Test]
@@ -142,7 +146,8 @@ public class RestrictedCoursesFilterBuilderTests
 
         var filters = RestrictedCoursesFilterBuilder.CreateFiltersViewModel(request, urlHelper.Object);
 
-        filters.ClearFilterSections.Single().Items.Single().ClearLink.Should().Be("/restricted-courses");
+        filters.ClearFilterSections.Single().Items.Single().ClearLink.Should().Be(
+            $"{RestrictedCoursesUrl}#{RestrictedCoursesFilterBuilder.RestrictedCourseFilterResultsFragment}");
     }
 
     private static List<RestrictedCourseItemViewModel> CreateCourses() =>
@@ -178,7 +183,7 @@ public class RestrictedCoursesFilterBuilderTests
             .Returns((UrlRouteContext context) =>
             {
                 context.RouteName.Should().Be(RouteNames.RestrictedCourses);
-                return "/restricted-courses";
+                return RestrictedCoursesUrl;
             });
         return urlHelper;
     }
