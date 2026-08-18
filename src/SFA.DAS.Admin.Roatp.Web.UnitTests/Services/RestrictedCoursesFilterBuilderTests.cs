@@ -70,6 +70,32 @@ public class RestrictedCoursesFilterBuilderTests
     }
 
     [Test]
+    public void WhenApplyingNoFilters_ThenReturnsAllCourses()
+    {
+        var courses = CreateCourses();
+
+        var filtered = RestrictedCoursesFilterBuilder.ApplyFilters(
+            courses,
+            new GetRestrictedCoursesRequest()).ToList();
+
+        filtered.Should().HaveCount(courses.Count);
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_AndSearchTermHasSurroundingWhitespace_ThenTrimsSearchTermForClearLink()
+    {
+        var urlHelper = CreateUrlHelper();
+        var request = new GetRestrictedCoursesRequest
+        {
+            SearchTerm = "  Paint  "
+        };
+
+        var filters = RestrictedCoursesFilterBuilder.CreateFiltersViewModel(request, urlHelper.Object);
+
+        filters.ClearFilterSections.Single().Items.Single().DisplayText.Should().Be("Paint");
+    }
+
+    [Test]
     public void WhenCreatingFiltersViewModel_ThenBuildsSectionsAndClearLinks()
     {
         var urlHelper = CreateUrlHelper();
