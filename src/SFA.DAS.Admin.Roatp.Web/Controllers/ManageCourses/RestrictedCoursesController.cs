@@ -40,24 +40,16 @@ public class RestrictedCoursesController(IOuterApiClient outerApiClient) : Contr
         List<RestrictedCourseItemViewModel> filteredCourses,
         GetRestrictedCoursesRequest request)
     {
-        var pageSize = PaginationViewModel.DefaultPageSize;
-        var totalCount = filteredCourses.Count;
-        var totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)pageSize));
-        var pageNumber = request.PageNumber < 1 ? 1 : Math.Min(request.PageNumber, totalPages);
-
-        model.TotalCount = totalCount;
-        model.Courses = filteredCourses
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
-
-        model.Pagination = new PaginationViewModel(
-            pageNumber,
-            model.TotalCount,
-            pageSize,
+        var (pagedItems, totalCount, pagination) = PaginationHelper.Paginate(
+            filteredCourses,
+            request.PageNumber,
             Url,
             RouteNames.RestrictedCourses,
             request.ToQueryString(),
             RestrictedCoursesFilterBuilder.RestrictedCourseFilterResultsFragment);
+
+        model.TotalCount = totalCount;
+        model.Courses = pagedItems;
+        model.Pagination = pagination;
     }
 }
