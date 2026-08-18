@@ -95,6 +95,7 @@ public class RestrictedCoursesViewModelTests
     {
         var model = new RestrictedCoursesViewModel
         {
+            TotalCount = 1,
             Courses =
             [
                 new RestrictedCourseItemViewModel
