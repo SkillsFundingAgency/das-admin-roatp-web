@@ -139,7 +139,7 @@ public class RestrictedCoursesFilterBuilderTests
     }
 
     [Test]
-    public void WhenCreatingFiltersViewModel_AndAllLearningTypesSelected_ThenOmitsLearningTypeFromSelectedFilters()
+    public void WhenCreatingFiltersViewModel_AndAllLearningTypesSelected_ThenShowsLearningTypesInSelectedFilters()
     {
         var urlHelper = CreateUrlHelper();
         var request = new GetRestrictedCoursesRequest
@@ -154,8 +154,16 @@ public class RestrictedCoursesFilterBuilderTests
 
         var filters = RestrictedCoursesFilterBuilder.CreateFiltersViewModel(request, urlHelper.Object);
 
-        filters.ShowFilterOptions.Should().BeFalse();
-        filters.ClearFilterSections.Should().BeEmpty();
+        filters.ShowFilterOptions.Should().BeTrue();
+
+        var learningTypeClearSection = filters.ClearFilterSections
+            .Should().ContainSingle(section => section.Title == LearningTypeSectionHeading)
+            .Subject;
+
+        learningTypeClearSection.Items.Select(item => item.DisplayText).Should().BeEquivalentTo(
+            "Apprenticeship",
+            "Apprenticeship unit",
+            "Foundation apprenticeship");
 
         var learningTypeSection = filters.FilterSections[1].Should().BeOfType<CheckboxListFilterSectionViewModel>().Subject;
         learningTypeSection.Items.Should().OnlyContain(i => i.IsSelected);

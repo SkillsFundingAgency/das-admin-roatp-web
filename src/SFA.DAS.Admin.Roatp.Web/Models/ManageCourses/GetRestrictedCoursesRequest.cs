@@ -10,9 +10,7 @@ public class GetRestrictedCoursesRequest
 
     public bool HasSearchTermFilter => !string.IsNullOrWhiteSpace(SearchTerm);
 
-    public bool HasLearningTypeFilter =>
-        LearningType.Count > 0
-        && LearningType.Distinct().Count() < Enum.GetValues<LearningType>().Length;
+    public bool HasLearningTypeFilter => LearningType.Count > 0;
 
     public bool HasFilters => HasSearchTermFilter || HasLearningTypeFilter;
 }

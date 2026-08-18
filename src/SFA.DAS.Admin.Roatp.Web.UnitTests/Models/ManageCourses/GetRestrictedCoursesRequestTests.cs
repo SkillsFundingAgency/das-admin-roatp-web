@@ -29,7 +29,7 @@ public class GetRestrictedCoursesRequestTests
     }
 
     [Test]
-    public void HasLearningTypeFilter_WhenAllTypesSelected_ThenIsFalse()
+    public void HasLearningTypeFilter_WhenAllTypesSelected_ThenIsTrue()
     {
         var request = new GetRestrictedCoursesRequest
         {
@@ -41,8 +41,8 @@ public class GetRestrictedCoursesRequestTests
             ]
         };
 
-        request.HasLearningTypeFilter.Should().BeFalse();
-        request.HasFilters.Should().BeFalse();
+        request.HasLearningTypeFilter.Should().BeTrue();
+        request.HasFilters.Should().BeTrue();
     }
 
     [Test]
