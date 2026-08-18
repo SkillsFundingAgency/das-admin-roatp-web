@@ -16,7 +16,8 @@
                 <h3 class="das-filter__selected-heading">Selected filters</h3>
                 <a class="das-filter__selected-action govuk-link govuk-link--no-visited-state"
                    asp-route="@Model.Route"
-                   asp-route-larsCode="@Model.LarsCode">
+                   asp-route-larsCode="@Model.LarsCode"
+                   asp-fragment="@Model.FilterResultsFragment">
                     Clear <span class="govuk-visually-hidden">the selected filters</span>
                 </a>
             </div>
@@ -29,7 +30,7 @@
     }
 
     <div class="das-filter__body" id="fat-filter-options">
-        <form asp-route="@Model.Route" asp-route-larsCode="@Model.LarsCode" method="get">
+        <form asp-route="@Model.Route" asp-route-larsCode="@Model.LarsCode" asp-fragment="@Model.FilterResultsFragment" method="get">
             @foreach (FilterSection section in Model.FilterSections)
             {
                 switch (section.FilterComponentType)

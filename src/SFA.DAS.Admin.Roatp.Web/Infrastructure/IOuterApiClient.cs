@@ -51,4 +51,9 @@ public interface IOuterApiClient
         string larsCode,
         [Body] UpsertProviderAllowedCourseRequest request,
         CancellationToken cancellationToken);
+
+    [Post("/restricted-courses")]
+    Task AddRestrictedCourse(
+        [Body] AddRestrictedCourseRequest request,
+        CancellationToken cancellationToken);
 }

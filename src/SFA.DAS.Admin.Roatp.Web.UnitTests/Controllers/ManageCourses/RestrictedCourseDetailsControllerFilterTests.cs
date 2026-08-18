@@ -17,14 +17,15 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses;
 [TestFixture]
 public class RestrictedCourseDetailsControllerFilterTests
 {
+    private const string LarsCode = "105";
+    private const string RestrictedCourseDetailsUrl = $"/restricted-courses/{LarsCode}";
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndProviderNameFilterMatches_ThenReturnsMatchingProviders(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response)
     {
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.IsCourseRestricted = true;
         response.Providers =
         [
@@ -33,15 +34,15 @@ public class RestrictedCourseDetailsControllerFilterTests
         ];
 
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
         var request = new GetRestrictedCourseDetailsRequest { SearchTerm = "Beacon" };
 
-        var result = await sut.Index(larsCode, request, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, request, CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.HasActiveFilters.Should().BeTrue();
@@ -56,10 +57,9 @@ public class RestrictedCourseDetailsControllerFilterTests
     public async Task WhenGettingRestrictedCourseDetails_AndDeliveryStatusFilterMatches_ThenReturnsMatchingProviders(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response)
     {
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.IsCourseRestricted = true;
         response.Providers =
         [
@@ -69,18 +69,18 @@ public class RestrictedCourseDetailsControllerFilterTests
         ];
 
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
         var request = new GetRestrictedCourseDetailsRequest
         {
             DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
         };
 
-        var result = await sut.Index(larsCode, request, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, request, CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.AllowedProviders.Should().ContainSingle(p => p.ProviderName == "Last Start Provider");
@@ -93,10 +93,9 @@ public class RestrictedCourseDetailsControllerFilterTests
     public async Task WhenGettingRestrictedCourseDetails_AndFiltersHaveNoMatches_ThenShowsNoFilterResults(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response)
     {
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.IsCourseRestricted = true;
         response.Providers =
         [
@@ -104,15 +103,15 @@ public class RestrictedCourseDetailsControllerFilterTests
         ];
 
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
         var request = new GetRestrictedCourseDetailsRequest { SearchTerm = "Beacon" };
 
-        var result = await sut.Index(larsCode, request, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, request, CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.HasNoFilterResults.Should().BeTrue();

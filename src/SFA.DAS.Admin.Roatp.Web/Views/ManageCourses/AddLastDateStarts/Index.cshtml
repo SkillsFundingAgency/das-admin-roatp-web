@@ -6,12 +6,13 @@
 }
 
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-column-full">
         <partial name="_ValidationSummary" />
 
         <span class="govuk-caption-xl">Add a last start date</span>
-        <h1 class="govuk-heading-xl">Stop this provider from delivering @Model.CourseDisplayTitle</h1>
-
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">Stop this provider from delivering @Model.CourseDisplayTitle</h1>
+    </div>
+    <div class="govuk-grid-column-two-thirds">
         <p class="govuk-body">Adding a last date for new starts will close this course to new learners.</p>
         <p class="govuk-body">The training provider will not be able to:</p>
         <ul class="govuk-list govuk-list--bullet">

@@ -7,7 +7,9 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Services;
 [TestFixture]
 public class FilterServiceTests
 {
-    private const string ClearFiltersBaseUrl = "/restricted-courses/105";
+    private const string LarsCode = "105";
+    private const string ClearFiltersBaseUrl = $"/restricted-courses/{LarsCode}";
+
 
     [Test]
     public void CreateInputFilterSection_ThenReturnsTextBoxSectionWithValues()

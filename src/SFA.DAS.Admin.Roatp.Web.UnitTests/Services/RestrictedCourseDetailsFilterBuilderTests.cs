@@ -13,13 +13,18 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Services;
 [TestFixture]
 public class RestrictedCourseDetailsFilterBuilderTests
 {
+    private const string LarsCode = "105";
+    private const string RestrictedCourseDetailsUrl = $"/restricted-courses/{LarsCode}";
+
     [Test]
     public void WhenApplyingProviderNameFilter_ThenMatchesNameOrUkprn()
     {
+        const int babingtonUkprn = 10019900;
+        const int acornUkprn = 10000001;
         var providers = new List<AllowedProviderViewModel>
         {
-            new() { Ukprn = 10019900, ProviderName = "BABINGTON LTD", DeliveryStatus = DeliveryStatus.OpenToNewStarts },
-            new() { Ukprn = 10000001, ProviderName = "ACORN SKILLS TRAINING", DeliveryStatus = DeliveryStatus.OpenToNewStarts }
+            new() { Ukprn = babingtonUkprn, ProviderName = "BABINGTON LTD", DeliveryStatus = DeliveryStatus.OpenToNewStarts },
+            new() { Ukprn = acornUkprn, ProviderName = "ACORN SKILLS TRAINING", DeliveryStatus = DeliveryStatus.OpenToNewStarts }
         };
 
         var byName = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
@@ -30,9 +35,9 @@ public class RestrictedCourseDetailsFilterBuilderTests
 
         var byUkprn = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
             providers,
-            new GetRestrictedCourseDetailsRequest { SearchTerm = "10019900" });
+            new GetRestrictedCourseDetailsRequest { SearchTerm = babingtonUkprn.ToString() });
 
-        byUkprn.Should().ContainSingle(p => p.Ukprn == 10019900);
+        byUkprn.Should().ContainSingle(p => p.Ukprn == babingtonUkprn);
     }
 
     [Test]
@@ -64,10 +69,10 @@ public class RestrictedCourseDetailsFilterBuilderTests
             DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
         };
 
-        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, "105", urlHelper.Object);
+        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, LarsCode, urlHelper.Object);
 
         filters.ShowFilterOptions.Should().BeTrue();
-        filters.LarsCode.Should().Be("105");
+        filters.LarsCode.Should().Be(LarsCode);
         filters.FilterSections.Should().HaveCount(2);
         filters.ClearFilterSections.Should().HaveCount(2);
         filters.ClearFilterSections.Should().Contain(section =>
@@ -81,7 +86,9 @@ public class RestrictedCourseDetailsFilterBuilderTests
             .Single(section => section.Title == SearchTermSectionHeading)
             .Items.Single().ClearLink;
 
-        clearProviderLink.Should().Be("/restricted-courses/105?DeliveryStatus=LastStartDateAdded");
+        clearProviderLink.Should().Be(
+            $"{RestrictedCourseDetailsUrl}?DeliveryStatus=LastStartDateAdded#{RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment}");
+        filters.FilterResultsFragment.Should().Be(RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment);
     }
 
     [Test]
@@ -93,10 +100,10 @@ public class RestrictedCourseDetailsFilterBuilderTests
             SearchTerm = "Beacon"
         };
 
-        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, "105", urlHelper.Object);
+        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, LarsCode, urlHelper.Object);
 
         filters.ClearFilterSections.Single().Items.Single().ClearLink
-            .Should().Be("/restricted-courses/105");
+            .Should().Be($"{RestrictedCourseDetailsUrl}#{RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment}");
     }
 
     [Test]
@@ -146,7 +153,7 @@ public class RestrictedCourseDetailsFilterBuilderTests
             DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
         };
 
-        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, "105", urlHelper.Object);
+        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, LarsCode, urlHelper.Object);
 
         filters.ClearFilterSections.Should().ContainSingle();
         filters.ClearFilterSections.Should().NotContain(section => section.Title == SearchTermSectionHeading);
@@ -160,7 +167,7 @@ public class RestrictedCourseDetailsFilterBuilderTests
 
         var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(
             new GetRestrictedCourseDetailsRequest(),
-            "105",
+            LarsCode,
             urlHelper.Object);
 
         filters.ShowFilterOptions.Should().BeFalse();
@@ -177,7 +184,7 @@ public class RestrictedCourseDetailsFilterBuilderTests
             DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
         };
 
-        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, "105", urlHelper.Object);
+        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, LarsCode, urlHelper.Object);
 
         var deliveryStatusSection = filters.FilterSections
             .OfType<SFA.DAS.Admin.Roatp.Web.Models.Filters.FilterComponents.CheckboxListFilterSectionViewModel>()
@@ -197,14 +204,15 @@ public class RestrictedCourseDetailsFilterBuilderTests
             DeliveryStatus = [DeliveryStatus.OpenToNewStarts, DeliveryStatus.ClosedToNewStarts]
         };
 
-        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, "105", urlHelper.Object);
+        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, LarsCode, urlHelper.Object);
 
         var clearOpenLink = filters.ClearFilterSections
             .Single(section => section.Title == DeliveryStatusSectionHeading)
             .Items.Single(item => item.DisplayText == "Open to new starts")
             .ClearLink;
 
-        clearOpenLink.Should().Be("/restricted-courses/105?DeliveryStatus=ClosedToNewStarts");
+        clearOpenLink.Should().Be(
+            $"{RestrictedCourseDetailsUrl}?DeliveryStatus=ClosedToNewStarts#{RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment}");
     }
 
     private static Mock<IUrlHelper> CreateUrlHelper()
@@ -216,7 +224,7 @@ public class RestrictedCourseDetailsFilterBuilderTests
             {
                 if (context.RouteName == RouteNames.RestrictedCourseDetails)
                 {
-                    return "/restricted-courses/105";
+                    return RestrictedCourseDetailsUrl;
                 }
 
                 return null;

@@ -21,34 +21,37 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses;
 [TestFixture]
 public class AddLastDateStartsControllerTests
 {
+    private const int Ukprn = 10007938;
+    private const string LarsCode = "105";
+    private const string RestrictedCourseDetailsUrl = $"/restricted-courses/{LarsCode}";
+    private const int OtherUkprn = 10000001;
+
     [Test, MoqAutoData]
     public async Task WhenGettingAddLastDateStarts_AndProviderHasLastDateStarts_ThenPrepopulatesDateFields(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] AddLastDateStartsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response,
         GetOrganisationResponse organisation)
     {
-        const int ukprn = 10007938;
         var lastDateStarts = new DateTime(2027, 3, 15, 0, 0, 0, DateTimeKind.Unspecified);
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.CourseName = "Academic professional";
         response.Level = 7;
         response.Providers =
         [
-            new ProviderCourseModel { Ukprn = ukprn, ProviderName = "BP TRAINING", LastDateStarts = lastDateStarts }
+            new ProviderCourseModel { Ukprn = Ukprn, ProviderName = "BP TRAINING", LastDateStarts = lastDateStarts }
         ];
 
-        SetupValidUkprn(ukprnServiceMock, ukprn, organisation);
+        SetupValidUkprn(ukprnServiceMock, organisation);
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var result = await sut.Index(larsCode, ukprn, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None) as ViewResult;
 
         var model = result!.Model as AddLastDateStartsViewModel;
         model!.Day.Should().Be("15");
@@ -61,37 +64,35 @@ public class AddLastDateStartsControllerTests
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] AddLastDateStartsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response,
         GetOrganisationResponse organisation)
     {
-        const int ukprn = 10007938;
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.CourseName = "Academic professional";
         response.Level = 7;
         response.Providers =
         [
-            new ProviderCourseModel { Ukprn = ukprn, ProviderName = "BP TRAINING", LastDateStarts = null }
+            new ProviderCourseModel { Ukprn = Ukprn, ProviderName = "BP TRAINING", LastDateStarts = null }
         ];
 
-        SetupValidUkprn(ukprnServiceMock, ukprn, organisation);
+        SetupValidUkprn(ukprnServiceMock, organisation);
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var result = await sut.Index(larsCode, ukprn, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None) as ViewResult;
 
         result.Should().NotBeNull();
         result!.ViewName.Should().Be(AddLastDateStartsController.ViewPath);
         var model = result.Model as AddLastDateStartsViewModel;
         model.Should().NotBeNull();
         model!.ProviderName.Should().Be("BP TRAINING");
-        model.Ukprn.Should().Be(ukprn);
+        model.Ukprn.Should().Be(Ukprn);
         model.CourseDisplayTitle.Should().Be("Academic professional (Level 7)");
-        model.CancelUrl.Should().Be($"/restricted-courses/{larsCode}");
+        model.CancelUrl.Should().Be(RestrictedCourseDetailsUrl);
     }
 
     [Test, MoqAutoData]
@@ -99,26 +100,24 @@ public class AddLastDateStartsControllerTests
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] AddLastDateStartsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response,
         GetOrganisationResponse organisation)
     {
-        const int ukprn = 10007938;
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.Providers =
         [
-            new ProviderCourseModel { Ukprn = 11111111, ProviderName = "Other", LastDateStarts = null }
+            new ProviderCourseModel { Ukprn = OtherUkprn, ProviderName = "Other", LastDateStarts = null }
         ];
 
-        SetupValidUkprn(ukprnServiceMock, ukprn, organisation);
+        SetupValidUkprn(ukprnServiceMock, organisation);
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var result = await sut.Index(larsCode, ukprn, CancellationToken.None);
+        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -128,26 +127,24 @@ public class AddLastDateStartsControllerTests
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] AddLastDateStartsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response)
     {
-        const int ukprn = 10007938;
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
         ukprnServiceMock
-            .Setup(s => s.GetOrganisationAsync(ukprn, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetOrganisationAsync(Ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetOrganisationResponse?)null);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var result = await sut.Index(larsCode, ukprn, CancellationToken.None);
+        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
-        larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()), Times.Once);
-        ukprnServiceMock.Verify(s => s.GetOrganisationAsync(ukprn, It.IsAny<CancellationToken>()), Times.Once);
+        larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()), Times.Once);
+        ukprnServiceMock.Verify(s => s.GetOrganisationAsync(Ukprn, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test, MoqAutoData]
@@ -156,22 +153,20 @@ public class AddLastDateStartsControllerTests
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Frozen] Mock<IValidator<AddLastDateStartsSubmitModel>> validatorMock,
         [Greedy] AddLastDateStartsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response,
         GetOrganisationResponse organisation)
     {
-        const int ukprn = 10007938;
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.CourseName = "Academic professional";
         response.Level = 7;
         response.Providers =
         [
-            new ProviderCourseModel { Ukprn = ukprn, ProviderName = "BP TRAINING", LastDateStarts = null }
+            new ProviderCourseModel { Ukprn = Ukprn, ProviderName = "BP TRAINING", LastDateStarts = null }
         ];
 
-        SetupValidUkprn(ukprnServiceMock, ukprn, organisation);
+        SetupValidUkprn(ukprnServiceMock, organisation);
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         validatorMock
@@ -182,7 +177,7 @@ public class AddLastDateStartsControllerTests
             ]));
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
         var submitModel = new AddLastDateStartsSubmitModel
         {
@@ -191,7 +186,7 @@ public class AddLastDateStartsControllerTests
             Year = ""
         };
 
-        var result = await sut.Index(larsCode, ukprn, submitModel, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, Ukprn, submitModel, CancellationToken.None) as ViewResult;
 
         result.Should().NotBeNull();
         sut.ModelState.IsValid.Should().BeFalse();
@@ -200,7 +195,7 @@ public class AddLastDateStartsControllerTests
         model.CourseDisplayTitle.Should().Be("Academic professional (Level 7)");
         validatorMock.Verify(
             v => v.ValidateAsync(
-                It.Is<AddLastDateStartsSubmitModel>(m => m.LarsCode == larsCode),
+                It.Is<AddLastDateStartsSubmitModel>(m => m.LarsCode == LarsCode),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -215,19 +210,17 @@ public class AddLastDateStartsControllerTests
         GetRestrictedCourseDetailsResponse response,
         GetOrganisationResponse organisation)
     {
-        const int ukprn = 10007938;
-        const string larsCode = "123456";
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.CourseName = "Academic professional";
         response.Level = 7;
         response.Providers =
         [
-            new ProviderCourseModel { Ukprn = ukprn, ProviderName = "BP TRAINING", LastDateStarts = null }
+            new ProviderCourseModel { Ukprn = Ukprn, ProviderName = "BP TRAINING", LastDateStarts = null }
         ];
 
-        SetupValidUkprn(ukprnServiceMock, ukprn, organisation);
+        SetupValidUkprn(ukprnServiceMock, organisation);
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         validatorMock
@@ -235,7 +228,7 @@ public class AddLastDateStartsControllerTests
             .ReturnsAsync(new ValidationResult());
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
         sut.ControllerContext = new ControllerContext
         {
@@ -258,17 +251,17 @@ public class AddLastDateStartsControllerTests
             Year = "2027"
         };
 
-        var result = await sut.Index(larsCode, ukprn, submitModel, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(LarsCode, Ukprn, submitModel, CancellationToken.None) as RedirectToRouteResult;
 
         result.Should().NotBeNull();
         result!.RouteName.Should().Be(RouteNames.RestrictedCourseDetails);
-        result.RouteValues!["larsCode"].Should().Be(larsCode);
-        sut.TempData[AddLastDateStartsController.SuccessBannerTempDataKey]
+        result.RouteValues!["larsCode"].Should().Be(LarsCode);
+        sut.TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey]
             .Should().Be("Last start date added for BP TRAINING");
 
         outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
-            ukprn,
-            larsCode,
+            Ukprn,
+            LarsCode,
             It.Is<UpsertProviderAllowedCourseRequest>(r =>
                 r.LastDateStarts == new DateTime(2027, 3, 15, 0, 0, 0, DateTimeKind.Unspecified)
                 && r.UserId == "jane@education.gov.uk"
@@ -279,21 +272,19 @@ public class AddLastDateStartsControllerTests
     [Test, MoqAutoData]
     public async Task WhenGettingAddLastDateStarts_AndLarsCodeIsInvalid_ThenReturnsNotFound(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
-        [Greedy] AddLastDateStartsController sut,
-        string larsCode)
+        [Greedy] AddLastDateStartsController sut)
     {
-        const int ukprn = 10007938;
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetRestrictedCourseDetailsResponse?)null);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var result = await sut.Index(larsCode, ukprn, CancellationToken.None);
+        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
-        larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()), Times.Once);
+        larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test, MoqAutoData]
@@ -301,23 +292,21 @@ public class AddLastDateStartsControllerTests
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] AddLastDateStartsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response,
         GetOrganisationResponse organisation)
     {
-        const int ukprn = 10007938;
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
 
-        SetupValidUkprn(ukprnServiceMock, ukprn, organisation);
+        SetupValidUkprn(ukprnServiceMock, organisation);
         larsCodeServiceMock
-            .SetupSequence(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .SetupSequence(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response)
             .ReturnsAsync((GetRestrictedCourseDetailsResponse?)null);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var result = await sut.Index(larsCode, ukprn, CancellationToken.None);
+        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -327,24 +316,22 @@ public class AddLastDateStartsControllerTests
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] AddLastDateStartsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response)
     {
-        const int ukprn = 10007938;
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
         ukprnServiceMock
-            .Setup(s => s.GetOrganisationAsync(ukprn, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetOrganisationAsync(Ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetOrganisationResponse?)null);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
         var result = await sut.Index(
-            larsCode,
-            ukprn,
+            LarsCode,
+            Ukprn,
             new AddLastDateStartsSubmitModel { Day = "15", Month = "03", Year = "2027" },
             CancellationToken.None);
 
@@ -356,28 +343,26 @@ public class AddLastDateStartsControllerTests
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] AddLastDateStartsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response,
         GetOrganisationResponse organisation)
     {
-        const int ukprn = 10007938;
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.Providers =
         [
-            new ProviderCourseModel { Ukprn = 11111111, ProviderName = "Other", LastDateStarts = null }
+            new ProviderCourseModel { Ukprn = OtherUkprn, ProviderName = "Other", LastDateStarts = null }
         ];
 
-        SetupValidUkprn(ukprnServiceMock, ukprn, organisation);
+        SetupValidUkprn(ukprnServiceMock, organisation);
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
         var result = await sut.Index(
-            larsCode,
-            ukprn,
+            LarsCode,
+            Ukprn,
             new AddLastDateStartsSubmitModel { Day = "15", Month = "03", Year = "2027" },
             CancellationToken.None);
 
@@ -386,11 +371,10 @@ public class AddLastDateStartsControllerTests
 
     private static void SetupValidUkprn(
         Mock<IUkprnService> ukprnServiceMock,
-        int ukprn,
         GetOrganisationResponse organisation)
     {
         ukprnServiceMock
-            .Setup(s => s.GetOrganisationAsync(ukprn, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetOrganisationAsync(Ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync(organisation);
     }
 }

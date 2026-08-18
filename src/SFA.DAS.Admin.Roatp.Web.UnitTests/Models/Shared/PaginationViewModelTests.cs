@@ -12,6 +12,8 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models.Shared;
 public sealed class PaginationViewModelTests
 {
     private const int PageSize = PaginationViewModel.DefaultPageSize;
+    private const string LarsCode = "105";
+    private const string RestrictedCourseDetailsUrl = $"/restricted-courses/{LarsCode}";
 
     private Mock<IUrlHelper> _urlHelperMock = null!;
 
@@ -27,7 +29,7 @@ public sealed class PaginationViewModelTests
                     )
                 )
             )
-            .Returns("/restricted-courses/105");
+            .Returns(RestrictedCourseDetailsUrl);
     }
 
     [Test]

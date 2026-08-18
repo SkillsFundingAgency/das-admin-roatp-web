@@ -16,25 +16,26 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses;
 [TestFixture]
 public class RestrictedCourseDetailsControllerPaginationTests
 {
+    private const string LarsCode = "105";
+    private const string RestrictedCourseDetailsUrl = $"/restricted-courses/{LarsCode}";
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndMoreThanTenProviders_ThenReturnsFirstPageOfTen(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response)
     {
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.IsCourseRestricted = true;
         response.Providers = CreateProviders(15);
 
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var result = await sut.Index(larsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.ProviderCount.Should().Be(15);
@@ -47,23 +48,22 @@ public class RestrictedCourseDetailsControllerPaginationTests
     public async Task WhenGettingRestrictedCourseDetails_AndPageNumberIsTwo_ThenReturnsSecondPage(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response)
     {
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.IsCourseRestricted = true;
         response.Providers = CreateProviders(15);
 
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
         var request = new GetRestrictedCourseDetailsRequest { PageNumber = 2 };
 
-        var result = await sut.Index(larsCode, request, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, request, CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.ProviderCount.Should().Be(15);
@@ -76,21 +76,20 @@ public class RestrictedCourseDetailsControllerPaginationTests
     public async Task WhenGettingRestrictedCourseDetails_AndTenOrFewerProviders_ThenDoesNotShowPagination(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response)
     {
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.IsCourseRestricted = true;
         response.Providers = CreateProviders(10);
 
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var result = await sut.Index(larsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.AllowedProviders.Should().HaveCount(10);
@@ -101,23 +100,22 @@ public class RestrictedCourseDetailsControllerPaginationTests
     public async Task WhenGettingRestrictedCourseDetails_AndPageNumberIsLessThanOne_ThenReturnsFirstPage(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response)
     {
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.IsCourseRestricted = true;
         response.Providers = CreateProviders(15);
 
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
         var request = new GetRestrictedCourseDetailsRequest { PageNumber = 0 };
 
-        var result = await sut.Index(larsCode, request, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, request, CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.ProviderCount.Should().Be(15);
@@ -130,23 +128,22 @@ public class RestrictedCourseDetailsControllerPaginationTests
     public async Task WhenGettingRestrictedCourseDetails_AndPageNumberExceedsTotalPages_ThenReturnsLastPage(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
-        string larsCode,
         GetRestrictedCourseDetailsResponse response)
     {
-        response.LarsCode = larsCode;
+        response.LarsCode = LarsCode;
         response.IsCourseRestricted = true;
         response.Providers = CreateProviders(15);
 
         larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, $"/restricted-courses/{larsCode}");
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
         var request = new GetRestrictedCourseDetailsRequest { PageNumber = 99 };
 
-        var result = await sut.Index(larsCode, request, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, request, CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.ProviderCount.Should().Be(15);

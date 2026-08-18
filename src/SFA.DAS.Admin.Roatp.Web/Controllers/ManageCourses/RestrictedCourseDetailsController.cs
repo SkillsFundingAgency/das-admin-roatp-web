@@ -16,6 +16,7 @@ public class RestrictedCourseDetailsController(
     ILarsCodeService larsCodeService) : Controller
 {
     public const string ViewPath = "~/Views/ManageCourses/RestrictedCourseDetails/Index.cshtml";
+    public const string SuccessBannerTempDataKey = "SuccessBannerMessage";
 
     [HttpGet]
     public async Task<IActionResult> Index(
@@ -57,7 +58,7 @@ public class RestrictedCourseDetailsController(
                 new { larsCode, ukprn = provider.Ukprn })!;
         }
 
-        model.AddLastDateStartsSuccessBannerMessage = TempData?[AddLastDateStartsController.SuccessBannerTempDataKey] as string;
+        model.SuccessBannerMessage = TempData?[SuccessBannerTempDataKey] as string;
 
         return View(ViewPath, model);
     }
@@ -84,6 +85,7 @@ public class RestrictedCourseDetailsController(
             pageSize,
             Url,
             RouteNames.RestrictedCourseDetails,
-            request.ToQueryString());
+            request.ToQueryString(),
+            RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment);
     }
 }

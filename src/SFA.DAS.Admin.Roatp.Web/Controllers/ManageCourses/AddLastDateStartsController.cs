@@ -21,7 +21,6 @@ public class AddLastDateStartsController(
     IValidator<AddLastDateStartsSubmitModel> validator) : Controller
 {
     public const string ViewPath = "~/Views/ManageCourses/AddLastDateStarts/Index.cshtml";
-    public const string SuccessBannerTempDataKey = "LastDateStartsSuccessMessage";
 
     [HttpGet]
     public async Task<IActionResult> Index(
@@ -78,7 +77,7 @@ public class AddLastDateStartsController(
             },
             cancellationToken);
 
-        TempData[SuccessBannerTempDataKey] = $"Last start date added for {model.ProviderName}";
+        TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey] = $"Last start date added for {model.ProviderName}";
 
         return RedirectToRoute(RouteNames.RestrictedCourseDetails, new { larsCode });
     }

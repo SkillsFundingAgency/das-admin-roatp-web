@@ -7,12 +7,14 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models.ManageCourses;
 [TestFixture]
 public class AddLastDateStartsViewModelTests
 {
+    private const string LarsCode = "105";
+
     [Test]
     public void CourseLastDateStartsText_WhenDateIsNull_ThenReturnsEmptyString()
     {
         var model = new AddLastDateStartsViewModel
         {
-            LarsCode = "105",
+            LarsCode = LarsCode,
             ProviderName = "BP TRAINING",
             CourseDisplayTitle = "Academic professional (Level 7)",
             CourseLastDateStarts = null
@@ -27,7 +29,7 @@ public class AddLastDateStartsViewModelTests
         var date = new DateTime(2027, 6, 1);
         var model = new AddLastDateStartsViewModel
         {
-            LarsCode = "105",
+            LarsCode = LarsCode,
             ProviderName = "BP TRAINING",
             CourseDisplayTitle = "Academic professional (Level 7)",
             CourseLastDateStarts = date
