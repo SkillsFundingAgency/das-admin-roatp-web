@@ -1,3 +1,5 @@
+@using SFA.DAS.Admin.Roatp.Web.Infrastructure
+@using SFA.DAS.Admin.Roatp.Web.Services
 @model SFA.DAS.Admin.Roatp.Web.Models.ManageCourses.RestrictedCoursesViewModel
 @{
     ViewBag.Title = "View and manage restricted courses";
@@ -27,31 +29,50 @@
 <p class="govuk-body">Select a course to view which training providers are allowed to deliver it.</p>
 <p class="govuk-body">You can add new training providers, or stop them from delivering it by adding a last date for new starts.</p>
 
-<div class="app-results-header govuk-!-margin-top-6 govuk-!-margin-bottom-3">
-    <p class="govuk-body govuk-!-font-weight-bold govuk-!-margin-bottom-0">@Model.TotalCountDescription</p>
-    <p class="govuk-body govuk-!-margin-bottom-0">
-        Sorted by: <span class="govuk-!-font-weight-bold">Name of course</span>
-    </p>
-</div>
-
-<ul asp-show="Model.HasCourses" class="govuk-list app-results-list app-results-list--bordered">
-    @foreach (var course in Model.Courses)
-    {
-        <li class="app-results-list__item">
-            <strong class="govuk-tag @course.LearningTypeTagClass app-tag govuk-!-margin-bottom-2">@course.LearningTypeDescription</strong>
-            <dl class="das-definition-list das-definition-list--meta govuk-!-margin-top-1 govuk-!-margin-bottom-1">
-                <dt class="das-definition-list__title">LARS Code</dt>
-                <dd class="das-definition-list__definition">@course.LarsCode</dd>
-            </dl>
-            <div class="app-results-list__content">
-                <h3 class="govuk-heading-s govuk-!-margin-bottom-0">@course.DisplayTitle</h3>
-                <div class="app-results-list__actions">
-                    <a class="govuk-link govuk-link--no-visited-state"
-                       asp-route="@RouteNames.RestrictedCourseDetails"
-                       asp-route-larsCode="@course.LarsCode">Manage providers</a>
-                </div>
-            </div>
-        </li>
-    }
-</ul>
 <p asp-show="Model.HasNoCourses" class="govuk-body">There are no restricted courses.</p>
+
+<div asp-show="Model.ShowCourseResults" class="govuk-grid-row govuk-!-margin-top-6" id="@RestrictedCoursesFilterBuilder.RestrictedCourseFilterResultsFragment">
+    <div class="govuk-grid-column-one-third">
+        @await Html.PartialAsync("_filters", Model.Filters)
+    </div>
+
+    <div class="govuk-grid-column-two-thirds">
+        <div asp-show="Model.HasCourses">
+            <div class="app-results-header govuk-!-margin-bottom-3">
+                <p class="govuk-body govuk-!-font-weight-bold govuk-!-margin-bottom-0">@Model.TotalCountDescription</p>
+                <p class="govuk-body govuk-!-margin-bottom-0">
+                    Sorted by: <span class="govuk-!-font-weight-bold">Name of course</span>
+                </p>
+            </div>
+
+            <ul class="govuk-list app-results-list app-results-list--bordered">
+                @foreach (var course in Model.Courses)
+                {
+                    <li class="app-results-list__item">
+                        <strong class="govuk-tag @course.LearningTypeTagClass app-tag govuk-!-margin-bottom-2">@course.LearningTypeDescription</strong>
+                        <div class="app-results-list__content">
+                            <h3 class="govuk-heading-s govuk-!-margin-bottom-1">@course.DisplayTitle</h3>
+                            <div class="app-results-list__actions">
+                                <a class="govuk-link govuk-link--no-visited-state"
+                                   asp-route="@RouteNames.RestrictedCourseDetails"
+                                   asp-route-larsCode="@course.LarsCode">Manage providers</a>
+                            </div>
+                        </div>
+                        <p class="govuk-body govuk-!-margin-bottom-0">LARS Code: @course.LarsCode</p>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <div asp-show="Model.HasNoFilterResults">
+            <h2 class="govuk-heading-l">No results</h2>
+            <p class="govuk-body">There are no courses that match your search.</p>
+            <p class="govuk-body">You may need to:</p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>clear filters you've selected</li>
+                <li>check your spelling or enter another search term and try again</li>
+            </ul>
+            <p class="govuk-body">Change your search using the filters on this page.</p>
+        </div>
+    </div>
+</div>

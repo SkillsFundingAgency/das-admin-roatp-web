@@ -117,10 +117,6 @@
     margin-bottom: 10px;
 }
 
-.das-filter__body .govuk-checkboxes__label {
-    font-weight: 700;
-}
-
 .navigation-flexbox {
     display: flex;
     justify-content: center;

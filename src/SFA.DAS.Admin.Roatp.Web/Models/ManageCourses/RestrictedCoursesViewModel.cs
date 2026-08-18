@@ -1,5 +1,6 @@
 using Humanizer;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
+using SFA.DAS.Admin.Roatp.Web.Models.Filters;
 
 namespace SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 
@@ -7,9 +8,13 @@ public class RestrictedCoursesViewModel : IBackLink
 {
     public int TotalCount { get; set; }
     public IEnumerable<RestrictedCourseItemViewModel> Courses { get; set; } = [];
+    public bool HasActiveFilters { get; set; }
+    public FiltersViewModel Filters { get; set; } = new() { Route = string.Empty };
 
     public bool HasCourses => Courses.Any();
-    public bool HasNoCourses => !HasCourses;
+    public bool HasNoCourses => !HasActiveFilters && !HasCourses;
+    public bool HasNoFilterResults => HasActiveFilters && !HasCourses;
+    public bool ShowCourseResults => !HasNoCourses;
 
     public string TotalCountDescription => "course".ToQuantity(TotalCount);
 

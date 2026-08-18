@@ -205,6 +205,26 @@ public class FilterServiceTests
     }
 
     [Test]
+    public void CreateClearFilterSections_AndSectionHeadingOverridesProvided_ThenUsesOverrideTitle()
+    {
+        var selectedFilters = new Dictionary<FilterType, IEnumerable<string>>
+        {
+            [FilterType.SearchTerm] = ["Paint"]
+        };
+
+        var result = CreateClearFilterSections(
+            selectedFilters,
+            ClearFiltersBaseUrl,
+            sectionHeadingOverrides: new Dictionary<FilterType, string>
+            {
+                [FilterType.SearchTerm] = CourseNameSectionHeading
+            });
+
+        result.Should().ContainSingle();
+        result[0].Title.Should().Be(CourseNameSectionHeading);
+    }
+
+    [Test]
     public void AddSelectedFilter_WithSingleValueAndValueIsBlank_ThenDoesNotAdd()
     {
         var filters = new Dictionary<FilterType, IEnumerable<string>>();

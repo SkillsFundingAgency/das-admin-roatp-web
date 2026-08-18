@@ -118,5 +118,20 @@ public class RestrictedCoursesViewModelTests
 
         model.HasCourses.Should().BeFalse();
         model.HasNoCourses.Should().BeTrue();
+        model.HasNoFilterResults.Should().BeFalse();
+        model.ShowCourseResults.Should().BeFalse();
+    }
+
+    [Test]
+    public void HasNoFilterResults_WhenActiveFiltersAndNoCourses_ThenIsTrue()
+    {
+        var model = new RestrictedCoursesViewModel
+        {
+            HasActiveFilters = true
+        };
+
+        model.HasNoFilterResults.Should().BeTrue();
+        model.HasNoCourses.Should().BeFalse();
+        model.ShowCourseResults.Should().BeTrue();
     }
 }
