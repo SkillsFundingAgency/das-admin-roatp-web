@@ -84,6 +84,33 @@ public class ChangeLastDateStartsControllerTests
     }
 
     [Test, MoqAutoData]
+    public async Task WhenGettingChangeLastDateStarts_AndProviderDoesNotExistOnCourse_ThenReturnsNotFound(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Greedy] ChangeLastDateStartsController sut,
+        GetRestrictedCourseDetailsResponse response,
+        GetOrganisationResponse organisation)
+    {
+        response.LarsCode = LarsCode;
+        response.Providers =
+        [
+            new ProviderCourseModel { Ukprn = 10000001, ProviderName = "Other", LastDateStarts = LastDateStarts }
+        ];
+
+        SetupValidUkprn(ukprnServiceMock, organisation);
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+
+        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
+
+        result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Test, MoqAutoData]
     public async Task WhenGettingChangeLastDateStarts_AndUkprnIsInvalid_ThenReturnsNotFound(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
