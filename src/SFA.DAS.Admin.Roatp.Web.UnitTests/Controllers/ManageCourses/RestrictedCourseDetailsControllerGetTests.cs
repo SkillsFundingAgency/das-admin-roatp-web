@@ -55,7 +55,8 @@ public class RestrictedCourseDetailsControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
-            .AddUrlForRoute(RouteNames.AddLastDateStarts, "/add-last-date-starts");
+            .AddUrlForRoute(RouteNames.AddLastDateStarts, "/add-last-date-starts")
+            .AddUrlForRoute(RouteNames.ChangeLastDateStarts, "/change-last-date-starts");
 
         var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
@@ -77,7 +78,8 @@ public class RestrictedCourseDetailsControllerGetTests
         model.AllowedProviders.Select(p => p.ProviderName).Should().ContainInOrder("ACORN SKILLS TRAINING", "BABINGTON LTD");
         model.AllowedProviders.First().DeliveryStatus.Should().Be(DeliveryStatus.OpenToNewStarts);
         model.AllowedProviders.Last().DeliveryStatus.Should().Be(DeliveryStatus.LastStartDateAdded);
-        model.AllowedProviders.Should().OnlyContain(p => p.ChangeUrl == "/add-last-date-starts");
+        model.AllowedProviders.First(p => !p.HasLastDateStarts).ChangeUrl.Should().Be("/add-last-date-starts");
+        model.AllowedProviders.First(p => p.HasLastDateStarts).ChangeUrl.Should().Be("/change-last-date-starts");
 
         larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()), Times.Exactly(2));
     }

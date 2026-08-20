@@ -4,6 +4,7 @@ using Newtonsoft.Json.Serialization;
 using Refit;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Services;
+using SFA.DAS.Admin.Roatp.Web.Validators.Common;
 using SFA.DAS.Http.Configuration;
 using System.Diagnostics.CodeAnalysis;
 
@@ -26,8 +27,10 @@ public static class AddApplicationRegistrationsExtension
         services.AddTransient<IPostOrganisationService, PostOrganisationService>();
         services.AddScoped<ILarsCodeService, LarsCodeService>();
         services.AddScoped<IUkprnService, UkprnService>();
+        services.AddScoped<LarsCodeAndUkprnValidator>();
 
         services.AddOuterApi(outerApiConfig!);
+
 
         return services;
     }
