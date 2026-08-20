@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
+using SFA.DAS.Admin.Roatp.Web.Models.Shared;
 using SFA.DAS.Admin.Roatp.Web.Services;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
@@ -29,9 +30,26 @@ public class RestrictedCoursesController(IOuterApiClient outerApiClient) : Contr
             .OrderBy(course => course.DisplayTitle, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        model.Courses = filteredCourses;
-        model.TotalCount = filteredCourses.Count;
+        ApplyPagination(model, filteredCourses, request);
 
         return View(ViewPath, model);
+    }
+
+    private void ApplyPagination(
+        RestrictedCoursesViewModel model,
+        List<RestrictedCourseItemViewModel> filteredCourses,
+        GetRestrictedCoursesRequest request)
+    {
+        var (pagedItems, totalCount, pagination) = PaginationHelper.Paginate(
+            filteredCourses,
+            request.PageNumber,
+            Url,
+            RouteNames.RestrictedCourses,
+            request.ToQueryString(),
+            RestrictedCoursesFilterBuilder.RestrictedCourseFilterResultsFragment);
+
+        model.TotalCount = totalCount;
+        model.Courses = pagedItems;
+        model.Pagination = pagination;
     }
 }

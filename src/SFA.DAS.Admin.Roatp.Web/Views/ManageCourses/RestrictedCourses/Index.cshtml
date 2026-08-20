@@ -74,5 +74,9 @@
             </ul>
             <p class="govuk-body">Change your search using the filters on this page.</p>
         </div>
+
+        <div class="govuk-!-margin-top-4">
+            @await Html.PartialAsync("_pagination", Model.Pagination)
+        </div>
     </div>
 </div>

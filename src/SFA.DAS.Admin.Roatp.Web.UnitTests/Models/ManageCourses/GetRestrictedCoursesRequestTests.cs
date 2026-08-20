@@ -56,4 +56,29 @@ public class GetRestrictedCoursesRequestTests
         request.HasSearchTermFilter.Should().BeTrue();
         request.HasFilters.Should().BeTrue();
     }
+
+    [Test]
+    public void ToQueryString_WhenFiltersApplied_ThenIncludesSearchTermAndLearningTypes()
+    {
+        var request = new GetRestrictedCoursesRequest
+        {
+            SearchTerm = " Paint ",
+            LearningType = [LearningType.Apprenticeship, LearningType.ApprenticeshipUnit]
+        };
+
+        var queryString = request.ToQueryString();
+
+        queryString.Should().Contain((nameof(GetRestrictedCoursesRequest.SearchTerm), "Paint"));
+        queryString.Should().Contain((nameof(GetRestrictedCoursesRequest.LearningType), nameof(LearningType.Apprenticeship)));
+        queryString.Should().Contain((nameof(GetRestrictedCoursesRequest.LearningType), nameof(LearningType.ApprenticeshipUnit)));
+        queryString.Should().NotContain(q => q.Item1 == nameof(GetRestrictedCoursesRequest.PageNumber));
+    }
+
+    [Test]
+    public void ToQueryString_WhenNoFilters_ThenReturnsEmpty()
+    {
+        var request = new GetRestrictedCoursesRequest();
+
+        request.ToQueryString().Should().BeEmpty();
+    }
 }

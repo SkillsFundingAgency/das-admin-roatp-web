@@ -68,24 +68,16 @@ public class RestrictedCourseDetailsController(
         List<AllowedProviderViewModel> filteredProviders,
         GetRestrictedCourseDetailsRequest request)
     {
-        var pageSize = PaginationViewModel.DefaultPageSize;
-        var totalCount = filteredProviders.Count;
-        var totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)pageSize));
-        var pageNumber = request.PageNumber < 1 ? 1 : Math.Min(request.PageNumber, totalPages);
-
-        model.TotalProviderCount = totalCount;
-        model.AllowedProviders = filteredProviders
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
-
-        model.Pagination = new PaginationViewModel(
-            pageNumber,
-            model.TotalProviderCount,
-            pageSize,
+        var (pagedItems, totalCount, pagination) = PaginationHelper.Paginate(
+            filteredProviders,
+            request.PageNumber,
             Url,
             RouteNames.RestrictedCourseDetails,
             request.ToQueryString(),
             RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment);
+
+        model.TotalProviderCount = totalCount;
+        model.AllowedProviders = pagedItems;
+        model.Pagination = pagination;
     }
 }
