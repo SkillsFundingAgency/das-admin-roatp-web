@@ -84,6 +84,73 @@ public class ChangeLastDateStartsControllerTests
     }
 
     [Test, MoqAutoData]
+    public async Task WhenGettingChangeLastDateStarts_AndUkprnIsInvalid_ThenReturnsNotFound(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Greedy] ChangeLastDateStartsController sut,
+        GetRestrictedCourseDetailsResponse response)
+    {
+        response.LarsCode = LarsCode;
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+        ukprnServiceMock
+            .Setup(s => s.GetOrganisationAsync(Ukprn, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetOrganisationResponse?)null);
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+
+        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
+
+        result.Should().BeOfType<NotFoundResult>();
+        larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()), Times.Once);
+        ukprnServiceMock.Verify(s => s.GetOrganisationAsync(Ukprn, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingChangeLastDateStarts_AndLarsCodeIsInvalid_ThenReturnsNotFound(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Greedy] ChangeLastDateStartsController sut)
+    {
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetRestrictedCourseDetailsResponse?)null);
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+
+        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
+
+        result.Should().BeOfType<NotFoundResult>();
+        larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingChangeLastDateStarts_AndCourseDetailsBecomeUnavailable_ThenReturnsNotFound(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Greedy] ChangeLastDateStartsController sut,
+        GetRestrictedCourseDetailsResponse response,
+        GetOrganisationResponse organisation)
+    {
+        response.LarsCode = LarsCode;
+
+        SetupValidUkprn(ukprnServiceMock, organisation);
+        larsCodeServiceMock
+            .SetupSequence(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response)
+            .ReturnsAsync((GetRestrictedCourseDetailsResponse?)null);
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+
+        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
+
+        result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Test, MoqAutoData]
     public async Task WhenPosting_AndValidationFails_ThenReturnsViewWithErrors(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
@@ -210,6 +277,71 @@ public class ChangeLastDateStartsControllerTests
                 && r.UserId == "jane@education.gov.uk"
                 && r.UserDisplayName == "Jane Denver"),
             It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenPosting_AndUkprnIsInvalid_ThenReturnsNotFound(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Greedy] ChangeLastDateStartsController sut,
+        GetRestrictedCourseDetailsResponse response)
+    {
+        response.LarsCode = LarsCode;
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+        ukprnServiceMock
+            .Setup(s => s.GetOrganisationAsync(Ukprn, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetOrganisationResponse?)null);
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+
+        var result = await sut.Index(
+            LarsCode,
+            Ukprn,
+            new ChangeLastDateStartsSubmitModel { SelectedOption = ChangeLastDateStartsOptions.Remove },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenPosting_AndProviderHasNoLastDateStarts_ThenReturnsNotFound(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Greedy] ChangeLastDateStartsController sut,
+        GetRestrictedCourseDetailsResponse response,
+        GetOrganisationResponse organisation)
+    {
+        response.LarsCode = LarsCode;
+        response.Providers =
+        [
+            new ProviderCourseModel { Ukprn = Ukprn, ProviderName = "BP TRAINING", LastDateStarts = null }
+        ];
+
+        SetupValidUkprn(ukprnServiceMock, organisation);
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+
+        var result = await sut.Index(
+            LarsCode,
+            Ukprn,
+            new ChangeLastDateStartsSubmitModel { SelectedOption = ChangeLastDateStartsOptions.Remove },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Test]
+    public void ChangeLastDateStartsOptions_ExposeExpectedValues()
+    {
+        ChangeLastDateStartsOptions.Change.Should().Be("Change");
+        ChangeLastDateStartsOptions.Remove.Should().Be("Remove");
     }
 
     private static void SetupCourseWithLastDateStarts(

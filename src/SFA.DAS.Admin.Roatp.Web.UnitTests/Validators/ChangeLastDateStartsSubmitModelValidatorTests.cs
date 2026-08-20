@@ -34,8 +34,8 @@ public class ChangeLastDateStartsSubmitModelValidatorTests
             .WithErrorMessage(ChangeLastDateStartsSubmitModelValidator.NoOptionSelectedErrorMessage);
     }
 
-    [TestCase(ChangeLastDateStartsOptions.Change)]
-    [TestCase(ChangeLastDateStartsOptions.Remove)]
+    [TestCase("Change")]
+    [TestCase("Remove")]
     public void WhenValidOptionSelected_ThenPasses(string selectedOption)
     {
         var result = _sut.TestValidate(new ChangeLastDateStartsSubmitModel { SelectedOption = selectedOption });

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
-using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.Validators.Common;
@@ -14,8 +13,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 [Authorize(Roles = Roles.RoatpAdminTeam)]
 [Route("restricted-courses/{larsCode}/providers/{ukprn}/add-last-start-date", Name = RouteNames.AddLastDateStarts)]
 public class AddLastDateStartsController(
-    LarsCodeValidator larsCodeValidator,
-    UkprnValidator ukprnValidator,
+    LarsCodeAndUkprnValidator larsCodeAndUkprnValidator,
     ILarsCodeService larsCodeService,
     IOuterApiClient outerApiClient,
     IValidator<AddLastDateStartsSubmitModel> validator) : Controller
@@ -28,7 +26,7 @@ public class AddLastDateStartsController(
         [FromRoute] int ukprn,
         CancellationToken cancellationToken)
     {
-        if (!await LarsCodeAndUkprnValidAsync(larsCode, ukprn, cancellationToken))
+        if (!await larsCodeAndUkprnValidator.IsValidAsync(larsCode, ukprn, cancellationToken))
         {
             return NotFound();
         }
@@ -44,7 +42,7 @@ public class AddLastDateStartsController(
         AddLastDateStartsSubmitModel submitModel,
         CancellationToken cancellationToken)
     {
-        if (!await LarsCodeAndUkprnValidAsync(larsCode, ukprn, cancellationToken))
+        if (!await larsCodeAndUkprnValidator.IsValidAsync(larsCode, ukprn, cancellationToken))
         {
             return NotFound();
         }
@@ -126,26 +124,5 @@ public class AddLastDateStartsController(
             CourseLastDateStarts = courseDetails.LastDateStarts,
             CancelUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!
         };
-    }
-
-    private async Task<bool> LarsCodeAndUkprnValidAsync(
-        string larsCode,
-        int ukprn,
-        CancellationToken cancellationToken)
-    {
-        var larsCodeValidationResult = await larsCodeValidator.ValidateAsync(
-            new LarsCodeModel { LarsCode = larsCode },
-            cancellationToken);
-
-        if (!larsCodeValidationResult.IsValid)
-        {
-            return false;
-        }
-
-        var ukprnValidationResult = await ukprnValidator.ValidateAsync(
-            new UkprnModel { Ukprn = ukprn },
-            cancellationToken);
-
-        return ukprnValidationResult.IsValid;
     }
 }

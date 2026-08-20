@@ -10,7 +10,9 @@ public class ChangeLastDateStartsSubmitModelValidator : AbstractValidator<Change
     public ChangeLastDateStartsSubmitModelValidator()
     {
         RuleFor(model => model.SelectedOption)
-            .Must(option => option is ChangeLastDateStartsOptions.Change or ChangeLastDateStartsOptions.Remove)
+            .Must(option =>
+                option == ChangeLastDateStartsOptions.Change
+                || option == ChangeLastDateStartsOptions.Remove)
             .WithMessage(NoOptionSelectedErrorMessage);
     }
 }
