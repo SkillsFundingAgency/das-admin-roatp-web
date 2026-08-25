@@ -207,6 +207,12 @@ public class LastDateStartsControllerChangeTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.SetLastDateStarts, "/restricted-courses/105/providers/10007938/set-last-start-date");
 
+        sut.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+        sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
+
         var result = await sut.ChangeLastDateStarts(
             LarsCode,
             Ukprn,
@@ -219,6 +225,7 @@ public class LastDateStartsControllerChangeTests
             result!.RouteName.Should().Be(RouteNames.SetLastDateStarts);
             result.RouteValues!["larsCode"].Should().Be(LarsCode);
             result.RouteValues["ukprn"].Should().Be(Ukprn);
+            sut.TempData[LastDateStartsController.ChangingExistingLastDateStartsTempDataKey].Should().Be(true);
         }
         outerApiClientMock.Verify(
             c => c.UpsertProviderAllowedCourse(

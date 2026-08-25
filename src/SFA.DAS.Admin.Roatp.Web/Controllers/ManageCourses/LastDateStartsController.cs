@@ -22,6 +22,7 @@ public class LastDateStartsController(
 {
     public const string AddLastDateStartsViewPath = "~/Views/ManageCourses/AddLastDateStarts/Index.cshtml";
     public const string ChangeLastDateStartsViewPath = "~/Views/ManageCourses/ChangeLastDateStarts/Index.cshtml";
+    public const string ChangingExistingLastDateStartsTempDataKey = "ChangingExistingLastDateStarts";
 
     [HttpGet]
     [Route("restricted-courses/{larsCode}/providers/{ukprn}/set-last-start-date", Name = RouteNames.SetLastDateStarts)]
@@ -80,6 +81,7 @@ public class LastDateStartsController(
             },
             cancellationToken);
 
+        TempData.Remove(ChangingExistingLastDateStartsTempDataKey);
         TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey] = model.IsChangingExistingDate
             ? $"{model.ProviderName} last start date has been updated"
             : $"Last start date added for {model.ProviderName}";
@@ -132,6 +134,7 @@ public class LastDateStartsController(
 
         if (submitModel.SelectedOption == ChangeLastDateStartsOptions.Change)
         {
+            TempData[ChangingExistingLastDateStartsTempDataKey] = true;
             return RedirectToRoute(RouteNames.SetLastDateStarts, new { larsCode, ukprn });
         }
 
@@ -181,6 +184,22 @@ public class LastDateStartsController(
         return (courseDetails, provider);
     }
 
+    private bool CanAccessSetLastDateStarts(bool providerHasLastDateStarts)
+    {
+        if (!providerHasLastDateStarts)
+        {
+            return true;
+        }
+
+        if (TempData.Peek(ChangingExistingLastDateStartsTempDataKey) is true)
+        {
+            TempData.Keep(ChangingExistingLastDateStartsTempDataKey);
+            return true;
+        }
+
+        return false;
+    }
+
     private async Task<AddLastDateStartsViewModel?> BuildSetViewModelAsync(
         string larsCode,
         int ukprn,
@@ -195,6 +214,11 @@ public class LastDateStartsController(
 
         var (courseDetails, provider) = courseAndProvider.Value;
         var isChangingExistingDate = provider.LastDateStarts.HasValue;
+        if (!CanAccessSetLastDateStarts(isChangingExistingDate))
+        {
+            return null;
+        }
+
         var day = submitModel?.Day;
         var month = submitModel?.Month;
         var year = submitModel?.Year;

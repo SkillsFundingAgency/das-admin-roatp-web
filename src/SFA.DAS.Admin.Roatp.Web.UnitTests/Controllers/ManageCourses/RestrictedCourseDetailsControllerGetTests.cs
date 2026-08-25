@@ -89,7 +89,7 @@ public class RestrictedCourseDetailsControllerGetTests
         using (new AssertionScope())
         {
             provider.DeliveryStatus.Should().Be(DeliveryStatus.OpenToNewStarts);
-            provider.ChangeUrl.Should().Be("/add-last-date-starts");
+            provider.ChangeUrl.Should().Be("/set-last-date-starts");
         }
     }
 
@@ -143,6 +143,33 @@ public class RestrictedCourseDetailsControllerGetTests
     }
 
     [Test, MoqAutoData]
+    public async Task WhenGettingRestrictedCourseDetails_AndTempDataContainsChangeJourneyFlag_ThenRemovesChangeJourneyFlag(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Greedy] RestrictedCourseDetailsController sut,
+        GetRestrictedCourseDetailsResponse response)
+    {
+        response.LarsCode = LarsCode;
+        response.IsCourseRestricted = true;
+        response.Providers = [];
+
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+
+        SetupTempData(sut);
+        sut.TempData[LastDateStartsController.ChangingExistingLastDateStartsTempDataKey] = true;
+
+        await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None);
+
+        sut.TempData.ContainsKey(LastDateStartsController.ChangingExistingLastDateStartsTempDataKey)
+            .Should().BeFalse();
+    }
+
+    [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndTempDataContainsSuccessBannerMessage_ThenModelHasSuccessBannerMessage(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
@@ -161,14 +188,8 @@ public class RestrictedCourseDetailsControllerGetTests
             .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        sut.ControllerContext = new ControllerContext
-        {
-            HttpContext = new DefaultHttpContext()
-        };
-        sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>())
-        {
-            [RestrictedCourseDetailsController.SuccessBannerTempDataKey] = successMessage
-        };
+        SetupTempData(sut);
+        sut.TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey] = successMessage;
 
         var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
@@ -194,14 +215,9 @@ public class RestrictedCourseDetailsControllerGetTests
             .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        sut.ControllerContext = new ControllerContext
-        {
-            HttpContext = new DefaultHttpContext()
-        };
-        sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>())
-        {
-            [RestrictedCourseDetailsController.SuccessBannerTempDataKey] = RestrictCourseConfirmController.SuccessBannerMessage
-        };
+        SetupTempData(sut);
+        sut.TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey] =
+            RestrictCourseConfirmController.SuccessBannerMessage;
 
         var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
@@ -284,10 +300,20 @@ public class RestrictedCourseDetailsControllerGetTests
 
     private static void SetupUrlHelper(RestrictedCourseDetailsController sut)
     {
+        SetupTempData(sut);
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.SetLastDateStarts, "/set-last-date-starts")
             .AddUrlForRoute(RouteNames.ChangeLastDateStarts, "/change-last-date-starts");
+    }
+
+    private static void SetupTempData(RestrictedCourseDetailsController sut)
+    {
+        sut.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+        sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
     }
 }

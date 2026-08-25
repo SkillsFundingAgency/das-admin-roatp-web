@@ -51,6 +51,7 @@ public class RestrictedCourseDetailsController(
 
         ApplyPagination(model, filteredProviders, request);
 
+        TempData?.Remove(LastDateStartsController.ChangingExistingLastDateStartsTempDataKey);
         foreach (var provider in model.AllowedProviders)
         {
             provider.ChangeUrl = provider.HasLastDateStarts
