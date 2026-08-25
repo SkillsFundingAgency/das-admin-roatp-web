@@ -1,6 +1,6 @@
 @model SFA.DAS.Admin.Roatp.Web.Models.ManageCourses.AddLastDateStartsViewModel
 @{
-    ViewBag.Title = "Add a last start date";
+    ViewBag.Title = Model.IsChangingExistingDate ? "Change last start date for this provider" : "Add a last start date";
     var dateError = ViewData.ModelState[nameof(Model.Day)]?.Errors.FirstOrDefault()?.ErrorMessage;
     var hasDateError = !string.IsNullOrEmpty(dateError);
 }
@@ -8,11 +8,19 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
         <partial name="_ValidationSummary" />
-
-        <span class="govuk-caption-xl">Add a last start date</span>
-        <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">Stop this provider from delivering @Model.CourseDisplayTitle</h1>
+        <div asp-show="Model.IsChangingExistingDate">
+            <span class="govuk-caption-xl">Change last start date</span>
+            <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">Change last start date for this provider</h1>
+        </div>
+        <div asp-show="Model.IsAddingLastDateStarts">
+            <span class="govuk-caption-xl">Add a last start date</span>
+            <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">Stop this provider from delivering @Model.CourseDisplayTitle</h1>
+        </div>
     </div>
     <div class="govuk-grid-column-two-thirds">
+        <p asp-show="Model.IsChangingExistingDate" class="govuk-body">
+            <strong>@Model.ProviderName</strong> currently has a last start date set for <strong>@Model.CourseDisplayTitle</strong>.
+        </p>
         <p class="govuk-body">Adding a last date for new starts will close this course to new learners.</p>
         <p class="govuk-body">The training provider will not be able to:</p>
         <ul class="govuk-list govuk-list--bullet">
@@ -34,14 +42,12 @@
                         <h2 class="govuk-fieldset__heading">Last date for new starts</h2>
                     </legend>
                     <div id="last-date-starts-hint" class="govuk-hint">
-                        After this date, the provider will no longer be able add new starts to this course.
+                        <span asp-show="Model.IsChangingExistingDate">After this date, the provider will no longer be able add apprentices to this course.</span>
+                        <span asp-show="Model.IsAddingLastDateStarts">After this date, the provider will no longer be able add new starts to this course.</span>
                     </div>
-                    @if (hasDateError)
-                    {
-                        <p id="last-date-starts-error" class="govuk-error-message">
-                            <span class="govuk-visually-hidden">Error:</span> @dateError
-                        </p>
-                    }
+                    <p asp-show="@hasDateError" id="last-date-starts-error" class="govuk-error-message">
+                        <span class="govuk-visually-hidden">Error:</span> @dateError
+                    </p>
                     <div class="govuk-date-input" id="last-date-starts">
                         <div class="govuk-date-input__item">
                             <div class="govuk-form-group">
@@ -84,7 +90,10 @@
             </div>
 
             <div class="govuk-button-group">
-                <button type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button">
+                <button asp-show="Model.IsChangingExistingDate" type="submit" class="govuk-button" data-module="govuk-button" data-disable-on-submit="true">
+                    Confirm changes
+                </button>
+                <button asp-show="Model.IsAddingLastDateStarts" type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button" data-disable-on-submit="true">
                     Confirm restriction
                 </button>
                 <a class="govuk-link" href="@Model.CancelUrl">Cancel</a>

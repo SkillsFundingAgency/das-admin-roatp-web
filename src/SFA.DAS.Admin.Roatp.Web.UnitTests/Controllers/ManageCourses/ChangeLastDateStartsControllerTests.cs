@@ -25,7 +25,6 @@ public class ChangeLastDateStartsControllerTests
     private const int Ukprn = 10007938;
     private const string LarsCode = "105";
     private const string RestrictedCourseDetailsUrl = $"/restricted-courses/{LarsCode}";
-    private const string ChangeLastDateStartsUrl = "/restricted-courses/105/providers/10007938/change-last-start-date";
     private static readonly DateTime LastDateStarts = new(2027, 6, 1, 0, 0, 0, DateTimeKind.Unspecified);
 
     [Test, MoqAutoData]
@@ -213,7 +212,7 @@ public class ChangeLastDateStartsControllerTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenPosting_AndChangeLastDateStartsSelected_ThenRedirectsToSamePage(
+    public async Task WhenPosting_AndChangeLastDateStartsSelected_ThenRedirectsToSetLastStartDatePage(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
@@ -230,7 +229,7 @@ public class ChangeLastDateStartsControllerTests
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
-            .AddUrlForRoute(RouteNames.ChangeLastDateStarts, ChangeLastDateStartsUrl);
+            .AddUrlForRoute(RouteNames.AddLastDateStarts, "/restricted-courses/105/providers/10007938/set-last-start-date");
 
         var result = await sut.Index(
             LarsCode,
@@ -239,7 +238,7 @@ public class ChangeLastDateStartsControllerTests
             CancellationToken.None) as RedirectToRouteResult;
 
         result.Should().NotBeNull();
-        result!.RouteName.Should().Be(RouteNames.ChangeLastDateStarts);
+        result!.RouteName.Should().Be(RouteNames.AddLastDateStarts);
         result.RouteValues!["larsCode"].Should().Be(LarsCode);
         result.RouteValues["ukprn"].Should().Be(Ukprn);
         outerApiClientMock.Verify(
@@ -276,9 +275,9 @@ public class ChangeLastDateStartsControllerTests
             {
                 User = new ClaimsPrincipal(new ClaimsIdentity(
                 [
-                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Jane"),
-                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "Denver"),
-                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn", "jane@education.gov.uk")
+                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Test"),
+                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "User"),
+                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn", "test.user@education.gov.uk")
                 ], "test"))
             }
         };
@@ -301,8 +300,8 @@ public class ChangeLastDateStartsControllerTests
             LarsCode,
             It.Is<UpsertProviderAllowedCourseRequest>(r =>
                 r.LastDateStarts == null
-                && r.UserId == "jane@education.gov.uk"
-                && r.UserDisplayName == "Jane Denver"),
+                && r.UserId == "test.user@education.gov.uk"
+                && r.UserDisplayName == "Test User"),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 

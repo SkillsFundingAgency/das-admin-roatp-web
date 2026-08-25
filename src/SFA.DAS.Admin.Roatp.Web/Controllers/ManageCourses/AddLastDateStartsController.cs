@@ -11,7 +11,7 @@ using SFA.DAS.Admin.Roatp.Web.Validators.Common;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
-[Route("restricted-courses/{larsCode}/providers/{ukprn}/add-last-start-date", Name = RouteNames.AddLastDateStarts)]
+[Route("restricted-courses/{larsCode}/providers/{ukprn}/set-last-start-date", Name = RouteNames.AddLastDateStarts)]
 public class AddLastDateStartsController(
     LarsCodeAndUkprnValidator larsCodeAndUkprnValidator,
     ILarsCodeService larsCodeService,
@@ -75,7 +75,9 @@ public class AddLastDateStartsController(
             },
             cancellationToken);
 
-        TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey] = $"Last start date added for {model.ProviderName}";
+        TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey] = model.IsChangingExistingDate
+            ? $"{model.ProviderName} last start date has been updated"
+            : $"Last start date added for {model.ProviderName}";
 
         return RedirectToRoute(RouteNames.RestrictedCourseDetails, new { larsCode });
     }
@@ -99,6 +101,7 @@ public class AddLastDateStartsController(
         }
 
         RestrictedCourseDetailsViewModel courseDisplay = courseDetails;
+        var isChangingExistingDate = provider.LastDateStarts.HasValue;
 
         var day = submitModel?.Day;
         var month = submitModel?.Month;
@@ -122,6 +125,7 @@ public class AddLastDateStartsController(
             Month = month,
             Year = year,
             CourseLastDateStarts = courseDetails.LastDateStarts,
+            IsChangingExistingDate = isChangingExistingDate,
             CancelUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!
         };
     }

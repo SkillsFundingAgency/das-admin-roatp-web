@@ -63,7 +63,7 @@ public class ChangeLastDateStartsController(
 
         if (submitModel.SelectedOption == ChangeLastDateStartsOptions.Change)
         {
-            return RedirectToRoute(RouteNames.ChangeLastDateStarts, new { larsCode, ukprn });
+            return RedirectToRoute(RouteNames.AddLastDateStarts, new { larsCode, ukprn });
         }
 
         await outerApiClient.UpsertProviderAllowedCourse(
