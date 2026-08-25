@@ -26,7 +26,7 @@ public class AddLastDateStartsViewModelTests
     [Test]
     public void CourseLastDateStartsText_WhenDateHasValue_ThenReturnsFormattedDate()
     {
-        var date = new DateTime(2027, 6, 1);
+        var date = new DateTime(2027, 6, 1, 0, 0, 0, DateTimeKind.Unspecified);
         var model = new AddLastDateStartsViewModel
         {
             LarsCode = LarsCode,
