@@ -57,6 +57,7 @@ public class AddLastDateStartsControllerTests
         model!.Day.Should().Be("15");
         model.Month.Should().Be("03");
         model.Year.Should().Be("2027");
+        model.IsChangingExistingDate.Should().BeTrue();
     }
 
     [Test, MoqAutoData]
@@ -92,6 +93,7 @@ public class AddLastDateStartsControllerTests
         model!.ProviderName.Should().Be("BP TRAINING");
         model.Ukprn.Should().Be(Ukprn);
         model.CourseDisplayTitle.Should().Be("Academic professional (Level 7)");
+        model.IsChangingExistingDate.Should().BeFalse();
         model.CancelUrl.Should().Be(RestrictedCourseDetailsUrl);
     }
 
@@ -236,9 +238,9 @@ public class AddLastDateStartsControllerTests
             {
                 User = new ClaimsPrincipal(new ClaimsIdentity(
                 [
-                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Jane"),
-                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "Denver"),
-                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn", "jane@education.gov.uk")
+                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Test"),
+                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "User"),
+                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn", "test.user@education.gov.uk")
                 ], "test"))
             }
         };
@@ -264,8 +266,81 @@ public class AddLastDateStartsControllerTests
             LarsCode,
             It.Is<UpsertProviderAllowedCourseRequest>(r =>
                 r.LastDateStarts == new DateTime(2027, 3, 15, 0, 0, 0, DateTimeKind.Unspecified)
-                && r.UserId == "jane@education.gov.uk"
-                && r.UserDisplayName == "Jane Denver"),
+                && r.UserId == "test.user@education.gov.uk"
+                && r.UserDisplayName == "Test User"),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenPostingSetLastDateStarts_AndChangingExistingDate_ThenCallsApiAndRedirectsWithUpdatedBanner(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<IValidator<AddLastDateStartsSubmitModel>> validatorMock,
+        [Greedy] AddLastDateStartsController sut,
+        GetRestrictedCourseDetailsResponse response,
+        GetOrganisationResponse organisation)
+    {
+        response.LarsCode = LarsCode;
+        response.CourseName = "Academic professional";
+        response.Level = 7;
+        response.Providers =
+        [
+            new ProviderCourseModel
+            {
+                Ukprn = Ukprn,
+                ProviderName = "BP TRAINING",
+                LastDateStarts = new DateTime(2027, 6, 1, 0, 0, 0, DateTimeKind.Unspecified)
+            }
+        ];
+
+        SetupValidUkprn(ukprnServiceMock, organisation);
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+
+        validatorMock
+            .Setup(v => v.ValidateAsync(It.IsAny<AddLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+
+        sut.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity(
+                [
+                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Test"),
+                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "User"),
+                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn", "test.user@education.gov.uk")
+                ], "test"))
+            }
+        };
+        sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
+
+        var submitModel = new AddLastDateStartsSubmitModel
+        {
+            Day = "12",
+            Month = "07",
+            Year = "2026"
+        };
+
+        var result = await sut.Index(LarsCode, Ukprn, submitModel, CancellationToken.None) as RedirectToRouteResult;
+
+        result.Should().NotBeNull();
+        result!.RouteName.Should().Be(RouteNames.RestrictedCourseDetails);
+        sut.TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey]
+            .Should().Be("BP TRAINING last start date has been updated");
+
+        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
+            Ukprn,
+            LarsCode,
+            It.Is<UpsertProviderAllowedCourseRequest>(r =>
+                r.LastDateStarts == new DateTime(2026, 7, 12, 0, 0, 0, DateTimeKind.Unspecified)
+                && r.UserId == "test.user@education.gov.uk"
+                && r.UserDisplayName == "Test User"),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 

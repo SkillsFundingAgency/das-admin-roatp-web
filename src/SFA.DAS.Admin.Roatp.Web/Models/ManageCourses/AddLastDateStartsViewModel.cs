@@ -12,6 +12,8 @@ public class AddLastDateStartsViewModel : IBackLink
     public string? Month { get; set; }
     public string? Year { get; set; }
     public DateTime? CourseLastDateStarts { get; set; }
+    public bool IsChangingExistingDate { get; set; }
+    public bool IsAddingLastDateStarts => !IsChangingExistingDate;
     public string CancelUrl { get; set; } = "#";
 
     public string CourseLastDateStartsText =>
