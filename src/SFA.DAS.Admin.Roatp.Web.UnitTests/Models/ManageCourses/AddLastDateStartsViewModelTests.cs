@@ -37,4 +37,32 @@ public class AddLastDateStartsViewModelTests
 
         model.CourseLastDateStartsText.Should().Be(date.ToScreenString());
     }
+
+    [Test]
+    public void IsAddingLastDateStarts_WhenIsChangingExistingDateIsFalse_ThenReturnsTrue()
+    {
+        var model = new AddLastDateStartsViewModel
+        {
+            LarsCode = LarsCode,
+            ProviderName = "BP TRAINING",
+            CourseDisplayTitle = "Academic professional (Level 7)",
+            IsChangingExistingDate = false
+        };
+
+        model.IsAddingLastDateStarts.Should().BeTrue();
+    }
+
+    [Test]
+    public void IsAddingLastDateStarts_WhenIsChangingExistingDateIsTrue_ThenReturnsFalse()
+    {
+        var model = new AddLastDateStartsViewModel
+        {
+            LarsCode = LarsCode,
+            ProviderName = "BP TRAINING",
+            CourseDisplayTitle = "Academic professional (Level 7)",
+            IsChangingExistingDate = true
+        };
+
+        model.IsAddingLastDateStarts.Should().BeFalse();
+    }
 }
