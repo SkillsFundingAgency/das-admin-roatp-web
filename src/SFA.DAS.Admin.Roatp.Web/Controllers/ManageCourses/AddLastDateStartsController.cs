@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
+using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.Validators.Common;
@@ -13,7 +14,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 [Authorize(Roles = Roles.RoatpAdminTeam)]
 [Route("restricted-courses/{larsCode}/providers/{ukprn}/set-last-start-date", Name = RouteNames.AddLastDateStarts)]
 public class AddLastDateStartsController(
-    LarsCodeAndUkprnValidator larsCodeAndUkprnValidator,
+    IValidator<IUkprnAndLarsCodeValidator> ukprnAndLarsCodeValidator,
     ILarsCodeService larsCodeService,
     IOuterApiClient outerApiClient,
     IValidator<AddLastDateStartsSubmitModel> validator) : Controller
@@ -26,7 +27,7 @@ public class AddLastDateStartsController(
         [FromRoute] int ukprn,
         CancellationToken cancellationToken)
     {
-        if (!await larsCodeAndUkprnValidator.IsValidAsync(larsCode, ukprn, cancellationToken))
+        if (!await IsRouteValidAsync(larsCode, ukprn, cancellationToken))
         {
             return NotFound();
         }
@@ -42,7 +43,7 @@ public class AddLastDateStartsController(
         AddLastDateStartsSubmitModel submitModel,
         CancellationToken cancellationToken)
     {
-        if (!await larsCodeAndUkprnValidator.IsValidAsync(larsCode, ukprn, cancellationToken))
+        if (!await IsRouteValidAsync(larsCode, ukprn, cancellationToken))
         {
             return NotFound();
         }
@@ -82,6 +83,15 @@ public class AddLastDateStartsController(
         return RedirectToRoute(RouteNames.RestrictedCourseDetails, new { larsCode });
     }
 
+    private async Task<bool> IsRouteValidAsync(string larsCode, int ukprn, CancellationToken cancellationToken)
+    {
+        var validationResult = await ukprnAndLarsCodeValidator.ValidateAsync(
+            new UkprnAndLarsCodeModel { Ukprn = ukprn, LarsCode = larsCode },
+            cancellationToken);
+
+        return validationResult.IsValid;
+    }
+
     private async Task<AddLastDateStartsViewModel?> BuildViewModelAsync(
         string larsCode,
         int ukprn,
@@ -100,9 +110,7 @@ public class AddLastDateStartsController(
             return null;
         }
 
-        RestrictedCourseDetailsViewModel courseDisplay = courseDetails;
         var isChangingExistingDate = provider.LastDateStarts.HasValue;
-
         var day = submitModel?.Day;
         var month = submitModel?.Month;
         var year = submitModel?.Year;
@@ -120,7 +128,7 @@ public class AddLastDateStartsController(
             LarsCode = larsCode,
             Ukprn = ukprn,
             ProviderName = provider.ProviderName,
-            CourseDisplayTitle = courseDisplay.DisplayTitle,
+            CourseDisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(courseDetails.CourseName, courseDetails.Level),
             Day = day,
             Month = month,
             Year = year,

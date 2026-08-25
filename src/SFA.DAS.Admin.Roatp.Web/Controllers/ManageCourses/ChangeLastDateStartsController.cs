@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
+using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.Validators.Common;
@@ -13,7 +14,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 [Authorize(Roles = Roles.RoatpAdminTeam)]
 [Route("restricted-courses/{larsCode}/providers/{ukprn}/change-last-start-date", Name = RouteNames.ChangeLastDateStarts)]
 public class ChangeLastDateStartsController(
-    LarsCodeAndUkprnValidator larsCodeAndUkprnValidator,
+    IValidator<IUkprnAndLarsCodeValidator> ukprnAndLarsCodeValidator,
     ILarsCodeService larsCodeService,
     IOuterApiClient outerApiClient,
     IValidator<ChangeLastDateStartsSubmitModel> validator) : Controller
@@ -26,7 +27,7 @@ public class ChangeLastDateStartsController(
         [FromRoute] int ukprn,
         CancellationToken cancellationToken)
     {
-        if (!await larsCodeAndUkprnValidator.IsValidAsync(larsCode, ukprn, cancellationToken))
+        if (!await IsRouteValidAsync(larsCode, ukprn, cancellationToken))
         {
             return NotFound();
         }
@@ -42,7 +43,7 @@ public class ChangeLastDateStartsController(
         ChangeLastDateStartsSubmitModel submitModel,
         CancellationToken cancellationToken)
     {
-        if (!await larsCodeAndUkprnValidator.IsValidAsync(larsCode, ukprn, cancellationToken))
+        if (!await IsRouteValidAsync(larsCode, ukprn, cancellationToken))
         {
             return NotFound();
         }
@@ -83,6 +84,15 @@ public class ChangeLastDateStartsController(
         return RedirectToRoute(RouteNames.RestrictedCourseDetails, new { larsCode });
     }
 
+    private async Task<bool> IsRouteValidAsync(string larsCode, int ukprn, CancellationToken cancellationToken)
+    {
+        var validationResult = await ukprnAndLarsCodeValidator.ValidateAsync(
+            new UkprnAndLarsCodeModel { Ukprn = ukprn, LarsCode = larsCode },
+            cancellationToken);
+
+        return validationResult.IsValid;
+    }
+
     private async Task<ChangeLastDateStartsViewModel?> BuildViewModelAsync(
         string larsCode,
         int ukprn,
@@ -101,14 +111,12 @@ public class ChangeLastDateStartsController(
             return null;
         }
 
-        RestrictedCourseDetailsViewModel courseDisplay = courseDetails;
-
         return new ChangeLastDateStartsViewModel
         {
             LarsCode = larsCode,
             Ukprn = ukprn,
             ProviderName = provider.ProviderName,
-            CourseDisplayTitle = courseDisplay.DisplayTitle,
+            CourseDisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(courseDetails.CourseName, courseDetails.Level),
             LastDateStarts = provider.LastDateStarts.Value,
             SelectedOption = submitModel?.SelectedOption,
             CancelUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!

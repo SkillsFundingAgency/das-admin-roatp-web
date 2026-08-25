@@ -1,5 +1,6 @@
 using AutoFixture.NUnit4;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -20,68 +21,96 @@ public class RestrictedCourseDetailsControllerGetTests
 {
     private const string LarsCode = "105";
     private const string RestrictedCourseDetailsUrl = $"/restricted-courses/{LarsCode}";
+
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndLarsCodeIsValid_ThenReturnsViewWithMappedModel(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
-        response.LarsCode = LarsCode;
-        response.CourseName = "Academic professional";
-        response.Level = 7;
-        response.Route = "Education and early years";
-        response.LearningType = LearningType.Apprenticeship;
-        response.IsCourseRestricted = true;
-        response.Providers =
-        [
-            new ProviderCourseModel
-            {
-                Ukprn = 10019900,
-                ProviderName = "BABINGTON LTD",
-                LastDateStarts = DateTime.UtcNow.Date.AddDays(30)
-            },
-            new ProviderCourseModel
-            {
-                Ukprn = 10000001,
-                ProviderName = "ACORN SKILLS TRAINING",
-                LastDateStarts = null
-            }
-        ];
-
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
-
-        sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
-            .AddUrlForRoute(RouteNames.AddLastDateStarts, "/add-last-date-starts")
-            .AddUrlForRoute(RouteNames.ChangeLastDateStarts, "/change-last-date-starts");
+        SetupRestrictedCourseWithProviders(response, larsCodeServiceMock);
+        SetupUrlHelper(sut);
 
         var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
-        result.Should().NotBeNull();
-        result!.ViewName.Should().Be(RestrictedCourseDetailsController.ViewPath);
-        var model = result.Model as RestrictedCourseDetailsViewModel;
-        model.Should().NotBeNull();
-        model!.DisplayTitle.Should().Be("Academic professional (Level 7)");
-        model.Sector.Should().Be("Education and early years");
-        model.LarsCode.Should().Be(LarsCode);
-        model.Level.Should().Be(7);
-        model.StatusText.Should().Be("Restricted");
-        model.HasProviders.Should().BeTrue();
-        model.ProviderCount.Should().Be(2);
-        model.ProviderCountDescription.Should().Be("2 providers");
-        model.HasActiveFilters.Should().BeFalse();
-        model.Filters.ShowFilterOptions.Should().BeFalse();
-        model.Filters.FilterSections.Should().HaveCount(2);
-        model.AllowedProviders.Select(p => p.ProviderName).Should().ContainInOrder("ACORN SKILLS TRAINING", "BABINGTON LTD");
-        model.AllowedProviders.First().DeliveryStatus.Should().Be(DeliveryStatus.OpenToNewStarts);
-        model.AllowedProviders.Last().DeliveryStatus.Should().Be(DeliveryStatus.LastStartDateAdded);
-        model.AllowedProviders.First(p => !p.HasLastDateStarts).ChangeUrl.Should().Be("/add-last-date-starts");
-        model.AllowedProviders.First(p => p.HasLastDateStarts).ChangeUrl.Should().Be("/change-last-date-starts");
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.ViewName.Should().Be(RestrictedCourseDetailsController.ViewPath);
+            var model = result.Model as RestrictedCourseDetailsViewModel;
+            model.Should().NotBeNull();
+            model!.DisplayTitle.Should().Be("Academic professional (Level 7)");
+            model.Sector.Should().Be("Education and early years");
+            model.LarsCode.Should().Be(LarsCode);
+            model.Level.Should().Be(7);
+            model.StatusText.Should().Be("Restricted");
+            model.HasActiveFilters.Should().BeFalse();
+            model.Filters.ShowFilterOptions.Should().BeFalse();
+            model.Filters.FilterSections.Should().HaveCount(2);
+        }
 
         larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingRestrictedCourseDetails_AndProvidersExist_ThenMapsAllowedProvidersSortedByName(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Greedy] RestrictedCourseDetailsController sut,
+        GetRestrictedCourseDetailsResponse response)
+    {
+        SetupRestrictedCourseWithProviders(response, larsCodeServiceMock);
+        SetupUrlHelper(sut);
+
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
+        var model = result!.Model as RestrictedCourseDetailsViewModel;
+
+        using (new AssertionScope())
+        {
+            model!.HasProviders.Should().BeTrue();
+            model.ProviderCount.Should().Be(2);
+            model.ProviderCountDescription.Should().Be("2 providers");
+            model.AllowedProviders.Select(p => p.ProviderName).Should().ContainInOrder("ACORN SKILLS TRAINING", "BABINGTON LTD");
+        }
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingRestrictedCourseDetails_AndProviderHasNoLastDateStarts_ThenDeliveryStatusIsOpenToNewStarts(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Greedy] RestrictedCourseDetailsController sut,
+        GetRestrictedCourseDetailsResponse response)
+    {
+        SetupRestrictedCourseWithProviders(response, larsCodeServiceMock);
+        SetupUrlHelper(sut);
+
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
+        var model = result!.Model as RestrictedCourseDetailsViewModel;
+        var provider = model!.AllowedProviders.First(p => !p.HasLastDateStarts);
+
+        using (new AssertionScope())
+        {
+            provider.DeliveryStatus.Should().Be(DeliveryStatus.OpenToNewStarts);
+            provider.ChangeUrl.Should().Be("/add-last-date-starts");
+        }
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingRestrictedCourseDetails_AndProviderHasLastDateStarts_ThenDeliveryStatusIsLastStartDateAdded(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Greedy] RestrictedCourseDetailsController sut,
+        GetRestrictedCourseDetailsResponse response)
+    {
+        SetupRestrictedCourseWithProviders(response, larsCodeServiceMock);
+        SetupUrlHelper(sut);
+
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
+        var model = result!.Model as RestrictedCourseDetailsViewModel;
+        var provider = model!.AllowedProviders.First(p => p.HasLastDateStarts);
+
+        using (new AssertionScope())
+        {
+            provider.DeliveryStatus.Should().Be(DeliveryStatus.LastStartDateAdded);
+            provider.ChangeUrl.Should().Be("/change-last-date-starts");
+        }
     }
 
     [Test, MoqAutoData]
@@ -105,9 +134,12 @@ public class RestrictedCourseDetailsControllerGetTests
         var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
-        model!.HasNoProviders.Should().BeTrue();
-        model.HasNoFilterResults.Should().BeFalse();
-        model.AllowedProviders.Should().BeEmpty();
+        using (new AssertionScope())
+        {
+            model!.HasNoProviders.Should().BeTrue();
+            model.HasNoFilterResults.Should().BeFalse();
+            model.AllowedProviders.Should().BeEmpty();
+        }
     }
 
     [Test, MoqAutoData]
@@ -174,8 +206,11 @@ public class RestrictedCourseDetailsControllerGetTests
         var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
-        model!.SuccessBannerMessage.Should().Be(RestrictCourseConfirmController.SuccessBannerMessage);
-        model.HasSuccessBanner.Should().BeTrue();
+        using (new AssertionScope())
+        {
+            model!.SuccessBannerMessage.Should().Be(RestrictCourseConfirmController.SuccessBannerMessage);
+            model.HasSuccessBanner.Should().BeTrue();
+        }
     }
 
     [Test, MoqAutoData]
@@ -208,8 +243,51 @@ public class RestrictedCourseDetailsControllerGetTests
 
         var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as RedirectToRouteResult;
 
-        result.Should().NotBeNull();
-        result!.RouteName.Should().Be(RouteNames.UnrestrictedCourseDetails);
-        result.RouteValues!["larsCode"].Should().Be(LarsCode);
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.RouteName.Should().Be(RouteNames.UnrestrictedCourseDetails);
+            result.RouteValues!["larsCode"].Should().Be(LarsCode);
+        }
+    }
+
+    private static void SetupRestrictedCourseWithProviders(
+        GetRestrictedCourseDetailsResponse response,
+        Mock<ILarsCodeService> larsCodeServiceMock)
+    {
+        response.LarsCode = LarsCode;
+        response.CourseName = "Academic professional";
+        response.Level = 7;
+        response.Route = "Education and early years";
+        response.LearningType = LearningType.Apprenticeship;
+        response.IsCourseRestricted = true;
+        response.Providers =
+        [
+            new ProviderCourseModel
+            {
+                Ukprn = 10019900,
+                ProviderName = "BABINGTON LTD",
+                LastDateStarts = DateTime.UtcNow.Date.AddDays(30)
+            },
+            new ProviderCourseModel
+            {
+                Ukprn = 10000001,
+                ProviderName = "ACORN SKILLS TRAINING",
+                LastDateStarts = null
+            }
+        ];
+
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+    }
+
+    private static void SetupUrlHelper(RestrictedCourseDetailsController sut)
+    {
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
+            .AddUrlForRoute(RouteNames.AddLastDateStarts, "/add-last-date-starts")
+            .AddUrlForRoute(RouteNames.ChangeLastDateStarts, "/change-last-date-starts");
     }
 }
