@@ -17,5 +17,5 @@ public class AddLastDateStartsViewModel : IBackLink
     public string CancelUrl { get; set; } = "#";
 
     public string CourseLastDateStartsText =>
-        CourseLastDateStarts.HasValue ? CourseLastDateStarts.Value.ToScreenString() : string.Empty;
+        CourseLastDateStarts.HasValue ? CourseLastDateStarts.Value.ToDisplayString() : string.Empty;
 }

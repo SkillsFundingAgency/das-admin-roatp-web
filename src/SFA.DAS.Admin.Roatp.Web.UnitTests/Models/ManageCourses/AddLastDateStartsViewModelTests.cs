@@ -35,7 +35,7 @@ public class AddLastDateStartsViewModelTests
             CourseLastDateStarts = date
         };
 
-        model.CourseLastDateStartsText.Should().Be(date.ToScreenString());
+        model.CourseLastDateStartsText.Should().Be(date.ToDisplayString());
     }
 
     [Test]

@@ -11,5 +11,5 @@ public class ChangeLastDateStartsViewModel : ChangeLastDateStartsSubmitModel, IB
     public DateTime LastDateStarts { get; set; }
     public string CancelUrl { get; set; } = "#";
 
-    public string LastDateStartsText => LastDateStarts.ToScreenString();
+    public string LastDateStartsText => LastDateStarts.ToDisplayString();
 }

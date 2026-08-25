@@ -6,9 +6,9 @@ public class DateTimeExtensionsTests
 {
 
     [TestCaseSource(nameof(_testCases))]
-    public void ToScreenString_Expected(DateTime dateToCheck, string expectedResult)
+    public void ToDisplayString_Expected(DateTime dateToCheck, string expectedResult)
     {
-        var result = dateToCheck.ToScreenString();
+        var result = dateToCheck.ToDisplayString();
         result.Should().Be(expectedResult);
     }
 

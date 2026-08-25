@@ -42,7 +42,7 @@ public class AddLastDateStartsSubmitModelValidator : AbstractValidator<AddLastDa
                 {
                     context.AddFailure(
                         DateFieldName,
-                        $"The latest start date for this course is {courseLastDateStarts.Value.ToScreenString()}. It is set by LARS and cannot be changed. Your chosen last date for new starts must come on or before this.");
+                        $"The latest start date for this course is {courseLastDateStarts.Value.ToDisplayString()}. It is set by LARS and cannot be changed. Your chosen last date for new starts must come on or before this.");
                 }
             });
     }
