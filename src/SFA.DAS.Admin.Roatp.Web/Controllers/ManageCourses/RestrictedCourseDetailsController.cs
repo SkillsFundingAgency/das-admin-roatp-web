@@ -55,7 +55,7 @@ public class RestrictedCourseDetailsController(
         {
             provider.ChangeUrl = provider.HasLastDateStarts
                 ? Url.RouteUrl(RouteNames.ChangeLastDateStarts, new { larsCode, ukprn = provider.Ukprn })!
-                : Url.RouteUrl(RouteNames.AddLastDateStarts, new { larsCode, ukprn = provider.Ukprn })!;
+                : Url.RouteUrl(RouteNames.SetLastDateStarts, new { larsCode, ukprn = provider.Ukprn })!;
         }
 
         model.SuccessBannerMessage = TempData?[SuccessBannerTempDataKey] as string;

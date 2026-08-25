@@ -287,7 +287,7 @@ public class RestrictedCourseDetailsControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
-            .AddUrlForRoute(RouteNames.AddLastDateStarts, "/add-last-date-starts")
+            .AddUrlForRoute(RouteNames.SetLastDateStarts, "/set-last-date-starts")
             .AddUrlForRoute(RouteNames.ChangeLastDateStarts, "/change-last-date-starts");
     }
 }

@@ -22,7 +22,7 @@ using SFA.DAS.Testing.AutoFixture;
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses;
 
 [TestFixture]
-public class ChangeLastDateStartsControllerTests
+public class LastDateStartsControllerChangeTests
 {
     private const int Ukprn = 10007938;
     private const string LarsCode = "105";
@@ -33,7 +33,7 @@ public class ChangeLastDateStartsControllerTests
     public async Task WhenGettingChangeLastDateStarts_AndProviderHasLastDateStarts_ThenReturnsView(
         [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
-        [Greedy] ChangeLastDateStartsController sut,
+        [Greedy] LastDateStartsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
         SetupValidRoute(ukprnAndLarsCodeValidatorMock);
@@ -42,13 +42,13 @@ public class ChangeLastDateStartsControllerTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None) as ViewResult;
+        var result = await sut.ChangeLastDateStarts(LarsCode, Ukprn, CancellationToken.None) as ViewResult;
 
         var model = result!.Model as ChangeLastDateStartsViewModel;
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result!.ViewName.Should().Be(ChangeLastDateStartsController.ViewPath);
+            result!.ViewName.Should().Be(LastDateStartsController.ChangeLastDateStartsViewPath);
             model.Should().NotBeNull();
             model!.ProviderName.Should().Be("BP TRAINING");
             model.Ukprn.Should().Be(Ukprn);
@@ -63,7 +63,7 @@ public class ChangeLastDateStartsControllerTests
     public async Task WhenGettingChangeLastDateStarts_AndProviderHasNoLastDateStarts_ThenReturnsNotFound(
         [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
-        [Greedy] ChangeLastDateStartsController sut,
+        [Greedy] LastDateStartsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
         response.LarsCode = LarsCode;
@@ -80,7 +80,7 @@ public class ChangeLastDateStartsControllerTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
+        var result = await sut.ChangeLastDateStarts(LarsCode, Ukprn, CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -89,7 +89,7 @@ public class ChangeLastDateStartsControllerTests
     public async Task WhenGettingChangeLastDateStarts_AndProviderDoesNotExistOnCourse_ThenReturnsNotFound(
         [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
-        [Greedy] ChangeLastDateStartsController sut,
+        [Greedy] LastDateStartsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
         response.LarsCode = LarsCode;
@@ -106,7 +106,7 @@ public class ChangeLastDateStartsControllerTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
+        var result = await sut.ChangeLastDateStarts(LarsCode, Ukprn, CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -115,7 +115,7 @@ public class ChangeLastDateStartsControllerTests
     public async Task WhenGettingChangeLastDateStarts_AndRouteIsInvalid_ThenReturnsNotFound(
         [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
-        [Greedy] ChangeLastDateStartsController sut)
+        [Greedy] LastDateStartsController sut)
     {
         ukprnAndLarsCodeValidatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<IUkprnAndLarsCodeValidator>(), It.IsAny<CancellationToken>()))
@@ -124,7 +124,7 @@ public class ChangeLastDateStartsControllerTests
                 new ValidationFailure(nameof(IUkprnAndLarsCodeValidator.LarsCode), "invalid")
             ]));
 
-        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
+        var result = await sut.ChangeLastDateStarts(LarsCode, Ukprn, CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
         larsCodeServiceMock.Verify(
@@ -136,7 +136,7 @@ public class ChangeLastDateStartsControllerTests
     public async Task WhenGettingChangeLastDateStarts_AndCourseDetailsBecomeUnavailable_ThenReturnsNotFound(
         [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
-        [Greedy] ChangeLastDateStartsController sut)
+        [Greedy] LastDateStartsController sut)
     {
         SetupValidRoute(ukprnAndLarsCodeValidatorMock);
         larsCodeServiceMock
@@ -146,7 +146,7 @@ public class ChangeLastDateStartsControllerTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
+        var result = await sut.ChangeLastDateStarts(LarsCode, Ukprn, CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -156,7 +156,7 @@ public class ChangeLastDateStartsControllerTests
         [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Frozen] Mock<IValidator<ChangeLastDateStartsSubmitModel>> validatorMock,
-        [Greedy] ChangeLastDateStartsController sut,
+        [Greedy] LastDateStartsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
         SetupValidRoute(ukprnAndLarsCodeValidatorMock);
@@ -173,7 +173,7 @@ public class ChangeLastDateStartsControllerTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var result = await sut.Index(
+        var result = await sut.ChangeLastDateStarts(
             LarsCode,
             Ukprn,
             new ChangeLastDateStartsSubmitModel(),
@@ -194,7 +194,7 @@ public class ChangeLastDateStartsControllerTests
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IValidator<ChangeLastDateStartsSubmitModel>> validatorMock,
-        [Greedy] ChangeLastDateStartsController sut,
+        [Greedy] LastDateStartsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
         SetupValidRoute(ukprnAndLarsCodeValidatorMock);
@@ -205,9 +205,9 @@ public class ChangeLastDateStartsControllerTests
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
-            .AddUrlForRoute(RouteNames.AddLastDateStarts, "/restricted-courses/105/providers/10007938/set-last-start-date");
+            .AddUrlForRoute(RouteNames.SetLastDateStarts, "/restricted-courses/105/providers/10007938/set-last-start-date");
 
-        var result = await sut.Index(
+        var result = await sut.ChangeLastDateStarts(
             LarsCode,
             Ukprn,
             new ChangeLastDateStartsSubmitModel { SelectedOption = ChangeLastDateStartsOptions.Change },
@@ -216,7 +216,7 @@ public class ChangeLastDateStartsControllerTests
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result!.RouteName.Should().Be(RouteNames.AddLastDateStarts);
+            result!.RouteName.Should().Be(RouteNames.SetLastDateStarts);
             result.RouteValues!["larsCode"].Should().Be(LarsCode);
             result.RouteValues["ukprn"].Should().Be(Ukprn);
         }
@@ -235,7 +235,7 @@ public class ChangeLastDateStartsControllerTests
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IValidator<ChangeLastDateStartsSubmitModel>> validatorMock,
-        [Greedy] ChangeLastDateStartsController sut,
+        [Greedy] LastDateStartsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
         SetupValidRoute(ukprnAndLarsCodeValidatorMock);
@@ -261,7 +261,7 @@ public class ChangeLastDateStartsControllerTests
         };
         sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
 
-        var result = await sut.Index(
+        var result = await sut.ChangeLastDateStarts(
             LarsCode,
             Ukprn,
             new ChangeLastDateStartsSubmitModel { SelectedOption = ChangeLastDateStartsOptions.Remove },
@@ -290,7 +290,7 @@ public class ChangeLastDateStartsControllerTests
     public async Task WhenPosting_AndRouteIsInvalid_ThenReturnsNotFound(
         [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
-        [Greedy] ChangeLastDateStartsController sut)
+        [Greedy] LastDateStartsController sut)
     {
         ukprnAndLarsCodeValidatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<IUkprnAndLarsCodeValidator>(), It.IsAny<CancellationToken>()))
@@ -299,7 +299,7 @@ public class ChangeLastDateStartsControllerTests
                 new ValidationFailure(nameof(IUkprnAndLarsCodeValidator.LarsCode), "invalid")
             ]));
 
-        var result = await sut.Index(
+        var result = await sut.ChangeLastDateStarts(
             LarsCode,
             Ukprn,
             new ChangeLastDateStartsSubmitModel { SelectedOption = ChangeLastDateStartsOptions.Remove },
@@ -315,7 +315,7 @@ public class ChangeLastDateStartsControllerTests
     public async Task WhenPosting_AndProviderHasNoLastDateStarts_ThenReturnsNotFound(
         [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
-        [Greedy] ChangeLastDateStartsController sut,
+        [Greedy] LastDateStartsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
         response.LarsCode = LarsCode;
@@ -332,7 +332,7 @@ public class ChangeLastDateStartsControllerTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var result = await sut.Index(
+        var result = await sut.ChangeLastDateStarts(
             LarsCode,
             Ukprn,
             new ChangeLastDateStartsSubmitModel { SelectedOption = ChangeLastDateStartsOptions.Remove },
