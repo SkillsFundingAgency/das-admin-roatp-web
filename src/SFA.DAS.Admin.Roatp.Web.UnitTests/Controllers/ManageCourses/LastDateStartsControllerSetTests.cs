@@ -29,33 +29,7 @@ public class LastDateStartsControllerSetTests
     private const int OtherUkprn = 10000001;
 
     [Test, MoqAutoData]
-    public async Task WhenSettingLastDateStarts_AndProviderHasLastDateStartsWithoutChangeJourney_ThenReturnsNotFound(
-        [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
-        [Greedy] LastDateStartsController sut,
-        GetRestrictedCourseDetailsResponse response)
-    {
-        var lastDateStarts = new DateTime(2027, 3, 15, 0, 0, 0, DateTimeKind.Unspecified);
-        response.LarsCode = LarsCode;
-        response.Providers =
-        [
-            new ProviderCourseModel { Ukprn = Ukprn, ProviderName = "BP TRAINING", LastDateStarts = lastDateStarts }
-        ];
-
-        SetupValidRoute(ukprnAndLarsCodeValidatorMock);
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
-
-        SetupTempData(sut);
-
-        var result = await sut.SetLastDateStarts(LarsCode, Ukprn, CancellationToken.None);
-
-        result.Should().BeOfType<NotFoundResult>();
-    }
-
-    [Test, MoqAutoData]
-    public async Task WhenSettingLastDateStarts_AndProviderHasLastDateStartsAfterChangeJourney_ThenPrepopulatesDateFieldsAndIsChangeMode(
+    public async Task WhenSettingLastDateStarts_AndProviderHasLastDateStarts_ThenPrepopulatesDateFieldsAndIsChangeMode(
         [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] LastDateStartsController sut,
@@ -77,8 +51,6 @@ public class LastDateStartsControllerSetTests
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
-
-        SetupChangeExistingDateJourney(sut);
 
         var result = await sut.SetLastDateStarts(LarsCode, Ukprn, CancellationToken.None) as ViewResult;
 
@@ -327,7 +299,6 @@ public class LastDateStartsControllerSetTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
         SetupTestUser(sut);
-        sut.TempData[LastDateStartsController.ChangingExistingLastDateStartsTempDataKey] = true;
 
         var result = await sut.SetLastDateStarts(
             LarsCode,
@@ -351,48 +322,6 @@ public class LastDateStartsControllerSetTests
                 && r.UserId == "test.user@education.gov.uk"
                 && r.UserDisplayName == "Test User"),
             It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Test, MoqAutoData]
-    public async Task WhenPostingSetLastDateStarts_AndChangingExistingDateWithoutChangeJourney_ThenReturnsNotFound(
-        [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] LastDateStartsController sut,
-        GetRestrictedCourseDetailsResponse response)
-    {
-        response.LarsCode = LarsCode;
-        response.Providers =
-        [
-            new ProviderCourseModel
-            {
-                Ukprn = Ukprn,
-                ProviderName = "BP TRAINING",
-                LastDateStarts = new DateTime(2027, 6, 1, 0, 0, 0, DateTimeKind.Unspecified)
-            }
-        ];
-
-        SetupValidRoute(ukprnAndLarsCodeValidatorMock);
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
-
-        SetupTempData(sut);
-
-        var result = await sut.SetLastDateStarts(
-            LarsCode,
-            Ukprn,
-            new AddLastDateStartsSubmitModel { Day = "12", Month = "07", Year = "2026" },
-            CancellationToken.None);
-
-        result.Should().BeOfType<NotFoundResult>();
-        outerApiClientMock.Verify(
-            c => c.UpsertProviderAllowedCourse(
-                It.IsAny<int>(),
-                It.IsAny<string>(),
-                It.IsAny<UpsertProviderAllowedCourseRequest>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
     }
 
     [Test, MoqAutoData]
@@ -477,21 +406,6 @@ public class LastDateStartsControllerSetTests
         ukprnAndLarsCodeValidatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<IUkprnAndLarsCodeValidator>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
-    }
-
-    private static void SetupTempData(Controller sut)
-    {
-        sut.ControllerContext = new ControllerContext
-        {
-            HttpContext = new DefaultHttpContext()
-        };
-        sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
-    }
-
-    private static void SetupChangeExistingDateJourney(Controller sut)
-    {
-        SetupTempData(sut);
-        sut.TempData[LastDateStartsController.ChangingExistingLastDateStartsTempDataKey] = true;
     }
 
     private static void SetupTestUser(Controller sut)

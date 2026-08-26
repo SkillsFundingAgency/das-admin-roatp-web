@@ -143,33 +143,6 @@ public class RestrictedCourseDetailsControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingRestrictedCourseDetails_AndTempDataContainsChangeJourneyFlag_ThenRemovesChangeJourneyFlag(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
-        [Greedy] RestrictedCourseDetailsController sut,
-        GetRestrictedCourseDetailsResponse response)
-    {
-        response.LarsCode = LarsCode;
-        response.IsCourseRestricted = true;
-        response.Providers = [];
-
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
-
-        sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
-
-        SetupTempData(sut);
-        sut.TempData[LastDateStartsController.ChangingExistingLastDateStartsTempDataKey] = true;
-
-        await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None);
-
-        sut.TempData.ContainsKey(LastDateStartsController.ChangingExistingLastDateStartsTempDataKey)
-            .Should().BeFalse();
-    }
-
-    [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndTempDataContainsSuccessBannerMessage_ThenModelHasSuccessBannerMessage(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
