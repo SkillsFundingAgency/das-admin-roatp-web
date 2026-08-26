@@ -13,6 +13,7 @@ using SFA.DAS.Admin.Roatp.Web.Validators.Common;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
+[Route("restricted-courses/{larsCode}/providers/{ukprn}")]
 public class LastDateStartsController(
     IValidator<IUkprnAndLarsCodeValidator> ukprnAndLarsCodeValidator,
     ILarsCodeService larsCodeService,
@@ -24,8 +25,7 @@ public class LastDateStartsController(
     public const string ChangeLastDateStartsViewPath = "~/Views/ManageCourses/ChangeLastDateStarts/Index.cshtml";
     public const string ChangingExistingLastDateStartsTempDataKey = "ChangingExistingLastDateStarts";
 
-    [HttpGet]
-    [Route("restricted-courses/{larsCode}/providers/{ukprn}/set-last-start-date", Name = RouteNames.SetLastDateStarts)]
+    [HttpGet("set-last-start-date", Name = RouteNames.SetLastDateStarts)]
     public async Task<IActionResult> SetLastDateStarts(
         [FromRoute] string larsCode,
         [FromRoute] int ukprn,
@@ -40,8 +40,7 @@ public class LastDateStartsController(
         return model is null ? NotFound() : View(AddLastDateStartsViewPath, model);
     }
 
-    [HttpPost]
-    [Route("restricted-courses/{larsCode}/providers/{ukprn}/set-last-start-date")]
+    [HttpPost("set-last-start-date")]
     public async Task<IActionResult> SetLastDateStarts(
         [FromRoute] string larsCode,
         [FromRoute] int ukprn,
@@ -89,8 +88,7 @@ public class LastDateStartsController(
         return RedirectToRoute(RouteNames.RestrictedCourseDetails, new { larsCode });
     }
 
-    [HttpGet]
-    [Route("restricted-courses/{larsCode}/providers/{ukprn}/change-last-start-date", Name = RouteNames.ChangeLastDateStarts)]
+    [HttpGet("change-last-start-date", Name = RouteNames.ChangeLastDateStarts)]
     public async Task<IActionResult> ChangeLastDateStarts(
         [FromRoute] string larsCode,
         [FromRoute] int ukprn,
@@ -105,8 +103,7 @@ public class LastDateStartsController(
         return model is null ? NotFound() : View(ChangeLastDateStartsViewPath, model);
     }
 
-    [HttpPost]
-    [Route("restricted-courses/{larsCode}/providers/{ukprn}/change-last-start-date")]
+    [HttpPost("change-last-start-date")]
     public async Task<IActionResult> ChangeLastDateStarts(
         [FromRoute] string larsCode,
         [FromRoute] int ukprn,
