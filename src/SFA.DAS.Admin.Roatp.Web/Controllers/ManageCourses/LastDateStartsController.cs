@@ -181,7 +181,7 @@ public class LastDateStartsController(
         return (courseDetails, provider);
     }
 
-    private bool CanAccessSetLastDateStarts(bool providerHasLastDateStarts)
+    private bool IsValidSetLastDateStartsState(bool providerHasLastDateStarts)
     {
         if (!providerHasLastDateStarts)
         {
@@ -211,7 +211,7 @@ public class LastDateStartsController(
 
         var (courseDetails, provider) = courseAndProvider.Value;
         var isChangingExistingDate = provider.LastDateStarts.HasValue;
-        if (!CanAccessSetLastDateStarts(isChangingExistingDate))
+        if (!IsValidSetLastDateStartsState(isChangingExistingDate))
         {
             return null;
         }
