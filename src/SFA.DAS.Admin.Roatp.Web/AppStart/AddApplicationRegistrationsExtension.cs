@@ -27,6 +27,7 @@ public static class AddApplicationRegistrationsExtension
         services.AddScoped<ICacheService, CacheService>();
         services.AddScoped<ILarsCodeService, LarsCodeService>();
         services.AddScoped<IUkprnService, UkprnService>();
+        services.AddScoped<IRestrictedCourseProviderService, RestrictedCourseProviderService>();
 
         services.AddOuterApi(outerApiConfig!);
 

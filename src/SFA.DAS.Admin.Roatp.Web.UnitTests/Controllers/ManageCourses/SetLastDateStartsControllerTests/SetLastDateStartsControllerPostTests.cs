@@ -11,11 +11,11 @@ using Moq;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
-using SFA.DAS.Admin.Roatp.Web.Validators.Common;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses.SetLastDateStartsControllerTests;
@@ -26,12 +26,10 @@ public class SetLastDateStartsControllerPostTests
     private const int Ukprn = 10007938;
     private const string LarsCode = "105";
     private const string RestrictedCourseDetailsUrl = $"/restricted-courses/{LarsCode}";
-    private const int OtherUkprn = 10000001;
 
     [Test, MoqAutoData]
     public async Task WhenValidationFails_ThenReturnsViewWithErrors(
-        [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
         [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> validatorMock,
         [Greedy] SetLastDateStartsController sut,
         GetRestrictedCourseDetailsResponse response)
@@ -39,15 +37,15 @@ public class SetLastDateStartsControllerPostTests
         response.LarsCode = LarsCode;
         response.CourseName = "Academic professional";
         response.Level = 7;
-        response.Providers =
-        [
-            new ProviderCourseModel { Ukprn = Ukprn, ProviderName = "BP TRAINING", LastDateStarts = null }
-        ];
+        var provider = new ProviderCourseModel
+        {
+            Ukprn = Ukprn,
+            ProviderName = "BP TRAINING",
+            LastDateStarts = null
+        };
 
-        SetupValidRoute(ukprnAndLarsCodeValidatorMock);
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        SetupValidRoute(restrictedCourseProviderServiceMock);
+        SetupCourseAndProvider(restrictedCourseProviderServiceMock, response, provider);
 
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
@@ -85,8 +83,7 @@ public class SetLastDateStartsControllerPostTests
 
     [Test, MoqAutoData]
     public async Task WhenValidationPasses_ThenCallsApiAndRedirectsWithSuccessBanner(
-        [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> validatorMock,
         [Greedy] SetLastDateStartsController sut,
@@ -95,15 +92,16 @@ public class SetLastDateStartsControllerPostTests
         response.LarsCode = LarsCode;
         response.CourseName = "Academic professional";
         response.Level = 7;
-        response.Providers =
-        [
-            new ProviderCourseModel { Ukprn = Ukprn, ProviderName = "BP TRAINING", LastDateStarts = null }
-        ];
+        var provider = new ProviderCourseModel
+        {
+            Ukprn = Ukprn,
+            ProviderName = "BP TRAINING",
+            LastDateStarts = null
+        };
 
-        SetupValidRoute(ukprnAndLarsCodeValidatorMock);
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        SetupValidRoute(restrictedCourseProviderServiceMock);
+        SetupCourseAndProvider(restrictedCourseProviderServiceMock, response, provider);
+        SetupUpsertRequest(restrictedCourseProviderServiceMock);
 
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
@@ -144,8 +142,7 @@ public class SetLastDateStartsControllerPostTests
 
     [Test, MoqAutoData]
     public async Task WhenChangingExistingDate_ThenCallsApiAndRedirectsWithUpdatedBanner(
-        [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> validatorMock,
         [Greedy] SetLastDateStartsController sut,
@@ -154,20 +151,16 @@ public class SetLastDateStartsControllerPostTests
         response.LarsCode = LarsCode;
         response.CourseName = "Academic professional";
         response.Level = 7;
-        response.Providers =
-        [
-            new ProviderCourseModel
-            {
-                Ukprn = Ukprn,
-                ProviderName = "BP TRAINING",
-                LastDateStarts = new DateTime(2027, 6, 1, 0, 0, 0, DateTimeKind.Unspecified)
-            }
-        ];
+        var provider = new ProviderCourseModel
+        {
+            Ukprn = Ukprn,
+            ProviderName = "BP TRAINING",
+            LastDateStarts = new DateTime(2027, 6, 1, 0, 0, 0, DateTimeKind.Unspecified)
+        };
 
-        SetupValidRoute(ukprnAndLarsCodeValidatorMock);
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        SetupValidRoute(restrictedCourseProviderServiceMock);
+        SetupCourseAndProvider(restrictedCourseProviderServiceMock, response, provider);
+        SetupUpsertRequest(restrictedCourseProviderServiceMock);
 
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
@@ -204,16 +197,12 @@ public class SetLastDateStartsControllerPostTests
 
     [Test, MoqAutoData]
     public async Task WhenRouteIsInvalid_ThenReturnsNotFound(
-        [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
         [Greedy] SetLastDateStartsController sut)
     {
-        ukprnAndLarsCodeValidatorMock
-            .Setup(v => v.ValidateAsync(It.IsAny<IUkprnAndLarsCodeValidator>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ValidationResult(
-            [
-                new ValidationFailure(nameof(IUkprnAndLarsCodeValidator.LarsCode), "invalid")
-            ]));
+        restrictedCourseProviderServiceMock
+            .Setup(s => s.IsRouteValidAsync(LarsCode, Ukprn, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         var result = await sut.Index(
             LarsCode,
@@ -222,28 +211,20 @@ public class SetLastDateStartsControllerPostTests
             CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
-        larsCodeServiceMock.Verify(
-            s => s.GetCourseDetailsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+        restrictedCourseProviderServiceMock.Verify(
+            s => s.GetCourseAndProviderAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
     [Test, MoqAutoData]
     public async Task WhenProviderDoesNotExistOnCourse_ThenReturnsNotFound(
-        [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
-        [Greedy] SetLastDateStartsController sut,
-        GetRestrictedCourseDetailsResponse response)
+        [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
+        [Greedy] SetLastDateStartsController sut)
     {
-        response.LarsCode = LarsCode;
-        response.Providers =
-        [
-            new ProviderCourseModel { Ukprn = OtherUkprn, ProviderName = "Other", LastDateStarts = null }
-        ];
-
-        SetupValidRoute(ukprnAndLarsCodeValidatorMock);
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        SetupValidRoute(restrictedCourseProviderServiceMock);
+        restrictedCourseProviderServiceMock
+            .Setup(s => s.GetCourseAndProviderAsync(LarsCode, Ukprn, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(((GetRestrictedCourseDetailsResponse, ProviderCourseModel)?)null);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
@@ -257,11 +238,33 @@ public class SetLastDateStartsControllerPostTests
         result.Should().BeOfType<NotFoundResult>();
     }
 
-    private static void SetupValidRoute(Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock)
+    private static void SetupValidRoute(Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock)
     {
-        ukprnAndLarsCodeValidatorMock
-            .Setup(v => v.ValidateAsync(It.IsAny<IUkprnAndLarsCodeValidator>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ValidationResult());
+        restrictedCourseProviderServiceMock
+            .Setup(s => s.IsRouteValidAsync(LarsCode, Ukprn, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+    }
+
+    private static void SetupCourseAndProvider(
+        Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
+        GetRestrictedCourseDetailsResponse response,
+        ProviderCourseModel provider)
+    {
+        restrictedCourseProviderServiceMock
+            .Setup(s => s.GetCourseAndProviderAsync(LarsCode, Ukprn, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((response, provider));
+    }
+
+    private static void SetupUpsertRequest(Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock)
+    {
+        restrictedCourseProviderServiceMock
+            .Setup(s => s.CreateUpsertRequest(It.IsAny<ClaimsPrincipal>(), It.IsAny<DateTime?>()))
+            .Returns((ClaimsPrincipal user, DateTime? lastDateStarts) => new UpsertProviderAllowedCourseRequest
+            {
+                UserId = user.UserId(),
+                UserDisplayName = user.UserDisplayName(),
+                LastDateStarts = lastDateStarts
+            });
     }
 
     private static void SetupTestUser(Controller sut)
