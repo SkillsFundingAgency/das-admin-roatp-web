@@ -30,6 +30,54 @@ public class RestrictedCourseProviderServiceTests
     }
 
     [Test, MoqAutoData]
+    public async Task IsRouteValidAsync_WhenValidationFails_ThenReturnsFalse(
+        [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
+        RestrictedCourseProviderService sut)
+    {
+        ukprnAndLarsCodeValidatorMock
+            .Setup(v => v.ValidateAsync(It.IsAny<IUkprnAndLarsCodeValidator>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult([new ValidationFailure("Ukprn", "Invalid")]));
+
+        var result = await sut.IsRouteValidAsync("105", 10007938, CancellationToken.None);
+
+        result.Should().BeFalse();
+    }
+
+    [Test, MoqAutoData]
+    public async Task GetCourseAndProviderAsync_WhenCourseDetailsIsNull_ThenReturnsNull(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        RestrictedCourseProviderService sut)
+    {
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync("105", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetRestrictedCourseDetailsResponse)null!);
+
+        var result = await sut.GetCourseAndProviderAsync("105", 10007938, CancellationToken.None);
+
+        result.Should().BeNull();
+    }
+
+    [Test, MoqAutoData]
+    public async Task GetCourseAndProviderAsync_WhenProviderDoesNotExist_ThenReturnsNull(
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        RestrictedCourseProviderService sut,
+        GetRestrictedCourseDetailsResponse response)
+    {
+        const int ukprn = 10007938;
+        response.Providers =
+        [
+            new ProviderCourseModel { Ukprn = ukprn + 1, ProviderName = "OTHER TRAINING" }
+        ];
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync("105", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+
+        var result = await sut.GetCourseAndProviderAsync("105", ukprn, CancellationToken.None);
+
+        result.Should().BeNull();
+    }
+
+    [Test, MoqAutoData]
     public async Task GetCourseAndProviderAsync_WhenProviderExists_ThenReturnsCourseAndProvider(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         RestrictedCourseProviderService sut,
