@@ -24,6 +24,7 @@ public static class AddApplicationRegistrationsExtension
         services.AddTransient<IOrganisationPatchService, OrganisationPatchService>();
         services.AddTransient<IOrganisationTypesService, OrganisationTypesService>();
         services.AddTransient<IPostOrganisationService, PostOrganisationService>();
+        services.AddScoped<ICacheService, CacheService>();
         services.AddScoped<ILarsCodeService, LarsCodeService>();
         services.AddScoped<IUkprnService, UkprnService>();
 

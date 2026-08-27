@@ -18,11 +18,10 @@ public class LarsCodeServiceTests
     public async Task WhenGettingCourseDetails_AndApiReturnsCourse_ThenReturnsContent(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessorMock,
-        [Greedy] LarsCodeService sut,
         string larsCode,
         GetRestrictedCourseDetailsResponse response)
     {
-        httpContextAccessorMock.Setup(a => a.HttpContext).Returns(new DefaultHttpContext());
+        var sut = CreateSut(outerApiClientMock, httpContextAccessorMock);
         outerApiClientMock
             .Setup(c => c.GetAllowedProvidersForCourse(larsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
@@ -37,10 +36,9 @@ public class LarsCodeServiceTests
     public async Task WhenGettingCourseDetails_AndApiFails_ThenReturnsNull(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessorMock,
-        [Greedy] LarsCodeService sut,
         string larsCode)
     {
-        httpContextAccessorMock.Setup(a => a.HttpContext).Returns(new DefaultHttpContext());
+        var sut = CreateSut(outerApiClientMock, httpContextAccessorMock);
         outerApiClientMock
             .Setup(c => c.GetAllowedProvidersForCourse(larsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
@@ -55,10 +53,9 @@ public class LarsCodeServiceTests
     public async Task WhenGettingCourseDetails_AndApiReturnsOkWithNullContent_ThenReturnsNull(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessorMock,
-        [Greedy] LarsCodeService sut,
         string larsCode)
     {
-        httpContextAccessorMock.Setup(a => a.HttpContext).Returns(new DefaultHttpContext());
+        var sut = CreateSut(outerApiClientMock, httpContextAccessorMock);
         outerApiClientMock
             .Setup(c => c.GetAllowedProvidersForCourse(larsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
@@ -73,10 +70,9 @@ public class LarsCodeServiceTests
     public async Task WhenGettingCourseDetails_AndApiReturnsNonSuccessNonNotFound_ThenThrows(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessorMock,
-        [Greedy] LarsCodeService sut,
         string larsCode)
     {
-        httpContextAccessorMock.Setup(a => a.HttpContext).Returns(new DefaultHttpContext());
+        var sut = CreateSut(outerApiClientMock, httpContextAccessorMock);
         outerApiClientMock
             .Setup(c => c.GetAllowedProvidersForCourse(larsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
@@ -91,11 +87,10 @@ public class LarsCodeServiceTests
     public async Task WhenGettingCourseDetails_AndCalledTwice_ThenCallsApiOnce(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessorMock,
-        [Greedy] LarsCodeService sut,
         string larsCode,
         GetRestrictedCourseDetailsResponse response)
     {
-        httpContextAccessorMock.Setup(a => a.HttpContext).Returns(new DefaultHttpContext());
+        var sut = CreateSut(outerApiClientMock, httpContextAccessorMock);
         outerApiClientMock
             .Setup(c => c.GetAllowedProvidersForCourse(larsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
@@ -111,15 +106,24 @@ public class LarsCodeServiceTests
 
     [Test, MoqAutoData]
     public async Task WhenGettingCourseDetails_AndHttpContextIsMissing_ThenThrows(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessorMock,
-        [Greedy] LarsCodeService sut,
         string larsCode)
     {
         httpContextAccessorMock.Setup(a => a.HttpContext).Returns((HttpContext?)null);
+        var sut = new LarsCodeService(outerApiClientMock.Object, new CacheService(httpContextAccessorMock.Object));
 
         var act = () => sut.GetCourseDetailsAsync(larsCode, CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("HttpContext is not available.");
+    }
+
+    private static LarsCodeService CreateSut(
+        Mock<IOuterApiClient> outerApiClientMock,
+        Mock<IHttpContextAccessor> httpContextAccessorMock)
+    {
+        httpContextAccessorMock.Setup(a => a.HttpContext).Returns(new DefaultHttpContext());
+        return new LarsCodeService(outerApiClientMock.Object, new CacheService(httpContextAccessorMock.Object));
     }
 }

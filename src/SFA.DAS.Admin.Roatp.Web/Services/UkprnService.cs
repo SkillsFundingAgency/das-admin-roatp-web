@@ -5,24 +5,20 @@ using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 
 namespace SFA.DAS.Admin.Roatp.Web.Services;
 
-public class UkprnService(IOuterApiClient outerApiClient, IHttpContextAccessor httpContextAccessor) : IUkprnService
+public class UkprnService(IOuterApiClient outerApiClient, ICacheService cacheService) : IUkprnService
 {
     private const string CacheItemsKey = "UkprnService.Cache";
 
     public async Task<GetOrganisationResponse?> GetOrganisationAsync(int ukprn, CancellationToken cancellationToken)
     {
-        var cache = GetCache();
-
-        if (cache.TryGetValue(ukprn, out var cached))
+        if (cacheService.TryGetValue(CacheItemsKey, ukprn, out GetOrganisationResponse? cached))
         {
             return cached;
         }
 
         var response = await outerApiClient.GetOrganisation(ukprn, cancellationToken);
         var organisation = ExtractOrganisation(ukprn, response);
-
-        cache[ukprn] = organisation;
-
+        cacheService.Set(CacheItemsKey, ukprn, organisation);
         return organisation;
     }
 
@@ -42,19 +38,5 @@ public class UkprnService(IOuterApiClient outerApiClient, IHttpContextAccessor h
         }
 
         return response.Content;
-    }
-
-    private Dictionary<int, GetOrganisationResponse?> GetCache()
-    {
-        var httpContext = httpContextAccessor.HttpContext
-            ?? throw new InvalidOperationException("HttpContext is not available.");
-
-        if (httpContext.Items[CacheItemsKey] is not Dictionary<int, GetOrganisationResponse?> cache)
-        {
-            cache = new Dictionary<int, GetOrganisationResponse?>();
-            httpContext.Items[CacheItemsKey] = cache;
-        }
-
-        return cache;
     }
 }
