@@ -5,14 +5,14 @@ using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models.ManageCourses;
 
 [TestFixture]
-public class AddLastDateStartsViewModelTests
+public class SetLastDateStartsViewModelTests
 {
     private const string LarsCode = "105";
 
     [Test]
     public void CourseLastDateStartsText_WhenDateIsNull_ThenReturnsEmptyString()
     {
-        var model = new AddLastDateStartsViewModel
+        var model = new SetLastDateStartsViewModel
         {
             LarsCode = LarsCode,
             ProviderName = "BP TRAINING",
@@ -27,7 +27,7 @@ public class AddLastDateStartsViewModelTests
     public void CourseLastDateStartsText_WhenDateHasValue_ThenReturnsFormattedDate()
     {
         var date = new DateTime(2027, 6, 1, 0, 0, 0, DateTimeKind.Unspecified);
-        var model = new AddLastDateStartsViewModel
+        var model = new SetLastDateStartsViewModel
         {
             LarsCode = LarsCode,
             ProviderName = "BP TRAINING",
@@ -41,7 +41,7 @@ public class AddLastDateStartsViewModelTests
     [Test]
     public void IsAddingLastDateStarts_WhenIsChangingExistingDateIsFalse_ThenReturnsTrue()
     {
-        var model = new AddLastDateStartsViewModel
+        var model = new SetLastDateStartsViewModel
         {
             LarsCode = LarsCode,
             ProviderName = "BP TRAINING",
@@ -55,7 +55,7 @@ public class AddLastDateStartsViewModelTests
     [Test]
     public void IsAddingLastDateStarts_WhenIsChangingExistingDateIsTrue_ThenReturnsFalse()
     {
-        var model = new AddLastDateStartsViewModel
+        var model = new SetLastDateStartsViewModel
         {
             LarsCode = LarsCode,
             ProviderName = "BP TRAINING",

@@ -54,7 +54,7 @@ public class LastDateStartsControllerSetTests
 
         var result = await sut.SetLastDateStarts(LarsCode, Ukprn, CancellationToken.None) as ViewResult;
 
-        var model = result!.Model as AddLastDateStartsViewModel;
+        var model = result!.Model as SetLastDateStartsViewModel;
         using (new AssertionScope())
         {
             model!.Day.Should().Be("15");
@@ -65,7 +65,7 @@ public class LastDateStartsControllerSetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingAddLastDateStarts_AndProviderExists_ThenReturnsView(
+    public async Task WhenGettingSetLastDateStarts_AndProviderExists_ThenReturnsView(
         [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] LastDateStartsController sut,
@@ -89,11 +89,11 @@ public class LastDateStartsControllerSetTests
 
         var result = await sut.SetLastDateStarts(LarsCode, Ukprn, CancellationToken.None) as ViewResult;
 
-        var model = result!.Model as AddLastDateStartsViewModel;
+        var model = result!.Model as SetLastDateStartsViewModel;
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result!.ViewName.Should().Be(LastDateStartsController.AddLastDateStartsViewPath);
+            result!.ViewName.Should().Be(LastDateStartsController.SetLastDateStartsViewPath);
             model.Should().NotBeNull();
             model!.ProviderName.Should().Be("BP TRAINING");
             model.Ukprn.Should().Be(Ukprn);
@@ -154,7 +154,7 @@ public class LastDateStartsControllerSetTests
     public async Task WhenPostingAddLastDateStarts_AndValidationFails_ThenReturnsViewWithErrors(
         [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
-        [Frozen] Mock<IValidator<AddLastDateStartsSubmitModel>> validatorMock,
+        [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> validatorMock,
         [Greedy] LastDateStartsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -172,16 +172,16 @@ public class LastDateStartsControllerSetTests
             .ReturnsAsync(response);
 
         validatorMock
-            .Setup(v => v.ValidateAsync(It.IsAny<AddLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
+            .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult(
             [
-                new ValidationFailure(nameof(AddLastDateStartsSubmitModel.Day), "Enter a valid date")
+                new ValidationFailure(nameof(SetLastDateStartsSubmitModel.Day), "Enter a valid date")
             ]));
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var submitModel = new AddLastDateStartsSubmitModel
+        var submitModel = new SetLastDateStartsSubmitModel
         {
             Day = "",
             Month = "",
@@ -190,7 +190,7 @@ public class LastDateStartsControllerSetTests
 
         var result = await sut.SetLastDateStarts(LarsCode, Ukprn, submitModel, CancellationToken.None) as ViewResult;
 
-        var model = result!.Model as AddLastDateStartsViewModel;
+        var model = result!.Model as SetLastDateStartsViewModel;
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
@@ -200,7 +200,7 @@ public class LastDateStartsControllerSetTests
         }
         validatorMock.Verify(
             v => v.ValidateAsync(
-                It.Is<AddLastDateStartsSubmitModel>(m => m.LarsCode == LarsCode),
+                It.Is<SetLastDateStartsSubmitModel>(m => m.LarsCode == LarsCode),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -210,7 +210,7 @@ public class LastDateStartsControllerSetTests
         [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IValidator<AddLastDateStartsSubmitModel>> validatorMock,
+        [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> validatorMock,
         [Greedy] LastDateStartsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -228,7 +228,7 @@ public class LastDateStartsControllerSetTests
             .ReturnsAsync(response);
 
         validatorMock
-            .Setup(v => v.ValidateAsync(It.IsAny<AddLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
+            .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
 
         sut.AddUrlHelperMock()
@@ -236,7 +236,7 @@ public class LastDateStartsControllerSetTests
 
         SetupTestUser(sut);
 
-        var submitModel = new AddLastDateStartsSubmitModel
+        var submitModel = new SetLastDateStartsSubmitModel
         {
             Day = "15",
             Month = "03",
@@ -269,7 +269,7 @@ public class LastDateStartsControllerSetTests
         [Frozen] Mock<IValidator<IUkprnAndLarsCodeValidator>> ukprnAndLarsCodeValidatorMock,
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IValidator<AddLastDateStartsSubmitModel>> validatorMock,
+        [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> validatorMock,
         [Greedy] LastDateStartsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -292,7 +292,7 @@ public class LastDateStartsControllerSetTests
             .ReturnsAsync(response);
 
         validatorMock
-            .Setup(v => v.ValidateAsync(It.IsAny<AddLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
+            .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
 
         sut.AddUrlHelperMock()
@@ -303,7 +303,7 @@ public class LastDateStartsControllerSetTests
         var result = await sut.SetLastDateStarts(
             LarsCode,
             Ukprn,
-            new AddLastDateStartsSubmitModel { Day = "12", Month = "07", Year = "2026" },
+            new SetLastDateStartsSubmitModel { Day = "12", Month = "07", Year = "2026" },
             CancellationToken.None) as RedirectToRouteResult;
 
         using (new AssertionScope())
@@ -362,7 +362,7 @@ public class LastDateStartsControllerSetTests
         var result = await sut.SetLastDateStarts(
             LarsCode,
             Ukprn,
-            new AddLastDateStartsSubmitModel { Day = "15", Month = "03", Year = "2027" },
+            new SetLastDateStartsSubmitModel { Day = "15", Month = "03", Year = "2027" },
             CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
@@ -395,7 +395,7 @@ public class LastDateStartsControllerSetTests
         var result = await sut.SetLastDateStarts(
             LarsCode,
             Ukprn,
-            new AddLastDateStartsSubmitModel { Day = "15", Month = "03", Year = "2027" },
+            new SetLastDateStartsSubmitModel { Day = "15", Month = "03", Year = "2027" },
             CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();

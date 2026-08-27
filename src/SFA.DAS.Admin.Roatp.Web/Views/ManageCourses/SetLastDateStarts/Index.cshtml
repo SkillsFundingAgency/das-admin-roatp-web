@@ -1,4 +1,4 @@
-@model SFA.DAS.Admin.Roatp.Web.Models.ManageCourses.AddLastDateStartsViewModel
+@model SFA.DAS.Admin.Roatp.Web.Models.ManageCourses.SetLastDateStartsViewModel
 @{
     ViewBag.Title = Model.IsChangingExistingDate ? "Change last start date for this provider" : "Add a last start date";
     var dateError = ViewData.ModelState[nameof(Model.Day)]?.Errors.FirstOrDefault()?.ErrorMessage;

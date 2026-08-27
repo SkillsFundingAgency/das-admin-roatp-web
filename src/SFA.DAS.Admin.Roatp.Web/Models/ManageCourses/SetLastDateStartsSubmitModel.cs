@@ -1,6 +1,6 @@
 namespace SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 
-public class AddLastDateStartsSubmitModel
+public class SetLastDateStartsSubmitModel
 {
     public string? Day { get; set; }
     public string? Month { get; set; }

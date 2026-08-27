@@ -5,7 +5,7 @@ using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models.ManageCourses;
 
 [TestFixture]
-public class AddLastDateStartsSubmitModelTests
+public class SetLastDateStartsSubmitModelTests
 {
     [Test]
     [InlineAutoData("abc", "06", "2027")]
@@ -16,7 +16,7 @@ public class AddLastDateStartsSubmitModelTests
     [InlineAutoData(null, null, null)]
     public void WhenEnteredDateIsInvalid_ThenTryGetEnteredDateReturnsFalse(string? day, string? month, string? year)
     {
-        var model = new AddLastDateStartsSubmitModel { Day = day, Month = month, Year = year };
+        var model = new SetLastDateStartsSubmitModel { Day = day, Month = month, Year = year };
 
         var result = model.TryGetEnteredDate(out var date);
 
@@ -28,7 +28,7 @@ public class AddLastDateStartsSubmitModelTests
     [InlineAutoData("15", "06", "2027")]
     public void WhenEnteredDateIsValid_ThenTryGetEnteredDateReturnsTrue(string day, string month, string year)
     {
-        var model = new AddLastDateStartsSubmitModel { Day = day, Month = month, Year = year };
+        var model = new SetLastDateStartsSubmitModel { Day = day, Month = month, Year = year };
 
         var result = model.TryGetEnteredDate(out var date);
 

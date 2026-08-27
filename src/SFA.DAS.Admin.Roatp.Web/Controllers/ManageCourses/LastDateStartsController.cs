@@ -18,10 +18,10 @@ public class LastDateStartsController(
     IValidator<IUkprnAndLarsCodeValidator> ukprnAndLarsCodeValidator,
     ILarsCodeService larsCodeService,
     IOuterApiClient outerApiClient,
-    IValidator<AddLastDateStartsSubmitModel> setDateValidator,
+    IValidator<SetLastDateStartsSubmitModel> setDateValidator,
     IValidator<ChangeLastDateStartsSubmitModel> changeOptionValidator) : Controller
 {
-    public const string AddLastDateStartsViewPath = "~/Views/ManageCourses/AddLastDateStarts/Index.cshtml";
+    public const string SetLastDateStartsViewPath = "~/Views/ManageCourses/SetLastDateStarts/Index.cshtml";
     public const string ChangeLastDateStartsViewPath = "~/Views/ManageCourses/ChangeLastDateStarts/Index.cshtml";
 
     [HttpGet("set-last-start-date", Name = RouteNames.SetLastDateStarts)]
@@ -36,14 +36,14 @@ public class LastDateStartsController(
         }
 
         var model = await BuildSetViewModelAsync(larsCode, ukprn, null, cancellationToken);
-        return model is null ? NotFound() : View(AddLastDateStartsViewPath, model);
+        return model is null ? NotFound() : View(SetLastDateStartsViewPath, model);
     }
 
     [HttpPost("set-last-start-date")]
     public async Task<IActionResult> SetLastDateStarts(
         [FromRoute] string larsCode,
         [FromRoute] int ukprn,
-        AddLastDateStartsSubmitModel submitModel,
+        SetLastDateStartsSubmitModel submitModel,
         CancellationToken cancellationToken)
     {
         if (!await IsRouteValidAsync(larsCode, ukprn, cancellationToken))
@@ -63,7 +63,7 @@ public class LastDateStartsController(
         {
             ModelState.Clear();
             ModelState.AddValidationErrors(validationResult.Errors);
-            return View(AddLastDateStartsViewPath, model);
+            return View(SetLastDateStartsViewPath, model);
         }
 
         submitModel.TryGetEnteredDate(out var lastDateStarts);
@@ -178,10 +178,10 @@ public class LastDateStartsController(
         return (courseDetails, provider);
     }
 
-    private async Task<AddLastDateStartsViewModel?> BuildSetViewModelAsync(
+    private async Task<SetLastDateStartsViewModel?> BuildSetViewModelAsync(
         string larsCode,
         int ukprn,
-        AddLastDateStartsSubmitModel? submitModel,
+        SetLastDateStartsSubmitModel? submitModel,
         CancellationToken cancellationToken)
     {
         var courseAndProvider = await GetCourseAndProviderAsync(larsCode, ukprn, cancellationToken);
@@ -205,7 +205,7 @@ public class LastDateStartsController(
             year = lastDateStarts.Year.ToString();
         }
 
-        return new AddLastDateStartsViewModel
+        return new SetLastDateStartsViewModel
         {
             LarsCode = larsCode,
             Ukprn = ukprn,

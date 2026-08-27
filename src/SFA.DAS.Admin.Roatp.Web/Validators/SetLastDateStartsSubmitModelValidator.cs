@@ -5,15 +5,15 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 
 namespace SFA.DAS.Admin.Roatp.Web.Validators;
 
-public class AddLastDateStartsSubmitModelValidator : AbstractValidator<AddLastDateStartsSubmitModel>
+public class SetLastDateStartsSubmitModelValidator : AbstractValidator<SetLastDateStartsSubmitModel>
 {
     public static readonly DateTime MinimumLastDateStarts = new(2014, 9, 1, 0, 0, 0, DateTimeKind.Unspecified);
 
     public const string EnterValidDateErrorMessage = "Enter a valid date";
     public const string DateMustBeAfterMinimumErrorMessage = "The last start date must be on or after 1 September 2014";
-    public const string DateFieldName = nameof(AddLastDateStartsSubmitModel.Day);
+    public const string DateFieldName = nameof(SetLastDateStartsSubmitModel.Day);
 
-    public AddLastDateStartsSubmitModelValidator(ILarsCodeService larsCodeService)
+    public SetLastDateStartsSubmitModelValidator(ILarsCodeService larsCodeService)
     {
         RuleFor(model => model)
             .CustomAsync(async (model, context, cancellationToken) =>
