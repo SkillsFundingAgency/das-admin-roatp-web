@@ -43,8 +43,7 @@
                         <h2 class="govuk-fieldset__heading">Last date for new starts</h2>
                     </legend>
                     <div id="last-date-starts-hint" class="govuk-hint">
-                        <span asp-show="Model.IsChangingExistingDate">After this date, the provider will no longer be able add apprentices to this course.</span>
-                        <span asp-show="Model.IsAddingLastDateStarts">After this date, the provider will no longer be able add new starts to this course.</span>
+                        <span>After this date, the provider will no longer be able add new starts to this course.</span>
                     </div>
                     <p asp-show="@hasDateError" id="last-date-starts-error" class="govuk-error-message">
                         <span class="govuk-visually-hidden">Error:</span> @dateError
