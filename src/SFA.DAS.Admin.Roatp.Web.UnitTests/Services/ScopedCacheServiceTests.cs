@@ -17,8 +17,8 @@ public class ScopedCacheServiceTests
         httpContextAccessorMock.Setup(a => a.HttpContext).Returns(new DefaultHttpContext());
         ScopedCacheService sut = new(httpContextAccessorMock.Object);
 
-        sut.Set("cache", "key", "value");
-        var found = sut.TryGetValue("cache", "key", out string? cached);
+        sut.Set("key", "value");
+        var found = sut.TryGetValue("key", out string? cached);
 
         found.Should().BeTrue();
         cached.Should().Be("value");
@@ -31,7 +31,7 @@ public class ScopedCacheServiceTests
         httpContextAccessorMock.Setup(a => a.HttpContext).Returns((HttpContext?)null);
         ScopedCacheService sut = new(httpContextAccessorMock.Object);
 
-        var act = () => sut.Set("cache", "key", "value");
+        var act = () => sut.Set("key", "value");
 
         act.Should().Throw<InvalidOperationException>()
             .WithMessage("HttpContext is not available.");

@@ -5,20 +5,18 @@ using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 
 namespace SFA.DAS.Admin.Roatp.Web.Services;
 
-public class UkprnService(IOuterApiClient outerApiClient, IScopedCacheService cacheService) : IUkprnService
+public class UkprnService(IOuterApiClient outerApiClient, IScopedCacheService scopedCacheService) : IUkprnService
 {
-    private const string CacheItemsKey = "UkprnService.Cache";
-
     public async Task<GetOrganisationResponse?> GetOrganisationAsync(int ukprn, CancellationToken cancellationToken)
     {
-        if (cacheService.TryGetValue(CacheItemsKey, ukprn, out GetOrganisationResponse? cached))
+        if (scopedCacheService.TryGetValue(ukprn, out GetOrganisationResponse? cached))
         {
             return cached;
         }
 
         var response = await outerApiClient.GetOrganisation(ukprn, cancellationToken);
         var organisation = ExtractOrganisation(ukprn, response);
-        cacheService.Set(CacheItemsKey, ukprn, organisation);
+        scopedCacheService.Set(ukprn, organisation);
         return organisation;
     }
 

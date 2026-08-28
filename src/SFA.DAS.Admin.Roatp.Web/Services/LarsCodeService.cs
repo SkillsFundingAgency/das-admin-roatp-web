@@ -5,22 +5,20 @@ using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 
 namespace SFA.DAS.Admin.Roatp.Web.Services;
 
-public class LarsCodeService(IOuterApiClient outerApiClient, IScopedCacheService cacheService) : ILarsCodeService
+public class LarsCodeService(IOuterApiClient outerApiClient, IScopedCacheService scopedCacheService) : ILarsCodeService
 {
-    private const string CacheItemsKey = "LarsCodeService.Cache";
-
     public async Task<GetRestrictedCourseDetailsResponse?> GetCourseDetailsAsync(
         string larsCode,
         CancellationToken cancellationToken)
     {
-        if (cacheService.TryGetValue(CacheItemsKey, larsCode, out GetRestrictedCourseDetailsResponse? cached))
+        if (scopedCacheService.TryGetValue(larsCode, out GetRestrictedCourseDetailsResponse? cached))
         {
             return cached;
         }
 
         var response = await outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
         var courseDetails = ExtractCourseDetails(larsCode, response);
-        cacheService.Set(CacheItemsKey, larsCode, courseDetails);
+        scopedCacheService.Set(larsCode, courseDetails);
         return courseDetails;
     }
 
