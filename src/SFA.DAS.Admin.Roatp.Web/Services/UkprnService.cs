@@ -5,7 +5,7 @@ using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 
 namespace SFA.DAS.Admin.Roatp.Web.Services;
 
-public class UkprnService(IOuterApiClient outerApiClient, ICacheService cacheService) : IUkprnService
+public class UkprnService(IOuterApiClient outerApiClient, IScopedCacheService cacheService) : IUkprnService
 {
     private const string CacheItemsKey = "UkprnService.Cache";
 

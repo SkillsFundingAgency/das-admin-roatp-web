@@ -94,7 +94,7 @@ public class UkprnServiceTests
         int ukprn)
     {
         httpContextAccessorMock.Setup(a => a.HttpContext).Returns((HttpContext?)null);
-        var sut = new UkprnService(outerApiClientMock.Object, new CacheService(httpContextAccessorMock.Object));
+        var sut = new UkprnService(outerApiClientMock.Object, new ScopedCacheService(httpContextAccessorMock.Object));
 
         var act = () => sut.GetOrganisationAsync(ukprn, CancellationToken.None);
 
@@ -107,6 +107,6 @@ public class UkprnServiceTests
         Mock<IHttpContextAccessor> httpContextAccessorMock)
     {
         httpContextAccessorMock.Setup(a => a.HttpContext).Returns(new DefaultHttpContext());
-        return new UkprnService(outerApiClientMock.Object, new CacheService(httpContextAccessorMock.Object));
+        return new UkprnService(outerApiClientMock.Object, new ScopedCacheService(httpContextAccessorMock.Object));
     }
 }

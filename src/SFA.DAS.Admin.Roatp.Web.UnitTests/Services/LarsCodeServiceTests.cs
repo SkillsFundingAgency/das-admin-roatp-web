@@ -111,7 +111,7 @@ public class LarsCodeServiceTests
         string larsCode)
     {
         httpContextAccessorMock.Setup(a => a.HttpContext).Returns((HttpContext?)null);
-        var sut = new LarsCodeService(outerApiClientMock.Object, new CacheService(httpContextAccessorMock.Object));
+        var sut = new LarsCodeService(outerApiClientMock.Object, new ScopedCacheService(httpContextAccessorMock.Object));
 
         var act = () => sut.GetCourseDetailsAsync(larsCode, CancellationToken.None);
 
@@ -124,6 +124,6 @@ public class LarsCodeServiceTests
         Mock<IHttpContextAccessor> httpContextAccessorMock)
     {
         httpContextAccessorMock.Setup(a => a.HttpContext).Returns(new DefaultHttpContext());
-        return new LarsCodeService(outerApiClientMock.Object, new CacheService(httpContextAccessorMock.Object));
+        return new LarsCodeService(outerApiClientMock.Object, new ScopedCacheService(httpContextAccessorMock.Object));
     }
 }

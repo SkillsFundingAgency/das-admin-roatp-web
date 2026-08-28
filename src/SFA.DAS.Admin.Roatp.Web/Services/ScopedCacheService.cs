@@ -1,6 +1,6 @@
 namespace SFA.DAS.Admin.Roatp.Web.Services;
 
-public class CacheService(IHttpContextAccessor httpContextAccessor) : ICacheService
+public class ScopedCacheService(IHttpContextAccessor httpContextAccessor) : IScopedCacheService
 {
     public bool TryGetValue<TKey, TValue>(string cacheKey, TKey key, out TValue? value)
         where TKey : notnull

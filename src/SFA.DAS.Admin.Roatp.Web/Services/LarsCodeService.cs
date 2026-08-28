@@ -5,7 +5,7 @@ using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 
 namespace SFA.DAS.Admin.Roatp.Web.Services;
 
-public class LarsCodeService(IOuterApiClient outerApiClient, ICacheService cacheService) : ILarsCodeService
+public class LarsCodeService(IOuterApiClient outerApiClient, IScopedCacheService cacheService) : ILarsCodeService
 {
     private const string CacheItemsKey = "LarsCodeService.Cache";
 

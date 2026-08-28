@@ -1,6 +1,6 @@
 namespace SFA.DAS.Admin.Roatp.Web.Services;
 
-public interface ICacheService
+public interface IScopedCacheService
 {
     bool TryGetValue<TKey, TValue>(string cacheKey, TKey key, out TValue? value)
         where TKey : notnull;
