@@ -122,6 +122,40 @@ public class UnrestrictedCourseDetailsControllerTests
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddRestrictedCourse), Times.Once);
     }
 
+    [TestCase(HttpStatusCode.BadRequest)]
+    public async Task WhenGettingUnrestrictedCourseDetails_AndCourseApiReturnsBadRequest_ThenReturnsNotFound(
+        HttpStatusCode statusCode)
+    {
+        var outerApiClientMock = new Mock<IOuterApiClient>();
+        var sessionServiceMock = new Mock<ISessionService>();
+        outerApiClientMock
+            .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
+                new HttpResponseMessage(statusCode), null, new RefitSettings(), null));
+
+        var sut = new UnrestrictedCourseDetailsController(outerApiClientMock.Object, sessionServiceMock.Object);
+
+        var result = await sut.Index(LarsCode, CancellationToken.None);
+
+        result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingUnrestrictedCourseDetails_AndCourseApiReturnsUnexpectedError_ThenThrows(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Greedy] UnrestrictedCourseDetailsController sut)
+    {
+        outerApiClientMock
+            .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
+                new HttpResponseMessage(HttpStatusCode.InternalServerError), null, new RefitSettings(), null));
+
+        var act = () => sut.Index(LarsCode, CancellationToken.None);
+
+        await act.Should().ThrowAsync<HttpRequestException>()
+            .WithMessage($"Failed to retrieve course details for LARS code '{LarsCode}'. Status code: InternalServerError.");
+    }
+
     [Test, MoqAutoData]
     public void WhenPostingRestrictThisCourse_ThenStoresSessionAndRedirectsToConfirm(
         [Frozen] Mock<ISessionService> sessionServiceMock,

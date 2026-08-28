@@ -2,6 +2,7 @@ using System.Net;
 using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Refit;
@@ -113,6 +114,41 @@ public class SetLastDateStartsControllerGetTests
         var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [TestCase(HttpStatusCode.NotFound)]
+    [TestCase(HttpStatusCode.BadRequest)]
+    public async Task WhenCourseApiReturnsNotFoundOrBadRequest_ThenReturnsNotFound(HttpStatusCode statusCode)
+    {
+        var outerApiClientMock = new Mock<IOuterApiClient>();
+        outerApiClientMock
+            .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
+                new HttpResponseMessage(statusCode), null, new RefitSettings(), null));
+
+        var sut = new SetLastDateStartsController(
+            outerApiClientMock.Object,
+            Mock.Of<IValidator<SetLastDateStartsSubmitModel>>());
+
+        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
+
+        result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenCourseApiReturnsUnexpectedError_ThenThrows(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Greedy] SetLastDateStartsController sut)
+    {
+        outerApiClientMock
+            .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
+                new HttpResponseMessage(HttpStatusCode.InternalServerError), null, new RefitSettings(), null));
+
+        var act = () => sut.Index(LarsCode, Ukprn, CancellationToken.None);
+
+        await act.Should().ThrowAsync<HttpRequestException>()
+            .WithMessage($"Failed to retrieve course details for LARS code '{LarsCode}'. Status code: InternalServerError.");
     }
 
     private static void SetupCourse(
