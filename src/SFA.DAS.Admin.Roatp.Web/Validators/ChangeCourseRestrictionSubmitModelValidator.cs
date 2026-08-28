@@ -3,16 +3,16 @@ using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 
 namespace SFA.DAS.Admin.Roatp.Web.Validators;
 
-public class ChangeLastDateStartsSubmitModelValidator : AbstractValidator<ChangeLastDateStartsSubmitModel>
+public class ChangeCourseRestrictionSubmitModelValidator : AbstractValidator<ChangeCourseRestrictionSubmitModel>
 {
     public const string NoOptionSelectedErrorMessage = "You must select an option";
 
-    public ChangeLastDateStartsSubmitModelValidator()
+    public ChangeCourseRestrictionSubmitModelValidator()
     {
         RuleFor(model => model.SelectedOption)
             .Must(option =>
-                option == ChangeLastDateStartsOptions.Change
-                || option == ChangeLastDateStartsOptions.Remove)
+                option == ChangeCourseRestrictionOptions.Change
+                || option == ChangeCourseRestrictionOptions.Remove)
             .WithMessage(NoOptionSelectedErrorMessage);
     }
 }

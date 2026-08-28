@@ -54,7 +54,7 @@ public class RestrictedCourseDetailsController(
         foreach (var provider in model.AllowedProviders)
         {
             provider.ChangeUrl = provider.HasLastDateStarts
-                ? Url.RouteUrl(RouteNames.ChangeLastDateStarts, new { larsCode, ukprn = provider.Ukprn })!
+                ? Url.RouteUrl(RouteNames.ChangeCourseRestriction, new { larsCode, ukprn = provider.Ukprn })!
                 : Url.RouteUrl(RouteNames.SetLastDateStarts, new { larsCode, ukprn = provider.Ukprn })!;
         }
 

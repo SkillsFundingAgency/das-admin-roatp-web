@@ -109,7 +109,7 @@ public class RestrictedCourseDetailsControllerGetTests
         using (new AssertionScope())
         {
             provider.DeliveryStatus.Should().Be(DeliveryStatus.LastStartDateAdded);
-            provider.ChangeUrl.Should().Be("/change-last-date-starts");
+            provider.ChangeUrl.Should().Be("/change-restriction");
         }
     }
 
@@ -278,7 +278,7 @@ public class RestrictedCourseDetailsControllerGetTests
             .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.SetLastDateStarts, "/set-last-date-starts")
-            .AddUrlForRoute(RouteNames.ChangeLastDateStarts, "/change-last-date-starts");
+            .AddUrlForRoute(RouteNames.ChangeCourseRestriction, "/change-restriction");
     }
 
     private static void SetupTempData(RestrictedCourseDetailsController sut)

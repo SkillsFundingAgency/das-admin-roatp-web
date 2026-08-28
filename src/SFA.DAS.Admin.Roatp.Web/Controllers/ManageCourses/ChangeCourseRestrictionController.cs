@@ -9,13 +9,13 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
-[Route("restricted-courses/{larsCode}/providers/{ukprn}/change-last-start-date", Name = RouteNames.ChangeLastDateStarts)]
-public class ChangeLastDateStartsController(
+[Route("restricted-courses/{larsCode}/providers/{ukprn}/change-restriction", Name = RouteNames.ChangeCourseRestriction)]
+public class ChangeCourseRestrictionController(
     IRestrictedCourseProviderService restrictedCourseProviderService,
     IOuterApiClient outerApiClient,
-    IValidator<ChangeLastDateStartsSubmitModel> changeOptionValidator) : Controller
+    IValidator<ChangeCourseRestrictionSubmitModel> changeOptionValidator) : Controller
 {
-    public const string ViewPath = "~/Views/ManageCourses/ChangeLastDateStarts/Index.cshtml";
+    public const string ViewPath = "~/Views/ManageCourses/ChangeCourseRestriction/Index.cshtml";
 
     [HttpGet]
     public async Task<IActionResult> Index(
@@ -36,7 +36,7 @@ public class ChangeLastDateStartsController(
     public async Task<IActionResult> Index(
         [FromRoute] string larsCode,
         [FromRoute] int ukprn,
-        ChangeLastDateStartsSubmitModel submitModel,
+        ChangeCourseRestrictionSubmitModel submitModel,
         CancellationToken cancellationToken)
     {
         if (!await restrictedCourseProviderService.IsRouteValidAsync(larsCode, ukprn, cancellationToken))
@@ -58,7 +58,7 @@ public class ChangeLastDateStartsController(
             return View(ViewPath, model);
         }
 
-        if (submitModel.SelectedOption == ChangeLastDateStartsOptions.Change)
+        if (submitModel.SelectedOption == ChangeCourseRestrictionOptions.Change)
         {
             return RedirectToRoute(RouteNames.SetLastDateStarts, new { larsCode, ukprn });
         }
@@ -74,10 +74,10 @@ public class ChangeLastDateStartsController(
         return RedirectToRoute(RouteNames.RestrictedCourseDetails, new { larsCode });
     }
 
-    private async Task<ChangeLastDateStartsViewModel?> BuildViewModelAsync(
+    private async Task<ChangeCourseRestrictionViewModel?> BuildViewModelAsync(
         string larsCode,
         int ukprn,
-        ChangeLastDateStartsSubmitModel? submitModel,
+        ChangeCourseRestrictionSubmitModel? submitModel,
         CancellationToken cancellationToken)
     {
         var courseAndProvider = await restrictedCourseProviderService.GetCourseAndProviderAsync(
@@ -89,7 +89,7 @@ public class ChangeLastDateStartsController(
 
         var (courseDetails, provider) = courseAndProvider.Value;
 
-        return new ChangeLastDateStartsViewModel
+        return new ChangeCourseRestrictionViewModel
         {
             LarsCode = larsCode,
             Ukprn = ukprn,

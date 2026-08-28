@@ -1,5 +1,5 @@
 @using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses
-@model SFA.DAS.Admin.Roatp.Web.Models.ManageCourses.ChangeLastDateStartsViewModel
+@model SFA.DAS.Admin.Roatp.Web.Models.ManageCourses.ChangeCourseRestrictionViewModel
 @{
     ViewBag.Title = "Change last start date";
     var optionError = ViewData.ModelState[nameof(Model.SelectedOption)]?.Errors.FirstOrDefault()?.ErrorMessage;
@@ -34,8 +34,8 @@
                                    id="selected-option-change"
                                    name="@nameof(Model.SelectedOption)"
                                    type="radio"
-                                   value="@ChangeLastDateStartsOptions.Change"
-                                   @(Model.SelectedOption == ChangeLastDateStartsOptions.Change ? "checked" : null)>
+                                   value="@ChangeCourseRestrictionOptions.Change"
+                                   @(Model.SelectedOption == ChangeCourseRestrictionOptions.Change ? "checked" : null)>
                             <label class="govuk-label govuk-radios__label" for="selected-option-change">
                                 Change last start date
                             </label>
@@ -45,9 +45,9 @@
                                    id="selected-option-remove"
                                    name="@nameof(Model.SelectedOption)"
                                    type="radio"
-                                   value="@ChangeLastDateStartsOptions.Remove"
+                                   value="@ChangeCourseRestrictionOptions.Remove"
                                    aria-describedby="selected-option-remove-hint"
-                                   @(Model.SelectedOption == ChangeLastDateStartsOptions.Remove ? "checked" : null)>
+                                   @(Model.SelectedOption == ChangeCourseRestrictionOptions.Remove ? "checked" : null)>
                             <label class="govuk-label govuk-radios__label" for="selected-option-remove">
                                 Remove last start date
                             </label>

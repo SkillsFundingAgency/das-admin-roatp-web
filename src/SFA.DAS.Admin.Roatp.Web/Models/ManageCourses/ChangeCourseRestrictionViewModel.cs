@@ -2,7 +2,7 @@ using SFA.DAS.Admin.Roatp.Web.Extensions;
 
 namespace SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 
-public class ChangeLastDateStartsViewModel : ChangeLastDateStartsSubmitModel, IBackLink
+public class ChangeCourseRestrictionViewModel : ChangeCourseRestrictionSubmitModel, IBackLink
 {
     public string LarsCode { get; set; } = null!;
     public int Ukprn { get; set; }

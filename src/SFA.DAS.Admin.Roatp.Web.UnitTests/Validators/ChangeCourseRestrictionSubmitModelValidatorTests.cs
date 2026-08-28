@@ -6,39 +6,39 @@ using SFA.DAS.Admin.Roatp.Web.Validators;
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Validators;
 
 [TestFixture]
-public class ChangeLastDateStartsSubmitModelValidatorTests
+public class ChangeCourseRestrictionSubmitModelValidatorTests
 {
-    private ChangeLastDateStartsSubmitModelValidator _sut = null!;
+    private ChangeCourseRestrictionSubmitModelValidator _sut = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _sut = new ChangeLastDateStartsSubmitModelValidator();
+        _sut = new ChangeCourseRestrictionSubmitModelValidator();
     }
 
     [Test]
     public void WhenNoOptionSelected_ThenReturnsError()
     {
-        var result = _sut.TestValidate(new ChangeLastDateStartsSubmitModel());
+        var result = _sut.TestValidate(new ChangeCourseRestrictionSubmitModel());
 
         result.ShouldHaveValidationErrorFor(model => model.SelectedOption)
-            .WithErrorMessage(ChangeLastDateStartsSubmitModelValidator.NoOptionSelectedErrorMessage);
+            .WithErrorMessage(ChangeCourseRestrictionSubmitModelValidator.NoOptionSelectedErrorMessage);
     }
 
     [Test]
     public void WhenInvalidOptionSelected_ThenReturnsError()
     {
-        var result = _sut.TestValidate(new ChangeLastDateStartsSubmitModel { SelectedOption = "Invalid" });
+        var result = _sut.TestValidate(new ChangeCourseRestrictionSubmitModel { SelectedOption = "Invalid" });
 
         result.ShouldHaveValidationErrorFor(model => model.SelectedOption)
-            .WithErrorMessage(ChangeLastDateStartsSubmitModelValidator.NoOptionSelectedErrorMessage);
+            .WithErrorMessage(ChangeCourseRestrictionSubmitModelValidator.NoOptionSelectedErrorMessage);
     }
 
     [TestCase("Change")]
     [TestCase("Remove")]
     public void WhenValidOptionSelected_ThenPasses(string selectedOption)
     {
-        var result = _sut.TestValidate(new ChangeLastDateStartsSubmitModel { SelectedOption = selectedOption });
+        var result = _sut.TestValidate(new ChangeCourseRestrictionSubmitModel { SelectedOption = selectedOption });
 
         result.ShouldNotHaveAnyValidationErrors();
     }

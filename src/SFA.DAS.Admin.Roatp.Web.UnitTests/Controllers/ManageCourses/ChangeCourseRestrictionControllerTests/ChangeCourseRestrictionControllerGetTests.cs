@@ -11,10 +11,10 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses.ChangeLastDateStartsControllerTests;
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses.ChangeCourseRestrictionControllerTests;
 
 [TestFixture]
-public class ChangeLastDateStartsControllerGetTests
+public class ChangeCourseRestrictionControllerGetTests
 {
     private const int Ukprn = 10007938;
     private const string LarsCode = "105";
@@ -24,7 +24,7 @@ public class ChangeLastDateStartsControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenProviderHasLastDateStarts_ThenReturnsView(
         [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
-        [Greedy] ChangeLastDateStartsController sut,
+        [Greedy] ChangeCourseRestrictionController sut,
         GetRestrictedCourseDetailsResponse response)
     {
         SetupValidRoute(restrictedCourseProviderServiceMock);
@@ -35,11 +35,11 @@ public class ChangeLastDateStartsControllerGetTests
 
         var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None) as ViewResult;
 
-        var model = result!.Model as ChangeLastDateStartsViewModel;
+        var model = result!.Model as ChangeCourseRestrictionViewModel;
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result!.ViewName.Should().Be(ChangeLastDateStartsController.ViewPath);
+            result!.ViewName.Should().Be(ChangeCourseRestrictionController.ViewPath);
             model.Should().NotBeNull();
             model!.ProviderName.Should().Be("BP TRAINING");
             model.Ukprn.Should().Be(Ukprn);
@@ -53,7 +53,7 @@ public class ChangeLastDateStartsControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenProviderHasNoLastDateStarts_ThenReturnsNotFound(
         [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
-        [Greedy] ChangeLastDateStartsController sut,
+        [Greedy] ChangeCourseRestrictionController sut,
         GetRestrictedCourseDetailsResponse response)
     {
         response.LarsCode = LarsCode;
@@ -80,7 +80,7 @@ public class ChangeLastDateStartsControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenProviderDoesNotExistOnCourse_ThenReturnsNotFound(
         [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
-        [Greedy] ChangeLastDateStartsController sut)
+        [Greedy] ChangeCourseRestrictionController sut)
     {
         SetupValidRoute(restrictedCourseProviderServiceMock);
         restrictedCourseProviderServiceMock
@@ -98,7 +98,7 @@ public class ChangeLastDateStartsControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenRouteIsInvalid_ThenReturnsNotFound(
         [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
-        [Greedy] ChangeLastDateStartsController sut)
+        [Greedy] ChangeCourseRestrictionController sut)
     {
         restrictedCourseProviderServiceMock
             .Setup(s => s.IsRouteValidAsync(LarsCode, Ukprn, It.IsAny<CancellationToken>()))
@@ -115,7 +115,7 @@ public class ChangeLastDateStartsControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenCourseDetailsBecomeUnavailable_ThenReturnsNotFound(
         [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
-        [Greedy] ChangeLastDateStartsController sut)
+        [Greedy] ChangeCourseRestrictionController sut)
     {
         SetupValidRoute(restrictedCourseProviderServiceMock);
         restrictedCourseProviderServiceMock
@@ -131,12 +131,12 @@ public class ChangeLastDateStartsControllerGetTests
     }
 
     [Test]
-    public void ChangeLastDateStartsOptions_ExposeExpectedValues()
+    public void ChangeCourseRestrictionOptions_ExposeExpectedValues()
     {
         using (new AssertionScope())
         {
-            ChangeLastDateStartsOptions.Change.Should().Be("Change");
-            ChangeLastDateStartsOptions.Remove.Should().Be("Remove");
+            ChangeCourseRestrictionOptions.Change.Should().Be("Change");
+            ChangeCourseRestrictionOptions.Remove.Should().Be("Remove");
         }
     }
 

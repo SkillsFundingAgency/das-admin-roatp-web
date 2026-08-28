@@ -19,10 +19,10 @@ using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Admin.Roatp.Web.Validators;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses.ChangeLastDateStartsControllerTests;
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses.ChangeCourseRestrictionControllerTests;
 
 [TestFixture]
-public class ChangeLastDateStartsControllerPostTests
+public class ChangeCourseRestrictionControllerPostTests
 {
     private const int Ukprn = 10007938;
     private const string LarsCode = "105";
@@ -32,19 +32,19 @@ public class ChangeLastDateStartsControllerPostTests
     [Test, MoqAutoData]
     public async Task WhenValidationFails_ThenReturnsViewWithErrors(
         [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
-        [Frozen] Mock<IValidator<ChangeLastDateStartsSubmitModel>> validatorMock,
-        [Greedy] ChangeLastDateStartsController sut,
+        [Frozen] Mock<IValidator<ChangeCourseRestrictionSubmitModel>> validatorMock,
+        [Greedy] ChangeCourseRestrictionController sut,
         GetRestrictedCourseDetailsResponse response)
     {
         SetupValidRoute(restrictedCourseProviderServiceMock);
         SetupCourseWithLastDateStarts(restrictedCourseProviderServiceMock, response);
         validatorMock
-            .Setup(v => v.ValidateAsync(It.IsAny<ChangeLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
+            .Setup(v => v.ValidateAsync(It.IsAny<ChangeCourseRestrictionSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult(
             [
                 new ValidationFailure(
-                    nameof(ChangeLastDateStartsSubmitModel.SelectedOption),
-                    ChangeLastDateStartsSubmitModelValidator.NoOptionSelectedErrorMessage)
+                    nameof(ChangeCourseRestrictionSubmitModel.SelectedOption),
+                    ChangeCourseRestrictionSubmitModelValidator.NoOptionSelectedErrorMessage)
             ]));
 
         sut.AddUrlHelperMock()
@@ -53,10 +53,10 @@ public class ChangeLastDateStartsControllerPostTests
         var result = await sut.Index(
             LarsCode,
             Ukprn,
-            new ChangeLastDateStartsSubmitModel(),
+            new ChangeCourseRestrictionSubmitModel(),
             CancellationToken.None) as ViewResult;
 
-        var model = result!.Model as ChangeLastDateStartsViewModel;
+        var model = result!.Model as ChangeCourseRestrictionViewModel;
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
@@ -69,14 +69,14 @@ public class ChangeLastDateStartsControllerPostTests
     public async Task WhenChangeSelected_ThenRedirectsToSetLastStartDatePage(
         [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IValidator<ChangeLastDateStartsSubmitModel>> validatorMock,
-        [Greedy] ChangeLastDateStartsController sut,
+        [Frozen] Mock<IValidator<ChangeCourseRestrictionSubmitModel>> validatorMock,
+        [Greedy] ChangeCourseRestrictionController sut,
         GetRestrictedCourseDetailsResponse response)
     {
         SetupValidRoute(restrictedCourseProviderServiceMock);
         SetupCourseWithLastDateStarts(restrictedCourseProviderServiceMock, response);
         validatorMock
-            .Setup(v => v.ValidateAsync(It.IsAny<ChangeLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
+            .Setup(v => v.ValidateAsync(It.IsAny<ChangeCourseRestrictionSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
 
         sut.AddUrlHelperMock()
@@ -86,7 +86,7 @@ public class ChangeLastDateStartsControllerPostTests
         var result = await sut.Index(
             LarsCode,
             Ukprn,
-            new ChangeLastDateStartsSubmitModel { SelectedOption = ChangeLastDateStartsOptions.Change },
+            new ChangeCourseRestrictionSubmitModel { SelectedOption = ChangeCourseRestrictionOptions.Change },
             CancellationToken.None) as RedirectToRouteResult;
 
         using (new AssertionScope())
@@ -109,15 +109,15 @@ public class ChangeLastDateStartsControllerPostTests
     public async Task WhenRemoveSelected_ThenClearsLastDateStartsAndRedirectsWithSuccessBanner(
         [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IValidator<ChangeLastDateStartsSubmitModel>> validatorMock,
-        [Greedy] ChangeLastDateStartsController sut,
+        [Frozen] Mock<IValidator<ChangeCourseRestrictionSubmitModel>> validatorMock,
+        [Greedy] ChangeCourseRestrictionController sut,
         GetRestrictedCourseDetailsResponse response)
     {
         SetupValidRoute(restrictedCourseProviderServiceMock);
         SetupCourseWithLastDateStarts(restrictedCourseProviderServiceMock, response);
         SetupUpsertRequest(restrictedCourseProviderServiceMock);
         validatorMock
-            .Setup(v => v.ValidateAsync(It.IsAny<ChangeLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
+            .Setup(v => v.ValidateAsync(It.IsAny<ChangeCourseRestrictionSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
 
         sut.AddUrlHelperMock()
@@ -140,7 +140,7 @@ public class ChangeLastDateStartsControllerPostTests
         var result = await sut.Index(
             LarsCode,
             Ukprn,
-            new ChangeLastDateStartsSubmitModel { SelectedOption = ChangeLastDateStartsOptions.Remove },
+            new ChangeCourseRestrictionSubmitModel { SelectedOption = ChangeCourseRestrictionOptions.Remove },
             CancellationToken.None) as RedirectToRouteResult;
 
         using (new AssertionScope())
@@ -165,7 +165,7 @@ public class ChangeLastDateStartsControllerPostTests
     [Test, MoqAutoData]
     public async Task WhenRouteIsInvalid_ThenReturnsNotFound(
         [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
-        [Greedy] ChangeLastDateStartsController sut)
+        [Greedy] ChangeCourseRestrictionController sut)
     {
         restrictedCourseProviderServiceMock
             .Setup(s => s.IsRouteValidAsync(LarsCode, Ukprn, It.IsAny<CancellationToken>()))
@@ -174,7 +174,7 @@ public class ChangeLastDateStartsControllerPostTests
         var result = await sut.Index(
             LarsCode,
             Ukprn,
-            new ChangeLastDateStartsSubmitModel { SelectedOption = ChangeLastDateStartsOptions.Remove },
+            new ChangeCourseRestrictionSubmitModel { SelectedOption = ChangeCourseRestrictionOptions.Remove },
             CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
@@ -186,7 +186,7 @@ public class ChangeLastDateStartsControllerPostTests
     [Test, MoqAutoData]
     public async Task WhenProviderHasNoLastDateStarts_ThenReturnsNotFound(
         [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
-        [Greedy] ChangeLastDateStartsController sut,
+        [Greedy] ChangeCourseRestrictionController sut,
         GetRestrictedCourseDetailsResponse response)
     {
         response.LarsCode = LarsCode;
@@ -208,7 +208,7 @@ public class ChangeLastDateStartsControllerPostTests
         var result = await sut.Index(
             LarsCode,
             Ukprn,
-            new ChangeLastDateStartsSubmitModel { SelectedOption = ChangeLastDateStartsOptions.Remove },
+            new ChangeCourseRestrictionSubmitModel { SelectedOption = ChangeCourseRestrictionOptions.Remove },
             CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
