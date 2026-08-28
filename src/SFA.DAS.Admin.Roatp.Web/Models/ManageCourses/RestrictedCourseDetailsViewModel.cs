@@ -30,6 +30,7 @@ public class RestrictedCourseDetailsViewModel : ICourseDisplayModel, IBackLink, 
     public string ProviderCountDescription => "provider".ToQuantity(ProviderCount);
 
     public string RestrictedCourseDetailsPageUrl { get; set; } = "#";
+    public string AddProviderUrl { get; set; } = "#";
     public bool HasActiveFilters { get; set; }
     public FiltersViewModel Filters { get; set; } = new() { Route = string.Empty };
     public PaginationViewModel Pagination { get; set; } = null!;

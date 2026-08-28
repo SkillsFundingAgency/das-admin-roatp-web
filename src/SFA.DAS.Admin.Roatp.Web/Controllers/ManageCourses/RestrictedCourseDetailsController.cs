@@ -42,6 +42,7 @@ public class RestrictedCourseDetailsController(
 
         RestrictedCourseDetailsViewModel model = courseDetails;
         model.RestrictedCourseDetailsPageUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!;
+        model.AddProviderUrl = Url.RouteUrl(RouteNames.AddProviderToRestrictedCourse, new { larsCode })!;
         model.HasActiveFilters = request.HasFilters;
         model.Filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, larsCode, Url);
 

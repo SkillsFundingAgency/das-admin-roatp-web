@@ -1,0 +1,43 @@
+@using SFA.DAS.Admin.Roatp.Web.Infrastructure
+@model SFA.DAS.Admin.Roatp.Web.Models.ManageCourses.AddProviderToRestrictedCourseViewModel
+@{
+    ViewData["Title"] = $"Add a new training provider to {Model.DisplayTitle}";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <partial name="_ValidationSummary" />
+        <span class="govuk-caption-xl">Add a training provider</span>
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">
+            Add a new training provider to @Model.DisplayTitle
+        </h1>
+    </div>
+    <div class="govuk-grid-column-two-thirds">
+        <form asp-route="@RouteNames.AddProviderToRestrictedCourse" asp-route-larsCode="@Model.LarsCode" method="POST">
+            <div class="govuk-form-group">
+                <fieldset class="govuk-fieldset">
+                    <legend class="govuk-visually-hidden">
+                        Add a new training provider to @Model.DisplayTitle
+                    </legend>
+                    <input asp-for="LegalName" id="LegalName" type="hidden" />
+                    <input asp-for="Ukprn" id="Ukprn" type="hidden" />
+                    <p class="govuk-body">Only providers you select can deliver this course.</p>
+                    <p class="govuk-hint">Start typing the provider’s legal name or UKPRN.</p>
+                    <span asp-validation-for="SearchTerm" class="govuk-error-message"></span>
+                    <div data-module="govuk-input">
+                        <input id="SearchTerm" type="text" title="Type name or UKPRN here"
+                               asp-for="SearchTerm" class="govuk-input" sfa-validationerror-class="form-control-error"
+                               data-module="autoComplete"
+                               data-autocomplete-url="@Model.ProvidersSearchUrl"
+                               data-autocomplete-min-length="1"
+                               data-autocomplete-mode="provider" />
+                        <label for="SearchTerm" class="govuk-visually-hidden">Search Result: @Model.LegalName, @Model.Ukprn</label>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="govuk-button-group">
+                <button type="submit" id="continue" class="govuk-button" data-disable-on-submit="true">Continue</button>
+            </div>
+        </form>
+    </div>
+</div>

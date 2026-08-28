@@ -28,6 +28,9 @@ public static class RouteNames
     public const string RestrictedCourses = nameof(RestrictedCourses);
     public const string RestrictedCourseDetails = nameof(RestrictedCourseDetails);
     public const string AddLastDateStarts = nameof(AddLastDateStarts);
+    public const string AddProviderToRestrictedCourse = nameof(AddProviderToRestrictedCourse);
+    public const string ConfirmAddProviderToRestrictedCourse = nameof(ConfirmAddProviderToRestrictedCourse);
+    public const string SearchProvidersForRestrictedCourse = nameof(SearchProvidersForRestrictedCourse);
     public const string UnrestrictedCourseSearch = nameof(UnrestrictedCourseSearch);
     public const string UnrestrictedCourses = nameof(UnrestrictedCourses);
     public const string UnrestrictedCourseDetails = nameof(UnrestrictedCourseDetails);

@@ -38,7 +38,8 @@ public class RestrictedCourseDetailsControllerFilterTests
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, "/add-provider");
 
         var request = new GetRestrictedCourseDetailsRequest { SearchTerm = "Beacon" };
 
@@ -73,7 +74,8 @@ public class RestrictedCourseDetailsControllerFilterTests
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, "/add-provider");
 
         var request = new GetRestrictedCourseDetailsRequest
         {
@@ -107,7 +109,8 @@ public class RestrictedCourseDetailsControllerFilterTests
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, "/add-provider");
 
         var request = new GetRestrictedCourseDetailsRequest { SearchTerm = "Beacon" };
 

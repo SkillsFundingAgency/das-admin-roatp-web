@@ -26,6 +26,7 @@ public static class AddApplicationRegistrationsExtension
         services.AddTransient<IPostOrganisationService, PostOrganisationService>();
         services.AddScoped<ILarsCodeService, LarsCodeService>();
         services.AddScoped<IUkprnService, UkprnService>();
+        services.AddScoped<INotAllowedProvidersService, NotAllowedProvidersService>();
 
         services.AddOuterApi(outerApiConfig!);
 
