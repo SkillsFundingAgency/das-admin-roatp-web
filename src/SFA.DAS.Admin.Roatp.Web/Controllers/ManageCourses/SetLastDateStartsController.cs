@@ -1,17 +1,21 @@
+using System.Net;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Services;
+using IApiResponse = Refit.IApiResponse;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
 [Route("restricted-courses/{larsCode}/providers/{ukprn}/set-last-start-date", Name = RouteNames.SetLastDateStarts)]
 public class SetLastDateStartsController(
-    IRestrictedCourseProviderService restrictedCourseProviderService,
+    ILarsCodeService larsCodeService,
     IOuterApiClient outerApiClient,
     IValidator<SetLastDateStartsSubmitModel> setDateValidator) : Controller
 {
@@ -23,11 +27,6 @@ public class SetLastDateStartsController(
         [FromRoute] int ukprn,
         CancellationToken cancellationToken)
     {
-        if (!await restrictedCourseProviderService.IsRouteValidAsync(larsCode, ukprn, cancellationToken))
-        {
-            return NotFound();
-        }
-
         var model = await BuildViewModelAsync(larsCode, ukprn, null, cancellationToken);
         return model is null ? NotFound() : View(ViewPath, model);
     }
@@ -39,11 +38,6 @@ public class SetLastDateStartsController(
         SetLastDateStartsSubmitModel submitModel,
         CancellationToken cancellationToken)
     {
-        if (!await restrictedCourseProviderService.IsRouteValidAsync(larsCode, ukprn, cancellationToken))
-        {
-            return NotFound();
-        }
-
         submitModel.LarsCode = larsCode;
         var model = await BuildViewModelAsync(larsCode, ukprn, submitModel, cancellationToken);
         if (model is null)
@@ -61,10 +55,16 @@ public class SetLastDateStartsController(
 
         submitModel.TryGetEnteredDate(out var lastDateStarts);
 
-        await outerApiClient.UpsertProviderAllowedCourse(
+        var response = await outerApiClient.UpsertProviderAllowedCourse(
             ukprn,
             larsCode,
-            restrictedCourseProviderService.CreateUpsertRequest(User, lastDateStarts), cancellationToken);
+            CreateUpsertRequest(lastDateStarts),
+            cancellationToken);
+
+        if (IsNotFoundResponse(response))
+        {
+            return NotFound();
+        }
 
         TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey] = model.IsChangingExistingDate
             ? $"{model.ProviderName} last start date has been updated"
@@ -79,14 +79,13 @@ public class SetLastDateStartsController(
         SetLastDateStartsSubmitModel? submitModel,
         CancellationToken cancellationToken)
     {
-        var courseAndProvider = await restrictedCourseProviderService.GetCourseAndProviderAsync(
-            larsCode, ukprn, cancellationToken);
-        if (courseAndProvider is null)
+        var courseDetails = await larsCodeService.GetCourseDetailsAsync(larsCode, cancellationToken);
+        var provider = courseDetails?.Providers.FirstOrDefault(p => p.Ukprn == ukprn);
+        if (courseDetails is null || provider is null)
         {
             return null;
         }
 
-        var (courseDetails, provider) = courseAndProvider.Value;
         var day = submitModel?.Day;
         var month = submitModel?.Month;
         var year = submitModel?.Year;
@@ -113,4 +112,15 @@ public class SetLastDateStartsController(
             CancelUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!
         };
     }
+
+    private UpsertProviderAllowedCourseRequest CreateUpsertRequest(DateTime? lastDateStarts)
+        => new()
+        {
+            UserId = User.UserId(),
+            UserDisplayName = User.UserDisplayName(),
+            LastDateStarts = lastDateStarts
+        };
+
+    private static bool IsNotFoundResponse(IApiResponse response)
+        => response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.BadRequest;
 }

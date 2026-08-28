@@ -46,7 +46,7 @@ public interface IOuterApiClient
         CancellationToken cancellationToken);
 
     [Post("/providers/{ukprn}/allowed-courses/{larsCode}")]
-    Task UpsertProviderAllowedCourse(
+    Task<IApiResponse> UpsertProviderAllowedCourse(
         int ukprn,
         string larsCode,
         [Body] UpsertProviderAllowedCourseRequest request,

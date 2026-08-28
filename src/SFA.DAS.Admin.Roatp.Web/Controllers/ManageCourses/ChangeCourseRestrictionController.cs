@@ -1,17 +1,21 @@
+using System.Net;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Services;
+using IApiResponse = Refit.IApiResponse;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
 [Route("restricted-courses/{larsCode}/providers/{ukprn}/change-restriction", Name = RouteNames.ChangeCourseRestriction)]
 public class ChangeCourseRestrictionController(
-    IRestrictedCourseProviderService restrictedCourseProviderService,
+    ILarsCodeService larsCodeService,
     IOuterApiClient outerApiClient,
     IValidator<ChangeCourseRestrictionSubmitModel> changeOptionValidator) : Controller
 {
@@ -23,11 +27,6 @@ public class ChangeCourseRestrictionController(
         [FromRoute] int ukprn,
         CancellationToken cancellationToken)
     {
-        if (!await restrictedCourseProviderService.IsRouteValidAsync(larsCode, ukprn, cancellationToken))
-        {
-            return NotFound();
-        }
-
         var model = await BuildViewModelAsync(larsCode, ukprn, null, cancellationToken);
         return model is null ? NotFound() : View(ViewPath, model);
     }
@@ -39,11 +38,6 @@ public class ChangeCourseRestrictionController(
         ChangeCourseRestrictionSubmitModel submitModel,
         CancellationToken cancellationToken)
     {
-        if (!await restrictedCourseProviderService.IsRouteValidAsync(larsCode, ukprn, cancellationToken))
-        {
-            return NotFound();
-        }
-
         var model = await BuildViewModelAsync(larsCode, ukprn, submitModel, cancellationToken);
         if (model is null)
         {
@@ -63,10 +57,16 @@ public class ChangeCourseRestrictionController(
             return RedirectToRoute(RouteNames.SetLastDateStarts, new { larsCode, ukprn });
         }
 
-        await outerApiClient.UpsertProviderAllowedCourse(
+        var response = await outerApiClient.UpsertProviderAllowedCourse(
             ukprn,
             larsCode,
-            restrictedCourseProviderService.CreateUpsertRequest(User, lastDateStarts: null), cancellationToken);
+            CreateUpsertRequest(lastDateStarts: null),
+            cancellationToken);
+
+        if (IsNotFoundResponse(response))
+        {
+            return NotFound();
+        }
 
         TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey] =
             $"{model.ProviderName} last start date has been removed";
@@ -80,14 +80,12 @@ public class ChangeCourseRestrictionController(
         ChangeCourseRestrictionSubmitModel? submitModel,
         CancellationToken cancellationToken)
     {
-        var courseAndProvider = await restrictedCourseProviderService.GetCourseAndProviderAsync(
-            larsCode, ukprn, cancellationToken);
-        if (courseAndProvider is null || courseAndProvider.Value.Provider.LastDateStarts is null)
+        var courseDetails = await larsCodeService.GetCourseDetailsAsync(larsCode, cancellationToken);
+        var provider = courseDetails?.Providers.FirstOrDefault(p => p.Ukprn == ukprn);
+        if (courseDetails is null || provider is null || provider.LastDateStarts is null)
         {
             return null;
         }
-
-        var (courseDetails, provider) = courseAndProvider.Value;
 
         return new ChangeCourseRestrictionViewModel
         {
@@ -100,4 +98,15 @@ public class ChangeCourseRestrictionController(
             CancelUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!
         };
     }
+
+    private UpsertProviderAllowedCourseRequest CreateUpsertRequest(DateTime? lastDateStarts)
+        => new()
+        {
+            UserId = User.UserId(),
+            UserDisplayName = User.UserDisplayName(),
+            LastDateStarts = lastDateStarts
+        };
+
+    private static bool IsNotFoundResponse(IApiResponse response)
+        => response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.BadRequest;
 }

@@ -33,7 +33,7 @@ public class ScopedCacheService(IHttpContextAccessor httpContextAccessor) : ISco
             return cache;
         }
 
-        cache = new Dictionary<object, object?>();
+        cache = [];
         items[CacheItemsKey] = cache;
         return cache;
     }

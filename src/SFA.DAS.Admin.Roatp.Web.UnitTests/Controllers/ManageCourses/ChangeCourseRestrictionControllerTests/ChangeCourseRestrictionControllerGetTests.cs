@@ -23,12 +23,11 @@ public class ChangeCourseRestrictionControllerGetTests
 
     [Test, MoqAutoData]
     public async Task WhenProviderHasLastDateStarts_ThenReturnsView(
-        [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] ChangeCourseRestrictionController sut,
         GetRestrictedCourseDetailsResponse response)
     {
-        SetupValidRoute(restrictedCourseProviderServiceMock);
-        SetupCourseWithLastDateStarts(restrictedCourseProviderServiceMock, response);
+        SetupCourseWithLastDateStarts(larsCodeServiceMock, response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
@@ -52,22 +51,25 @@ public class ChangeCourseRestrictionControllerGetTests
 
     [Test, MoqAutoData]
     public async Task WhenProviderHasNoLastDateStarts_ThenReturnsNotFound(
-        [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Greedy] ChangeCourseRestrictionController sut,
         GetRestrictedCourseDetailsResponse response)
     {
         response.LarsCode = LarsCode;
-        var provider = new ProviderCourseModel
-        {
-            Ukprn = Ukprn,
-            ProviderName = "BP TRAINING",
-            LastDateStarts = null
-        };
-
-        SetupValidRoute(restrictedCourseProviderServiceMock);
-        restrictedCourseProviderServiceMock
-            .Setup(s => s.GetCourseAndProviderAsync(LarsCode, Ukprn, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((response, provider));
+        response.CourseName = "Academic professional";
+        response.Level = 7;
+        response.Providers =
+        [
+            new ProviderCourseModel
+            {
+                Ukprn = Ukprn,
+                ProviderName = "BP TRAINING",
+                LastDateStarts = null
+            }
+        ];
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
@@ -79,48 +81,14 @@ public class ChangeCourseRestrictionControllerGetTests
 
     [Test, MoqAutoData]
     public async Task WhenProviderDoesNotExistOnCourse_ThenReturnsNotFound(
-        [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
-        [Greedy] ChangeCourseRestrictionController sut)
+        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Greedy] ChangeCourseRestrictionController sut,
+        GetRestrictedCourseDetailsResponse response)
     {
-        SetupValidRoute(restrictedCourseProviderServiceMock);
-        restrictedCourseProviderServiceMock
-            .Setup(s => s.GetCourseAndProviderAsync(LarsCode, Ukprn, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(((GetRestrictedCourseDetailsResponse, ProviderCourseModel)?)null);
-
-        sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
-
-        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
-
-        result.Should().BeOfType<NotFoundResult>();
-    }
-
-    [Test, MoqAutoData]
-    public async Task WhenRouteIsInvalid_ThenReturnsNotFound(
-        [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
-        [Greedy] ChangeCourseRestrictionController sut)
-    {
-        restrictedCourseProviderServiceMock
-            .Setup(s => s.IsRouteValidAsync(LarsCode, Ukprn, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
-
-        result.Should().BeOfType<NotFoundResult>();
-        restrictedCourseProviderServiceMock.Verify(
-            s => s.GetCourseAndProviderAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Test, MoqAutoData]
-    public async Task WhenCourseDetailsBecomeUnavailable_ThenReturnsNotFound(
-        [Frozen] Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
-        [Greedy] ChangeCourseRestrictionController sut)
-    {
-        SetupValidRoute(restrictedCourseProviderServiceMock);
-        restrictedCourseProviderServiceMock
-            .Setup(s => s.GetCourseAndProviderAsync(LarsCode, Ukprn, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(((GetRestrictedCourseDetailsResponse, ProviderCourseModel)?)null);
+        response.Providers = [];
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
@@ -140,29 +108,25 @@ public class ChangeCourseRestrictionControllerGetTests
         }
     }
 
-    private static void SetupValidRoute(Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock)
-    {
-        restrictedCourseProviderServiceMock
-            .Setup(s => s.IsRouteValidAsync(LarsCode, Ukprn, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-    }
-
     private static void SetupCourseWithLastDateStarts(
-        Mock<IRestrictedCourseProviderService> restrictedCourseProviderServiceMock,
+        Mock<ILarsCodeService> larsCodeServiceMock,
         GetRestrictedCourseDetailsResponse response)
     {
         response.LarsCode = LarsCode;
         response.CourseName = "Academic professional";
         response.Level = 7;
-        var provider = new ProviderCourseModel
-        {
-            Ukprn = Ukprn,
-            ProviderName = "BP TRAINING",
-            LastDateStarts = LastDateStarts
-        };
+        response.Providers =
+        [
+            new ProviderCourseModel
+            {
+                Ukprn = Ukprn,
+                ProviderName = "BP TRAINING",
+                LastDateStarts = LastDateStarts
+            }
+        ];
 
-        restrictedCourseProviderServiceMock
-            .Setup(s => s.GetCourseAndProviderAsync(LarsCode, Ukprn, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((response, provider));
+        larsCodeServiceMock
+            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
     }
 }
