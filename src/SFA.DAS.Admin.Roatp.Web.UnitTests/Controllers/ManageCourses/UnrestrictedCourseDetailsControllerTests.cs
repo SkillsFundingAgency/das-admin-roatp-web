@@ -123,37 +123,28 @@ public class UnrestrictedCourseDetailsControllerTests
     }
 
     [TestCase(HttpStatusCode.BadRequest)]
-    public async Task WhenGettingUnrestrictedCourseDetails_AndCourseApiReturnsBadRequest_ThenReturnsNotFound(
+    [TestCase(HttpStatusCode.InternalServerError)]
+    public async Task WhenGettingUnrestrictedCourseDetails_AndCourseApiReturnsUnexpectedError_ThenThrows(
         HttpStatusCode statusCode)
     {
         var outerApiClientMock = new Mock<IOuterApiClient>();
         var sessionServiceMock = new Mock<ISessionService>();
+        var httpResponse = new HttpResponseMessage(statusCode);
+        var apiException = await ApiException.Create(
+            new HttpRequestMessage(),
+            HttpMethod.Get,
+            httpResponse,
+            new RefitSettings());
         outerApiClientMock
             .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
-                new HttpResponseMessage(statusCode), null, new RefitSettings(), null));
+                httpResponse, null, new RefitSettings(), apiException));
 
         var sut = new UnrestrictedCourseDetailsController(outerApiClientMock.Object, sessionServiceMock.Object);
 
-        var result = await sut.Index(LarsCode, CancellationToken.None);
-
-        result.Should().BeOfType<NotFoundResult>();
-    }
-
-    [Test, MoqAutoData]
-    public async Task WhenGettingUnrestrictedCourseDetails_AndCourseApiReturnsUnexpectedError_ThenThrows(
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] UnrestrictedCourseDetailsController sut)
-    {
-        outerApiClientMock
-            .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
-                new HttpResponseMessage(HttpStatusCode.InternalServerError), null, new RefitSettings(), null));
-
         var act = () => sut.Index(LarsCode, CancellationToken.None);
 
-        await act.Should().ThrowAsync<HttpRequestException>()
-            .WithMessage($"Failed to retrieve course details for LARS code '{LarsCode}'. Status code: InternalServerError.");
+        await act.Should().ThrowAsync<ApiException>();
     }
 
     [Test, MoqAutoData]

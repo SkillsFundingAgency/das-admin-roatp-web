@@ -55,17 +55,12 @@ public class UnrestrictedCourseDetailsController(
         CancellationToken cancellationToken)
     {
         var response = await outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
-        if (response.IsNotFoundOrBadRequest())
+        if (response.IsNotFound())
         {
             return null;
         }
 
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new HttpRequestException(
-                $"Failed to retrieve course details for LARS code '{larsCode}'. Status code: {response.StatusCode}.");
-        }
-
+        await response.EnsureSuccessStatusCodeAsync();
         return response.Content;
     }
 }

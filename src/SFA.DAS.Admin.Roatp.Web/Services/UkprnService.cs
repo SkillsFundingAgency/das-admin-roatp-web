@@ -1,6 +1,7 @@
 using System.Net;
 using Refit;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 
 namespace SFA.DAS.Admin.Roatp.Web.Services;
@@ -15,26 +16,20 @@ public class UkprnService(IOuterApiClient outerApiClient, IScopedCacheService sc
         }
 
         var response = await outerApiClient.GetOrganisation(ukprn, cancellationToken);
-        var organisation = ExtractOrganisation(ukprn, response);
+        var organisation = await ExtractOrganisationAsync(response);
         scopedCacheService.Set(ukprn, organisation);
         return organisation;
     }
 
-    private static GetOrganisationResponse? ExtractOrganisation(
-        int ukprn,
+    private static async Task<GetOrganisationResponse?> ExtractOrganisationAsync(
         ApiResponse<GetOrganisationResponse> response)
     {
-        if (response.StatusCode == HttpStatusCode.NotFound)
+        if (response.IsNotFound())
         {
             return null;
         }
 
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new HttpRequestException(
-                $"Failed to retrieve organisation for UKPRN '{ukprn}'. Status code: {response.StatusCode}.");
-        }
-
+        await response.EnsureSuccessStatusCodeAsync();
         return response.Content;
     }
 }

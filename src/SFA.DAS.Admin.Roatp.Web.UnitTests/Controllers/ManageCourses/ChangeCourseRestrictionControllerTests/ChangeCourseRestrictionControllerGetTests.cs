@@ -96,15 +96,14 @@ public class ChangeCourseRestrictionControllerGetTests
         result.Should().BeOfType<NotFoundResult>();
     }
 
-    [TestCase(HttpStatusCode.NotFound)]
-    [TestCase(HttpStatusCode.BadRequest)]
-    public async Task WhenCourseApiReturnsNotFoundOrBadRequest_ThenReturnsNotFound(HttpStatusCode statusCode)
+    [Test]
+    public async Task WhenCourseApiReturnsNotFound_ThenReturnsNotFound()
     {
         var outerApiClientMock = new Mock<IOuterApiClient>();
         outerApiClientMock
             .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
-                new HttpResponseMessage(statusCode), null, new RefitSettings(), null));
+                new HttpResponseMessage(HttpStatusCode.NotFound), null, new RefitSettings(), null));
 
         var sut = new ChangeCourseRestrictionController(
             outerApiClientMock.Object,
@@ -120,15 +119,20 @@ public class ChangeCourseRestrictionControllerGetTests
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] ChangeCourseRestrictionController sut)
     {
+        var httpResponse = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+        var apiException = await ApiException.Create(
+            new HttpRequestMessage(),
+            HttpMethod.Get,
+            httpResponse,
+            new RefitSettings());
         outerApiClientMock
             .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
-                new HttpResponseMessage(HttpStatusCode.InternalServerError), null, new RefitSettings(), null));
+                httpResponse, null, new RefitSettings(), apiException));
 
         var act = () => sut.Index(LarsCode, Ukprn, CancellationToken.None);
 
-        await act.Should().ThrowAsync<HttpRequestException>()
-            .WithMessage($"Failed to retrieve course details for LARS code '{LarsCode}'. Status code: InternalServerError.");
+        await act.Should().ThrowAsync<ApiException>();
     }
 
     [Test]

@@ -145,10 +145,45 @@ public class ChangeCourseRestrictionControllerPostTests
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [TestCase(HttpStatusCode.NotFound)]
+    [Test]
+    public async Task WhenRemoveSelected_AndApiReturnsNotFound_ThenReturnsNotFound()
+    {
+        var outerApiClientMock = new Mock<IOuterApiClient>();
+        var validatorMock = new Mock<IValidator<ChangeCourseRestrictionSubmitModel>>();
+        var response = new GetRestrictedCourseDetailsResponse
+        {
+            LarsCode = LarsCode,
+            IfateReferenceNumber = "ST0001",
+            CourseName = "Academic professional",
+            Route = "Education",
+            Level = 7
+        };
+
+        SetupCourseWithLastDateStarts(outerApiClientMock, response);
+        SetupUpsertResponse(outerApiClientMock, HttpStatusCode.NotFound);
+        validatorMock
+            .Setup(v => v.ValidateAsync(It.IsAny<ChangeCourseRestrictionSubmitModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+
+        var sut = new ChangeCourseRestrictionController(
+            outerApiClientMock.Object,
+            validatorMock.Object);
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+        SetupTestUser(sut);
+
+        var result = await sut.Index(
+            LarsCode,
+            Ukprn,
+            new ChangeCourseRestrictionSubmitModel { SelectedOption = ChangeCourseRestrictionOptions.Remove },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NotFoundResult>();
+    }
+
     [TestCase(HttpStatusCode.BadRequest)]
-    public async Task WhenRemoveSelected_AndApiReturnsNotFoundOrBadRequest_ThenReturnsNotFound(
-        HttpStatusCode statusCode)
+    [TestCase(HttpStatusCode.InternalServerError)]
+    public async Task WhenRemoveSelected_AndApiReturnsUnexpectedError_ThenThrows(HttpStatusCode statusCode)
     {
         var outerApiClientMock = new Mock<IOuterApiClient>();
         var validatorMock = new Mock<IValidator<ChangeCourseRestrictionSubmitModel>>();
@@ -174,13 +209,13 @@ public class ChangeCourseRestrictionControllerPostTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
         SetupTestUser(sut);
 
-        var result = await sut.Index(
+        var act = () => sut.Index(
             LarsCode,
             Ukprn,
             new ChangeCourseRestrictionSubmitModel { SelectedOption = ChangeCourseRestrictionOptions.Remove },
             CancellationToken.None);
 
-        result.Should().BeOfType<NotFoundResult>();
+        await act.Should().ThrowAsync<ApiException>();
     }
 
     [Test, MoqAutoData]
@@ -250,9 +285,16 @@ public class ChangeCourseRestrictionControllerPostTests
 
     private static void SetupUpsertResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
     {
-        var apiResponse = new Mock<IApiResponse>();
-        apiResponse.SetupGet(r => r.StatusCode).Returns(statusCode);
-        apiResponse.SetupGet(r => r.IsSuccessStatusCode).Returns(statusCode == HttpStatusCode.OK);
+        var httpResponse = new HttpResponseMessage(statusCode);
+        ApiException? apiException = null;
+        if (statusCode != HttpStatusCode.OK && statusCode != HttpStatusCode.NotFound)
+        {
+            apiException = ApiException.Create(
+                new HttpRequestMessage(),
+                HttpMethod.Post,
+                httpResponse,
+                new RefitSettings()).GetAwaiter().GetResult();
+        }
 
         outerApiClientMock
             .Setup(c => c.UpsertProviderAllowedCourse(
@@ -260,7 +302,7 @@ public class ChangeCourseRestrictionControllerPostTests
                 It.IsAny<string>(),
                 It.IsAny<UpsertProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(apiResponse.Object);
+            .ReturnsAsync(new ApiResponse<object>(httpResponse, null, new RefitSettings(), apiException));
     }
 
     private static void SetupTestUser(Controller sut)

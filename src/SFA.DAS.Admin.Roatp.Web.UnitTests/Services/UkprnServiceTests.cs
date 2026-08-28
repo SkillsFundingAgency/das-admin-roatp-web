@@ -56,14 +56,20 @@ public class UkprnServiceTests
         int ukprn)
     {
         var sut = CreateSut(outerApiClientMock, httpContextAccessorMock);
+        var httpResponse = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+        var apiException = await ApiException.Create(
+            new HttpRequestMessage(),
+            HttpMethod.Get,
+            httpResponse,
+            new RefitSettings());
         outerApiClientMock
             .Setup(c => c.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(
-                new HttpResponseMessage(HttpStatusCode.InternalServerError), null, new RefitSettings(), null));
+                httpResponse, null, new RefitSettings(), apiException));
 
         var act = () => sut.GetOrganisationAsync(ukprn, CancellationToken.None);
 
-        await act.Should().ThrowAsync<HttpRequestException>();
+        await act.Should().ThrowAsync<ApiException>();
     }
 
     [Test, MoqAutoData]
