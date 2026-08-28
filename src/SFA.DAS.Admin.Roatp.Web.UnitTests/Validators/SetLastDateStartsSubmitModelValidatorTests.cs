@@ -1,9 +1,6 @@
 using FluentValidation.TestHelper;
-using Moq;
-using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
-using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.Validators;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Validators;
@@ -11,14 +8,12 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Validators;
 [TestFixture]
 public class SetLastDateStartsSubmitModelValidatorTests
 {
-    private Mock<ILarsCodeService> _larsCodeServiceMock = null!;
     private SetLastDateStartsSubmitModelValidator _sut = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _larsCodeServiceMock = new Mock<ILarsCodeService>();
-        _sut = new SetLastDateStartsSubmitModelValidator(_larsCodeServiceMock.Object);
+        _sut = new SetLastDateStartsSubmitModelValidator();
     }
 
     [Test]
@@ -30,9 +25,6 @@ public class SetLastDateStartsSubmitModelValidatorTests
 
         result.ShouldHaveValidationErrorFor(SetLastDateStartsSubmitModelValidator.DateFieldName)
             .WithErrorMessage(SetLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
-        _larsCodeServiceMock.Verify(
-            s => s.GetCourseDetailsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Never);
     }
 
     [Test]
@@ -44,9 +36,6 @@ public class SetLastDateStartsSubmitModelValidatorTests
 
         result.ShouldHaveValidationErrorFor(SetLastDateStartsSubmitModelValidator.DateFieldName)
             .WithErrorMessage(SetLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
-        _larsCodeServiceMock.Verify(
-            s => s.GetCourseDetailsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Never);
     }
 
     [Test]
@@ -58,9 +47,6 @@ public class SetLastDateStartsSubmitModelValidatorTests
 
         result.ShouldHaveValidationErrorFor(SetLastDateStartsSubmitModelValidator.DateFieldName)
             .WithErrorMessage(SetLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
-        _larsCodeServiceMock.Verify(
-            s => s.GetCourseDetailsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Never);
     }
 
     [Test]
@@ -82,9 +68,6 @@ public class SetLastDateStartsSubmitModelValidatorTests
 
         result.ShouldHaveValidationErrorFor(SetLastDateStartsSubmitModelValidator.DateFieldName)
             .WithErrorMessage(SetLastDateStartsSubmitModelValidator.DateMustBeAfterMinimumErrorMessage);
-        _larsCodeServiceMock.Verify(
-            s => s.GetCourseDetailsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Never);
     }
 
     [Test]
@@ -98,37 +81,6 @@ public class SetLastDateStartsSubmitModelValidatorTests
         result.ShouldHaveValidationErrorFor(SetLastDateStartsSubmitModelValidator.DateFieldName)
             .WithErrorMessage(
                 $"The latest start date for this course is {courseEndDate.ToDisplayString()}. It is set by LARS and cannot be changed. Your chosen last date for new starts must come on or before this.");
-        _larsCodeServiceMock.Verify(
-            s => s.GetCourseDetailsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Test]
-    public async Task WhenDateIsAfterCourseLastDateStartsFromApi_ThenReturnsLarsEndDateError()
-    {
-        const string larsCode = "123";
-        var courseEndDate = new DateTime(2027, 6, 1, 0, 0, 0, DateTimeKind.Unspecified);
-        _larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetRestrictedCourseDetailsResponse
-            {
-                LarsCode = larsCode,
-                IfateReferenceNumber = "ST0001",
-                CourseName = "Test course",
-                Route = "Test route",
-                LastDateStarts = courseEndDate
-            });
-
-        var model = CreateModel(day: "02", month: "06", year: "2027", larsCode: larsCode);
-
-        var result = await _sut.TestValidateAsync(model);
-
-        result.ShouldHaveValidationErrorFor(SetLastDateStartsSubmitModelValidator.DateFieldName)
-            .WithErrorMessage(
-                $"The latest start date for this course is {courseEndDate.ToDisplayString()}. It is set by LARS and cannot be changed. Your chosen last date for new starts must come on or before this.");
-        _larsCodeServiceMock.Verify(
-            s => s.GetCourseDetailsAsync(larsCode, It.IsAny<CancellationToken>()),
-            Times.Once);
     }
 
     [Test]
@@ -153,9 +105,6 @@ public class SetLastDateStartsSubmitModelValidatorTests
         var result = await _sut.TestValidateAsync(model);
 
         result.ShouldNotHaveAnyValidationErrors();
-        _larsCodeServiceMock.Verify(
-            s => s.GetCourseDetailsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Never);
     }
 
     private static SetLastDateStartsSubmitModel CreateModel(

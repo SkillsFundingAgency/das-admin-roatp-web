@@ -1,4 +1,3 @@
-using System.Net;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,15 +6,12 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
-using SFA.DAS.Admin.Roatp.Web.Services;
-using IApiResponse = Refit.IApiResponse;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
 [Route("restricted-courses/{larsCode}/providers/{ukprn}/set-last-start-date", Name = RouteNames.SetLastDateStarts)]
 public class SetLastDateStartsController(
-    ILarsCodeService larsCodeService,
     IOuterApiClient outerApiClient,
     IValidator<SetLastDateStartsSubmitModel> setDateValidator) : Controller
 {
@@ -61,7 +57,7 @@ public class SetLastDateStartsController(
             CreateUpsertRequest(lastDateStarts),
             cancellationToken);
 
-        if (IsNotFoundResponse(response))
+        if (response.IsNotFoundOrBadRequest())
         {
             return NotFound();
         }
@@ -79,7 +75,7 @@ public class SetLastDateStartsController(
         SetLastDateStartsSubmitModel? submitModel,
         CancellationToken cancellationToken)
     {
-        var courseDetails = await larsCodeService.GetCourseDetailsAsync(larsCode, cancellationToken);
+        var courseDetails = await GetCourseDetailsAsync(larsCode, cancellationToken);
         var provider = courseDetails?.Providers.FirstOrDefault(p => p.Ukprn == ukprn);
         if (courseDetails is null || provider is null)
         {
@@ -113,6 +109,25 @@ public class SetLastDateStartsController(
         };
     }
 
+    private async Task<GetRestrictedCourseDetailsResponse?> GetCourseDetailsAsync(
+        string larsCode,
+        CancellationToken cancellationToken)
+    {
+        var response = await outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
+        if (response.IsNotFoundOrBadRequest())
+        {
+            return null;
+        }
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new HttpRequestException(
+                $"Failed to retrieve course details for LARS code '{larsCode}'. Status code: {response.StatusCode}.");
+        }
+
+        return response.Content;
+    }
+
     private UpsertProviderAllowedCourseRequest CreateUpsertRequest(DateTime? lastDateStarts)
         => new()
         {
@@ -120,7 +135,4 @@ public class SetLastDateStartsController(
             UserDisplayName = User.UserDisplayName(),
             LastDateStarts = lastDateStarts
         };
-
-    private static bool IsNotFoundResponse(IApiResponse response)
-        => response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.BadRequest;
 }

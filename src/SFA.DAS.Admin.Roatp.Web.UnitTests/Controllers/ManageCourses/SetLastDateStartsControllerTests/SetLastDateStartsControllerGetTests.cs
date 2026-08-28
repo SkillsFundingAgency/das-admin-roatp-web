@@ -1,13 +1,14 @@
+using System.Net;
 using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Refit;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
-using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -22,7 +23,7 @@ public class SetLastDateStartsControllerGetTests
 
     [Test, MoqAutoData]
     public async Task WhenProviderHasLastDateStarts_ThenPrepopulatesDateFieldsAndIsChangeMode(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] SetLastDateStartsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -40,7 +41,7 @@ public class SetLastDateStartsControllerGetTests
             }
         ];
 
-        SetupCourse(larsCodeServiceMock, response);
+        SetupCourse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
@@ -59,7 +60,7 @@ public class SetLastDateStartsControllerGetTests
 
     [Test, MoqAutoData]
     public async Task WhenProviderExists_ThenReturnsView(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] SetLastDateStartsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -76,7 +77,7 @@ public class SetLastDateStartsControllerGetTests
             }
         ];
 
-        SetupCourse(larsCodeServiceMock, response);
+        SetupCourse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
@@ -99,12 +100,12 @@ public class SetLastDateStartsControllerGetTests
 
     [Test, MoqAutoData]
     public async Task WhenProviderDoesNotExistOnCourse_ThenReturnsNotFound(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] SetLastDateStartsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
         response.Providers = [];
-        SetupCourse(larsCodeServiceMock, response);
+        SetupCourse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
@@ -115,11 +116,12 @@ public class SetLastDateStartsControllerGetTests
     }
 
     private static void SetupCourse(
-        Mock<ILarsCodeService> larsCodeServiceMock,
+        Mock<IOuterApiClient> outerApiClientMock,
         GetRestrictedCourseDetailsResponse response)
     {
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        outerApiClientMock
+            .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
+                new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
     }
 }

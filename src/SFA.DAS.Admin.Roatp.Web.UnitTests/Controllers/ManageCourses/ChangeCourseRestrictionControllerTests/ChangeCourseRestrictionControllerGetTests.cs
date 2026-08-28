@@ -1,13 +1,14 @@
+using System.Net;
 using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Refit;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
-using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -23,11 +24,11 @@ public class ChangeCourseRestrictionControllerGetTests
 
     [Test, MoqAutoData]
     public async Task WhenProviderHasLastDateStarts_ThenReturnsView(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] ChangeCourseRestrictionController sut,
         GetRestrictedCourseDetailsResponse response)
     {
-        SetupCourseWithLastDateStarts(larsCodeServiceMock, response);
+        SetupCourseWithLastDateStarts(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
@@ -51,7 +52,7 @@ public class ChangeCourseRestrictionControllerGetTests
 
     [Test, MoqAutoData]
     public async Task WhenProviderHasNoLastDateStarts_ThenReturnsNotFound(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] ChangeCourseRestrictionController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -67,9 +68,7 @@ public class ChangeCourseRestrictionControllerGetTests
                 LastDateStarts = null
             }
         ];
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
@@ -81,14 +80,12 @@ public class ChangeCourseRestrictionControllerGetTests
 
     [Test, MoqAutoData]
     public async Task WhenProviderDoesNotExistOnCourse_ThenReturnsNotFound(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] ChangeCourseRestrictionController sut,
         GetRestrictedCourseDetailsResponse response)
     {
         response.Providers = [];
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
@@ -109,7 +106,7 @@ public class ChangeCourseRestrictionControllerGetTests
     }
 
     private static void SetupCourseWithLastDateStarts(
-        Mock<ILarsCodeService> larsCodeServiceMock,
+        Mock<IOuterApiClient> outerApiClientMock,
         GetRestrictedCourseDetailsResponse response)
     {
         response.LarsCode = LarsCode;
@@ -125,8 +122,16 @@ public class ChangeCourseRestrictionControllerGetTests
             }
         ];
 
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        SetupCourseResponse(outerApiClientMock, response);
+    }
+
+    private static void SetupCourseResponse(
+        Mock<IOuterApiClient> outerApiClientMock,
+        GetRestrictedCourseDetailsResponse response)
+    {
+        outerApiClientMock
+            .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
+                new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
     }
 }

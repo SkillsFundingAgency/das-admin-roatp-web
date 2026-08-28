@@ -15,7 +15,6 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
-using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Admin.Roatp.Web.Validators;
 using SFA.DAS.Testing.AutoFixture;
@@ -32,12 +31,12 @@ public class ChangeCourseRestrictionControllerPostTests
 
     [Test, MoqAutoData]
     public async Task WhenValidationFails_ThenReturnsViewWithErrors(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IValidator<ChangeCourseRestrictionSubmitModel>> validatorMock,
         [Greedy] ChangeCourseRestrictionController sut,
         GetRestrictedCourseDetailsResponse response)
     {
-        SetupCourseWithLastDateStarts(larsCodeServiceMock, response);
+        SetupCourseWithLastDateStarts(outerApiClientMock, response);
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<ChangeCourseRestrictionSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult(
@@ -67,13 +66,12 @@ public class ChangeCourseRestrictionControllerPostTests
 
     [Test, MoqAutoData]
     public async Task WhenChangeSelected_ThenRedirectsToSetLastStartDatePage(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IValidator<ChangeCourseRestrictionSubmitModel>> validatorMock,
         [Greedy] ChangeCourseRestrictionController sut,
         GetRestrictedCourseDetailsResponse response)
     {
-        SetupCourseWithLastDateStarts(larsCodeServiceMock, response);
+        SetupCourseWithLastDateStarts(outerApiClientMock, response);
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<ChangeCourseRestrictionSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -106,13 +104,12 @@ public class ChangeCourseRestrictionControllerPostTests
 
     [Test, MoqAutoData]
     public async Task WhenRemoveSelected_ThenClearsLastDateStartsAndRedirectsWithSuccessBanner(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IValidator<ChangeCourseRestrictionSubmitModel>> validatorMock,
         [Greedy] ChangeCourseRestrictionController sut,
         GetRestrictedCourseDetailsResponse response)
     {
-        SetupCourseWithLastDateStarts(larsCodeServiceMock, response);
+        SetupCourseWithLastDateStarts(outerApiClientMock, response);
         SetupSuccessfulUpsert(outerApiClientMock);
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<ChangeCourseRestrictionSubmitModel>(), It.IsAny<CancellationToken>()))
@@ -153,7 +150,6 @@ public class ChangeCourseRestrictionControllerPostTests
     public async Task WhenRemoveSelected_AndApiReturnsNotFoundOrBadRequest_ThenReturnsNotFound(
         HttpStatusCode statusCode)
     {
-        var larsCodeServiceMock = new Mock<ILarsCodeService>();
         var outerApiClientMock = new Mock<IOuterApiClient>();
         var validatorMock = new Mock<IValidator<ChangeCourseRestrictionSubmitModel>>();
         var response = new GetRestrictedCourseDetailsResponse
@@ -165,14 +161,13 @@ public class ChangeCourseRestrictionControllerPostTests
             Level = 7
         };
 
-        SetupCourseWithLastDateStarts(larsCodeServiceMock, response);
+        SetupCourseWithLastDateStarts(outerApiClientMock, response);
         SetupUpsertResponse(outerApiClientMock, statusCode);
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<ChangeCourseRestrictionSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
 
         var sut = new ChangeCourseRestrictionController(
-            larsCodeServiceMock.Object,
             outerApiClientMock.Object,
             validatorMock.Object);
         sut.AddUrlHelperMock()
@@ -190,7 +185,7 @@ public class ChangeCourseRestrictionControllerPostTests
 
     [Test, MoqAutoData]
     public async Task WhenProviderHasNoLastDateStarts_ThenReturnsNotFound(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] ChangeCourseRestrictionController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -206,9 +201,7 @@ public class ChangeCourseRestrictionControllerPostTests
                 LastDateStarts = null
             }
         ];
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
@@ -223,7 +216,7 @@ public class ChangeCourseRestrictionControllerPostTests
     }
 
     private static void SetupCourseWithLastDateStarts(
-        Mock<ILarsCodeService> larsCodeServiceMock,
+        Mock<IOuterApiClient> outerApiClientMock,
         GetRestrictedCourseDetailsResponse response)
     {
         response.LarsCode = LarsCode;
@@ -239,9 +232,17 @@ public class ChangeCourseRestrictionControllerPostTests
             }
         ];
 
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        SetupCourseResponse(outerApiClientMock, response);
+    }
+
+    private static void SetupCourseResponse(
+        Mock<IOuterApiClient> outerApiClientMock,
+        GetRestrictedCourseDetailsResponse response)
+    {
+        outerApiClientMock
+            .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
+                new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
     }
 
     private static void SetupSuccessfulUpsert(Mock<IOuterApiClient> outerApiClientMock)
