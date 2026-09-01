@@ -7,6 +7,8 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
+using SFA.DAS.Admin.Roatp.Web.Models.Session;
+using SFA.DAS.Admin.Roatp.Web.Services;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 
@@ -14,6 +16,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 [Route("restricted-courses/{larsCode}/providers")]
 public class AddProviderToRestrictedCourseController(
     IOuterApiClient outerApiClient,
+    ISessionService sessionService,
     IValidator<AddProviderToRestrictedCourseSubmitModel> validator) : Controller
 {
     public const string ViewPath = "~/Views/ManageCourses/AddProviderToRestrictedCourse/Index.cshtml";
@@ -21,6 +24,8 @@ public class AddProviderToRestrictedCourseController(
     [HttpGet("add", Name = RouteNames.AddProviderToRestrictedCourse)]
     public async Task<IActionResult> Index([FromRoute] string larsCode, CancellationToken cancellationToken)
     {
+        sessionService.Delete(SessionKeys.AddProviderToRestrictedCourse);
+
         var courseDetails = await GetRestrictedCourseAsync(larsCode, cancellationToken);
         if (courseDetails is null)
         {
@@ -49,6 +54,20 @@ public class AddProviderToRestrictedCourseController(
             ModelState.AddValidationErrors(validationResult.Errors);
             return View(ViewPath, BuildViewModel(larsCode, courseDetails));
         }
+
+        var provider = courseDetails.Providers.FirstOrDefault(p => p.Ukprn.ToString() == submitModel.SelectedUkprn);
+        if (provider is null)
+        {
+            return NotFound();
+        }
+        var viewModel = BuildViewModel(larsCode, courseDetails);
+        sessionService.Set(SessionKeys.AddProviderToRestrictedCourse, new AddProviderToRestrictedCourseSessionModel
+        {
+            LarsCode = larsCode,
+            CourseDisplayTitle = viewModel.DisplayTitle,
+            Ukprn = provider.Ukprn,
+            LegalName = provider.ProviderName
+        });
 
         return RedirectToRoute(RouteNames.AddProviderToRestrictedCourse, new { larsCode });
     }

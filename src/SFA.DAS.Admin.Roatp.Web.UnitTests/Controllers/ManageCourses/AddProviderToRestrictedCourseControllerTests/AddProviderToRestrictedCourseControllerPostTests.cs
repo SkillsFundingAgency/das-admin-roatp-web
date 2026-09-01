@@ -11,6 +11,8 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
+using SFA.DAS.Admin.Roatp.Web.Models.Session;
+using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses.AddProviderToRestrictedCourseControllerTests;
@@ -19,11 +21,14 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses.AddProvide
 public class AddProviderToRestrictedCourseControllerPostTests
 {
     private const string LarsCode = "105";
+    private const int Ukprn = 10007938;
+    private const string LegalName = "BP TRAINING";
 
     [Test, MoqAutoData]
     public async Task WhenPostingAddProvider_AndValidationFails_ThenReturnsViewWithErrors(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IValidator<AddProviderToRestrictedCourseSubmitModel>> validatorMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] AddProviderToRestrictedCourseController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -42,6 +47,9 @@ public class AddProviderToRestrictedCourseControllerPostTests
             new AddProviderToRestrictedCourseSubmitModel(),
             CancellationToken.None) as ViewResult;
 
+        sessionServiceMock.Verify(
+            s => s.Set(It.IsAny<string>(), It.IsAny<AddProviderToRestrictedCourseSessionModel>()),
+            Times.Never);
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
@@ -54,9 +62,10 @@ public class AddProviderToRestrictedCourseControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenPostingAddProvider_AndProviderSelected_ThenRefreshesAddPage(
+    public async Task WhenPostingAddProvider_AndProviderSelected_ThenStoresSessionAndRedirects(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IValidator<AddProviderToRestrictedCourseSubmitModel>> validatorMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] AddProviderToRestrictedCourseController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -67,11 +76,20 @@ public class AddProviderToRestrictedCourseControllerPostTests
 
         var submitModel = new AddProviderToRestrictedCourseSubmitModel
         {
-            SelectedUkprn = "10007938"
+            SelectedUkprn = Ukprn.ToString()
         };
 
         var result = await sut.Index(LarsCode, submitModel, CancellationToken.None) as RedirectToRouteResult;
 
+        sessionServiceMock.Verify(
+            s => s.Set(
+                SessionKeys.AddProviderToRestrictedCourse,
+                It.Is<AddProviderToRestrictedCourseSessionModel>(m =>
+                    m.LarsCode == LarsCode
+                    && m.CourseDisplayTitle == "Academic professional (Level 7)"
+                    && m.Ukprn == Ukprn
+                    && m.LegalName == LegalName)),
+            Times.Once);
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
@@ -81,8 +99,33 @@ public class AddProviderToRestrictedCourseControllerPostTests
     }
 
     [Test, MoqAutoData]
+    public async Task WhenPostingAddProvider_AndProviderNotInList_ThenReturnsNotFound(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<IValidator<AddProviderToRestrictedCourseSubmitModel>> validatorMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] AddProviderToRestrictedCourseController sut,
+        GetRestrictedCourseDetailsResponse response)
+    {
+        SetupRestrictedCourse(response, outerApiClientMock);
+        validatorMock
+            .Setup(v => v.Validate(It.IsAny<AddProviderToRestrictedCourseSubmitModel>()))
+            .Returns(new ValidationResult());
+
+        var result = await sut.Index(
+            LarsCode,
+            new AddProviderToRestrictedCourseSubmitModel { SelectedUkprn = "not-a-provider" },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NotFoundResult>();
+        sessionServiceMock.Verify(
+            s => s.Set(It.IsAny<string>(), It.IsAny<AddProviderToRestrictedCourseSessionModel>()),
+            Times.Never);
+    }
+
+    [Test, MoqAutoData]
     public async Task WhenPostingAddProvider_AndCourseIsUnrestricted_ThenReturnsNotFound(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] AddProviderToRestrictedCourseController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -95,10 +138,13 @@ public class AddProviderToRestrictedCourseControllerPostTests
 
         var result = await sut.Index(
             LarsCode,
-            new AddProviderToRestrictedCourseSubmitModel { SelectedUkprn = "10007938" },
+            new AddProviderToRestrictedCourseSubmitModel { SelectedUkprn = Ukprn.ToString() },
             CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
+        sessionServiceMock.Verify(
+            s => s.Set(It.IsAny<string>(), It.IsAny<AddProviderToRestrictedCourseSessionModel>()),
+            Times.Never);
     }
 
     private static void SetupRestrictedCourse(
@@ -111,7 +157,7 @@ public class AddProviderToRestrictedCourseControllerPostTests
         response.IsCourseRestricted = true;
         response.Providers =
         [
-            new ProviderCourseModel { Ukprn = 10007938, ProviderName = "BP TRAINING" }
+            new ProviderCourseModel { Ukprn = Ukprn, ProviderName = LegalName }
         ];
 
         outerApiClientMock

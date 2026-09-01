@@ -9,6 +9,7 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
+using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses.AddProviderToRestrictedCourseControllerTests;
@@ -19,8 +20,9 @@ public class AddProviderToRestrictedCourseControllerGetTests
     private const string LarsCode = "105";
 
     [Test, MoqAutoData]
-    public async Task WhenGettingAddProvider_AndCourseIsRestricted_ThenReturnsView(
+    public async Task WhenGettingAddProvider_AndCourseIsRestricted_ThenClearsSessionAndReturnsView(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] AddProviderToRestrictedCourseController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -28,6 +30,7 @@ public class AddProviderToRestrictedCourseControllerGetTests
 
         var result = await sut.Index(LarsCode, CancellationToken.None) as ViewResult;
 
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProviderToRestrictedCourse), Times.Once);
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
