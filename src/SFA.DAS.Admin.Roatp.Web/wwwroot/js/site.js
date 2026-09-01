@@ -122,7 +122,7 @@ $('.app-autocomplete').each(function () {
         onConfirm: function (opt) {
             const txtInput = document.querySelector('#' + this.id);
             const searchString = opt || txtInput.value;
-            const requestedOption = [].filter.call(this.selectElement.options, function (option) {
+            const requestedOption = Array.prototype.filter.call(this.selectElement.options, function (option) {
                 return (option.textContent || option.innerText) === searchString;
             })[0];
             if (requestedOption) {

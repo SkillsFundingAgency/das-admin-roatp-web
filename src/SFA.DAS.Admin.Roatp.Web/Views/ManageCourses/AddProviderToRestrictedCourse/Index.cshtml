@@ -16,6 +16,9 @@
         <form asp-route="@RouteNames.AddProviderToRestrictedCourse" asp-route-larsCode="@Model.LarsCode" method="POST" novalidate>
             <div esfa-validation-marker-for="SelectedUkprn" class="govuk-form-group">
                 <p class="govuk-body">Only providers you select can deliver this course.</p>
+                <label class="govuk-visually-hidden" asp-for="SelectedUkprn">
+                    Start typing the provider’s legal name or UKPRN
+                </label>
                 <div class="govuk-hint">
                     Start typing the provider’s legal name or UKPRN.
                 </div>
