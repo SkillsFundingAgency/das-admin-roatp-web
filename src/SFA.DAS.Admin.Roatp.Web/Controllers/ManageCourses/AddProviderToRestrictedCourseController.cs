@@ -1,3 +1,4 @@
+using System.Net;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,15 +7,13 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
-using SFA.DAS.Admin.Roatp.Web.Services;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
 [Route("restricted-courses/{larsCode}/providers")]
 public class AddProviderToRestrictedCourseController(
-    INotAllowedProvidersService notAllowedProvidersService,
-    ISessionService sessionService,
+    IOuterApiClient outerApiClient,
     IValidator<AddProviderToRestrictedCourseSubmitModel> validator) : Controller
 {
     public const string ViewPath = "~/Views/ManageCourses/AddProviderToRestrictedCourse/Index.cshtml";
@@ -22,8 +21,6 @@ public class AddProviderToRestrictedCourseController(
     [HttpGet("add", Name = RouteNames.AddProviderToRestrictedCourse)]
     public async Task<IActionResult> Index([FromRoute] string larsCode, CancellationToken cancellationToken)
     {
-        sessionService.Delete(SessionKeys.NotAllowedProvidersForRestrictedCourse(larsCode));
-
         var courseDetails = await GetRestrictedCourseAsync(larsCode, cancellationToken);
         if (courseDetails is null)
         {
@@ -60,7 +57,15 @@ public class AddProviderToRestrictedCourseController(
         string larsCode,
         CancellationToken cancellationToken)
     {
-        var courseDetails = await notAllowedProvidersService.GetNotAllowedProvidersAsync(larsCode, cancellationToken);
+        var response = await outerApiClient.GetNotAllowedProvidersForCourse(larsCode, cancellationToken);
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        await response.EnsureSuccessStatusCodeAsync();
+
+        var courseDetails = response.Content;
         if (courseDetails is null || !courseDetails.IsCourseRestricted)
         {
             return null;

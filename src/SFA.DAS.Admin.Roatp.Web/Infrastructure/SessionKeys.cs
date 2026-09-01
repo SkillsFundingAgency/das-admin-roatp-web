@@ -8,7 +8,4 @@ public static class SessionKeys
     public const string GetOrganisationTypes = "GetOrganisationTypes";
    
     public const string AddRestrictedCourse = "AddRestrictedCourse";
-
-    public static string NotAllowedProvidersForRestrictedCourse(string larsCode)
-        => $"NotAllowedProvidersForRestrictedCourse:{larsCode}";
 }

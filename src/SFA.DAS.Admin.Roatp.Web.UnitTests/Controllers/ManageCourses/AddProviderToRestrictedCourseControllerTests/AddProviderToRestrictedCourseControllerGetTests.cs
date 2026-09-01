@@ -1,13 +1,14 @@
+using System.Net;
 using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Refit;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
-using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses.AddProviderToRestrictedCourseControllerTests;
@@ -18,19 +19,15 @@ public class AddProviderToRestrictedCourseControllerGetTests
     private const string LarsCode = "105";
 
     [Test, MoqAutoData]
-    public async Task WhenGettingAddProvider_AndCourseIsRestricted_ThenClearsSessionAndReturnsView(
-        [Frozen] Mock<INotAllowedProvidersService> notAllowedProvidersServiceMock,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
+    public async Task WhenGettingAddProvider_AndCourseIsRestricted_ThenReturnsView(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] AddProviderToRestrictedCourseController sut,
         GetRestrictedCourseDetailsResponse response)
     {
-        SetupRestrictedCourse(response, notAllowedProvidersServiceMock);
+        SetupRestrictedCourse(response, outerApiClientMock);
 
         var result = await sut.Index(LarsCode, CancellationToken.None) as ViewResult;
 
-        sessionServiceMock.Verify(
-            s => s.Delete(SessionKeys.NotAllowedProvidersForRestrictedCourse(LarsCode)),
-            Times.Once);
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
@@ -49,12 +46,13 @@ public class AddProviderToRestrictedCourseControllerGetTests
 
     [Test, MoqAutoData]
     public async Task WhenGettingAddProvider_AndCourseIsNotFound_ThenReturnsNotFound(
-        [Frozen] Mock<INotAllowedProvidersService> notAllowedProvidersServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] AddProviderToRestrictedCourseController sut)
     {
-        notAllowedProvidersServiceMock
-            .Setup(s => s.GetNotAllowedProvidersAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetRestrictedCourseDetailsResponse?)null);
+        outerApiClientMock
+            .Setup(c => c.GetNotAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
+                new HttpResponseMessage(HttpStatusCode.NotFound), null, new RefitSettings(), null));
 
         var result = await sut.Index(LarsCode, CancellationToken.None);
 
@@ -63,15 +61,16 @@ public class AddProviderToRestrictedCourseControllerGetTests
 
     [Test, MoqAutoData]
     public async Task WhenGettingAddProvider_AndCourseIsUnrestricted_ThenReturnsNotFound(
-        [Frozen] Mock<INotAllowedProvidersService> notAllowedProvidersServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] AddProviderToRestrictedCourseController sut,
         GetRestrictedCourseDetailsResponse response)
     {
         response.LarsCode = LarsCode;
         response.IsCourseRestricted = false;
-        notAllowedProvidersServiceMock
-            .Setup(s => s.GetNotAllowedProvidersAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        outerApiClientMock
+            .Setup(c => c.GetNotAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
+                new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
 
         var result = await sut.Index(LarsCode, CancellationToken.None);
 
@@ -80,7 +79,7 @@ public class AddProviderToRestrictedCourseControllerGetTests
 
     private static void SetupRestrictedCourse(
         GetRestrictedCourseDetailsResponse response,
-        Mock<INotAllowedProvidersService> notAllowedProvidersServiceMock)
+        Mock<IOuterApiClient> outerApiClientMock)
     {
         response.LarsCode = LarsCode;
         response.CourseName = "Academic professional";
@@ -92,8 +91,9 @@ public class AddProviderToRestrictedCourseControllerGetTests
             new ProviderCourseModel { Ukprn = 10000001, ProviderName = "ALPHA TRAINING" }
         ];
 
-        notAllowedProvidersServiceMock
-            .Setup(s => s.GetNotAllowedProvidersAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        outerApiClientMock
+            .Setup(c => c.GetNotAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
+                new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
     }
 }
