@@ -8,7 +8,6 @@ using SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Services;
-using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses.AddProviderToRestrictedCourseControllerTests;
@@ -17,22 +16,18 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses.AddProvide
 public class AddProviderToRestrictedCourseControllerGetTests
 {
     private const string LarsCode = "105";
-    private const string ProvidersSearchUrl = $"/restricted-courses/{LarsCode}/providers/search";
 
     [Test, MoqAutoData]
     public async Task WhenGettingAddProvider_AndCourseIsRestricted_ThenClearsSessionAndReturnsView(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<INotAllowedProvidersService> notAllowedProvidersServiceMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] AddProviderToRestrictedCourseController sut,
         GetRestrictedCourseDetailsResponse response)
     {
-        SetupRestrictedCourse(response, larsCodeServiceMock);
-        sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.SearchProvidersForRestrictedCourse, ProvidersSearchUrl);
+        SetupRestrictedCourse(response, notAllowedProvidersServiceMock);
 
         var result = await sut.Index(LarsCode, CancellationToken.None) as ViewResult;
 
-        sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProviderToRestrictedCourse), Times.Once);
         sessionServiceMock.Verify(
             s => s.Delete(SessionKeys.NotAllowedProvidersForRestrictedCourse(LarsCode)),
             Times.Once);
@@ -46,17 +41,19 @@ public class AddProviderToRestrictedCourseControllerGetTests
             model.Title.Should().Be("Academic professional");
             model.Level.Should().Be(7);
             model.DisplayTitle.Should().Be("Academic professional (Level 7)");
-            model.ProvidersSearchUrl.Should().Be(ProvidersSearchUrl);
+            model.Providers.Should().HaveCount(2);
+            model.Providers.Select(p => p.Value).Should().Contain(["10000001", "10000002"]);
+            model.Providers.Select(p => p.Text).Should().Contain("ALPHA TRAINING UKPRN: 10000001");
         }
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingAddProvider_AndLarsCodeIsInvalid_ThenReturnsNotFound(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+    public async Task WhenGettingAddProvider_AndCourseIsNotFound_ThenReturnsNotFound(
+        [Frozen] Mock<INotAllowedProvidersService> notAllowedProvidersServiceMock,
         [Greedy] AddProviderToRestrictedCourseController sut)
     {
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
+        notAllowedProvidersServiceMock
+            .Setup(s => s.GetNotAllowedProvidersAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetRestrictedCourseDetailsResponse?)null);
 
         var result = await sut.Index(LarsCode, CancellationToken.None);
@@ -66,14 +63,14 @@ public class AddProviderToRestrictedCourseControllerGetTests
 
     [Test, MoqAutoData]
     public async Task WhenGettingAddProvider_AndCourseIsUnrestricted_ThenReturnsNotFound(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<INotAllowedProvidersService> notAllowedProvidersServiceMock,
         [Greedy] AddProviderToRestrictedCourseController sut,
         GetRestrictedCourseDetailsResponse response)
     {
         response.LarsCode = LarsCode;
         response.IsCourseRestricted = false;
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
+        notAllowedProvidersServiceMock
+            .Setup(s => s.GetNotAllowedProvidersAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         var result = await sut.Index(LarsCode, CancellationToken.None);
@@ -83,16 +80,20 @@ public class AddProviderToRestrictedCourseControllerGetTests
 
     private static void SetupRestrictedCourse(
         GetRestrictedCourseDetailsResponse response,
-        Mock<ILarsCodeService> larsCodeServiceMock)
+        Mock<INotAllowedProvidersService> notAllowedProvidersServiceMock)
     {
         response.LarsCode = LarsCode;
         response.CourseName = "Academic professional";
         response.Level = 7;
         response.IsCourseRestricted = true;
-        response.Providers = [];
+        response.Providers =
+        [
+            new ProviderCourseModel { Ukprn = 10000002, ProviderName = "BETA TRAINING" },
+            new ProviderCourseModel { Ukprn = 10000001, ProviderName = "ALPHA TRAINING" }
+        ];
 
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
+        notAllowedProvidersServiceMock
+            .Setup(s => s.GetNotAllowedProvidersAsync(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
     }
 }

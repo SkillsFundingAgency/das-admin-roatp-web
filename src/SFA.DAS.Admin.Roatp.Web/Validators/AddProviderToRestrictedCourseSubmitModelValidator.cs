@@ -10,11 +10,7 @@ public class AddProviderToRestrictedCourseSubmitModelValidator : AbstractValidat
 
     public AddProviderToRestrictedCourseSubmitModelValidator()
     {
-        RuleFor(model => model.SearchTerm)
-            .NotEmpty()
-            .WithMessage(NoProviderSelectedErrorMessage);
-
-        RuleFor(model => model.Ukprn)
+        RuleFor(model => model.SelectedUkprn)
             .NotEmpty()
             .WithMessage(NoProviderSelectedErrorMessage);
     }

@@ -15,7 +15,6 @@ if ($backLinkOrHome) {
     backLinkOrHome();
 }
 
-
 function AutoComplete(selectField) {
     this.selectElement = selectField
     this.apiUrl = selectField.dataset.autocompleteUrl || '/registeredProviders'
@@ -103,3 +102,45 @@ let autoCompletes = document.querySelectorAll('[data-module="autoComplete"]')
 nodeListForEach(autoCompletes, function (autoComplete) {
     new AutoComplete(autoComplete).init()
 })
+
+$('.app-autocomplete').each(function () {
+    const form = $(this).closest('form');
+    const hiddenSelect = document.getElementById(this.id);
+    hiddenSelect.setAttribute('aria-hidden', 'true');
+    hiddenSelect.setAttribute('tabindex', '-1');
+    hiddenSelect.setAttribute('title', 'Hidden select field');
+
+    accessibleAutocomplete.enhanceSelectElement({
+        selectElement: this,
+        minLength: 3,
+        autoselect: false,
+        defaultValue: '',
+        showAllValues: true,
+        displayMenu: 'overlay',
+        dropdownArrow: () => '',
+        placeholder: $(this).data('placeholder') || '',
+        onConfirm: function (opt) {
+            const txtInput = document.querySelector('#' + this.id);
+            const searchString = opt || txtInput.value;
+            const requestedOption = [].filter.call(this.selectElement.options, function (option) {
+                return (option.textContent || option.innerText) === searchString;
+            })[0];
+            if (requestedOption) {
+                requestedOption.selected = true;
+            } else {
+                this.selectElement.selectedIndex = 0;
+            }
+        }
+    });
+
+    form.on('submit', function () {
+        $('.autocomplete__input').each(function () {
+            const that = $(this);
+            if (that.val().length === 0) {
+                const fieldId = that.attr('id');
+                const selectField = $('#' + fieldId + '-select');
+                selectField[0].selectedIndex = 0;
+            }
+        });
+    });
+});

@@ -21,9 +21,7 @@ public class AddProviderToRestrictedCourseSubmitModelValidatorTests
     {
         var result = _sut.TestValidate(new AddProviderToRestrictedCourseSubmitModel());
 
-        result.ShouldHaveValidationErrorFor(model => model.SearchTerm)
-            .WithErrorMessage(AddProviderToRestrictedCourseSubmitModelValidator.NoProviderSelectedErrorMessage);
-        result.ShouldHaveValidationErrorFor(model => model.Ukprn)
+        result.ShouldHaveValidationErrorFor(model => model.SelectedUkprn)
             .WithErrorMessage(AddProviderToRestrictedCourseSubmitModelValidator.NoProviderSelectedErrorMessage);
     }
 
@@ -32,8 +30,7 @@ public class AddProviderToRestrictedCourseSubmitModelValidatorTests
     {
         var result = _sut.TestValidate(new AddProviderToRestrictedCourseSubmitModel
         {
-            LegalName = "BP TRAINING",
-            Ukprn = "10007938"
+            SelectedUkprn = "10007938"
         });
 
         result.ShouldNotHaveAnyValidationErrors();
