@@ -28,8 +28,7 @@ AutoComplete.prototype.init = function () {
 
 AutoComplete.prototype.getSuggestions = function (query, updateResults) {
     let results = [];
-    let paramName = this.mode === 'course' ? 'searchTerm' : 'query'
-    let apiUrl = this.apiUrl + "?" + paramName + "=" + encodeURIComponent(query)
+    let apiUrl = this.apiUrl + "?query=" + encodeURIComponent(query)
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
@@ -50,21 +49,11 @@ AutoComplete.prototype.onConfirm = function (option) {
         return;
     }
 
-    if (this.mode === 'course') {
-        document.getElementById("Title").value = option.title;
-        document.getElementById("Level").value = option.level;
-        document.getElementById("LarsCode").value = option.larsCode;
-        return;
-    }
-
     document.getElementById("LegalName").value = option.legalName;
     document.getElementById("Ukprn").value = option.ukprn;
 }
 
 function formatAutocompleteResult(result) {
-    if (result?.displayTitle) {
-        return result.displayTitle;
-    }
     return result ? [result.legalName, result.ukprn].filter(Boolean).join(' UKPRN: ') : result;
 }
 
