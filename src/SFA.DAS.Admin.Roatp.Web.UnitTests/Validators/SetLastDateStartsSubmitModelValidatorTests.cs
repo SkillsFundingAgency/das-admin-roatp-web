@@ -84,6 +84,17 @@ public class SetLastDateStartsSubmitModelValidatorTests
     }
 
     [Test]
+    public async Task WhenDateEqualsCourseLastDateStarts_ThenPasses()
+    {
+        var courseEndDate = new DateTime(2027, 6, 1, 0, 0, 0, DateTimeKind.Unspecified);
+        var model = CreateModel(day: "01", month: "06", year: "2027", courseLastDateStarts: courseEndDate);
+
+        var result = await _sut.TestValidateAsync(model);
+
+        result.ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Test]
     public async Task WhenDateIsValidAndBeforeCourseEndDate_ThenPasses()
     {
         var model = CreateModel(

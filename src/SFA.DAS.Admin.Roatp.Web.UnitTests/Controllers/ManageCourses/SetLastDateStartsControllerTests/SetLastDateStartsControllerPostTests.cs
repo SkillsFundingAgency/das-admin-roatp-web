@@ -13,9 +13,11 @@ using Refit;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
+using SFA.DAS.Admin.Roatp.Web.Validators;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses.SetLastDateStartsControllerTests;
@@ -84,15 +86,71 @@ public class SetLastDateStartsControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenValidationPasses_ThenCallsApiAndRedirectsWithSuccessBanner(
+    public async Task WhenPostingSubmitDateIsAfterCourseLastDateStarts_ThenReturnsViewWithValidationError(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        GetRestrictedCourseDetailsResponse response)
+    {
+        var courseLastDateStarts = new DateTime(2027, 6, 1, 0, 0, 0, DateTimeKind.Unspecified);
+        response.LarsCode = LarsCode;
+        response.CourseName = "Academic professional";
+        response.Level = 7;
+        response.LastDateStarts = courseLastDateStarts;
+        response.Providers =
+        [
+            new ProviderCourseModel
+            {
+                Ukprn = Ukprn,
+                ProviderName = "BP TRAINING",
+                LastDateStarts = null
+            }
+        ];
+
+        SetupCourse(outerApiClientMock, response);
+
+        var controller = new SetLastDateStartsController(
+            outerApiClientMock.Object,
+            new SetLastDateStartsSubmitModelValidator());
+        controller.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+
+        var result = await controller.Index(
+            LarsCode,
+            Ukprn,
+            new SetLastDateStartsSubmitModel { Day = "02", Month = "06", Year = "2027" },
+            CancellationToken.None) as ViewResult;
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.ViewName.Should().Be(SetLastDateStartsController.ViewPath);
+            controller.ModelState.IsValid.Should().BeFalse();
+            controller.ModelState[SetLastDateStartsSubmitModelValidator.DateFieldName]!
+                .Errors.Should().ContainSingle(e =>
+                    e.ErrorMessage ==
+                    $"The latest start date for this course is {courseLastDateStarts.ToDisplayString()}. It is set by LARS and cannot be changed. Your chosen last date for new starts must come on or before this.");
+        }
+
+        outerApiClientMock.Verify(
+            c => c.UpsertProviderAllowedCourse(
+                It.IsAny<int>(),
+                It.IsAny<string>(),
+                It.IsAny<UpsertProviderAllowedCourseRequest>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenValidationPasses_ThenSetsCourseLastDateStartsAndRedirectsWithSuccessBanner(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> validatorMock,
         [Greedy] SetLastDateStartsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
+        var courseLastDateStarts = new DateTime(2028, 12, 31, 0, 0, 0, DateTimeKind.Unspecified);
         response.LarsCode = LarsCode;
         response.CourseName = "Academic professional";
         response.Level = 7;
+        response.LastDateStarts = courseLastDateStarts;
         response.Providers =
         [
             new ProviderCourseModel
@@ -132,6 +190,14 @@ public class SetLastDateStartsControllerPostTests
             sut.TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey]
                 .Should().Be("Last start date added for BP TRAINING");
         }
+
+        validatorMock.Verify(
+            v => v.ValidateAsync(
+                It.Is<SetLastDateStartsSubmitModel>(m =>
+                    m.LarsCode == LarsCode
+                    && m.CourseLastDateStarts == courseLastDateStarts),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
 
         outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
             Ukprn,

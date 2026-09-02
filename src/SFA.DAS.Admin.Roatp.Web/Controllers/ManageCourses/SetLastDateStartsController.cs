@@ -41,6 +41,7 @@ public class SetLastDateStartsController(
             return NotFound();
         }
 
+        submitModel.CourseLastDateStarts = model.CourseLastDateStarts;
         var validationResult = await setDateValidator.ValidateAsync(submitModel, cancellationToken);
         if (!validationResult.IsValid)
         {
