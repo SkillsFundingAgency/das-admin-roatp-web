@@ -19,6 +19,8 @@ public class RestrictedCourseDetailsControllerFilterTests
 {
     private const string LarsCode = "105";
     private const string RestrictedCourseDetailsUrl = $"/restricted-courses/{LarsCode}";
+    private const string AddProviderToRestrictedCourseUrl = "/add-provider";
+
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndProviderNameFilterMatches_ThenReturnsMatchingProviders(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
@@ -39,7 +41,7 @@ public class RestrictedCourseDetailsControllerFilterTests
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
-            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, "/add-provider");
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
         var request = new GetRestrictedCourseDetailsRequest { SearchTerm = "Beacon" };
 
@@ -75,7 +77,7 @@ public class RestrictedCourseDetailsControllerFilterTests
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
-            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, "/add-provider");
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
         var request = new GetRestrictedCourseDetailsRequest
         {
@@ -110,7 +112,7 @@ public class RestrictedCourseDetailsControllerFilterTests
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
-            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, "/add-provider");
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
         var request = new GetRestrictedCourseDetailsRequest { SearchTerm = "Beacon" };
 

@@ -19,7 +19,11 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses;
 public class RestrictedCourseDetailsControllerGetTests
 {
     private const string LarsCode = "105";
+    private const string RestrictedCoursesUrl = "/restricted-courses";
     private const string RestrictedCourseDetailsUrl = $"/restricted-courses/{LarsCode}";
+    private const string AddLastDateStartsUrl = "/add-last-date-starts";
+    private const string AddProviderToRestrictedCourseUrl = "/add-provider";
+
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndLarsCodeIsValid_ThenReturnsViewWithMappedModel(
         [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
@@ -53,10 +57,10 @@ public class RestrictedCourseDetailsControllerGetTests
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
+            .AddUrlForRoute(RouteNames.RestrictedCourses, RestrictedCoursesUrl)
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
-            .AddUrlForRoute(RouteNames.AddLastDateStarts, "/add-last-date-starts")
-            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, "/add-provider");
+            .AddUrlForRoute(RouteNames.AddLastDateStarts, AddLastDateStartsUrl)
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
         var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
@@ -75,11 +79,11 @@ public class RestrictedCourseDetailsControllerGetTests
         model.HasActiveFilters.Should().BeFalse();
         model.Filters.ShowFilterOptions.Should().BeFalse();
         model.Filters.FilterSections.Should().HaveCount(2);
-        model.AddProviderUrl.Should().Be("/add-provider");
+        model.AddProviderUrl.Should().Be(AddProviderToRestrictedCourseUrl);
         model.AllowedProviders.Select(p => p.ProviderName).Should().ContainInOrder("ACORN SKILLS TRAINING", "BABINGTON LTD");
         model.AllowedProviders.First().DeliveryStatus.Should().Be(DeliveryStatus.OpenToNewStarts);
         model.AllowedProviders.Last().DeliveryStatus.Should().Be(DeliveryStatus.LastStartDateAdded);
-        model.AllowedProviders.Should().OnlyContain(p => p.ChangeUrl == "/add-last-date-starts");
+        model.AllowedProviders.Should().OnlyContain(p => p.ChangeUrl == AddLastDateStartsUrl);
 
         larsCodeServiceMock.Verify(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
@@ -99,9 +103,9 @@ public class RestrictedCourseDetailsControllerGetTests
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
+            .AddUrlForRoute(RouteNames.RestrictedCourses, RestrictedCoursesUrl)
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
-            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, "/add-provider");
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
         var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
@@ -127,9 +131,9 @@ public class RestrictedCourseDetailsControllerGetTests
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
+            .AddUrlForRoute(RouteNames.RestrictedCourses, RestrictedCoursesUrl)
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
-            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, "/add-provider");
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
         sut.ControllerContext = new ControllerContext
         {
@@ -161,9 +165,9 @@ public class RestrictedCourseDetailsControllerGetTests
             .ReturnsAsync(response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
+            .AddUrlForRoute(RouteNames.RestrictedCourses, RestrictedCoursesUrl)
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
-            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, "/add-provider");
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
         sut.ControllerContext = new ControllerContext
         {
