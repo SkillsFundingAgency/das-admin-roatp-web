@@ -6,6 +6,7 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
+using SFA.DAS.Admin.Roatp.Web.Validators.Common;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 
@@ -13,7 +14,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 [Route("restricted-courses/{larsCode}/providers/{ukprn}/set-last-start-date", Name = RouteNames.SetLastDateStarts)]
 public class SetLastDateStartsController(
     IOuterApiClient outerApiClient,
-    IValidator<SetLastDateStartsSubmitModel> setDateValidator) : Controller
+    IValidator<SetLastDateStartsSubmitModel> setLastDateStartsValidator) : Controller
 {
     public const string ViewPath = "~/Views/ManageCourses/SetLastDateStarts/Index.cshtml";
 
@@ -42,7 +43,7 @@ public class SetLastDateStartsController(
         }
 
         submitModel.CourseLastDateStarts = model.CourseLastDateStarts;
-        var validationResult = await setDateValidator.ValidateAsync(submitModel, cancellationToken);
+        var validationResult = await setLastDateStartsValidator.ValidateAsync(submitModel, cancellationToken);
         if (!validationResult.IsValid)
         {
             ModelState.Clear();
@@ -50,7 +51,12 @@ public class SetLastDateStartsController(
             return View(ViewPath, model);
         }
 
-        submitModel.TryGetEnteredDate(out var lastDateStarts);
+        var isValidDate = submitModel.TryGetEnteredDate(out var lastDateStarts);
+        if (!isValidDate)
+        {
+            ModelState.AddModelError(string.Empty, SetLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
+            return View(ViewPath, model);
+        }
 
         var response = await outerApiClient.PatchProviderAllowedCourse(
             ukprn,
