@@ -18,11 +18,10 @@ public class UkprnServiceTests
     public async Task WhenGettingOrganisation_AndApiReturnsOrganisation_ThenReturnsContent(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessorMock,
-        [Greedy] UkprnService sut,
         int ukprn,
         GetOrganisationResponse response)
     {
-        httpContextAccessorMock.Setup(a => a.HttpContext).Returns(new DefaultHttpContext());
+        var sut = CreateSut(outerApiClientMock, httpContextAccessorMock);
         outerApiClientMock
             .Setup(c => c.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(
@@ -37,10 +36,9 @@ public class UkprnServiceTests
     public async Task WhenGettingOrganisation_AndApiReturnsNotFound_ThenReturnsNull(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessorMock,
-        [Greedy] UkprnService sut,
         int ukprn)
     {
-        httpContextAccessorMock.Setup(a => a.HttpContext).Returns(new DefaultHttpContext());
+        var sut = CreateSut(outerApiClientMock, httpContextAccessorMock);
         outerApiClientMock
             .Setup(c => c.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(
@@ -55,29 +53,33 @@ public class UkprnServiceTests
     public async Task WhenGettingOrganisation_AndApiReturnsNonSuccessNonNotFound_ThenThrows(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessorMock,
-        [Greedy] UkprnService sut,
         int ukprn)
     {
-        httpContextAccessorMock.Setup(a => a.HttpContext).Returns(new DefaultHttpContext());
+        var sut = CreateSut(outerApiClientMock, httpContextAccessorMock);
+        var httpResponse = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+        var apiException = await ApiException.Create(
+            new HttpRequestMessage(),
+            HttpMethod.Get,
+            httpResponse,
+            new RefitSettings());
         outerApiClientMock
             .Setup(c => c.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(
-                new HttpResponseMessage(HttpStatusCode.InternalServerError), null, new RefitSettings(), null));
+                httpResponse, null, new RefitSettings(), apiException));
 
         var act = () => sut.GetOrganisationAsync(ukprn, CancellationToken.None);
 
-        await act.Should().ThrowAsync<HttpRequestException>();
+        await act.Should().ThrowAsync<ApiException>();
     }
 
     [Test, MoqAutoData]
     public async Task WhenGettingOrganisation_AndCalledTwice_ThenCallsApiOnce(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessorMock,
-        [Greedy] UkprnService sut,
         int ukprn,
         GetOrganisationResponse response)
     {
-        httpContextAccessorMock.Setup(a => a.HttpContext).Returns(new DefaultHttpContext());
+        var sut = CreateSut(outerApiClientMock, httpContextAccessorMock);
         outerApiClientMock
             .Setup(c => c.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(
@@ -93,15 +95,24 @@ public class UkprnServiceTests
 
     [Test, MoqAutoData]
     public async Task WhenGettingOrganisation_AndHttpContextIsMissing_ThenThrows(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessorMock,
-        [Greedy] UkprnService sut,
         int ukprn)
     {
         httpContextAccessorMock.Setup(a => a.HttpContext).Returns((HttpContext?)null);
+        var sut = new UkprnService(outerApiClientMock.Object, new ScopedCacheService(httpContextAccessorMock.Object));
 
         var act = () => sut.GetOrganisationAsync(ukprn, CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("HttpContext is not available.");
+    }
+
+    private static UkprnService CreateSut(
+        Mock<IOuterApiClient> outerApiClientMock,
+        Mock<IHttpContextAccessor> httpContextAccessorMock)
+    {
+        httpContextAccessorMock.Setup(a => a.HttpContext).Returns(new DefaultHttpContext());
+        return new UkprnService(outerApiClientMock.Object, new ScopedCacheService(httpContextAccessorMock.Object));
     }
 }

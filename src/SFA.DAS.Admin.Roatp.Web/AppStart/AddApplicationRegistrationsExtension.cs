@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -5,7 +6,6 @@ using Refit;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Http.Configuration;
-using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.Admin.Roatp.Web.AppStart;
 
@@ -23,7 +23,7 @@ public static class AddApplicationRegistrationsExtension
         services.AddTransient<IOrganisationPatchService, OrganisationPatchService>();
         services.AddTransient<IOrganisationTypesService, OrganisationTypesService>();
         services.AddTransient<IPostOrganisationService, PostOrganisationService>();
-        services.AddScoped<ILarsCodeService, LarsCodeService>();
+        services.AddScoped<IScopedCacheService, ScopedCacheService>();
         services.AddScoped<IUkprnService, UkprnService>();
 
         services.AddOuterApi(outerApiConfig!);

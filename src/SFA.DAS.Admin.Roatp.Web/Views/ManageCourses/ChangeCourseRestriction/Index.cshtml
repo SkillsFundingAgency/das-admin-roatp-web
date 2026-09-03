@@ -1,0 +1,70 @@
+@using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses
+@model SFA.DAS.Admin.Roatp.Web.Models.ManageCourses.ChangeCourseRestrictionViewModel
+@{
+    ViewBag.Title = "Change last start date";
+    var optionError = ViewData.ModelState[nameof(Model.SelectedOption)]?.Errors.FirstOrDefault()?.ErrorMessage;
+    var hasOptionError = !string.IsNullOrEmpty(optionError);
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <partial name="_ValidationSummary" />
+        <span class="govuk-caption-xl">Change last start date</span>
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">What would you like to change?</h1>
+    </div>
+
+    <div class="govuk-grid-column-two-thirds">
+        <p class="govuk-body">
+            <strong>@Model.ProviderName</strong> currently has a last start date set of <strong>@Model.LastDateStartsText</strong> for <strong>@Model.CourseDisplayTitle</strong>.
+        </p>
+
+        <form method="post" novalidate>
+            <div class="govuk-form-group @(hasOptionError ? "govuk-form-group--error" : string.Empty)">
+                <fieldset class="govuk-fieldset" aria-describedby="@(hasOptionError ? "selected-option-error" : null)">
+                    <legend class="govuk-visually-hidden">What would you like to change?</legend>
+                    @if (hasOptionError)
+                    {
+                        <p id="selected-option-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> @optionError
+                        </p>
+                    }
+                    <div class="govuk-radios" data-module="govuk-radios">
+                        <div class="govuk-radios__item">
+                            <input class="govuk-radios__input"
+                                   id="selected-option-change"
+                                   name="@nameof(Model.SelectedOption)"
+                                   type="radio"
+                                   value="@ChangeCourseRestrictionOptions.Change"
+                                   @(Model.SelectedOption == ChangeCourseRestrictionOptions.Change ? "checked" : null)>
+                            <label class="govuk-label govuk-radios__label" for="selected-option-change">
+                                Change last start date
+                            </label>
+                        </div>
+                        <div class="govuk-radios__item">
+                            <input class="govuk-radios__input"
+                                   id="selected-option-remove"
+                                   name="@nameof(Model.SelectedOption)"
+                                   type="radio"
+                                   value="@ChangeCourseRestrictionOptions.Remove"
+                                   aria-describedby="selected-option-remove-hint"
+                                   @(Model.SelectedOption == ChangeCourseRestrictionOptions.Remove ? "checked" : null)>
+                            <label class="govuk-label govuk-radios__label" for="selected-option-remove">
+                                Remove last start date
+                            </label>
+                            <div id="selected-option-remove-hint" class="govuk-hint govuk-radios__hint">
+                                This means the provider can continue to offer the course with no set end date
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="govuk-button-group">
+                <button type="submit" class="govuk-button" data-module="govuk-button" data-disable-on-submit="true">
+                    Continue
+                </button>
+                <a class="govuk-link" href="@Model.CancelUrl">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

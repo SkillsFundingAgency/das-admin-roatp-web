@@ -12,7 +12,7 @@ using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses;
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses.UnrestrictedCourseSearchControllerTests;
 
 public class UnrestrictedCourseSearchControllerPostTests
 {

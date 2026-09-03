@@ -1,0 +1,68 @@
+using FluentAssertions;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
+using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
+
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models.ManageCourses;
+
+[TestFixture]
+public class SetLastDateStartsViewModelTests
+{
+    private const string LarsCode = "105";
+
+    [Test]
+    public void CourseLastDateStartsText_WhenDateIsNull_ThenReturnsEmptyString()
+    {
+        var model = new SetLastDateStartsViewModel
+        {
+            LarsCode = LarsCode,
+            ProviderName = "BP TRAINING",
+            CourseDisplayTitle = "Academic professional (Level 7)",
+            CourseLastDateStarts = null
+        };
+
+        model.CourseLastDateStartsText.Should().BeEmpty();
+    }
+
+    [Test]
+    public void CourseLastDateStartsText_WhenDateHasValue_ThenReturnsFormattedDate()
+    {
+        var date = new DateTime(2027, 6, 1, 0, 0, 0, DateTimeKind.Unspecified);
+        var model = new SetLastDateStartsViewModel
+        {
+            LarsCode = LarsCode,
+            ProviderName = "BP TRAINING",
+            CourseDisplayTitle = "Academic professional (Level 7)",
+            CourseLastDateStarts = date
+        };
+
+        model.CourseLastDateStartsText.Should().Be(date.ToDisplayString());
+    }
+
+    [Test]
+    public void IsAddingLastDateStarts_WhenIsChangingExistingDateIsFalse_ThenReturnsTrue()
+    {
+        var model = new SetLastDateStartsViewModel
+        {
+            LarsCode = LarsCode,
+            ProviderName = "BP TRAINING",
+            CourseDisplayTitle = "Academic professional (Level 7)",
+            IsChangingExistingDate = false
+        };
+
+        model.IsAddingLastDateStarts.Should().BeTrue();
+    }
+
+    [Test]
+    public void IsAddingLastDateStarts_WhenIsChangingExistingDateIsTrue_ThenReturnsFalse()
+    {
+        var model = new SetLastDateStartsViewModel
+        {
+            LarsCode = LarsCode,
+            ProviderName = "BP TRAINING",
+            CourseDisplayTitle = "Academic professional (Level 7)",
+            IsChangingExistingDate = true
+        };
+
+        model.IsAddingLastDateStarts.Should().BeFalse();
+    }
+}

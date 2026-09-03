@@ -14,7 +14,7 @@ public class AllowedProviderViewModel
     public string DeliveryStatusDescription => DeliveryStatus.GetDescription();
     public string DeliveryStatusTagClass => DeliveryStatus.GetTagClass();
     public bool HasLastDateStarts => LastDateStarts.HasValue;
-    public string LastDateStartsText => LastDateStarts.HasValue ? LastDateStarts.Value.ToScreenString() : string.Empty;
+    public string LastDateStartsText => LastDateStarts.HasValue ? LastDateStarts.Value.ToDisplayString() : string.Empty;
     public string ChangeUrl { get; set; } = "#";
 
     public static implicit operator AllowedProviderViewModel(ProviderCourseModel provider) => new()

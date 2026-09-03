@@ -1,19 +1,17 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
-using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Models.Shared;
 using SFA.DAS.Admin.Roatp.Web.Services;
-using SFA.DAS.Admin.Roatp.Web.Validators.Common;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
 [Route("restricted-courses/{larsCode}", Name = RouteNames.RestrictedCourseDetails)]
-public class RestrictedCourseDetailsController(
-    LarsCodeValidator larsCodeValidator,
-    ILarsCodeService larsCodeService) : Controller
+public class RestrictedCourseDetailsController(IOuterApiClient outerApiClient) : Controller
 {
     public const string ViewPath = "~/Views/ManageCourses/RestrictedCourseDetails/Index.cshtml";
     public const string SuccessBannerTempDataKey = "SuccessBannerMessage";
@@ -24,18 +22,13 @@ public class RestrictedCourseDetailsController(
         GetRestrictedCourseDetailsRequest request,
         CancellationToken cancellationToken)
     {
-        var validationResult = await larsCodeValidator.ValidateAsync(
-            new LarsCodeModel { LarsCode = larsCode },
-            cancellationToken);
-
-        if (!validationResult.IsValid)
+        var courseDetails = await GetCourseDetailsAsync(larsCode, cancellationToken);
+        if (courseDetails is null)
         {
             return NotFound();
         }
 
-        var courseDetails = await larsCodeService.GetCourseDetailsAsync(larsCode, cancellationToken);
-
-        if (!courseDetails!.IsCourseRestricted)
+        if (!courseDetails.IsCourseRestricted)
         {
             return RedirectToRoute(RouteNames.UnrestrictedCourseDetails, new { larsCode });
         }
@@ -54,14 +47,28 @@ public class RestrictedCourseDetailsController(
 
         foreach (var provider in model.AllowedProviders)
         {
-            provider.ChangeUrl = Url.RouteUrl(
-                RouteNames.AddLastDateStarts,
-                new { larsCode, ukprn = provider.Ukprn })!;
+            provider.ChangeUrl = provider.HasLastDateStarts
+                ? Url.RouteUrl(RouteNames.ChangeCourseRestriction, new { larsCode, ukprn = provider.Ukprn })!
+                : Url.RouteUrl(RouteNames.SetLastDateStarts, new { larsCode, ukprn = provider.Ukprn })!;
         }
 
         model.SuccessBannerMessage = TempData?[SuccessBannerTempDataKey] as string;
 
         return View(ViewPath, model);
+    }
+
+    private async Task<GetRestrictedCourseDetailsResponse?> GetCourseDetailsAsync(
+        string larsCode,
+        CancellationToken cancellationToken)
+    {
+        var response = await outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
+        if (response.IsNotFound())
+        {
+            return null;
+        }
+
+        await response.EnsureSuccessStatusCodeAsync();
+        return response.Content;
     }
 
     private void ApplyPagination(

@@ -2,5 +2,5 @@
 
 public static class DateTimeExtensions
 {
-    public static string ToScreenString(this DateTime date) => date.ToString("dd MMM yyyy");
+    public static string ToDisplayString(this DateTime date) => date.ToString("dd MMM yyyy");
 }

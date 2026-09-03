@@ -1,13 +1,14 @@
+using System.Net;
 using AutoFixture.NUnit4;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Refit;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Models.Shared;
-using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -22,7 +23,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
 
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndMoreThanTenProviders_ThenReturnsFirstPageOfTen(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] RestrictedCourseDetailsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -30,9 +31,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
         response.IsCourseRestricted = true;
         response.Providers = CreateProviders(15);
 
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
@@ -49,7 +48,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
 
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndPageNumberIsTwo_ThenReturnsSecondPage(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] RestrictedCourseDetailsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -57,9 +56,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
         response.IsCourseRestricted = true;
         response.Providers = CreateProviders(15);
 
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
@@ -78,7 +75,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
 
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndTenOrFewerProviders_ThenDoesNotShowPagination(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] RestrictedCourseDetailsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -86,9 +83,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
         response.IsCourseRestricted = true;
         response.Providers = CreateProviders(10);
 
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
@@ -103,7 +98,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
 
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndPageNumberIsLessThanOne_ThenReturnsFirstPage(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] RestrictedCourseDetailsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -111,9 +106,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
         response.IsCourseRestricted = true;
         response.Providers = CreateProviders(15);
 
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
@@ -132,7 +125,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
 
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndPageNumberExceedsTotalPages_ThenReturnsLastPage(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] RestrictedCourseDetailsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -140,9 +133,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
         response.IsCourseRestricted = true;
         response.Providers = CreateProviders(15);
 
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
@@ -158,6 +149,16 @@ public class RestrictedCourseDetailsControllerPaginationTests
         model.Pagination.PageNumber.Should().Be(2);
         model.Pagination.Pages.Should().Contain(p => p.Title == PaginationViewModel.PreviousPageTitle);
         model.Pagination.Pages.Should().NotContain(p => p.Title == PaginationViewModel.NextPageTitle);
+    }
+
+    private static void SetupCourseResponse(
+        Mock<IOuterApiClient> outerApiClientMock,
+        GetRestrictedCourseDetailsResponse response)
+    {
+        outerApiClientMock
+            .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
+                new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
     }
 
     private static List<ProviderCourseModel> CreateProviders(int count)
