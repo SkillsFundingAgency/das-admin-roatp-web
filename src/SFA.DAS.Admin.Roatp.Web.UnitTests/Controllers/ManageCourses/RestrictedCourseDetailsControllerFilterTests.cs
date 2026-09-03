@@ -1,13 +1,14 @@
+using System.Net;
 using AutoFixture.NUnit4;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Refit;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
-using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 using static SFA.DAS.Admin.Roatp.Web.Services.FilterService;
@@ -21,7 +22,7 @@ public class RestrictedCourseDetailsControllerFilterTests
     private const string RestrictedCourseDetailsUrl = $"/restricted-courses/{LarsCode}";
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndProviderNameFilterMatches_ThenReturnsMatchingProviders(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] RestrictedCourseDetailsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -33,9 +34,7 @@ public class RestrictedCourseDetailsControllerFilterTests
             new ProviderCourseModel { Ukprn = 10000001, ProviderName = "BEACON APPRENTICESHIP SERVICES", LastDateStarts = null }
         ];
 
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
@@ -55,7 +54,7 @@ public class RestrictedCourseDetailsControllerFilterTests
 
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndDeliveryStatusFilterMatches_ThenReturnsMatchingProviders(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] RestrictedCourseDetailsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -68,9 +67,7 @@ public class RestrictedCourseDetailsControllerFilterTests
             new ProviderCourseModel { Ukprn = 3, ProviderName = "Closed Provider", LastDateStarts = DateTime.UtcNow.Date.AddDays(-1) }
         ];
 
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
@@ -91,7 +88,7 @@ public class RestrictedCourseDetailsControllerFilterTests
 
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndFiltersHaveNoMatches_ThenShowsNoFilterResults(
-        [Frozen] Mock<ILarsCodeService> larsCodeServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] RestrictedCourseDetailsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -102,9 +99,7 @@ public class RestrictedCourseDetailsControllerFilterTests
             new ProviderCourseModel { Ukprn = 10019900, ProviderName = "BABINGTON LTD", LastDateStarts = null }
         ];
 
-        larsCodeServiceMock
-            .Setup(s => s.GetCourseDetailsAsync(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
@@ -118,5 +113,15 @@ public class RestrictedCourseDetailsControllerFilterTests
         model.HasNoProviders.Should().BeFalse();
         model.HasActiveFilters.Should().BeTrue();
         model.AllowedProviders.Should().BeEmpty();
+    }
+
+    private static void SetupCourseResponse(
+        Mock<IOuterApiClient> outerApiClientMock,
+        GetRestrictedCourseDetailsResponse response)
+    {
+        outerApiClientMock
+            .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
+                new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
     }
 }

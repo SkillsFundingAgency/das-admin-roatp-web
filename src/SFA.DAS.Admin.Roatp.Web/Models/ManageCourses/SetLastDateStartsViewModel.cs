@@ -2,7 +2,7 @@ using SFA.DAS.Admin.Roatp.Web.Extensions;
 
 namespace SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 
-public class AddLastDateStartsViewModel : IBackLink
+public class SetLastDateStartsViewModel : IBackLink
 {
     public string LarsCode { get; set; } = null!;
     public int Ukprn { get; set; }
@@ -12,8 +12,10 @@ public class AddLastDateStartsViewModel : IBackLink
     public string? Month { get; set; }
     public string? Year { get; set; }
     public DateTime? CourseLastDateStarts { get; set; }
+    public bool IsChangingExistingDate { get; set; }
+    public bool IsAddingLastDateStarts => !IsChangingExistingDate;
     public string CancelUrl { get; set; } = "#";
 
     public string CourseLastDateStartsText =>
-        CourseLastDateStarts.HasValue ? CourseLastDateStarts.Value.ToScreenString() : string.Empty;
+        CourseLastDateStarts.HasValue ? CourseLastDateStarts.Value.ToDisplayString() : string.Empty;
 }

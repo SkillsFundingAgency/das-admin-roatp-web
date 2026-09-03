@@ -1,19 +1,18 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
-using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Models.Session;
 using SFA.DAS.Admin.Roatp.Web.Services;
-using SFA.DAS.Admin.Roatp.Web.Validators.Common;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
 [Route("unrestricted-courses/{larsCode}", Name = RouteNames.UnrestrictedCourseDetails)]
 public class UnrestrictedCourseDetailsController(
-    LarsCodeValidator larsCodeValidator,
-    ILarsCodeService larsCodeService,
+    IOuterApiClient outerApiClient,
     ISessionService sessionService) : Controller
 {
     public const string ViewPath = "~/Views/ManageCourses/UnrestrictedCourseDetails/Index.cshtml";
@@ -23,18 +22,13 @@ public class UnrestrictedCourseDetailsController(
     {
         sessionService.Delete(SessionKeys.AddRestrictedCourse);
 
-        var validationResult = await larsCodeValidator.ValidateAsync(
-            new LarsCodeModel { LarsCode = larsCode },
-            cancellationToken);
-
-        if (!validationResult.IsValid)
+        var courseDetails = await GetCourseDetailsAsync(larsCode, cancellationToken);
+        if (courseDetails is null)
         {
             return NotFound();
         }
 
-        var courseDetails = await larsCodeService.GetCourseDetailsAsync(larsCode, cancellationToken);
-
-        if (courseDetails!.IsCourseRestricted)
+        if (courseDetails.IsCourseRestricted)
         {
             return RedirectToRoute(RouteNames.RestrictedCourseDetails, new { larsCode });
         }
@@ -54,5 +48,19 @@ public class UnrestrictedCourseDetailsController(
         });
 
         return RedirectToRoute(RouteNames.RestrictCourseConfirm, new { larsCode });
+    }
+
+    private async Task<GetRestrictedCourseDetailsResponse?> GetCourseDetailsAsync(
+        string larsCode,
+        CancellationToken cancellationToken)
+    {
+        var response = await outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
+        if (response.IsNotFound())
+        {
+            return null;
+        }
+
+        await response.EnsureSuccessStatusCodeAsync();
+        return response.Content;
     }
 }

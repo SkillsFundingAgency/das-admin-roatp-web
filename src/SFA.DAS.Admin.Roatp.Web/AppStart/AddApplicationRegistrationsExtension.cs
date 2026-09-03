@@ -24,10 +24,11 @@ public static class AddApplicationRegistrationsExtension
         services.AddTransient<IOrganisationPatchService, OrganisationPatchService>();
         services.AddTransient<IOrganisationTypesService, OrganisationTypesService>();
         services.AddTransient<IPostOrganisationService, PostOrganisationService>();
-        services.AddScoped<ILarsCodeService, LarsCodeService>();
+        services.AddScoped<IScopedCacheService, ScopedCacheService>();
         services.AddScoped<IUkprnService, UkprnService>();
 
         services.AddOuterApi(outerApiConfig!);
+
 
         return services;
     }
