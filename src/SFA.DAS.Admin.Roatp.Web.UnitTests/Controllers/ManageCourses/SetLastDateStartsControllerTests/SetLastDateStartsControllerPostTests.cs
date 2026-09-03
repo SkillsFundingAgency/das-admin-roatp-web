@@ -131,10 +131,12 @@ public class SetLastDateStartsControllerPostTests
         }
 
         outerApiClientMock.Verify(
-            c => c.UpsertProviderAllowedCourse(
+            c => c.PatchProviderAllowedCourse(
                 It.IsAny<int>(),
                 It.IsAny<string>(),
-                It.IsAny<UpsertProviderAllowedCourseRequest>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<PatchProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -162,7 +164,7 @@ public class SetLastDateStartsControllerPostTests
         ];
 
         SetupCourse(outerApiClientMock, response);
-        SetupSuccessfulUpsert(outerApiClientMock);
+        SetupSuccessfulPatch(outerApiClientMock);
 
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
@@ -199,13 +201,13 @@ public class SetLastDateStartsControllerPostTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
-        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
+        outerApiClientMock.Verify(c => c.PatchProviderAllowedCourse(
             Ukprn,
             LarsCode,
-            It.Is<UpsertProviderAllowedCourseRequest>(r =>
-                r.LastDateStarts == new DateTime(2027, 3, 15, 0, 0, 0, DateTimeKind.Unspecified)
-                && r.UserId == "test.user@education.gov.uk"
-                && r.UserDisplayName == "Test User"),
+            "test.user@education.gov.uk",
+            "Test User",
+            It.Is<PatchProviderAllowedCourseRequest>(r =>
+                r.LastDateStarts == new DateTime(2027, 3, 15, 0, 0, 0, DateTimeKind.Unspecified)),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -230,7 +232,7 @@ public class SetLastDateStartsControllerPostTests
         ];
 
         SetupCourse(outerApiClientMock, response);
-        SetupSuccessfulUpsert(outerApiClientMock);
+        SetupSuccessfulPatch(outerApiClientMock);
 
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
@@ -255,13 +257,13 @@ public class SetLastDateStartsControllerPostTests
                 .Should().Be("BP TRAINING last start date has been updated");
         }
 
-        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
+        outerApiClientMock.Verify(c => c.PatchProviderAllowedCourse(
             Ukprn,
             LarsCode,
-            It.Is<UpsertProviderAllowedCourseRequest>(r =>
-                r.LastDateStarts == new DateTime(2026, 7, 12, 0, 0, 0, DateTimeKind.Unspecified)
-                && r.UserId == "test.user@education.gov.uk"
-                && r.UserDisplayName == "Test User"),
+            "test.user@education.gov.uk",
+            "Test User",
+            It.Is<PatchProviderAllowedCourseRequest>(r =>
+                r.LastDateStarts == new DateTime(2026, 7, 12, 0, 0, 0, DateTimeKind.Unspecified)),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -289,7 +291,7 @@ public class SetLastDateStartsControllerPostTests
         };
 
         SetupCourse(outerApiClientMock, response);
-        SetupUpsertResponse(outerApiClientMock, HttpStatusCode.NotFound);
+        SetupPatchResponse(outerApiClientMock, HttpStatusCode.NotFound);
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -335,7 +337,7 @@ public class SetLastDateStartsControllerPostTests
         };
 
         SetupCourse(outerApiClientMock, response);
-        SetupUpsertResponse(outerApiClientMock, statusCode);
+        SetupPatchResponse(outerApiClientMock, statusCode);
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -387,10 +389,10 @@ public class SetLastDateStartsControllerPostTests
                 new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
     }
 
-    private static void SetupSuccessfulUpsert(Mock<IOuterApiClient> outerApiClientMock)
-        => SetupUpsertResponse(outerApiClientMock, HttpStatusCode.OK);
+    private static void SetupSuccessfulPatch(Mock<IOuterApiClient> outerApiClientMock)
+        => SetupPatchResponse(outerApiClientMock, HttpStatusCode.OK);
 
-    private static void SetupUpsertResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
+    private static void SetupPatchResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
     {
         var httpResponse = new HttpResponseMessage(statusCode);
         ApiException? apiException = null;
@@ -398,16 +400,18 @@ public class SetLastDateStartsControllerPostTests
         {
             apiException = ApiException.Create(
                 new HttpRequestMessage(),
-                HttpMethod.Post,
+                HttpMethod.Patch,
                 httpResponse,
                 new RefitSettings()).GetAwaiter().GetResult();
         }
 
         outerApiClientMock
-            .Setup(c => c.UpsertProviderAllowedCourse(
+            .Setup(c => c.PatchProviderAllowedCourse(
                 It.IsAny<int>(),
                 It.IsAny<string>(),
-                It.IsAny<UpsertProviderAllowedCourseRequest>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<PatchProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<object>(httpResponse, null, new RefitSettings(), apiException));
     }

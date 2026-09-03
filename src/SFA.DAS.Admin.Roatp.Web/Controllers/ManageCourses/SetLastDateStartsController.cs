@@ -52,10 +52,12 @@ public class SetLastDateStartsController(
 
         submitModel.TryGetEnteredDate(out var lastDateStarts);
 
-        var response = await outerApiClient.UpsertProviderAllowedCourse(
+        var response = await outerApiClient.PatchProviderAllowedCourse(
             ukprn,
             larsCode,
-            CreateUpsertRequest(lastDateStarts),
+            User.UserId(),
+            User.UserDisplayName(),
+            new PatchProviderAllowedCourseRequest { LastDateStarts = lastDateStarts },
             cancellationToken);
 
         if (response.IsNotFound())
@@ -91,10 +93,10 @@ public class SetLastDateStartsController(
 
         if (submitModel is null && provider.LastDateStarts.HasValue)
         {
-            var lastDateStarts = provider.LastDateStarts.Value;
-            day = lastDateStarts.Day.ToString("00");
-            month = lastDateStarts.Month.ToString("00");
-            year = lastDateStarts.Year.ToString();
+            var existingLastDateStarts = provider.LastDateStarts.Value;
+            day = existingLastDateStarts.Day.ToString("00");
+            month = existingLastDateStarts.Month.ToString("00");
+            year = existingLastDateStarts.Year.ToString();
         }
 
         return new SetLastDateStartsViewModel
@@ -125,12 +127,4 @@ public class SetLastDateStartsController(
         await response.EnsureSuccessStatusCodeAsync();
         return response.Content;
     }
-
-    private UpsertProviderAllowedCourseRequest CreateUpsertRequest(DateTime? lastDateStarts)
-        => new()
-        {
-            UserId = User.UserId(),
-            UserDisplayName = User.UserDisplayName(),
-            LastDateStarts = lastDateStarts
-        };
 }
