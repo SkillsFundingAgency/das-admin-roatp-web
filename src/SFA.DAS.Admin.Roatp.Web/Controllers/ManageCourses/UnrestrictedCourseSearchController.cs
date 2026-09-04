@@ -40,7 +40,7 @@ public class UnrestrictedCourseSearchController(
         }
 
         var course = courses.FirstOrDefault(c => c.LarsCode == submitModel.SelectedLarsCode);
-        return RedirectToRoute(RouteNames.UnrestrictedCourseDetails, new { larsCode = course.LarsCode });
+        return RedirectToRoute(RouteNames.UnrestrictedCourseDetails, new { larsCode = course?.LarsCode });
     }
 
     private async Task<List<RestrictedCourseModel>> GetUnrestrictedCoursesAsync(CancellationToken cancellationToken)
