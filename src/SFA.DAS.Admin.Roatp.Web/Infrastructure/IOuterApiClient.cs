@@ -58,4 +58,10 @@ public interface IOuterApiClient
     Task AddRestrictedCourse(
         [Body] AddRestrictedCourseRequest request,
         CancellationToken cancellationToken);
+
+    [Get("/courses/{larsCode}/providers/not-allowed")]
+    Task<ApiResponse<GetRestrictedCourseDetailsResponse>> GetProvidersRestrictedForCourse(
+        string larsCode,
+        CancellationToken cancellationToken);
+
 }

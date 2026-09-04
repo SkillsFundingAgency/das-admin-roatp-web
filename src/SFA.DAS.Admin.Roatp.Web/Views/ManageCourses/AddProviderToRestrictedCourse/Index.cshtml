@@ -1,0 +1,40 @@
+@using SFA.DAS.Admin.Roatp.Web.Infrastructure
+@model SFA.DAS.Admin.Roatp.Web.Models.ManageCourses.AddProviderToRestrictedCourseViewModel
+@{
+    ViewData["Title"] = $"Add a new training provider to {Model.DisplayTitle}";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <partial name="_ValidationSummary" />
+    </div>
+    <div class="govuk-grid-column-full">
+        <span class="govuk-caption-xl">Add a training provider</span>
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">
+            Add a new training provider to @Model.DisplayTitle
+        </h1>
+    </div>
+    <div class="govuk-grid-column-two-thirds">
+        <form asp-route="@RouteNames.AddProviderToRestrictedCourse" asp-route-larsCode="@Model.LarsCode" method="POST" novalidate>
+            <div esfa-validation-marker-for="SelectedUkprn" class="govuk-form-group">
+                <p class="govuk-body">Only providers you select can deliver this course.</p>
+                <label class="govuk-visually-hidden" asp-for="SelectedUkprn">
+                    Start typing the provider’s legal name or UKPRN
+                </label>
+                <div class="govuk-hint">
+                    Start typing the provider’s legal name or UKPRN.
+                </div>
+                <span asp-validation-for="SelectedUkprn" class="govuk-error-message"></span>
+                <select asp-for="SelectedUkprn"
+                        asp-items="@Model.Providers"
+                        class="govuk-select app-autocomplete">
+                    <option value="" disabled selected></option>
+                </select>
+            </div>
+
+            <div class="govuk-button-group">
+                <button type="submit" id="continue" class="govuk-button" data-disable-on-submit="true">Continue</button>
+            </div>
+        </form>
+    </div>
+</div>

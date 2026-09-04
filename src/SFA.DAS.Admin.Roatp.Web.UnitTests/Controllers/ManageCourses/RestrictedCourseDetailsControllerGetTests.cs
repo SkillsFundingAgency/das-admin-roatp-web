@@ -21,7 +21,11 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses;
 public class RestrictedCourseDetailsControllerGetTests
 {
     private const string LarsCode = "105";
+    private const string RestrictedCoursesUrl = "/restricted-courses";
     private const string RestrictedCourseDetailsUrl = $"/restricted-courses/{LarsCode}";
+    private const string SetLastDateStartsUrl = "/set-last-date-starts";
+    private const string ChangeCourseRestrictionUrl = "/change-restriction";
+    private const string AddProviderToRestrictedCourseUrl = "/add-provider";
 
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndLarsCodeIsValid_ThenReturnsViewWithMappedModel(
@@ -32,8 +36,14 @@ public class RestrictedCourseDetailsControllerGetTests
         SetupRestrictedCourseWithProviders(response, outerApiClientMock);
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourses, RestrictedCoursesUrl)
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
+            .AddUrlForRoute(RouteNames.SetLastDateStarts, SetLastDateStartsUrl)
+            .AddUrlForRoute(RouteNames.ChangeCourseRestriction, ChangeCourseRestrictionUrl)
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
@@ -45,32 +55,18 @@ public class RestrictedCourseDetailsControllerGetTests
             model.LarsCode.Should().Be(LarsCode);
             model.Level.Should().Be(7);
             model.StatusText.Should().Be("Restricted");
+            model.HasProviders.Should().BeTrue();
+            model.ProviderCount.Should().Be(2);
+            model.ProviderCountDescription.Should().Be("2 providers");
             model.HasActiveFilters.Should().BeFalse();
             model.Filters.ShowFilterOptions.Should().BeFalse();
             model.Filters.FilterSections.Should().HaveCount(2);
-        }
-
-        outerApiClientMock.Verify(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Test, MoqAutoData]
-    public async Task WhenGettingRestrictedCourseDetails_AndProvidersExist_ThenMapsAllowedProvidersSortedByName(
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] RestrictedCourseDetailsController sut,
-        GetRestrictedCourseDetailsResponse response)
-    {
-        SetupRestrictedCourseWithProviders(response, outerApiClientMock);
-        SetupUrlHelper(sut);
-
-        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
-        var model = result!.Model as RestrictedCourseDetailsViewModel;
-
-        using (new AssertionScope())
-        {
-            model!.HasProviders.Should().BeTrue();
-            model.ProviderCount.Should().Be(2);
-            model.ProviderCountDescription.Should().Be("2 providers");
+            model.AddProviderUrl.Should().Be(AddProviderToRestrictedCourseUrl);
             model.AllowedProviders.Select(p => p.ProviderName).Should().ContainInOrder("ACORN SKILLS TRAINING", "BABINGTON LTD");
+            model.AllowedProviders.First().DeliveryStatus.Should().Be(DeliveryStatus.OpenToNewStarts);
+            model.AllowedProviders.Last().DeliveryStatus.Should().Be(DeliveryStatus.LastStartDateAdded);
+            model.AllowedProviders.First().ChangeUrl.Should().Be(SetLastDateStartsUrl);
+            model.AllowedProviders.Last().ChangeUrl.Should().Be(ChangeCourseRestrictionUrl);
         }
     }
 
@@ -127,8 +123,9 @@ public class RestrictedCourseDetailsControllerGetTests
         SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+            .AddUrlForRoute(RouteNames.RestrictedCourses, RestrictedCoursesUrl)
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
         var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
@@ -155,8 +152,9 @@ public class RestrictedCourseDetailsControllerGetTests
         SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+            .AddUrlForRoute(RouteNames.RestrictedCourses, RestrictedCoursesUrl)
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
         SetupTempData(sut);
         sut.TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey] = successMessage;
@@ -180,8 +178,9 @@ public class RestrictedCourseDetailsControllerGetTests
         SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+            .AddUrlForRoute(RouteNames.RestrictedCourses, RestrictedCoursesUrl)
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
         SetupTempData(sut);
         sut.TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey] =
@@ -301,10 +300,10 @@ public class RestrictedCourseDetailsControllerGetTests
     {
         SetupTempData(sut);
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourses, "/restricted-courses")
+            .AddUrlForRoute(RouteNames.RestrictedCourses, RestrictedCoursesUrl)
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
-            .AddUrlForRoute(RouteNames.SetLastDateStarts, "/set-last-date-starts")
-            .AddUrlForRoute(RouteNames.ChangeCourseRestriction, "/change-restriction");
+            .AddUrlForRoute(RouteNames.SetLastDateStarts, SetLastDateStartsUrl)
+            .AddUrlForRoute(RouteNames.ChangeCourseRestriction, ChangeCourseRestrictionUrl);
     }
 
     private static void SetupTempData(RestrictedCourseDetailsController sut)
