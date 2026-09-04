@@ -94,10 +94,12 @@ public class ChangeCourseRestrictionControllerPostTests
             result.RouteValues["ukprn"].Should().Be(Ukprn);
         }
         outerApiClientMock.Verify(
-            c => c.UpsertProviderAllowedCourse(
+            c => c.PatchProviderAllowedCourse(
                 It.IsAny<int>(),
                 It.IsAny<string>(),
-                It.IsAny<UpsertProviderAllowedCourseRequest>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<PatchProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -110,7 +112,7 @@ public class ChangeCourseRestrictionControllerPostTests
         GetRestrictedCourseDetailsResponse response)
     {
         SetupCourseWithLastDateStarts(outerApiClientMock, response);
-        SetupSuccessfulUpsert(outerApiClientMock);
+        SetupSuccessfulPatch(outerApiClientMock);
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<ChangeCourseRestrictionSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -135,13 +137,12 @@ public class ChangeCourseRestrictionControllerPostTests
                 .Should().Be("BP TRAINING last start date has been removed");
         }
 
-        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
+        outerApiClientMock.Verify(c => c.PatchProviderAllowedCourse(
             Ukprn,
             LarsCode,
-            It.Is<UpsertProviderAllowedCourseRequest>(r =>
-                r.LastDateStarts == null
-                && r.UserId == "test.user@education.gov.uk"
-                && r.UserDisplayName == "Test User"),
+            "test.user@education.gov.uk",
+            "Test User",
+            It.Is<PatchProviderAllowedCourseRequest>(r => r.LastDateStarts == null),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -160,7 +161,7 @@ public class ChangeCourseRestrictionControllerPostTests
         };
 
         SetupCourseWithLastDateStarts(outerApiClientMock, response);
-        SetupUpsertResponse(outerApiClientMock, HttpStatusCode.NotFound);
+        SetupPatchResponse(outerApiClientMock, HttpStatusCode.NotFound);
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<ChangeCourseRestrictionSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -197,7 +198,7 @@ public class ChangeCourseRestrictionControllerPostTests
         };
 
         SetupCourseWithLastDateStarts(outerApiClientMock, response);
-        SetupUpsertResponse(outerApiClientMock, statusCode);
+        SetupPatchResponse(outerApiClientMock, statusCode);
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<ChangeCourseRestrictionSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -280,10 +281,10 @@ public class ChangeCourseRestrictionControllerPostTests
                 new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
     }
 
-    private static void SetupSuccessfulUpsert(Mock<IOuterApiClient> outerApiClientMock)
-        => SetupUpsertResponse(outerApiClientMock, HttpStatusCode.OK);
+    private static void SetupSuccessfulPatch(Mock<IOuterApiClient> outerApiClientMock)
+        => SetupPatchResponse(outerApiClientMock, HttpStatusCode.OK);
 
-    private static void SetupUpsertResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
+    private static void SetupPatchResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
     {
         var httpResponse = new HttpResponseMessage(statusCode);
         ApiException? apiException = null;
@@ -291,16 +292,18 @@ public class ChangeCourseRestrictionControllerPostTests
         {
             apiException = ApiException.Create(
                 new HttpRequestMessage(),
-                HttpMethod.Post,
+                HttpMethod.Patch,
                 httpResponse,
                 new RefitSettings()).GetAwaiter().GetResult();
         }
 
         outerApiClientMock
-            .Setup(c => c.UpsertProviderAllowedCourse(
+            .Setup(c => c.PatchProviderAllowedCourse(
                 It.IsAny<int>(),
                 It.IsAny<string>(),
-                It.IsAny<UpsertProviderAllowedCourseRequest>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<PatchProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<object>(httpResponse, null, new RefitSettings(), apiException));
     }

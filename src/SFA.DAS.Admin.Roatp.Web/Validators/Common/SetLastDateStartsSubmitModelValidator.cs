@@ -2,7 +2,7 @@ using FluentValidation;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 
-namespace SFA.DAS.Admin.Roatp.Web.Validators;
+namespace SFA.DAS.Admin.Roatp.Web.Validators.Common;
 
 public class SetLastDateStartsSubmitModelValidator : AbstractValidator<SetLastDateStartsSubmitModel>
 {
