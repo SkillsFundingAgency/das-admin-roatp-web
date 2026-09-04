@@ -60,7 +60,7 @@ public interface IOuterApiClient
         CancellationToken cancellationToken);
 
     [Get("/courses/{larsCode}/providers/not-allowed")]
-    Task<ApiResponse<GetRestrictedCourseDetailsResponse>> GetNotAllowedProvidersForCourse(
+    Task<ApiResponse<GetRestrictedCourseDetailsResponse>> GetProvidersRestrictedForCourse(
         string larsCode,
         CancellationToken cancellationToken);
 

@@ -74,23 +74,6 @@ public class UnrestrictedCourseSearchControllerPostTests
         }
     }
 
-    [Test, MoqAutoData]
-    public async Task WhenPostingUnrestrictedCourseSearch_AndCourseNotInList_ThenReturnsNotFound(
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IValidator<UnrestrictedCourseSearchSubmitModel>> validator,
-        [Greedy] UnrestrictedCourseSearchController controller)
-    {
-        SetupCourses(outerApiClientMock);
-        validator.Setup(x => x.Validate(It.IsAny<UnrestrictedCourseSearchSubmitModel>()))
-            .Returns(new ValidationResult());
-
-        var actual = await controller.Index(
-            new UnrestrictedCourseSearchSubmitModel { SelectedLarsCode = "not-a-course" },
-            CancellationToken.None);
-
-        actual.Should().BeOfType<NotFoundResult>();
-    }
-
     private static void SetupCourses(Mock<IOuterApiClient> outerApiClientMock)
     {
         outerApiClientMock

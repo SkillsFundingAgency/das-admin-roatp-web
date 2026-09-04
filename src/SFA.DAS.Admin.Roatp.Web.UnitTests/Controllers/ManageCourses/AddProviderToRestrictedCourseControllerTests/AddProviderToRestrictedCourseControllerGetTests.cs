@@ -53,7 +53,7 @@ public class AddProviderToRestrictedCourseControllerGetTests
         [Greedy] AddProviderToRestrictedCourseController sut)
     {
         outerApiClientMock
-            .Setup(c => c.GetNotAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .Setup(c => c.GetProvidersRestrictedForCourse(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
                 new HttpResponseMessage(HttpStatusCode.NotFound), null, new RefitSettings(), null));
 
@@ -71,7 +71,7 @@ public class AddProviderToRestrictedCourseControllerGetTests
         response.LarsCode = LarsCode;
         response.IsCourseRestricted = false;
         outerApiClientMock
-            .Setup(c => c.GetNotAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .Setup(c => c.GetProvidersRestrictedForCourse(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
                 new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
 
@@ -95,7 +95,7 @@ public class AddProviderToRestrictedCourseControllerGetTests
         ];
 
         outerApiClientMock
-            .Setup(c => c.GetNotAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .Setup(c => c.GetProvidersRestrictedForCourse(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
                 new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
     }

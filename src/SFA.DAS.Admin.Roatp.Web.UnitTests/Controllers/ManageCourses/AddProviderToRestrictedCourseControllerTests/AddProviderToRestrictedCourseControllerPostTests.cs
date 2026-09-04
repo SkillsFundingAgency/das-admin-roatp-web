@@ -132,7 +132,7 @@ public class AddProviderToRestrictedCourseControllerPostTests
         response.LarsCode = LarsCode;
         response.IsCourseRestricted = false;
         outerApiClientMock
-            .Setup(c => c.GetNotAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .Setup(c => c.GetProvidersRestrictedForCourse(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
                 new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
 
@@ -161,7 +161,7 @@ public class AddProviderToRestrictedCourseControllerPostTests
         ];
 
         outerApiClientMock
-            .Setup(c => c.GetNotAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .Setup(c => c.GetProvidersRestrictedForCourse(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
                 new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
     }

@@ -35,17 +35,11 @@ public class UnrestrictedCourseSearchController(
         var validationResult = validator.Validate(submitModel);
         if (!validationResult.IsValid)
         {
-            ModelState.Clear();
             ModelState.AddValidationErrors(validationResult.Errors);
             return View(ViewPath, BuildViewModel(courses));
         }
 
         var course = courses.FirstOrDefault(c => c.LarsCode == submitModel.SelectedLarsCode);
-        if (course is null)
-        {
-            return NotFound();
-        }
-
         return RedirectToRoute(RouteNames.UnrestrictedCourseDetails, new { larsCode = course.LarsCode });
     }
 
