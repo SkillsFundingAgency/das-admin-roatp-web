@@ -93,7 +93,7 @@ public class AddProviderToRestrictedCourseControllerPostTests
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result!.RouteName.Should().Be(RouteNames.AddProviderToRestrictedCourse);
+            result!.RouteName.Should().Be(RouteNames.ConfirmAddProviderToRestrictedCourse);
             result.RouteValues!["larsCode"].Should().Be(LarsCode);
         }
     }

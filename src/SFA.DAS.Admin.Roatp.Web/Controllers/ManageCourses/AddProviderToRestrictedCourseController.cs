@@ -13,7 +13,7 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
-[Route("restricted-courses/{larsCode}/providers")]
+[Route("restricted-courses/{larsCode}/providers/add", Name = RouteNames.AddProviderToRestrictedCourse)]
 public class AddProviderToRestrictedCourseController(
     IOuterApiClient outerApiClient,
     ISessionService sessionService,
@@ -21,7 +21,7 @@ public class AddProviderToRestrictedCourseController(
 {
     public const string ViewPath = "~/Views/ManageCourses/AddProviderToRestrictedCourse/Index.cshtml";
 
-    [HttpGet("add", Name = RouteNames.AddProviderToRestrictedCourse)]
+    [HttpGet]
     public async Task<IActionResult> Index([FromRoute] string larsCode, CancellationToken cancellationToken)
     {
         sessionService.Delete(SessionKeys.AddProviderToRestrictedCourse);
@@ -35,7 +35,7 @@ public class AddProviderToRestrictedCourseController(
         return View(ViewPath, BuildViewModel(larsCode, courseDetails));
     }
 
-    [HttpPost("add")]
+    [HttpPost]
     public async Task<IActionResult> Index(
         [FromRoute] string larsCode,
         AddProviderToRestrictedCourseSubmitModel submitModel,
@@ -69,7 +69,7 @@ public class AddProviderToRestrictedCourseController(
             LegalName = provider.ProviderName
         });
 
-        return RedirectToRoute(RouteNames.AddProviderToRestrictedCourse, new { larsCode });
+        return RedirectToRoute(RouteNames.ConfirmAddProviderToRestrictedCourse, new { larsCode });
     }
 
     private async Task<GetRestrictedCourseDetailsResponse?> GetRestrictedCourseAsync(
