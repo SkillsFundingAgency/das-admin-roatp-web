@@ -2,6 +2,7 @@ using System.Net;
 using System.Security.Claims;
 using AutoFixture.NUnit4;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -27,13 +28,8 @@ public class ConfirmAddProviderToRestrictedCourseControllerTests
 
     private const string RestrictedCourseDetailsUrl = $"/restricted-courses/{LarsCode}";
 
-    [Test, MoqAutoData]
-    public void WhenGettingConfirm_AndSessionExists_ThenReturnsViewWithProviderDetails(
-        [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] ConfirmAddProviderToRestrictedCourseController sut)
-    {
-        var session = new AddProviderToRestrictedCourseSessionModel
+    private static AddProviderToRestrictedCourseSessionModel CreateSessionModel() =>
+        new()
         {
             LarsCode = LarsCode,
             CourseDisplayTitle = "Academic professional (Level 7)",
@@ -41,60 +37,17 @@ public class ConfirmAddProviderToRestrictedCourseControllerTests
             LegalName = LegalName
         };
 
-        sessionServiceMock
-            .Setup(s => s.Get<AddProviderToRestrictedCourseSessionModel>(SessionKeys.AddProviderToRestrictedCourse))
-            .Returns(session);
-
-        sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
-
-        var result = sut.Index(LarsCode) as ViewResult;
-
-        result.Should().NotBeNull();
-        result!.ViewName.Should().Be(ConfirmAddProviderToRestrictedCourseController.ViewPath);
-
-        var model = result.Model as ConfirmAddProviderToRestrictedCourseViewModel;
-        model.Should().NotBeNull();
-        model!.LarsCode.Should().Be(LarsCode);
-        model.ProviderName.Should().Be(LegalName.ToUpperInvariant());
-        model.Ukprn.Should().Be(Ukprn);
-        model.CancelUrl.Should().Be(RestrictedCourseDetailsUrl);
-    }
-
-    [Test, MoqAutoData]
-    public void WhenGettingConfirm_AndSessionMissing_ThenRedirectsToRestrictedCourseDetails(
-        [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Greedy] ConfirmAddProviderToRestrictedCourseController sut)
+    private static void SetupSession(
+        Mock<ISessionService> sessionServiceMock,
+        AddProviderToRestrictedCourseSessionModel? session)
     {
         sessionServiceMock
             .Setup(s => s.Get<AddProviderToRestrictedCourseSessionModel>(SessionKeys.AddProviderToRestrictedCourse))
-            .Returns((AddProviderToRestrictedCourseSessionModel?)null);
-
-        var result = sut.Index(LarsCode) as RedirectToRouteResult;
-
-        result.Should().NotBeNull();
-        result!.RouteName.Should().Be(RouteNames.RestrictedCourseDetails);
-        result.RouteValues!["larsCode"].Should().Be(LarsCode);
+            .Returns(session);
     }
 
-    [Test, MoqAutoData]
-    public async Task WhenPostingConfirm_ThenUpsertsProviderAllowedCourseDeletesSessionSetsBannerAndRedirects(
-        [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] ConfirmAddProviderToRestrictedCourseController sut)
+    private static void SetupAuthenticatedUser(ConfirmAddProviderToRestrictedCourseController sut)
     {
-        var session = new AddProviderToRestrictedCourseSessionModel
-        {
-            LarsCode = LarsCode,
-            CourseDisplayTitle = "Academic professional (Level 7)",
-            Ukprn = Ukprn,
-            LegalName = LegalName
-        };
-
-        sessionServiceMock
-            .Setup(s => s.Get<AddProviderToRestrictedCourseSessionModel>(SessionKeys.AddProviderToRestrictedCourse))
-            .Returns(session);
-
         sut.ControllerContext = new ControllerContext
         {
             HttpContext = new DefaultHttpContext
@@ -107,6 +60,77 @@ public class ConfirmAddProviderToRestrictedCourseControllerTests
                 ], "test"))
             }
         };
+    }
+
+    private static void SetupUpsertProviderAllowedCourseResponse(
+        Mock<IOuterApiClient> outerApiClientMock,
+        HttpStatusCode statusCode)
+    {
+        outerApiClientMock
+            .Setup(c => c.UpsertProviderAllowedCourse(
+                Ukprn,
+                LarsCode,
+                It.IsAny<UpsertProviderAllowedCourseRequest>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<object>(new HttpResponseMessage(statusCode), null, new RefitSettings(), null));
+    }
+
+    [Test, MoqAutoData]
+    public void WhenGettingConfirm_AndSessionExists_ThenReturnsViewWithProviderDetails(
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Greedy] ConfirmAddProviderToRestrictedCourseController sut)
+    {
+        var sessionModel = CreateSessionModel();
+
+        SetupSession(sessionServiceMock, sessionModel);
+
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+
+        var result = sut.Index(LarsCode) as ViewResult;
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.ViewName.Should().Be(ConfirmAddProviderToRestrictedCourseController.ViewPath);
+
+            var model = result.Model as ConfirmAddProviderToRestrictedCourseViewModel;
+            model.Should().NotBeNull();
+            model!.LarsCode.Should().Be(LarsCode);
+            model.ProviderName.Should().Be(LegalName.ToUpperInvariant());
+            model.Ukprn.Should().Be(Ukprn);
+            model.CancelUrl.Should().Be(RestrictedCourseDetailsUrl);
+        }
+    }
+
+    [Test, MoqAutoData]
+    public void WhenGettingConfirm_AndSessionMissing_ThenRedirectsToRestrictedCourseDetails(
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] ConfirmAddProviderToRestrictedCourseController sut)
+    {
+        SetupSession(sessionServiceMock, null);
+
+        var result = sut.Index(LarsCode) as RedirectToRouteResult;
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.RouteName.Should().Be(RouteNames.RestrictedCourseDetails);
+            result.RouteValues!["larsCode"].Should().Be(LarsCode);
+        }
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenPostingConfirm_ThenUpsertsProviderAllowedCourseDeletesSessionSetsBannerAndRedirects(
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Greedy] ConfirmAddProviderToRestrictedCourseController sut)
+    {
+        var sessionModel = CreateSessionModel();
+
+        SetupSession(sessionServiceMock, sessionModel);
+        SetupAuthenticatedUser(sut);
 
         sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
 
@@ -123,21 +147,46 @@ public class ConfirmAddProviderToRestrictedCourseControllerTests
 
         var result = await sut.Index(LarsCode, CancellationToken.None) as RedirectToRouteResult;
 
-        result.Should().NotBeNull();
-        result!.RouteName.Should().Be(RouteNames.RestrictedCourseDetails);
-        result.RouteValues!["larsCode"].Should().Be(LarsCode);
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.RouteName.Should().Be(RouteNames.RestrictedCourseDetails);
+            result.RouteValues!["larsCode"].Should().Be(LarsCode);
 
-        sut.TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey]
-            .Should().Be($"{LegalName.ToUpperInvariant()} is now allowed to deliver this training");
+            sut.TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey]
+                .Should().Be($"{LegalName.ToUpperInvariant()} is now allowed to deliver this training");
 
-        sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProviderToRestrictedCourse), Times.Once);
+            sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProviderToRestrictedCourse), Times.Once);
 
-        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
-                It.IsAny<int>(),
-                It.IsAny<string>(),
-                It.IsAny<UpsertProviderAllowedCourseRequest>(),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
+            outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
+                    It.IsAny<int>(),
+                    It.IsAny<string>(),
+                    It.IsAny<UpsertProviderAllowedCourseRequest>(),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenPostingConfirm_AndCourseIsNotFound_ThenReturnsNotFound(
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Greedy] ConfirmAddProviderToRestrictedCourseController sut)
+    {
+        var sessionModel = CreateSessionModel();
+
+        SetupSession(sessionServiceMock, sessionModel);
+        SetupAuthenticatedUser(sut);
+        SetupUpsertProviderAllowedCourseResponse(outerApiClientMock, HttpStatusCode.NotFound);
+
+        var result = await sut.Index(LarsCode, CancellationToken.None);
+
+        using (new AssertionScope())
+        {
+            result.Should().BeOfType<NotFoundResult>();
+
+            sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProviderToRestrictedCourse), Times.Never);
+        }
     }
 
     [Test, MoqAutoData]
@@ -146,22 +195,23 @@ public class ConfirmAddProviderToRestrictedCourseControllerTests
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] ConfirmAddProviderToRestrictedCourseController sut)
     {
-        sessionServiceMock
-            .Setup(s => s.Get<AddProviderToRestrictedCourseSessionModel>(SessionKeys.AddProviderToRestrictedCourse))
-            .Returns((AddProviderToRestrictedCourseSessionModel?)null);
+        SetupSession(sessionServiceMock, null);
 
         var result = await sut.Index(LarsCode, CancellationToken.None) as RedirectToRouteResult;
 
-        result.Should().NotBeNull();
-        result!.RouteName.Should().Be(RouteNames.RestrictedCourseDetails);
-        result.RouteValues!["larsCode"].Should().Be(LarsCode);
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.RouteName.Should().Be(RouteNames.RestrictedCourseDetails);
+            result.RouteValues!["larsCode"].Should().Be(LarsCode);
 
-        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
-            It.IsAny<int>(),
-            It.IsAny<string>(),
-            It.IsAny<UpsertProviderAllowedCourseRequest>(),
-            It.IsAny<CancellationToken>()), Times.Never);
-        sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProviderToRestrictedCourse), Times.Never);
+            outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
+                It.IsAny<int>(),
+                It.IsAny<string>(),
+                It.IsAny<UpsertProviderAllowedCourseRequest>(),
+                It.IsAny<CancellationToken>()), Times.Never);
+            sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProviderToRestrictedCourse), Times.Never);
+        }
     }
 }
 
