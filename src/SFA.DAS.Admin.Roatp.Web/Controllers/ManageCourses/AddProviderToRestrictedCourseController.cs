@@ -50,7 +50,6 @@ public class AddProviderToRestrictedCourseController(
         var validationResult = validator.Validate(submitModel);
         if (!validationResult.IsValid)
         {
-            ModelState.Clear();
             ModelState.AddValidationErrors(validationResult.Errors);
             return View(ViewPath, BuildViewModel(larsCode, courseDetails));
         }
@@ -76,7 +75,7 @@ public class AddProviderToRestrictedCourseController(
         string larsCode,
         CancellationToken cancellationToken)
     {
-        var response = await outerApiClient.GetNotAllowedProvidersForCourse(larsCode, cancellationToken);
+        var response = await outerApiClient.GetProvidersRestrictedForCourse(larsCode, cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
             return null;

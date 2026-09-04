@@ -6,6 +6,7 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
+using SFA.DAS.Admin.Roatp.Web.Validators.Common;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 
@@ -13,7 +14,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 [Route("restricted-courses/{larsCode}/providers/{ukprn}/set-last-start-date", Name = RouteNames.SetLastDateStarts)]
 public class SetLastDateStartsController(
     IOuterApiClient outerApiClient,
-    IValidator<SetLastDateStartsSubmitModel> setDateValidator) : Controller
+    IValidator<SetLastDateStartsSubmitModel> setLastDateStartsValidator) : Controller
 {
     public const string ViewPath = "~/Views/ManageCourses/SetLastDateStarts/Index.cshtml";
 
@@ -42,20 +43,26 @@ public class SetLastDateStartsController(
         }
 
         submitModel.CourseLastDateStarts = model.CourseLastDateStarts;
-        var validationResult = await setDateValidator.ValidateAsync(submitModel, cancellationToken);
+        var validationResult = await setLastDateStartsValidator.ValidateAsync(submitModel, cancellationToken);
         if (!validationResult.IsValid)
         {
-            ModelState.Clear();
             ModelState.AddValidationErrors(validationResult.Errors);
             return View(ViewPath, model);
         }
 
-        submitModel.TryGetEnteredDate(out var lastDateStarts);
+        var isValidDate = submitModel.TryGetEnteredDate(out var lastDateStarts);
+        if (!isValidDate)
+        {
+            ModelState.AddModelError(string.Empty, SetLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
+            return View(ViewPath, model);
+        }
 
-        var response = await outerApiClient.UpsertProviderAllowedCourse(
+        var response = await outerApiClient.PatchProviderAllowedCourse(
             ukprn,
             larsCode,
-            CreateUpsertRequest(lastDateStarts),
+            User.UserId(),
+            User.UserDisplayName(),
+            new PatchProviderAllowedCourseRequest { LastDateStarts = lastDateStarts },
             cancellationToken);
 
         if (response.IsNotFound())
@@ -91,10 +98,10 @@ public class SetLastDateStartsController(
 
         if (submitModel is null && provider.LastDateStarts.HasValue)
         {
-            var lastDateStarts = provider.LastDateStarts.Value;
-            day = lastDateStarts.Day.ToString("00");
-            month = lastDateStarts.Month.ToString("00");
-            year = lastDateStarts.Year.ToString();
+            var existingLastDateStarts = provider.LastDateStarts.Value;
+            day = existingLastDateStarts.Day.ToString("00");
+            month = existingLastDateStarts.Month.ToString("00");
+            year = existingLastDateStarts.Year.ToString();
         }
 
         return new SetLastDateStartsViewModel
@@ -125,12 +132,4 @@ public class SetLastDateStartsController(
         await response.EnsureSuccessStatusCodeAsync();
         return response.Content;
     }
-
-    private UpsertProviderAllowedCourseRequest CreateUpsertRequest(DateTime? lastDateStarts)
-        => new()
-        {
-            UserId = User.UserId(),
-            UserDisplayName = User.UserDisplayName(),
-            LastDateStarts = lastDateStarts
-        };
 }

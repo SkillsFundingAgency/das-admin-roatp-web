@@ -43,7 +43,6 @@ public class ChangeCourseRestrictionController(
         var validationResult = await changeOptionValidator.ValidateAsync(submitModel, cancellationToken);
         if (!validationResult.IsValid)
         {
-            ModelState.Clear();
             ModelState.AddValidationErrors(validationResult.Errors);
             return View(ViewPath, model);
         }
@@ -53,10 +52,12 @@ public class ChangeCourseRestrictionController(
             return RedirectToRoute(RouteNames.SetLastDateStarts, new { larsCode, ukprn });
         }
 
-        var response = await outerApiClient.UpsertProviderAllowedCourse(
+        var response = await outerApiClient.PatchProviderAllowedCourse(
             ukprn,
             larsCode,
-            CreateUpsertRequest(lastDateStarts: null),
+            User.UserId(),
+            User.UserDisplayName(),
+            new PatchProviderAllowedCourseRequest { LastDateStarts = null },
             cancellationToken);
 
         if (response.IsNotFound())
@@ -110,12 +111,4 @@ public class ChangeCourseRestrictionController(
         await response.EnsureSuccessStatusCodeAsync();
         return response.Content;
     }
-
-    private UpsertProviderAllowedCourseRequest CreateUpsertRequest(DateTime? lastDateStarts)
-        => new()
-        {
-            UserId = User.UserId(),
-            UserDisplayName = User.UserDisplayName(),
-            LastDateStarts = lastDateStarts
-        };
 }

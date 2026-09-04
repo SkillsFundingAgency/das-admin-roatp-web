@@ -1,7 +1,7 @@
 using FluentValidation.TestHelper;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
-using SFA.DAS.Admin.Roatp.Web.Validators;
+using SFA.DAS.Admin.Roatp.Web.Validators.Common;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Validators;
 

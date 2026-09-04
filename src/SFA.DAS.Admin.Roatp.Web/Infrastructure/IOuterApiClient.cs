@@ -45,20 +45,23 @@ public interface IOuterApiClient
         string larsCode,
         CancellationToken cancellationToken);
 
-    [Get("/courses/{larsCode}/providers/not-allowed")]
-    Task<ApiResponse<GetRestrictedCourseDetailsResponse>> GetNotAllowedProvidersForCourse(
-        string larsCode,
-        CancellationToken cancellationToken);
-
-    [Post("/providers/{ukprn}/allowed-courses/{larsCode}")]
-    Task<ApiResponse<object>> UpsertProviderAllowedCourse(
+    [Patch("/providers/{ukprn}/allowed-courses/{larsCode}")]
+    Task<ApiResponse<object>> PatchProviderAllowedCourse(
         int ukprn,
         string larsCode,
-        [Body] UpsertProviderAllowedCourseRequest request,
+        [Header(RequestHeaders.RequestingUserIdHeader)] string userId,
+        [Header(RequestHeaders.RequestingUserNameHeader)] string userName,
+        [Body] PatchProviderAllowedCourseRequest request,
         CancellationToken cancellationToken);
 
     [Post("/restricted-courses")]
     Task AddRestrictedCourse(
         [Body] AddRestrictedCourseRequest request,
         CancellationToken cancellationToken);
+
+    [Get("/courses/{larsCode}/providers/not-allowed")]
+    Task<ApiResponse<GetRestrictedCourseDetailsResponse>> GetProvidersRestrictedForCourse(
+        string larsCode,
+        CancellationToken cancellationToken);
+
 }
