@@ -1,8 +1,13 @@
 ﻿using AutoFixture.NUnit4;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
+using SFA.DAS.Admin.Roatp.Domain.Models;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
+using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -11,14 +16,25 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses.Unrestrict
 public class UnrestrictedCourseSearchControllerGetTests
 {
     [Test, MoqAutoData]
-    public void WhenGettingUnrestrictedCourseSearch_ThenReturnsViewWithModel(
+    public async Task WhenGettingUnrestrictedCourseSearch_ThenReturnsViewWithCourses(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] IValidator<UnrestrictedCourseSearchSubmitModel> validator,
-        [Greedy] UnrestrictedCourseSearchController controller)
+        [Greedy] UnrestrictedCourseSearchController controller,
+        List<RestrictedCourseModel> courses)
     {
-        var actual = controller.Index() as ViewResult;
+        outerApiClientMock
+            .Setup(c => c.GetRestrictedCourses(false, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetRestrictedCoursesResponse { Courses = courses });
 
-        actual.Should().NotBeNull();
-        actual!.ViewName.Should().Be(UnrestrictedCourseSearchController.ViewPath);
-        actual.Model.Should().BeOfType<UnrestrictedCourseSearchViewModel>();
+        var actual = await controller.Index(CancellationToken.None) as ViewResult;
+
+        using (new AssertionScope())
+        {
+            actual.Should().NotBeNull();
+            actual!.ViewName.Should().Be(UnrestrictedCourseSearchController.ViewPath);
+            var model = actual.Model as UnrestrictedCourseSearchViewModel;
+            model.Should().NotBeNull();
+            model!.Courses.Should().HaveCount(courses.Count);
+        }
     }
 }

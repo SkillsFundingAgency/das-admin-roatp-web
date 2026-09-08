@@ -1,9 +1,12 @@
 ﻿using AutoFixture.NUnit4;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using SFA.DAS.Admin.Roatp.Domain.Models;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.ManageCourses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
@@ -13,44 +16,79 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageCourses.Unrestrict
 
 public class UnrestrictedCourseSearchControllerPostTests
 {
+    private const string LarsCode = "123";
+    private const string Title = "Software developer";
+    private const int Level = 4;
+
     [Test, MoqAutoData]
-    public void WhenPostingUnrestrictedCourseSearch_AndModelIsValid_ThenRedirectsToCourseDetails(
-        UnrestrictedCourseSearchSubmitModel submitModel,
+    public async Task WhenPostingUnrestrictedCourseSearch_AndModelIsValid_ThenRedirectsToCourseDetails(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IValidator<UnrestrictedCourseSearchSubmitModel>> validator,
         [Greedy] UnrestrictedCourseSearchController controller)
     {
-        validator.Setup(x => x.Validate(submitModel)).Returns(new ValidationResult());
+        SetupCourses(outerApiClientMock);
+        validator.Setup(x => x.Validate(It.IsAny<UnrestrictedCourseSearchSubmitModel>()))
+            .Returns(new ValidationResult());
 
-        var actual = controller.Index(submitModel);
+        var actual = await controller.Index(
+            new UnrestrictedCourseSearchSubmitModel { SelectedLarsCode = LarsCode },
+            CancellationToken.None);
 
-        actual.Should().NotBeNull();
-        var result = actual as RedirectToRouteResult;
-        result.Should().NotBeNull();
-        result!.RouteName.Should().Be(RouteNames.UnrestrictedCourseDetails);
-        result.RouteValues!["larsCode"].Should().Be(submitModel.LarsCode);
+        using (new AssertionScope())
+        {
+            actual.Should().NotBeNull();
+            var result = actual as RedirectToRouteResult;
+            result.Should().NotBeNull();
+            result!.RouteName.Should().Be(RouteNames.UnrestrictedCourseDetails);
+            result.RouteValues!["larsCode"].Should().Be(LarsCode);
+        }
     }
 
     [Test, MoqAutoData]
-    public void WhenPostingUnrestrictedCourseSearch_AndModelIsInvalid_ThenReloadsView(
-        UnrestrictedCourseSearchSubmitModel submitModel,
+    public async Task WhenPostingUnrestrictedCourseSearch_AndModelIsInvalid_ThenReloadsView(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IValidator<UnrestrictedCourseSearchSubmitModel>> validator,
         [Greedy] UnrestrictedCourseSearchController controller)
     {
-        var validationResult = new ValidationResult();
-        validationResult.Errors.Add(new ValidationFailure("SearchTerm", "Error"));
+        SetupCourses(outerApiClientMock);
+        validator.Setup(x => x.Validate(It.IsAny<UnrestrictedCourseSearchSubmitModel>()))
+            .Returns(new ValidationResult(
+            [
+                new ValidationFailure(
+                    nameof(UnrestrictedCourseSearchSubmitModel.SelectedLarsCode),
+                    "Error")
+            ]));
 
-        validator.Setup(x => x.Validate(submitModel)).Returns(validationResult);
+        var actual = await controller.Index(
+            new UnrestrictedCourseSearchSubmitModel(),
+            CancellationToken.None) as ViewResult;
 
-        var actual = controller.Index(submitModel);
+        using (new AssertionScope())
+        {
+            actual.Should().NotBeNull();
+            actual!.ViewName.Should().Be(UnrestrictedCourseSearchController.ViewPath);
+            var model = actual.Model as UnrestrictedCourseSearchViewModel;
+            model.Should().NotBeNull();
+            model!.Courses.Should().HaveCount(1);
+            controller.ModelState.IsValid.Should().BeFalse();
+        }
+    }
 
-        actual.Should().NotBeNull();
-        var result = actual as ViewResult;
-        result.Should().NotBeNull();
-        result!.ViewName.Should().Be(UnrestrictedCourseSearchController.ViewPath);
-        var model = result.Model as UnrestrictedCourseSearchViewModel;
-        model.Should().NotBeNull();
-        model!.Title.Should().Be(submitModel.Title);
-        model.Level.Should().Be(submitModel.Level);
-        model.LarsCode.Should().Be(submitModel.LarsCode);
+    private static void SetupCourses(Mock<IOuterApiClient> outerApiClientMock)
+    {
+        outerApiClientMock
+            .Setup(c => c.GetRestrictedCourses(false, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetRestrictedCoursesResponse
+            {
+                Courses =
+                [
+                    new RestrictedCourseModel
+                    {
+                        LarsCode = LarsCode,
+                        Title = Title,
+                        Level = Level
+                    }
+                ]
+            });
     }
 }

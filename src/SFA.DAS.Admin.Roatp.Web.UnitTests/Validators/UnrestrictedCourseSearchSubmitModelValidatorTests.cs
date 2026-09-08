@@ -16,39 +16,23 @@ public class UnrestrictedCourseSearchSubmitModelValidatorTests
     }
 
     [Test]
-    public void WhenValidatingSearchTerm_AndNoCourseSelected_ThenReturnsExpectedErrorMessage()
+    public void WhenValidatingSelectedLarsCode_AndNoCourseSelected_ThenReturnsExpectedErrorMessage()
     {
         var result = _validator.TestValidate(new UnrestrictedCourseSearchSubmitModel());
 
         result.IsValid.Should().BeFalse();
-        result.ShouldHaveValidationErrorFor(c => c.SearchTerm)
+        result.ShouldHaveValidationErrorFor(c => c.SelectedLarsCode)
             .WithErrorMessage(UnrestrictedCourseSearchSubmitModelValidator.NoCourseSelectedErrorMessage);
     }
 
     [Test]
-    public void WhenValidatingSearchTerm_AndCourseIsSelected_ThenIsValid()
+    public void WhenValidatingSelectedLarsCode_AndCourseIsSelected_ThenIsValid()
     {
         var result = _validator.TestValidate(new UnrestrictedCourseSearchSubmitModel
         {
-            Title = "Software developer",
-            Level = 4,
-            LarsCode = "123"
+            SelectedLarsCode = "123"
         });
 
         result.IsValid.Should().BeTrue();
-    }
-
-    [Test]
-    public void WhenValidatingSearchTerm_AndLarsCodeMissing_ThenReturnsExpectedErrorMessage()
-    {
-        var result = _validator.TestValidate(new UnrestrictedCourseSearchSubmitModel
-        {
-            Title = "Software developer",
-            Level = 4
-        });
-
-        result.IsValid.Should().BeFalse();
-        result.ShouldHaveValidationErrorFor(c => c.LarsCode)
-            .WithErrorMessage(UnrestrictedCourseSearchSubmitModelValidator.NoCourseSelectedErrorMessage);
     }
 }

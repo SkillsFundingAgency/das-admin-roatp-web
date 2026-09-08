@@ -15,7 +15,6 @@ if ($backLinkOrHome) {
     backLinkOrHome();
 }
 
-
 function AutoComplete(selectField) {
     this.selectElement = selectField
     this.apiUrl = selectField.dataset.autocompleteUrl || '/registeredProviders'
@@ -29,8 +28,7 @@ AutoComplete.prototype.init = function () {
 
 AutoComplete.prototype.getSuggestions = function (query, updateResults) {
     let results = [];
-    let paramName = this.mode === 'course' ? 'searchTerm' : 'query'
-    let apiUrl = this.apiUrl + "?" + paramName + "=" + encodeURIComponent(query)
+    let apiUrl = this.apiUrl + "?query=" + encodeURIComponent(query)
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
@@ -51,21 +49,11 @@ AutoComplete.prototype.onConfirm = function (option) {
         return;
     }
 
-    if (this.mode === 'course') {
-        document.getElementById("Title").value = option.title;
-        document.getElementById("Level").value = option.level;
-        document.getElementById("LarsCode").value = option.larsCode;
-        return;
-    }
-
     document.getElementById("LegalName").value = option.legalName;
     document.getElementById("Ukprn").value = option.ukprn;
 }
 
 function formatAutocompleteResult(result) {
-    if (result?.displayTitle) {
-        return result.displayTitle;
-    }
     return result ? [result.legalName, result.ukprn].filter(Boolean).join(' UKPRN: ') : result;
 }
 
@@ -103,3 +91,45 @@ let autoCompletes = document.querySelectorAll('[data-module="autoComplete"]')
 nodeListForEach(autoCompletes, function (autoComplete) {
     new AutoComplete(autoComplete).init()
 })
+
+$('.app-autocomplete').each(function () {
+    const form = $(this).closest('form');
+    const hiddenSelect = document.getElementById(this.id);
+    hiddenSelect.setAttribute('aria-hidden', 'true');
+    hiddenSelect.setAttribute('tabindex', '-1');
+    hiddenSelect.setAttribute('title', 'Hidden select field');
+
+    accessibleAutocomplete.enhanceSelectElement({
+        selectElement: this,
+        minLength: 3,
+        autoselect: false,
+        defaultValue: '',
+        showAllValues: true,
+        displayMenu: 'overlay',
+        dropdownArrow: () => '',
+        placeholder: $(this).data('placeholder') || '',
+        onConfirm: function (opt) {
+            const txtInput = document.querySelector('#' + this.id);
+            const searchString = opt || txtInput.value;
+            const requestedOption = Array.prototype.filter.call(this.selectElement.options, function (option) {
+                return (option.textContent || option.innerText) === searchString;
+            })[0];
+            if (requestedOption) {
+                requestedOption.selected = true;
+            } else {
+                this.selectElement.selectedIndex = 0;
+            }
+        }
+    });
+
+    form.on('submit', function () {
+        $('.autocomplete__input').each(function () {
+            const that = $(this);
+            if (that.val().length === 0) {
+                const fieldId = that.attr('id');
+                const selectField = $('#' + fieldId + '-select');
+                selectField[0].selectedIndex = 0;
+            }
+        });
+    });
+});

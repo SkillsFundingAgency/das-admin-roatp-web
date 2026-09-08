@@ -19,6 +19,8 @@ public class RestrictedCourseDetailsControllerPaginationTests
 {
     private const string LarsCode = "105";
     private const string RestrictedCourseDetailsUrl = $"/restricted-courses/{LarsCode}";
+    private const string AddProviderToRestrictedCourseUrl = "/add-provider";
+
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndMoreThanTenProviders_ThenReturnsFirstPageOfTen(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
@@ -32,7 +34,8 @@ public class RestrictedCourseDetailsControllerPaginationTests
         SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
         var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
@@ -56,7 +59,8 @@ public class RestrictedCourseDetailsControllerPaginationTests
         SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
         var request = new GetRestrictedCourseDetailsRequest { PageNumber = 2 };
 
@@ -82,7 +86,8 @@ public class RestrictedCourseDetailsControllerPaginationTests
         SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
         var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
 
@@ -104,7 +109,8 @@ public class RestrictedCourseDetailsControllerPaginationTests
         SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
         var request = new GetRestrictedCourseDetailsRequest { PageNumber = 0 };
 
@@ -130,7 +136,8 @@ public class RestrictedCourseDetailsControllerPaginationTests
         SetupCourseResponse(outerApiClientMock, response);
 
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
+            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
+            .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
         var request = new GetRestrictedCourseDetailsRequest { PageNumber = 99 };
 

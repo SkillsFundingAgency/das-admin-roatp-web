@@ -43,7 +43,6 @@ public class ChangeCourseRestrictionController(
         var validationResult = await changeOptionValidator.ValidateAsync(submitModel, cancellationToken);
         if (!validationResult.IsValid)
         {
-            ModelState.Clear();
             ModelState.AddValidationErrors(validationResult.Errors);
             return View(ViewPath, model);
         }

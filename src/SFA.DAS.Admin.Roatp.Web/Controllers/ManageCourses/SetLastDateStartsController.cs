@@ -46,7 +46,6 @@ public class SetLastDateStartsController(
         var validationResult = await setLastDateStartsValidator.ValidateAsync(submitModel, cancellationToken);
         if (!validationResult.IsValid)
         {
-            ModelState.Clear();
             ModelState.AddValidationErrors(validationResult.Errors);
             return View(ViewPath, model);
         }
