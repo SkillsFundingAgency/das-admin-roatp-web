@@ -54,6 +54,13 @@ public interface IOuterApiClient
         [Body] PatchProviderAllowedCourseRequest request,
         CancellationToken cancellationToken);
 
+    [Post("/providers/{ukprn}/allowed-courses/{larsCode}")]
+    Task<ApiResponse<object>> UpsertProviderAllowedCourse(
+        int ukprn,
+        string larsCode,
+        [Body] UpsertProviderAllowedCourseRequest request,
+        CancellationToken cancellationToken);
+
     [Post("/restricted-courses")]
     Task AddRestrictedCourse(
         [Body] AddRestrictedCourseRequest request,
