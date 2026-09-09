@@ -1,6 +1,6 @@
 using FluentValidation;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
-using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
+using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
 
 namespace SFA.DAS.Admin.Roatp.Web.Validators.Common;
 
