@@ -228,14 +228,15 @@ public class ProviderSummaryViewModelTests
     }
 
     [Test]
-    [InlineAutoData(ProviderType.Main, false, true)]
-    [InlineAutoData(ProviderType.Main, true, false)]
-    [InlineAutoData(ProviderType.Employer, false, false)]
-    [InlineAutoData(ProviderType.Supporting, false, false)]
+    [InlineAutoData(ProviderType.Main, false, true, false)]
+    [InlineAutoData(ProviderType.Main, true, true, true)]
+    [InlineAutoData(ProviderType.Employer, false, false, false)]
+    [InlineAutoData(ProviderType.Supporting, false, false, false)]
     public void MapModel_ShowManageCourseOffering_AsExpected(
         ProviderType providerType,
         bool isRestricted,
-        bool expected,
+        bool expectedShowManageCourseOffering,
+        bool expectedIsRestrictedMainProvider,
         GetOrganisationResponse response)
     {
         response.ProviderType = providerType;
@@ -250,7 +251,11 @@ public class ProviderSummaryViewModelTests
 
         var sut = (ProviderSummaryViewModel)response;
 
-        sut.ShowManageCourseOffering.Should().Be(expected);
+        using (new AssertionScope())
+        {
+            sut.ShowManageCourseOffering.Should().Be(expectedShowManageCourseOffering);
+            sut.IsRestrictedMainProvider.Should().Be(expectedIsRestrictedMainProvider);
+        }
     }
 
     [Test, AutoData]
@@ -297,6 +302,36 @@ public class ProviderSummaryViewModelTests
     }
 
     [Test]
+    [InlineAutoData(8, 8)]
+    [InlineAutoData(0, 0)]
+    [InlineAutoData(null, 0)]
+    public void MapModel_ApprovedCoursesCount_AsExpected(
+        int? allowedCount,
+        int expected,
+        GetOrganisationResponse response)
+    {
+        response.ProviderType = ProviderType.Main;
+        response.AllowedCourseTypes =
+        [
+            new AllowedCourseType
+            {
+                CourseType = CourseType.Apprenticeship,
+                IsRestricted = true,
+                AllowedCount = allowedCount
+            }
+        ];
+
+        var sut = (ProviderSummaryViewModel)response;
+
+        using (new AssertionScope())
+        {
+            sut.ApprovedCoursesCount.Should().Be(expected);
+            sut.ShowManageCourseOffering.Should().BeTrue();
+            sut.IsRestrictedMainProvider.Should().BeTrue();
+        }
+    }
+
+    [Test]
     [InlineAutoData(12, 12)]
     [InlineAutoData(0, 0)]
     [InlineAutoData(null, 0)]
@@ -322,7 +357,46 @@ public class ProviderSummaryViewModelTests
 
         var sut = (ProviderSummaryViewModel)response;
 
-        sut.ApprovedApprenticeshipUnitsCount.Should().Be(expected);
+        using (new AssertionScope())
+        {
+            sut.ApprovedApprenticeshipUnitsCount.Should().Be(expected);
+            sut.ShowManageCourseOffering.Should().BeTrue();
+        }
+    }
+
+    [Test]
+    [InlineAutoData(12, 12)]
+    [InlineAutoData(0, 0)]
+    [InlineAutoData(null, 0)]
+    public void MapModel_ApprovedApprenticeshipUnitsCount_WhenRestrictedMainProviderAndShortCoursesAllowed_AsExpected(
+        int? allowedCount,
+        int expected,
+        GetOrganisationResponse response)
+    {
+        response.ProviderType = ProviderType.Main;
+        response.AllowedCourseTypes =
+        [
+            new AllowedCourseType
+            {
+                CourseType = CourseType.Apprenticeship,
+                IsRestricted = true,
+                AllowedCount = 8
+            },
+            new AllowedCourseType
+            {
+                CourseType = CourseType.ShortCourse,
+                AllowedCount = allowedCount
+            }
+        ];
+
+        var sut = (ProviderSummaryViewModel)response;
+
+        using (new AssertionScope())
+        {
+            sut.ApprovedApprenticeshipUnitsCount.Should().Be(expected);
+            sut.ShowManageCourseOffering.Should().BeTrue();
+            sut.IsRestrictedMainProvider.Should().BeTrue();
+        }
     }
 
     [Test, AutoData]
@@ -346,6 +420,31 @@ public class ProviderSummaryViewModelTests
         {
             sut.ApprovedApprenticeshipUnitsCount.Should().Be(0);
             sut.ShowManageCourseOffering.Should().BeTrue();
+        }
+    }
+
+    [Test, AutoData]
+    public void MapModel_ApprovedApprenticeshipUnitsCount_WhenRestrictedMainProviderAndShortCoursesNotAllowed_IsZero(
+        GetOrganisationResponse response)
+    {
+        response.ProviderType = ProviderType.Main;
+        response.AllowedCourseTypes =
+        [
+            new AllowedCourseType
+            {
+                CourseType = CourseType.Apprenticeship,
+                IsRestricted = true,
+                AllowedCount = 8
+            }
+        ];
+
+        var sut = (ProviderSummaryViewModel)response;
+
+        using (new AssertionScope())
+        {
+            sut.ApprovedApprenticeshipUnitsCount.Should().Be(0);
+            sut.ShowManageCourseOffering.Should().BeTrue();
+            sut.IsRestrictedMainProvider.Should().BeTrue();
         }
     }
 }

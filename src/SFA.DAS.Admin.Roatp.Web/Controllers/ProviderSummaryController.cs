@@ -28,6 +28,7 @@ public class ProviderSummaryController(IOuterApiClient _outerApiClient) : Contro
         model.OffersApprenticeshipUnitsChangeLink = Url.RouteUrl(RouteNames.ApprenticeshipUnitsUpdate, new { ukprn })!;
         var providerSummaryUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!;
         model.ManageRestrictedCoursesUrl = providerSummaryUrl;
+        model.ManageApprovedCoursesUrl = providerSummaryUrl;
         model.ChangeHowWeManageThisProviderUrl = providerSummaryUrl;
         model.ManageApprovedUnitsUrl = providerSummaryUrl;
         return View(model);

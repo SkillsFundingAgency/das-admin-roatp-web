@@ -42,9 +42,12 @@ public class ProviderSummaryViewModel : ISearchProviderLink
     public string OffersApprenticeshipUnitsChangeLink { get; set; } = "#";
 
     public bool ShowManageCourseOffering { get; set; }
+    public bool IsRestrictedMainProvider { get; set; }
     public int RestrictedCoursesCount { get; set; }
+    public int ApprovedCoursesCount { get; set; }
     public int ApprovedApprenticeshipUnitsCount { get; set; }
     public string ManageRestrictedCoursesUrl { get; set; } = "#";
+    public string ManageApprovedCoursesUrl { get; set; } = "#";
     public string ChangeHowWeManageThisProviderUrl { get; set; } = "#";
     public string ManageApprovedUnitsUrl { get; set; } = "#";
 
@@ -52,8 +55,9 @@ public class ProviderSummaryViewModel : ISearchProviderLink
     {
         var apprenticeshipCourseType = organisationResponse.AllowedCourseTypes.FirstOrDefault(x => x.CourseType == CourseType.Apprenticeship);
         var shortCourseType = organisationResponse.AllowedCourseTypes.FirstOrDefault(x => x.CourseType == CourseType.ShortCourse);
-        var isUnrestrictedMainProvider = organisationResponse.ProviderType == ProviderType.Main
-            && apprenticeshipCourseType?.IsRestricted == false;
+        var isMainProvider = organisationResponse.ProviderType == ProviderType.Main;
+        var isUnrestrictedMainProvider = isMainProvider && apprenticeshipCourseType?.IsRestricted == false;
+        var isRestrictedMainProvider = isMainProvider && apprenticeshipCourseType?.IsRestricted == true;
 
         var trainingProviderViewModel = new ProviderSummaryViewModel
         {
@@ -81,8 +85,10 @@ public class ProviderSummaryViewModel : ISearchProviderLink
             IsActiveNoStarts = organisationResponse.Status == OrganisationStatus.ActiveNoStarts,
             IsOnboarding = organisationResponse.Status == OrganisationStatus.OnBoarding,
             IsRemoved = organisationResponse.Status == OrganisationStatus.Removed,
-            ShowManageCourseOffering = isUnrestrictedMainProvider,
+            ShowManageCourseOffering = isUnrestrictedMainProvider || isRestrictedMainProvider,
+            IsRestrictedMainProvider = isRestrictedMainProvider,
             RestrictedCoursesCount = apprenticeshipCourseType?.RestrictedCount ?? 0,
+            ApprovedCoursesCount = apprenticeshipCourseType?.AllowedCount ?? 0,
             ApprovedApprenticeshipUnitsCount = shortCourseType?.AllowedCount ?? 0
         };
 

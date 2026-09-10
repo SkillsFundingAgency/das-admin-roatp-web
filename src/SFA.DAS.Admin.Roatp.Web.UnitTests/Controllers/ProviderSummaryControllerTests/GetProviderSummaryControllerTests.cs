@@ -74,6 +74,7 @@ public class GetProviderSummaryControllerTests
             model.ProviderTypeChangeLink.Should().Be(providerTypeUpdateLink);
             model.OrganisationTypeChangeLink.Should().Be(organisationTypeUpdateLink);
             model.ManageRestrictedCoursesUrl.Should().Be(providerSummaryLink);
+            model.ManageApprovedCoursesUrl.Should().Be(providerSummaryLink);
             model.ChangeHowWeManageThisProviderUrl.Should().Be(providerSummaryLink);
             model.ManageApprovedUnitsUrl.Should().Be(providerSummaryLink);
         }
