@@ -56,6 +56,22 @@ public class ProviderSummaryViewModelTests
         sut.IsEmployerProvider.Should().Be(expected);
     }
 
+    [Test, AutoData]
+    public void MapModel_WhenEmployerProvider_DoesNotShowMainProviderCourseOffering(
+        GetOrganisationResponse response)
+    {
+        response.ProviderType = ProviderType.Employer;
+
+        var sut = (ProviderSummaryViewModel)response;
+
+        using (new AssertionScope())
+        {
+            sut.IsEmployerProvider.Should().BeTrue();
+            sut.ShowManageCourseOffering.Should().BeFalse();
+            sut.IsRestrictedMainProvider.Should().BeFalse();
+        }
+    }
+
     [Test]
     [InlineAutoData(null, false)]
     [InlineAutoData("", false)]

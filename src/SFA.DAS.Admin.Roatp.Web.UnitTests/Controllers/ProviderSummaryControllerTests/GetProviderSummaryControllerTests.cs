@@ -43,6 +43,7 @@ public class GetProviderSummaryControllerTests
         string providerStatusUpdateLink,
         string providerTypeUpdateLink,
         string organisationTypeUpdateLink,
+        string apprenticeshipUnitsUpdateLink,
         string providerSummaryLink,
         GetOrganisationResponse getOrganisationResponse,
         int ukprn,
@@ -55,6 +56,7 @@ public class GetProviderSummaryControllerTests
             .AddUrlForRoute(RouteNames.ProviderStatusUpdate, providerStatusUpdateLink)
             .AddUrlForRoute(RouteNames.ProviderTypeUpdate, providerTypeUpdateLink)
             .AddUrlForRoute(RouteNames.OrganisationTypeUpdate, organisationTypeUpdateLink)
+            .AddUrlForRoute(RouteNames.ApprenticeshipUnitsUpdate, apprenticeshipUnitsUpdateLink)
             .AddUrlForRoute(RouteNames.ProviderSummary, providerSummaryLink)
             ;
 
@@ -73,6 +75,7 @@ public class GetProviderSummaryControllerTests
             model.StatusChangeLink.Should().Be(providerStatusUpdateLink);
             model.ProviderTypeChangeLink.Should().Be(providerTypeUpdateLink);
             model.OrganisationTypeChangeLink.Should().Be(organisationTypeUpdateLink);
+            model.OffersApprenticeshipUnitsChangeLink.Should().Be(apprenticeshipUnitsUpdateLink);
             model.ManageRestrictedCoursesUrl.Should().Be(providerSummaryLink);
             model.ManageApprovedCoursesUrl.Should().Be(providerSummaryLink);
             model.ChangeHowWeManageThisProviderUrl.Should().Be(providerSummaryLink);
