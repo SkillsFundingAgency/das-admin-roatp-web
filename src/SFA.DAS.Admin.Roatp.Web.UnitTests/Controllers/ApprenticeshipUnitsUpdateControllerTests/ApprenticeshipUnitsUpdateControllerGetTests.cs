@@ -1,4 +1,5 @@
-﻿using AutoFixture.NUnit4;
+﻿using System.Net;
+using AutoFixture.NUnit4;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -10,9 +11,9 @@ using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
-using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ApprenticeshipUnitsUpdateControllerTests;
+
 public class ApprenticeshipUnitsUpdateControllerGetTests
 {
     [Test, MoqAutoData]
@@ -53,12 +54,12 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
 
         if (containsApprenticeshipUnits)
         {
-            allowedCourseTypes.Add(new() { CourseTypeId = CourseTypes.ShortCourse });
+            allowedCourseTypes.Add(new() { CourseType = CourseType.ShortCourse });
         }
 
         if (containsApprenticeships)
         {
-            allowedCourseTypes.Add(new() { CourseTypeId = CourseTypes.Apprenticeship });
+            allowedCourseTypes.Add(new() { CourseType = CourseType.Apprenticeship });
         }
 
         getOrganisationResponse.AllowedCourseTypes = allowedCourseTypes;
@@ -94,8 +95,8 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
             CourseTypeIds = new List<int>()
         };
 
-        if (containsApprenticeships) { sessionModel.CourseTypeIds.Add(CourseTypes.Apprenticeship); }
-        if (containsApprenticeshipUnits) { sessionModel.CourseTypeIds.Add(CourseTypes.ShortCourse); }
+        if (containsApprenticeships) { sessionModel.CourseTypeIds.Add((int)CourseType.Apprenticeship); }
+        if (containsApprenticeshipUnits) { sessionModel.CourseTypeIds.Add((int)CourseType.ShortCourse); }
 
         sessionServiceMock.Setup(s =>
                 s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))

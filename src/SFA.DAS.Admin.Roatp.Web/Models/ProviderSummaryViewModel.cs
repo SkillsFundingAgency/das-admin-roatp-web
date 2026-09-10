@@ -41,8 +41,21 @@ public class ProviderSummaryViewModel : ISearchProviderLink
     public string OrganisationTypeChangeLink { get; set; } = "#";
     public string OffersApprenticeshipUnitsChangeLink { get; set; } = "#";
 
+    public bool ShowManageCourseOffering { get; set; }
+    public int RestrictedCoursesCount { get; set; }
+    public int ApprovedApprenticeshipUnitsCount { get; set; }
+    public string ManageRestrictedCoursesUrl { get; set; } = "#";
+    public string ChangeHowWeManageThisProviderUrl { get; set; } = "#";
+    public string ManageApprovedUnitsUrl { get; set; } = "#";
+
     public static implicit operator ProviderSummaryViewModel(GetOrganisationResponse organisationResponse)
     {
+        var apprenticeshipCourseType = organisationResponse.AllowedCourseTypes.FirstOrDefault(x => x.CourseType == CourseType.Apprenticeship);
+        var shortCourseType = organisationResponse.AllowedCourseTypes.FirstOrDefault(x => x.CourseType == CourseType.ShortCourse);
+        var isUnrestrictedMainProvider = organisationResponse.ProviderType == ProviderType.Main
+            && apprenticeshipCourseType is not null
+            && apprenticeshipCourseType.IsRestricted != true;
+
         var trainingProviderViewModel = new ProviderSummaryViewModel
         {
             Ukprn = organisationResponse.Ukprn,
@@ -62,13 +75,16 @@ public class ProviderSummaryViewModel : ISearchProviderLink
             RemovedReason = organisationResponse.RemovedReason,
             RemovedDateText = organisationResponse.RemovedDate.HasValue ? organisationResponse.RemovedDate.Value.ToDisplayString() : string.Empty,
             AllowedCourseTypes = organisationResponse.AllowedCourseTypes,
-            OffersApprenticeshipsText = organisationResponse.AllowedCourseTypes.Any(x => x.CourseTypeId == CourseTypes.Apprenticeship) ? "Yes" : "No",
-            OffersShortCoursesText = organisationResponse.AllowedCourseTypes.Any(x => x.CourseTypeId == CourseTypes.ShortCourse) ? "Yes" : "No",
+            OffersApprenticeshipsText = organisationResponse.AllowedCourseTypes.Any(x => x.CourseType == CourseType.Apprenticeship) ? "Yes" : "No",
+            OffersShortCoursesText = organisationResponse.AllowedCourseTypes.Any(x => x.CourseType == CourseType.ShortCourse) ? "Yes" : "No",
             CharityNumberText = !string.IsNullOrWhiteSpace(organisationResponse.CharityNumber) ? organisationResponse.CharityNumber : "Not applicable",
             IsActive = organisationResponse.Status == OrganisationStatus.Active,
             IsActiveNoStarts = organisationResponse.Status == OrganisationStatus.ActiveNoStarts,
             IsOnboarding = organisationResponse.Status == OrganisationStatus.OnBoarding,
-            IsRemoved = organisationResponse.Status == OrganisationStatus.Removed
+            IsRemoved = organisationResponse.Status == OrganisationStatus.Removed,
+            ShowManageCourseOffering = isUnrestrictedMainProvider,
+            RestrictedCoursesCount = apprenticeshipCourseType?.RestrictedCount ?? 0,
+            ApprovedApprenticeshipUnitsCount = shortCourseType?.AllowedCount ?? 0
         };
 
         return trainingProviderViewModel;

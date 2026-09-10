@@ -58,12 +58,12 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
 
         var courseTypes = new List<AllowedCourseType>
         {
-            new() { CourseTypeId = CourseTypes.Apprenticeship, CourseTypeName = nameof(CourseTypes.Apprenticeship) }
+            new() { CourseType = CourseType.Apprenticeship }
         };
 
         if (containsApprenticeshipUnits)
         {
-            courseTypes.Add(new() { CourseTypeId = CourseTypes.ShortCourse, CourseTypeName = nameof(CourseTypes.ShortCourse) });
+            courseTypes.Add(new() { CourseType = CourseType.ShortCourse });
         }
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
@@ -112,12 +112,12 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
             HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
         };
         var courseTypes = new List<AllowedCourseType>();
-        if (isStandardCourseTypePresent) courseTypes.Add(new AllowedCourseType { CourseTypeId = 1, CourseTypeName = nameof(CourseTypes.Apprenticeship) });
-        if (isShortCourseTypePresent) courseTypes.Add(new AllowedCourseType { CourseTypeId = 2, CourseTypeName = nameof(CourseTypes.ShortCourse) });
+        if (isStandardCourseTypePresent) courseTypes.Add(new AllowedCourseType { CourseType = CourseType.Apprenticeship });
+        if (isShortCourseTypePresent) courseTypes.Add(new AllowedCourseType { CourseType = CourseType.ShortCourse });
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
         var currentCourseTypeIds = getOrganisationResponse.AllowedCourseTypes
-            .Select(a => a.CourseTypeId).ToList();
+            .Select(a => (int)a.CourseType).ToList();
 
         viewModel.ApprenticeshipUnitsSelectionId = !isShortCourseTypePresent;
 
@@ -129,11 +129,11 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         var expectedCourseTypeIds = currentCourseTypeIds;
         if (isShortCourseTypePresent)
         {
-            expectedCourseTypeIds = currentCourseTypeIds.Where(a => a != CourseTypes.ShortCourse).ToList();
+            expectedCourseTypeIds = currentCourseTypeIds.Where(a => a != (int)CourseType.ShortCourse).ToList();
         }
         else
         {
-            expectedCourseTypeIds.Add(CourseTypes.ShortCourse);
+            expectedCourseTypeIds.Add((int)CourseType.ShortCourse);
         }
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
@@ -182,11 +182,11 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         {
             HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
         };
-        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = nameof(CourseTypes.ShortCourse) } };
+        var courseTypes = new List<AllowedCourseType> { new() { CourseType = CourseType.ShortCourse } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
         var currentCourseTypeIds = getOrganisationResponse.AllowedCourseTypes
-            .Select(a => a.CourseTypeId).ToList();
+            .Select(a => (int)a.CourseType).ToList();
 
         viewModel.ApprenticeshipUnitsSelectionId = selectionChoice;
 
@@ -222,8 +222,8 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
 
-        var courseTypeIdsWithApprentices = new List<int> { CourseTypes.Apprenticeship };
-        sessionModel.CourseTypeIds = courseTypeIdsWithApprentices;
+        var courseTypesWithApprentices = new List<int> { (int)CourseType.Apprenticeship };
+        sessionModel.CourseTypeIds = courseTypesWithApprentices;
         sessionModel.ProviderType = providerTypeChangedTo;
 
         sessionServiceMock.Setup(s =>
@@ -281,8 +281,8 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
 
-        var courseTypeIdsWithApprentices = new List<int> { CourseTypes.Apprenticeship };
-        sessionModel.CourseTypeIds = courseTypeIdsWithApprentices;
+        var courseTypesWithApprentices = new List<int> { (int)CourseType.Apprenticeship };
+        sessionModel.CourseTypeIds = courseTypesWithApprentices;
         sessionModel.ProviderType = providerTypeChangedTo;
 
         sessionServiceMock.Setup(s =>
@@ -341,8 +341,8 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
 
-        var courseTypeIdsWithoutApprentices = new List<int>();
-        sessionModel.CourseTypeIds = courseTypeIdsWithoutApprentices;
+        var courseTypesWithoutApprentices = new List<int>();
+        sessionModel.CourseTypeIds = courseTypesWithoutApprentices;
         sessionModel.ProviderType = providerTypeChangedTo;
 
         sessionServiceMock.Setup(s =>

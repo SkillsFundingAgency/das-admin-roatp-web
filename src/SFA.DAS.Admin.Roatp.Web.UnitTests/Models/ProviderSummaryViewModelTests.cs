@@ -1,5 +1,6 @@
 ﻿using AutoFixture.NUnit4;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Models;
@@ -193,8 +194,8 @@ public class ProviderSummaryViewModelTests
     )
     {
         var allowedCourseTypes = new List<AllowedCourseType>();
-        if (offersApprenticeships) allowedCourseTypes.Add(new AllowedCourseType { CourseTypeId = CourseTypes.Apprenticeship, CourseTypeName = nameof(CourseTypes.Apprenticeship) });
-        if (offersShortCourses) allowedCourseTypes.Add(new AllowedCourseType { CourseTypeId = CourseTypes.ShortCourse, CourseTypeName = nameof(CourseTypes.ShortCourse) });
+        if (offersApprenticeships) allowedCourseTypes.Add(new AllowedCourseType { CourseType = CourseType.Apprenticeship });
+        if (offersShortCourses) allowedCourseTypes.Add(new AllowedCourseType { CourseType = CourseType.ShortCourse });
 
         response.AllowedCourseTypes = allowedCourseTypes;
 
@@ -224,5 +225,127 @@ public class ProviderSummaryViewModelTests
         sut.IsActiveNoStarts.Should().Be(isActiveNoStarts);
         sut.IsOnboarding.Should().Be(isOnboarding);
         sut.IsRemoved.Should().Be(isRemoved);
+    }
+
+    [Test]
+    [InlineAutoData(ProviderType.Main, false, true)]
+    [InlineAutoData(ProviderType.Main, true, false)]
+    [InlineAutoData(ProviderType.Employer, false, false)]
+    [InlineAutoData(ProviderType.Supporting, false, false)]
+    public void MapModel_ShowManageCourseOffering_AsExpected(
+        ProviderType providerType,
+        bool isRestricted,
+        bool expected,
+        GetOrganisationResponse response)
+    {
+        response.ProviderType = providerType;
+        response.AllowedCourseTypes =
+        [
+            new AllowedCourseType
+            {
+                CourseType = CourseType.Apprenticeship,
+                IsRestricted = isRestricted
+            }
+        ];
+
+        var sut = (ProviderSummaryViewModel)response;
+
+        sut.ShowManageCourseOffering.Should().Be(expected);
+    }
+
+    [Test, AutoData]
+    public void MapModel_ShowManageCourseOffering_WhenMainProviderHasNoApprenticeshipCourseType_IsFalse(
+        GetOrganisationResponse response)
+    {
+        response.ProviderType = ProviderType.Main;
+        response.AllowedCourseTypes =
+        [
+            new AllowedCourseType
+            {
+                CourseType = CourseType.ShortCourse,
+                IsRestricted = false
+            }
+        ];
+
+        var sut = (ProviderSummaryViewModel)response;
+
+        sut.ShowManageCourseOffering.Should().BeFalse();
+    }
+
+    [Test]
+    [InlineAutoData(16, 16)]
+    [InlineAutoData(null, 0)]
+    public void MapModel_RestrictedCoursesCount_AsExpected(
+        int? restrictedCount,
+        int expected,
+        GetOrganisationResponse response)
+    {
+        response.ProviderType = ProviderType.Main;
+        response.AllowedCourseTypes =
+        [
+            new AllowedCourseType
+            {
+                CourseType = CourseType.Apprenticeship,
+                IsRestricted = false,
+                RestrictedCount = restrictedCount
+            }
+        ];
+
+        var sut = (ProviderSummaryViewModel)response;
+
+        sut.RestrictedCoursesCount.Should().Be(expected);
+    }
+
+    [Test]
+    [InlineAutoData(12, 12)]
+    [InlineAutoData(0, 0)]
+    [InlineAutoData(null, 0)]
+    public void MapModel_ApprovedApprenticeshipUnitsCount_WhenShortCoursesAllowed_AsExpected(
+        int? allowedCount,
+        int expected,
+        GetOrganisationResponse response)
+    {
+        response.ProviderType = ProviderType.Main;
+        response.AllowedCourseTypes =
+        [
+            new AllowedCourseType
+            {
+                CourseType = CourseType.Apprenticeship,
+                IsRestricted = false
+            },
+            new AllowedCourseType
+            {
+                CourseType = CourseType.ShortCourse,
+                AllowedCount = allowedCount
+            }
+        ];
+
+        var sut = (ProviderSummaryViewModel)response;
+
+        sut.ApprovedApprenticeshipUnitsCount.Should().Be(expected);
+    }
+
+    [Test, AutoData]
+    public void MapModel_ApprovedApprenticeshipUnitsCount_WhenShortCoursesNotAllowed_IsZero(
+        GetOrganisationResponse response)
+    {
+        response.ProviderType = ProviderType.Main;
+        response.AllowedCourseTypes =
+        [
+            new AllowedCourseType
+            {
+                CourseType = CourseType.Apprenticeship,
+                IsRestricted = false,
+                RestrictedCount = 16
+            }
+        ];
+
+        var sut = (ProviderSummaryViewModel)response;
+
+        using (new AssertionScope())
+        {
+            sut.ApprovedApprenticeshipUnitsCount.Should().Be(0);
+            sut.ShowManageCourseOffering.Should().BeTrue();
+        }
     }
 }

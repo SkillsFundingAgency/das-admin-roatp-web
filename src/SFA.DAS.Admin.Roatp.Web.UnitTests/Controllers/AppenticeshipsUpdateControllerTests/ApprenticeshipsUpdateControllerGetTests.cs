@@ -1,5 +1,7 @@
-﻿using AutoFixture.NUnit4;
+﻿using System.Net;
+using AutoFixture.NUnit4;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Refit;
@@ -10,9 +12,9 @@ using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
-using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.AppenticeshipsUpdateControllerTests;
+
 public class ApprenticeshipsUpdateControllerGetTests
 {
     [Test, MoqAutoData]
@@ -60,15 +62,17 @@ public class ApprenticeshipsUpdateControllerGetTests
     }
 
 
-    [Test, MoqAutoData]
+    [Test]
+    [MoqInlineAutoData(true)]
+    [MoqInlineAutoData(false)]
     public async Task Get_MatchingDetails_InSession_BuildViewModelFromSession(
+        bool containsApprenticeships,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ApprenticeshipsUpdateController sut,
         string selectOrganisationLink,
         GetOrganisationResponse getOrganisationResponse,
         int ukprn,
-        bool containsApprenticeships,
         CancellationToken cancellationToken)
     {
         UpdateProviderTypeCourseTypesSessionModel sessionModel = new UpdateProviderTypeCourseTypesSessionModel
@@ -76,7 +80,14 @@ public class ApprenticeshipsUpdateControllerGetTests
             CourseTypeIds = new List<int>()
         };
 
-        if (containsApprenticeships) { sessionModel.CourseTypeIds.Add(CourseTypes.Apprenticeship); }
+        if (containsApprenticeships)
+        {
+            sessionModel.CourseTypeIds.Add((int)CourseType.Apprenticeship);
+        }
+        else
+        {
+            sessionModel.CourseTypeIds.Add((int)CourseType.ShortCourse);
+        }
 
         sessionServiceMock.Setup(s =>
                 s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
@@ -90,11 +101,15 @@ public class ApprenticeshipsUpdateControllerGetTests
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), new GetOrganisationResponse(), new RefitSettings(), null));
 
         var actual = await sut.Index(ukprn, cancellationToken) as ViewResult;
-        actual.Should().NotBeNull();
-        var model = actual.Model as OfferApprenticeshipsViewModel;
-        model.Should().NotBeNull();
-        model.ApprenticeshipsSelection.Should().BeEquivalentTo(expectedApprenticeshipTypesChoices);
-        model.IsApprenticeshipsOffered.Should().Be(containsApprenticeships);
+        var model = actual?.Model as OfferApprenticeshipsViewModel;
+
+        using (new AssertionScope())
+        {
+            actual.Should().NotBeNull();
+            model.Should().NotBeNull();
+            model!.ApprenticeshipsSelection.Should().BeEquivalentTo(expectedApprenticeshipTypesChoices);
+            model.IsApprenticeshipsOffered.Should().Be(containsApprenticeships);
+        }
     }
 
     private static List<ApprenticeshipsSelectionModel> BuildApprenticeshipTypesChoices(bool containsApprenticeships)

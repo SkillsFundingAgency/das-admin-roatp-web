@@ -59,7 +59,7 @@ public class ApprenticeshipsUpdateControllerPostTests
         {
             HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
         };
-        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = "ShortCourse" } };
+        var courseTypes = new List<AllowedCourseType> { new() { CourseType = CourseType.ShortCourse } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
 
@@ -102,7 +102,7 @@ public class ApprenticeshipsUpdateControllerPostTests
         {
             HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
         };
-        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = nameof(CourseTypes.ShortCourse) } };
+        var courseTypes = new List<AllowedCourseType> { new() { CourseType = CourseType.ShortCourse } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
 
@@ -144,7 +144,7 @@ public class ApprenticeshipsUpdateControllerPostTests
         {
             HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
         };
-        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = nameof(CourseTypes.ShortCourse) } };
+        var courseTypes = new List<AllowedCourseType> { new() { CourseType = CourseType.ShortCourse } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
         submitModel.IsApprenticeshipsOffered = selectedNoId;
@@ -163,7 +163,7 @@ public class ApprenticeshipsUpdateControllerPostTests
         sessionServiceMock.Verify(x => x.Set(SessionKeys
             .UpdateSupportingProviderCourseTypes, It.Is<UpdateProviderTypeCourseTypesSessionModel>(
             c => c.CourseTypeIds.Count == 1
-            && c.CourseTypeIds[0] == CourseTypes.Apprenticeship
+            && c.CourseTypeIds[0] == (int)CourseType.Apprenticeship
             )), Times.Once);
     }
 

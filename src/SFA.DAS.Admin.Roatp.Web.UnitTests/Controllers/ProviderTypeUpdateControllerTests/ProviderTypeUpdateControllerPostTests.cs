@@ -142,7 +142,7 @@ public class ProviderTypeUpdateControllerPostTests
     {
         var allowedCourseTypes = new List<AllowedCourseType>
         {
-            new() { CourseTypeId = 1, CourseTypeName = nameof(CourseTypes.Apprenticeship) }
+            new() { CourseType = CourseType.Apprenticeship }
         };
         getOrganisationResponse.AllowedCourseTypes = allowedCourseTypes;
         getOrganisationResponse.ProviderType = providerType;
@@ -178,8 +178,8 @@ public class ProviderTypeUpdateControllerPostTests
     {
         var allowedCourseTypes = new List<AllowedCourseType>
         {
-            new() { CourseTypeId = 1, CourseTypeName = nameof(CourseTypes.Apprenticeship) },
-            new() { CourseTypeId = 2, CourseTypeName = nameof(CourseTypes.ShortCourse)}
+            new() { CourseType = CourseType.Apprenticeship },
+            new() { CourseType = CourseType.ShortCourse }
         };
 
         getOrganisationResponse.AllowedCourseTypes = allowedCourseTypes;
