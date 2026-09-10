@@ -53,8 +53,7 @@ public class ProviderSummaryViewModel : ISearchProviderLink
         var apprenticeshipCourseType = organisationResponse.AllowedCourseTypes.FirstOrDefault(x => x.CourseType == CourseType.Apprenticeship);
         var shortCourseType = organisationResponse.AllowedCourseTypes.FirstOrDefault(x => x.CourseType == CourseType.ShortCourse);
         var isUnrestrictedMainProvider = organisationResponse.ProviderType == ProviderType.Main
-            && apprenticeshipCourseType is not null
-            && apprenticeshipCourseType.IsRestricted != true;
+            && apprenticeshipCourseType?.IsRestricted == false;
 
         var trainingProviderViewModel = new ProviderSummaryViewModel
         {
