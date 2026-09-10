@@ -42,10 +42,10 @@ public class ProviderSummaryViewModelTests
     }
 
     [Test]
-    [InlineAutoData(ProviderType.Supporting, true)]
-    [InlineAutoData(ProviderType.Employer, false)]
+    [InlineAutoData(ProviderType.Employer, true)]
+    [InlineAutoData(ProviderType.Supporting, false)]
     [InlineAutoData(ProviderType.Main, false)]
-    public void MapModel_IsSupportingProvider_AsExpected(
+    public void MapModel_IsEmployerProvider_AsExpected(
         ProviderType providerType,
         bool expected,
         GetOrganisationResponse response
@@ -53,7 +53,7 @@ public class ProviderSummaryViewModelTests
     {
         response.ProviderType = providerType!;
         var sut = (ProviderSummaryViewModel)response;
-        sut.IsSupportingProvider.Should().Be(expected);
+        sut.IsEmployerProvider.Should().Be(expected);
     }
 
     [Test]

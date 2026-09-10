@@ -76,12 +76,12 @@
                                 <td class="govuk-table__cell">@Model.OrganisationType</td>
                                 <td class="govuk-table__cell"><a href="@Model.OrganisationTypeChangeLink" class="govuk-link">Change</a></td>
                             </tr>
-                            <tr asp-show="@(!Model.IsSupportingProvider && !Model.ShowManageCourseOffering)" class="govuk-table__row">
+                            <tr asp-show="Model.IsEmployerProvider" class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">Offers&nbsp;apprenticeships</th>
                                 <td class="govuk-table__cell  govuk-!-width-two-thirds">@Model.OffersApprenticeshipsText</td>
                                 <td class="govuk-table__cell"></td>
                             </tr>
-                            <tr asp-show="@(!Model.IsSupportingProvider && !Model.ShowManageCourseOffering)" class="govuk-table__row">
+                           <tr asp-show ="Model.IsEmployerProvider" class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">Offers apprenticeship units</th>
                                 <td class="govuk-table__cell">@Model.OffersShortCoursesText</td>
                                 <td class="govuk-table__cell"><a href="@Model.OffersApprenticeshipUnitsChangeLink" class="govuk-link">Change</a></td>

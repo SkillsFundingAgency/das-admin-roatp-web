@@ -28,7 +28,7 @@ public class ProviderSummaryViewModel : ISearchProviderLink
     public string CharityNumberText { get; set; } = string.Empty;
     public string ApplicationDeterminedDateText { get; set; } = string.Empty;
 
-    public bool IsSupportingProvider { get; set; }
+    public bool IsEmployerProvider { get; set; }
 
     public string SearchProviderUrl { get; set; } = string.Empty;
 
@@ -64,7 +64,7 @@ public class ProviderSummaryViewModel : ISearchProviderLink
             CompanyNumber = !string.IsNullOrWhiteSpace(organisationResponse.CompanyNumber) ? organisationResponse.CompanyNumber : "Not applicable",
             ShowCompanyNumber = !string.IsNullOrWhiteSpace(organisationResponse.CompanyNumber),
             ProviderType = organisationResponse.ProviderType,
-            IsSupportingProvider = organisationResponse.ProviderType == ProviderType.Supporting,
+            IsEmployerProvider = organisationResponse.ProviderType == ProviderType.Employer,
             OrganisationType = organisationResponse.OrganisationType,
             Status = organisationResponse.Status,
             LastUpdatedDateText = organisationResponse.LastUpdatedDate.HasValue ? organisationResponse.LastUpdatedDate.Value.ToDisplayString() : string.Empty,
