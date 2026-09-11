@@ -10,7 +10,7 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models;
 public class ProviderSummaryViewModelTests
 {
     [Test, AutoData]
-    public void MapModel_From_GetOrganisationResponse(
+    public void WhenMappingFromResponse_ThenMapsEquivalentProperties(
         GetOrganisationResponse response
     )
     {
@@ -30,7 +30,7 @@ public class ProviderSummaryViewModelTests
     [Test]
     [InlineAutoData(null, "Not applicable")]
     [InlineAutoData("12345678", "12345678")]
-    public void MapModel_CompanyNumber_AsExpected(
+    public void WhenMappingFromResponse_ThenSetsCompanyNumber(
         string? companyNumber,
         string expected,
         GetOrganisationResponse response
@@ -45,7 +45,7 @@ public class ProviderSummaryViewModelTests
     [InlineAutoData(ProviderType.Employer, true)]
     [InlineAutoData(ProviderType.Supporting, false)]
     [InlineAutoData(ProviderType.Main, false)]
-    public void MapModel_IsEmployerProvider_AsExpected(
+    public void WhenMappingFromResponse_ThenSetsIsEmployerProvider(
         ProviderType providerType,
         bool expected,
         GetOrganisationResponse response
@@ -57,7 +57,7 @@ public class ProviderSummaryViewModelTests
     }
 
     [Test, AutoData]
-    public void MapModel_WhenEmployerProvider_DoesNotShowMainProviderCourseOffering(
+    public void WhenMappingFromResponse_AndProviderTypeIsEmployer_ThenDoesNotShowMainProviderCourseOffering(
         GetOrganisationResponse response)
     {
         response.ProviderType = ProviderType.Employer;
@@ -76,7 +76,7 @@ public class ProviderSummaryViewModelTests
     [InlineAutoData(null, false)]
     [InlineAutoData("", false)]
     [InlineAutoData("trading name", true)]
-    public void MapModel_ShowTradingName_AsExpected(
+    public void WhenMappingFromResponse_ThenSetsShowTradingName(
         string? tradingName,
         bool expected,
         GetOrganisationResponse response
@@ -91,7 +91,7 @@ public class ProviderSummaryViewModelTests
     [InlineAutoData(null, false)]
     [InlineAutoData("", false)]
     [InlineAutoData("11111111", true)]
-    public void MapModel_ShowCompanyNumber_AsExpected(
+    public void WhenMappingFromResponse_ThenSetsShowCompanyNumber(
         string? companyNumber,
         bool expected,
         GetOrganisationResponse response
@@ -106,7 +106,7 @@ public class ProviderSummaryViewModelTests
     [InlineAutoData(10, "10 Oct 2024", true)]
     [InlineAutoData(1, "01 Oct 2024", true)]
     [InlineAutoData(null, "", false)]
-    public void MapModel_LastUpdatedDateText_ShowLastUpdatedDate_AsExpected(
+    public void WhenMappingFromResponse_ThenSetsLastUpdatedDate(
         int? day,
        string expectedDateText,
         bool expectedShowLastUpdatedDate,
@@ -127,7 +127,7 @@ public class ProviderSummaryViewModelTests
     [InlineAutoData(10, "10 Oct 2024")]
     [InlineAutoData(1, "01 Oct 2024")]
     [InlineAutoData(null, "Unavailable")]
-    public void MapModel_ApplicationDeterminedDateText_AsExpected(
+    public void WhenMappingFromResponse_ThenSetsApplicationDeterminedDateText(
         int? day,
         string expectedDateText,
         GetOrganisationResponse response
@@ -145,7 +145,7 @@ public class ProviderSummaryViewModelTests
     [Test]
     [InlineAutoData(1, true)]
     [InlineAutoData(null, false)]
-    public void MapModel_ShowRemovedReason_AsExpected(
+    public void WhenMappingFromResponse_ThenSetsShowRemovedReason(
         int? reasonId,
        bool expected,
         GetOrganisationResponse response
@@ -165,7 +165,7 @@ public class ProviderSummaryViewModelTests
     [InlineAutoData(10, "10 Oct 2024")]
     [InlineAutoData(1, "01 Oct 2024")]
     [InlineAutoData(null, "")]
-    public void MapModel_RemovedDateText_AsExpected(
+    public void WhenMappingFromResponse_ThenSetsRemovedDateText(
         int? day,
         string expectedDateText,
         GetOrganisationResponse response
@@ -184,7 +184,7 @@ public class ProviderSummaryViewModelTests
     [InlineAutoData("1234567", "1234567")]
     [InlineAutoData(null, "Not applicable")]
     [InlineAutoData("", "Not applicable")]
-    public void MapModel_CharityNumberText_AsExpected(
+    public void WhenMappingFromResponse_ThenSetsCharityNumberText(
         string charityNumber,
         string expected,
         GetOrganisationResponse response
@@ -201,7 +201,7 @@ public class ProviderSummaryViewModelTests
     [InlineAutoData(true, false, "Yes", "No")]
     [InlineAutoData(false, true, "No", "Yes")]
     [InlineAutoData(false, false, "No", "No")]
-    public void MapModel_OffersApprenticeshipsText_OffersShortCoursesText_AsExpected(
+    public void WhenMappingFromResponse_ThenSetsOffersApprenticeshipsAndShortCoursesText(
         bool offersApprenticeships,
         bool offersShortCourses,
         string expectedOffersApprenticeshipText,
@@ -226,7 +226,7 @@ public class ProviderSummaryViewModelTests
     [InlineAutoData(OrganisationStatus.ActiveNoStarts, false, true, false, false)]
     [InlineAutoData(OrganisationStatus.OnBoarding, false, false, true, false)]
     [InlineAutoData(OrganisationStatus.Removed, false, false, false, true)]
-    public void MapModel_CheckStatuses_AsExpected(
+    public void WhenMappingFromResponse_ThenSetsStatusFlags(
         OrganisationStatus status,
         bool isActive,
         bool isActiveNoStarts,
@@ -248,7 +248,7 @@ public class ProviderSummaryViewModelTests
     [InlineAutoData(ProviderType.Main, true, true, true)]
     [InlineAutoData(ProviderType.Employer, false, false, false)]
     [InlineAutoData(ProviderType.Supporting, false, false, false)]
-    public void MapModel_ShowManageCourseOffering_AsExpected(
+    public void WhenMappingFromResponse_ThenSetsShowManageCourseOffering(
         ProviderType providerType,
         bool isRestricted,
         bool expectedShowManageCourseOffering,
@@ -275,7 +275,7 @@ public class ProviderSummaryViewModelTests
     }
 
     [Test, AutoData]
-    public void MapModel_ShowManageCourseOffering_WhenMainProviderHasNoApprenticeshipCourseType_IsFalse(
+    public void WhenMappingFromResponse_AndMainProviderHasNoApprenticeshipCourseType_ThenShowManageCourseOfferingIsFalse(
         GetOrganisationResponse response)
     {
         response.ProviderType = ProviderType.Main;
@@ -296,7 +296,7 @@ public class ProviderSummaryViewModelTests
     [Test]
     [InlineAutoData(16, 16)]
     [InlineAutoData(null, 0)]
-    public void MapModel_RestrictedCoursesCount_AsExpected(
+    public void WhenMappingFromResponse_ThenSetsRestrictedCoursesCount(
         int? restrictedCount,
         int expected,
         GetOrganisationResponse response)
@@ -321,7 +321,7 @@ public class ProviderSummaryViewModelTests
     [InlineAutoData(8, 8)]
     [InlineAutoData(0, 0)]
     [InlineAutoData(null, 0)]
-    public void MapModel_ApprovedCoursesCount_AsExpected(
+    public void WhenMappingFromResponse_ThenSetsApprovedCoursesCount(
         int? allowedCount,
         int expected,
         GetOrganisationResponse response)
@@ -351,7 +351,7 @@ public class ProviderSummaryViewModelTests
     [InlineAutoData(12, 12)]
     [InlineAutoData(0, 0)]
     [InlineAutoData(null, 0)]
-    public void MapModel_ApprovedApprenticeshipUnitsCount_WhenShortCoursesAllowed_AsExpected(
+    public void WhenMappingFromResponse_AndShortCoursesAreAllowed_ThenSetsApprovedApprenticeshipUnitsCount(
         int? allowedCount,
         int expected,
         GetOrganisationResponse response)
@@ -384,7 +384,7 @@ public class ProviderSummaryViewModelTests
     [InlineAutoData(12, 12)]
     [InlineAutoData(0, 0)]
     [InlineAutoData(null, 0)]
-    public void MapModel_ApprovedApprenticeshipUnitsCount_WhenRestrictedMainProviderAndShortCoursesAllowed_AsExpected(
+    public void WhenMappingFromResponse_AndRestrictedMainProviderAndShortCoursesAreAllowed_ThenSetsApprovedApprenticeshipUnitsCount(
         int? allowedCount,
         int expected,
         GetOrganisationResponse response)
@@ -416,7 +416,7 @@ public class ProviderSummaryViewModelTests
     }
 
     [Test, AutoData]
-    public void MapModel_ApprovedApprenticeshipUnitsCount_WhenShortCoursesNotAllowed_IsZero(
+    public void WhenMappingFromResponse_AndShortCoursesAreNotAllowed_ThenApprovedApprenticeshipUnitsCountIsZero(
         GetOrganisationResponse response)
     {
         response.ProviderType = ProviderType.Main;
@@ -440,7 +440,7 @@ public class ProviderSummaryViewModelTests
     }
 
     [Test, AutoData]
-    public void MapModel_ApprovedApprenticeshipUnitsCount_WhenRestrictedMainProviderAndShortCoursesNotAllowed_IsZero(
+    public void WhenMappingFromResponse_AndRestrictedMainProviderAndShortCoursesAreNotAllowed_ThenApprovedApprenticeshipUnitsCountIsZero(
         GetOrganisationResponse response)
     {
         response.ProviderType = ProviderType.Main;

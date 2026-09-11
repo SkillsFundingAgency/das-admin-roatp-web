@@ -23,7 +23,7 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ApprenticeshipUnitsUpdat
 public class ApprenticeshipUnitsUpdateControllerPostTests
 {
     [Test, MoqAutoData]
-    public async Task Post_NoMatchingDetails_RedirectToHome(
+    public async Task WhenPostingApprenticeshipUnitsUpdate_AndNoMatchingDetails_ThenRedirectsToHome(
       [Frozen] Mock<IOuterApiClient> outerApiClientMock,
       [Greedy] ApprenticeshipUnitsUpdateController sut,
       ApprenticeshipUnitsUpdateViewModel viewModel,
@@ -42,7 +42,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public async Task Post_NoApprenticeshipUnitsChange_RedirectToProviderSummary(
+    public async Task WhenPostingApprenticeshipUnitsUpdate_AndNoChange_ThenRedirectsToProviderSummary(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ApprenticeshipUnitsUpdateController sut,
@@ -86,7 +86,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
     [MoqInlineAutoData(true, false, 2)]
     [MoqInlineAutoData(true, true, 1)]
     [MoqInlineAutoData(false, false, 1)]
-    public async Task Post_ApprenticeshipUnitsChange_ChangePostedSuccessfully(
+    public async Task WhenPostingApprenticeshipUnitsUpdate_AndChangePostedSuccessfully_ThenPutsCourseTypes(
        bool isStandardCourseTypePresent,
        bool isShortCourseTypePresent,
        int expectedPutCourseTypes,
@@ -163,7 +163,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
 
     [Test]
     [MoqInlineAutoData]
-    public async Task Post_ApprenticeshipUnitsChange_ValidationTriggered(
+    public async Task WhenPostingApprenticeshipUnitsUpdate_AndValidationTriggered_ThenReturnsView(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IValidator<ApprenticeshipUnitsUpdateViewModel>> validator,
         [Greedy] ApprenticeshipUnitsUpdateController sut,
@@ -205,7 +205,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
     [Test]
     [MoqInlineAutoData(ProviderType.Main)]
     [MoqInlineAutoData(ProviderType.Employer)]
-    public async Task Post_ProviderTypeFromSupportingToOther_ApprenticeshipsTrue_ApprenticeshipUnitsFalse(
+    public async Task WhenPostingApprenticeshipUnitsUpdate_AndSupportingToOtherWithApprenticeshipsAndNoUnits_ThenRedirectsToProviderSummary(
         ProviderType providerTypeChangedTo,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
@@ -264,7 +264,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
     [Test]
     [MoqInlineAutoData(ProviderType.Main)]
     [MoqInlineAutoData(ProviderType.Employer)]
-    public async Task Post_ProviderTypeFromSupportingToOther_ApprenticeshipsTrue_ApprenticeshipUnitsTrue(
+    public async Task WhenPostingApprenticeshipUnitsUpdate_AndSupportingToOtherWithApprenticeshipsAndUnits_ThenRedirectsToProviderSummary(
         ProviderType providerTypeChangedTo,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
@@ -324,7 +324,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
     [Test]
     [MoqInlineAutoData(ProviderType.Main)]
     [MoqInlineAutoData(ProviderType.Employer)]
-    public async Task Post_ProviderTypeFromSupportingToOther_ApprenticeshipsFalse_ApprenticeshipUnitsTrue(
+    public async Task WhenPostingApprenticeshipUnitsUpdate_AndSupportingToOtherWithUnitsAndNoApprenticeships_ThenRedirectsToProviderSummary(
         ProviderType providerTypeChangedTo,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,

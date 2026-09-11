@@ -17,7 +17,7 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ProviderSummaryControlle
 public class GetProviderSummaryControllerTests
 {
     [Test, MoqAutoData]
-    public async Task Get_NoMatchingDetails_RedirectToHome(
+    public async Task WhenGettingProviderSummary_AndNoMatchingDetails_ThenRedirectsToHome(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] EditOrganisationSessionModel _editOrganisationSessionModel,
         [Greedy] ProviderSummaryController sut,
@@ -35,7 +35,7 @@ public class GetProviderSummaryControllerTests
     }
 
     [Test, MoqAutoData]
-    public async Task Get_MatchingDetails_SetSessionAndRedirect(
+    public async Task WhenGettingProviderSummary_AndMatchingDetails_ThenSetsModelUrls(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] EditOrganisationSessionModel _editOrganisationSessionModel,
         [Greedy] ProviderSummaryController sut,

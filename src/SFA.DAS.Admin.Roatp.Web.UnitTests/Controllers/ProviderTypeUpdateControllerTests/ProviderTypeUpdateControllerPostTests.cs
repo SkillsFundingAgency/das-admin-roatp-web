@@ -18,7 +18,7 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ProviderTypeUpdateContro
 public class ProviderTypeUpdateControllerPostTests
 {
     [Test, MoqAutoData]
-    public async Task Get_NoMatchingDetails_RedirectToHome(
+    public async Task WhenPostingProviderTypeUpdate_AndNoMatchingDetails_ThenRedirectsToHome(
        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
        [Greedy] ProviderTypeUpdateController sut,
        ProviderTypeUpdateViewModel viewModel,
@@ -36,7 +36,7 @@ public class ProviderTypeUpdateControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public async Task Get_NoProviderTypeChange_RedirectToProviderSummary(
+    public async Task WhenPostingProviderTypeUpdate_AndNoProviderTypeChange_ThenRedirectsToProviderSummary(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IOrganisationPatchService> organisationPatchService,
         [Greedy] ProviderTypeUpdateController sut,
@@ -65,7 +65,7 @@ public class ProviderTypeUpdateControllerPostTests
     [Test]
     [MoqInlineAutoData(ProviderType.Main, ProviderType.Employer)]
     [MoqInlineAutoData(ProviderType.Employer, ProviderType.Main)]
-    public async Task Get_ProviderTypeChange_SwappingMainAndEmployer_RedirectToProviderSummary(
+    public async Task WhenPostingProviderTypeUpdate_AndSwappingMainAndEmployer_ThenRedirectsToProviderSummary(
         ProviderType providerType,
         ProviderType providerTypeChange,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
@@ -96,7 +96,7 @@ public class ProviderTypeUpdateControllerPostTests
     [Test]
     [MoqInlineAutoData(ProviderType.Supporting, ProviderType.Employer)]
     [MoqInlineAutoData(ProviderType.Supporting, ProviderType.Main)]
-    public async Task Get_ProviderTypeChange_SupportingToMainEmployer_RedirectToProviderSummary(
+    public async Task WhenPostingProviderTypeUpdate_AndSupportingToMainOrEmployer_ThenRedirectsToApprenticeshipsUpdate(
         ProviderType providerType,
         ProviderType providerTypeChange,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
@@ -129,7 +129,7 @@ public class ProviderTypeUpdateControllerPostTests
     [Test]
     [MoqInlineAutoData(ProviderType.Main, ProviderType.Supporting)]
     [MoqInlineAutoData(ProviderType.Employer, ProviderType.Supporting)]
-    public async Task Get_ProviderTypeChange_ToSupporting_NonStandardCourseTypesNotPresent_RedirectToProviderSummary(
+    public async Task WhenPostingProviderTypeUpdate_AndChangingToSupportingWithNoNonStandardCourseTypes_ThenRedirectsToProviderSummary(
         ProviderType providerType,
         ProviderType providerTypeChange,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
@@ -165,7 +165,7 @@ public class ProviderTypeUpdateControllerPostTests
     [Test]
     [MoqInlineAutoData(ProviderType.Main, ProviderType.Supporting)]
     [MoqInlineAutoData(ProviderType.Employer, ProviderType.Supporting)]
-    public async Task Get_ProviderTypeChange_ToSupporting_NonStandardCourseTypesPresent_RedirectToProviderSummary(
+    public async Task WhenPostingProviderTypeUpdate_AndChangingToSupportingWithNonStandardCourseTypes_ThenRedirectsToProviderSummary(
         ProviderType providerType,
         ProviderType providerTypeChange,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,

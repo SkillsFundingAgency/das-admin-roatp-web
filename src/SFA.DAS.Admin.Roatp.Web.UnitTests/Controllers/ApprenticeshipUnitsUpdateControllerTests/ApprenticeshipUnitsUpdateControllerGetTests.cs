@@ -17,7 +17,7 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ApprenticeshipUnitsUpdat
 public class ApprenticeshipUnitsUpdateControllerGetTests
 {
     [Test, MoqAutoData]
-    public async Task Get_NoMatchingDetails_RedirectToHome(
+    public async Task WhenGettingApprenticeshipUnitsUpdate_AndNoMatchingDetails_ThenRedirectsToHome(
        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
        [Greedy] ApprenticeshipUnitsUpdateController sut,
        int ukprn,
@@ -34,7 +34,7 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task Get_MatchingDetails_NotInSession_BuildViewModelFromGetOrganisationResponse(
+    public async Task WhenGettingApprenticeshipUnitsUpdate_AndMatchingDetailsNotInSession_ThenBuildsViewModelFromOrganisationResponse(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ApprenticeshipUnitsUpdateController sut,
@@ -79,7 +79,7 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
 
 
     [Test, MoqAutoData]
-    public async Task Get_MatchingDetails_InSession_BuildViewModelFromSession(
+    public async Task WhenGettingApprenticeshipUnitsUpdate_AndMatchingDetailsAreInSession_ThenBuildsViewModelFromSession(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ApprenticeshipUnitsUpdateController sut,
