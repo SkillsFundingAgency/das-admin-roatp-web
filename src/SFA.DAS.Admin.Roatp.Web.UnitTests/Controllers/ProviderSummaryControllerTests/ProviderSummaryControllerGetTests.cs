@@ -1,4 +1,5 @@
-﻿using AutoFixture.NUnit4;
+﻿using System.Net;
+using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +12,10 @@ using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
-using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ProviderSummaryControllerTests;
-public class GetProviderSummaryControllerTests
+
+public class ProviderSummaryControllerGetTests
 {
     [Test, MoqAutoData]
     public async Task WhenGettingProviderSummary_AndNoMatchingDetails_ThenRedirectsToHome(
