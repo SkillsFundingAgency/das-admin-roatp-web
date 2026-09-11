@@ -1,0 +1,82 @@
+@using SFA.DAS.Admin.Roatp.Web.Infrastructure
+@using SFA.DAS.Admin.Roatp.Web.Services
+@model SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions.RestrictedCoursesViewModel
+@{
+    ViewBag.Title = "View and manage restricted courses";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">View and manage restricted courses</h1>
+        <p class="govuk-body">The courses on this page have been restricted. This means that we manage who is allowed to deliver them.</p>
+    </div>
+</div>
+
+<div class="app-action-panel govuk-!-margin-bottom-8 govuk-!-margin-top-2">
+    <h2 class="govuk-heading-l">Restrict a new course</h2>
+    <p class="govuk-body">This will not impact training providers who currently have learners on this course, or remove it from their offering in Course management.</p>
+    <p class="govuk-body">It will stop training providers who don’t yet offer it from adding it to their account in Course management.</p>
+    <form asp-route="@RouteNames.UnrestrictedCourseSearch" method="get" class="govuk-!-margin-bottom-0">
+        <button type="submit" class="govuk-button govuk-!-margin-bottom-0" data-module="govuk-button">
+            Restrict a new course
+        </button>
+    </form>
+</div>
+
+<hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-6">
+
+<h2 class="govuk-heading-l">List of restricted courses</h2>
+<p class="govuk-body">Select a course to view which training providers are allowed to deliver it.</p>
+<p class="govuk-body">You can add new training providers, or stop them from delivering it by adding a last date for new starts.</p>
+
+<p asp-show="Model.HasNoCourses" class="govuk-body">There are no restricted courses.</p>
+
+<div asp-show="Model.ShowCourseResults" class="govuk-grid-row govuk-!-margin-top-6" id="@RestrictedCoursesFilterBuilder.RestrictedCourseFilterResultsFragment">
+    <div class="govuk-grid-column-one-third">
+        @await Html.PartialAsync("_filters", Model.Filters)
+    </div>
+
+    <div class="govuk-grid-column-two-thirds">
+        <div asp-show="Model.HasCourses">
+            <div class="app-results-header govuk-!-margin-bottom-3">
+                <p class="govuk-body govuk-!-font-weight-bold govuk-!-margin-bottom-0">@Model.TotalCountDescription</p>
+                <p class="govuk-body govuk-!-margin-bottom-0">
+                    Sorted by: <span class="govuk-!-font-weight-bold">Name of course</span>
+                </p>
+            </div>
+
+            <ul class="govuk-list app-results-list app-results-list--bordered">
+                @foreach (var course in Model.Courses)
+                {
+                    <li class="app-results-list__item">
+                        <strong class="govuk-tag @course.LearningTypeTagClass app-tag govuk-!-margin-bottom-2">@course.LearningTypeDescription</strong>
+                        <div class="app-results-list__content">
+                            <h3 class="govuk-heading-s govuk-!-margin-bottom-1">@course.DisplayTitle</h3>
+                            <div class="app-results-list__actions">
+                                <a class="govuk-link govuk-link--no-visited-state"
+                                   asp-route="@RouteNames.RestrictedCourseDetails"
+                                   asp-route-larsCode="@course.LarsCode">Manage providers</a>
+                            </div>
+                        </div>
+                        <p class="govuk-body govuk-!-margin-bottom-0">LARS Code: @course.LarsCode</p>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <div asp-show="Model.HasNoFilterResults">
+            <h2 class="govuk-heading-l">No results</h2>
+            <p class="govuk-body">There are no courses that match your search.</p>
+            <p class="govuk-body">You may need to:</p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>clear filters you've selected</li>
+                <li>check your spelling or enter another search term and try again</li>
+            </ul>
+            <p class="govuk-body">Change your search using the filters on this page.</p>
+        </div>
+
+        <div class="govuk-!-margin-top-4">
+            @await Html.PartialAsync("_pagination", Model.Pagination)
+        </div>
+    </div>
+</div>
