@@ -1,5 +1,7 @@
-﻿using AutoFixture.NUnit4;
+﻿using System.Net;
+using AutoFixture.NUnit4;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Refit;
@@ -10,13 +12,13 @@ using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
-using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ProviderSummaryControllerTests;
-public class GetProviderSummaryControllerTests
+
+public class ProviderSummaryControllerGetTests
 {
     [Test, MoqAutoData]
-    public async Task Get_NoMatchingDetails_RedirectToHome(
+    public async Task WhenGettingProviderSummary_AndNoMatchingDetails_ThenRedirectsToHome(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] EditOrganisationSessionModel _editOrganisationSessionModel,
         [Greedy] ProviderSummaryController sut,
@@ -34,7 +36,7 @@ public class GetProviderSummaryControllerTests
     }
 
     [Test, MoqAutoData]
-    public async Task Get_MatchingDetails_SetSessionAndRedirect(
+    public async Task WhenGettingProviderSummary_AndMatchingDetails_ThenSetsModelUrls(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] EditOrganisationSessionModel _editOrganisationSessionModel,
         [Greedy] ProviderSummaryController sut,
@@ -42,6 +44,8 @@ public class GetProviderSummaryControllerTests
         string providerStatusUpdateLink,
         string providerTypeUpdateLink,
         string organisationTypeUpdateLink,
+        string apprenticeshipUnitsUpdateLink,
+        string providerSummaryLink,
         GetOrganisationResponse getOrganisationResponse,
         int ukprn,
         CancellationToken cancellationToken)
@@ -53,19 +57,30 @@ public class GetProviderSummaryControllerTests
             .AddUrlForRoute(RouteNames.ProviderStatusUpdate, providerStatusUpdateLink)
             .AddUrlForRoute(RouteNames.ProviderTypeUpdate, providerTypeUpdateLink)
             .AddUrlForRoute(RouteNames.OrganisationTypeUpdate, organisationTypeUpdateLink)
+            .AddUrlForRoute(RouteNames.ApprenticeshipUnitsUpdate, apprenticeshipUnitsUpdateLink)
+            .AddUrlForRoute(RouteNames.ProviderSummary, providerSummaryLink)
             ;
 
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
         var actual = await sut.Index(_editOrganisationSessionModel.Ukprn, cancellationToken) as ViewResult;
-        actual.Should().NotBeNull();
-        var model = actual.Model as ProviderSummaryViewModel;
-        model.Should().NotBeNull();
-        model.Ukprn.Should().Be(ukprn);
-        model.SearchProviderUrl.Should().Be(selectOrganisationLink);
-        model.StatusChangeLink.Should().Be(providerStatusUpdateLink);
-        model.ProviderTypeChangeLink.Should().Be(providerTypeUpdateLink);
-        model.OrganisationTypeChangeLink.Should().Be(organisationTypeUpdateLink);
+        var model = actual?.Model as ProviderSummaryViewModel;
+
+        using (new AssertionScope())
+        {
+            actual.Should().NotBeNull();
+            model.Should().NotBeNull();
+            model!.Ukprn.Should().Be(ukprn);
+            model.SearchProviderUrl.Should().Be(selectOrganisationLink);
+            model.StatusChangeLink.Should().Be(providerStatusUpdateLink);
+            model.ProviderTypeChangeLink.Should().Be(providerTypeUpdateLink);
+            model.OrganisationTypeChangeLink.Should().Be(organisationTypeUpdateLink);
+            model.OffersApprenticeshipUnitsChangeLink.Should().Be(apprenticeshipUnitsUpdateLink);
+            model.ManageRestrictedCoursesUrl.Should().Be(providerSummaryLink);
+            model.ManageApprovedCoursesUrl.Should().Be(providerSummaryLink);
+            model.ChangeHowWeManageThisProviderUrl.Should().Be(providerSummaryLink);
+            model.ManageApprovedUnitsUrl.Should().Be(providerSummaryLink);
+        }
     }
 }

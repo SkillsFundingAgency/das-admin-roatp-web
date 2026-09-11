@@ -25,7 +25,7 @@ public class ApprenticeshipsUpdateController(IOuterApiClient _outerApiClient, IS
         bool? containsApprenticeships = null;
         if (sessionModel.CourseTypeIds.Count > 0)
         {
-            containsApprenticeships = sessionModel.CourseTypeIds.Any(a => a == CourseTypes.Apprenticeship);
+            containsApprenticeships = sessionModel.CourseTypeIds.Any(a => a == (int)CourseType.Apprenticeship);
         }
 
         var model = new OfferApprenticeshipsViewModel
@@ -65,7 +65,7 @@ public class ApprenticeshipsUpdateController(IOuterApiClient _outerApiClient, IS
             var sessionModel =
                 _sessionService.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys
                     .UpdateSupportingProviderCourseTypes);
-            sessionModel.CourseTypeIds = new List<int> { CourseTypes.Apprenticeship };
+            sessionModel.CourseTypeIds = [(int)CourseType.Apprenticeship];
             _sessionService.Set<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes, sessionModel);
         }
 
