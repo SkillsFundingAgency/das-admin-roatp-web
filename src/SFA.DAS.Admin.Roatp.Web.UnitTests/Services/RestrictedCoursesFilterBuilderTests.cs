@@ -5,7 +5,7 @@ using Moq;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.Filters.FilterComponents;
-using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
+using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using static SFA.DAS.Admin.Roatp.Web.Services.FilterService;
 

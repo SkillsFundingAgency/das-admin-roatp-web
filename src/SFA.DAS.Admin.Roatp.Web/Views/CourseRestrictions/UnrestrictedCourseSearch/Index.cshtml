@@ -1,0 +1,34 @@
+@using SFA.DAS.Admin.Roatp.Web.Infrastructure
+@model SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions.UnrestrictedCourseSearchViewModel
+@{
+    ViewData["Title"] = "Search for the course you want to restrict";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <partial name="_validationSummary" />
+        <form asp-route="@RouteNames.UnrestrictedCourseSearch" method="POST" novalidate>
+            <div esfa-validation-marker-for="SelectedLarsCode" class="govuk-form-group">
+                <span class="govuk-caption-xl">View and manage restricted courses</span>
+                <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">
+                    Search for the course you want to restrict
+                </h1>
+                <label class="govuk-visually-hidden" asp-for="SelectedLarsCode">
+                    Start typing in the box and its name will appear
+                </label>
+                <div class="govuk-hint">
+                    Start typing in the box and its name will appear.
+                </div>
+                <span asp-validation-for="SelectedLarsCode" class="govuk-error-message"></span>
+                <select asp-for="SelectedLarsCode"
+                        asp-items="@Model.Courses"
+                        class="govuk-select app-autocomplete">
+                    <option value="" disabled selected></option>
+                </select>
+            </div>
+            <div class="govuk-button-group">
+                <button type="submit" id="continue" class="govuk-button" data-disable-on-submit="true">Continue</button>
+            </div>
+        </form>
+    </div>
+</div>

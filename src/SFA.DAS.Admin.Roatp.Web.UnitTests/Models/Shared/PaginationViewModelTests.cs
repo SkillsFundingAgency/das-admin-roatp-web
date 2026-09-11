@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
-using SFA.DAS.Admin.Roatp.Web.Models.ManageCourses;
+using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
 using SFA.DAS.Admin.Roatp.Web.Models.Shared;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models.Shared;
