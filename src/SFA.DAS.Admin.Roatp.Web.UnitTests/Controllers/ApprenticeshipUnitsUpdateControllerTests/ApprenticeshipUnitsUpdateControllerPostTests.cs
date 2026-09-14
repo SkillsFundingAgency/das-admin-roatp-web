@@ -23,7 +23,7 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ApprenticeshipUnitsUpdat
 public class ApprenticeshipUnitsUpdateControllerPostTests
 {
     [Test, MoqAutoData]
-    public async Task Post_NoMatchingDetails_RedirectToHome(
+    public async Task WhenPostingApprenticeshipUnitsUpdate_AndNoMatchingDetails_ThenRedirectsToHome(
       [Frozen] Mock<IOuterApiClient> outerApiClientMock,
       [Greedy] ApprenticeshipUnitsUpdateController sut,
       ApprenticeshipUnitsUpdateViewModel viewModel,
@@ -42,7 +42,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public async Task Post_NoApprenticeshipUnitsChange_RedirectToProviderSummary(
+    public async Task WhenPostingApprenticeshipUnitsUpdate_AndNoChange_ThenRedirectsToProviderSummary(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ApprenticeshipUnitsUpdateController sut,
@@ -58,12 +58,12 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
 
         var courseTypes = new List<AllowedCourseType>
         {
-            new() { CourseTypeId = CourseTypes.Apprenticeship, CourseTypeName = nameof(CourseTypes.Apprenticeship) }
+            new() { CourseType = CourseType.Apprenticeship }
         };
 
         if (containsApprenticeshipUnits)
         {
-            courseTypes.Add(new() { CourseTypeId = CourseTypes.ShortCourse, CourseTypeName = nameof(CourseTypes.ShortCourse) });
+            courseTypes.Add(new() { CourseType = CourseType.ShortCourse });
         }
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
@@ -86,7 +86,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
     [MoqInlineAutoData(true, false, 2)]
     [MoqInlineAutoData(true, true, 1)]
     [MoqInlineAutoData(false, false, 1)]
-    public async Task Post_ApprenticeshipUnitsChange_ChangePostedSuccessfully(
+    public async Task WhenPostingApprenticeshipUnitsUpdate_AndChangePostedSuccessfully_ThenPutsCourseTypes(
        bool isStandardCourseTypePresent,
        bool isShortCourseTypePresent,
        int expectedPutCourseTypes,
@@ -112,12 +112,12 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
             HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
         };
         var courseTypes = new List<AllowedCourseType>();
-        if (isStandardCourseTypePresent) courseTypes.Add(new AllowedCourseType { CourseTypeId = 1, CourseTypeName = nameof(CourseTypes.Apprenticeship) });
-        if (isShortCourseTypePresent) courseTypes.Add(new AllowedCourseType { CourseTypeId = 2, CourseTypeName = nameof(CourseTypes.ShortCourse) });
+        if (isStandardCourseTypePresent) courseTypes.Add(new AllowedCourseType { CourseType = CourseType.Apprenticeship });
+        if (isShortCourseTypePresent) courseTypes.Add(new AllowedCourseType { CourseType = CourseType.ShortCourse });
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
         var currentCourseTypeIds = getOrganisationResponse.AllowedCourseTypes
-            .Select(a => a.CourseTypeId).ToList();
+            .Select(a => (int)a.CourseType).ToList();
 
         viewModel.ApprenticeshipUnitsSelectionId = !isShortCourseTypePresent;
 
@@ -129,11 +129,11 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         var expectedCourseTypeIds = currentCourseTypeIds;
         if (isShortCourseTypePresent)
         {
-            expectedCourseTypeIds = currentCourseTypeIds.Where(a => a != CourseTypes.ShortCourse).ToList();
+            expectedCourseTypeIds = currentCourseTypeIds.Where(a => a != (int)CourseType.ShortCourse).ToList();
         }
         else
         {
-            expectedCourseTypeIds.Add(CourseTypes.ShortCourse);
+            expectedCourseTypeIds.Add((int)CourseType.ShortCourse);
         }
 
         var actual = await sut.Index(ukprn, viewModel, cancellationToken);
@@ -163,7 +163,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
 
     [Test]
     [MoqInlineAutoData]
-    public async Task Post_ApprenticeshipUnitsChange_ValidationTriggered(
+    public async Task WhenPostingApprenticeshipUnitsUpdate_AndValidationTriggered_ThenReturnsView(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IValidator<ApprenticeshipUnitsUpdateViewModel>> validator,
         [Greedy] ApprenticeshipUnitsUpdateController sut,
@@ -182,11 +182,11 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         {
             HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
         };
-        var courseTypes = new List<AllowedCourseType> { new() { CourseTypeId = 2, CourseTypeName = nameof(CourseTypes.ShortCourse) } };
+        var courseTypes = new List<AllowedCourseType> { new() { CourseType = CourseType.ShortCourse } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
         var currentCourseTypeIds = getOrganisationResponse.AllowedCourseTypes
-            .Select(a => a.CourseTypeId).ToList();
+            .Select(a => (int)a.CourseType).ToList();
 
         viewModel.ApprenticeshipUnitsSelectionId = selectionChoice;
 
@@ -205,7 +205,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
     [Test]
     [MoqInlineAutoData(ProviderType.Main)]
     [MoqInlineAutoData(ProviderType.Employer)]
-    public async Task Post_ProviderTypeFromSupportingToOther_ApprenticeshipsTrue_ApprenticeshipUnitsFalse(
+    public async Task WhenPostingApprenticeshipUnitsUpdate_AndSupportingToOtherWithApprenticeshipsAndNoUnits_ThenRedirectsToProviderSummary(
         ProviderType providerTypeChangedTo,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
@@ -222,8 +222,8 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
 
-        var courseTypeIdsWithApprentices = new List<int> { CourseTypes.Apprenticeship };
-        sessionModel.CourseTypeIds = courseTypeIdsWithApprentices;
+        var courseTypesWithApprentices = new List<int> { (int)CourseType.Apprenticeship };
+        sessionModel.CourseTypeIds = courseTypesWithApprentices;
         sessionModel.ProviderType = providerTypeChangedTo;
 
         sessionServiceMock.Setup(s =>
@@ -264,7 +264,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
     [Test]
     [MoqInlineAutoData(ProviderType.Main)]
     [MoqInlineAutoData(ProviderType.Employer)]
-    public async Task Post_ProviderTypeFromSupportingToOther_ApprenticeshipsTrue_ApprenticeshipUnitsTrue(
+    public async Task WhenPostingApprenticeshipUnitsUpdate_AndSupportingToOtherWithApprenticeshipsAndUnits_ThenRedirectsToProviderSummary(
         ProviderType providerTypeChangedTo,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
@@ -281,8 +281,8 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
 
-        var courseTypeIdsWithApprentices = new List<int> { CourseTypes.Apprenticeship };
-        sessionModel.CourseTypeIds = courseTypeIdsWithApprentices;
+        var courseTypesWithApprentices = new List<int> { (int)CourseType.Apprenticeship };
+        sessionModel.CourseTypeIds = courseTypesWithApprentices;
         sessionModel.ProviderType = providerTypeChangedTo;
 
         sessionServiceMock.Setup(s =>
@@ -324,7 +324,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
     [Test]
     [MoqInlineAutoData(ProviderType.Main)]
     [MoqInlineAutoData(ProviderType.Employer)]
-    public async Task Post_ProviderTypeFromSupportingToOther_ApprenticeshipsFalse_ApprenticeshipUnitsTrue(
+    public async Task WhenPostingApprenticeshipUnitsUpdate_AndSupportingToOtherWithUnitsAndNoApprenticeships_ThenRedirectsToProviderSummary(
         ProviderType providerTypeChangedTo,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
@@ -341,8 +341,8 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
 
-        var courseTypeIdsWithoutApprentices = new List<int>();
-        sessionModel.CourseTypeIds = courseTypeIdsWithoutApprentices;
+        var courseTypesWithoutApprentices = new List<int>();
+        sessionModel.CourseTypeIds = courseTypesWithoutApprentices;
         sessionModel.ProviderType = providerTypeChangedTo;
 
         sessionServiceMock.Setup(s =>
