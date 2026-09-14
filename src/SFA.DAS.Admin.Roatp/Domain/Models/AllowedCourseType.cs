@@ -2,7 +2,8 @@
 
 public class AllowedCourseType
 {
-    public int CourseTypeId { get; set; }
-    public string CourseTypeName { get; set; } = string.Empty;
+    public CourseType CourseType { get; set; }
+    public bool? IsRestricted { get; set; }
+    public int? RestrictedCount { get; set; }
+    public int? AllowedCount { get; set; }
 }
-
