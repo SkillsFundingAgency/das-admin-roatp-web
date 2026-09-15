@@ -1,8 +1,8 @@
+using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
-using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 
@@ -19,13 +19,13 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
         var providerName = await GetProviderName(ukprn, cancellationToken);
         if (providerName is null)
         {
-            return RedirectToRoute(RouteNames.Home);
+            return NotFound();
         }
 
         var apiResponse = await outerApiClient.GetRestrictedApprenticeships(ukprn, cancellationToken);
         if (apiResponse.StatusCode != HttpStatusCode.OK)
         {
-            return RedirectToRoute(RouteNames.Home);
+            return NotFound();
         }
 
         RestrictedApprenticeshipsViewModel model = apiResponse.Content!;

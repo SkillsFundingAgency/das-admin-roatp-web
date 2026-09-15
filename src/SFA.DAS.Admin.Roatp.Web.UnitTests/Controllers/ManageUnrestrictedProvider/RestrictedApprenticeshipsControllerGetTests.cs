@@ -106,7 +106,7 @@ public class RestrictedApprenticeshipsControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingRestrictedApprenticeships_AndOrganisationIsNotFound_ThenRedirectsToHome(
+    public async Task WhenGettingRestrictedApprenticeships_AndOrganisationIsNotFound_ThenRedirectsToNotFoundPage(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] RestrictedApprenticeshipsController sut,
         GetOrganisationResponse organisationResponse,
@@ -115,12 +115,12 @@ public class RestrictedApprenticeshipsControllerGetTests
         SetupTempData(sut);
         SetupOrganisation(outerApiClientMock, ukprn, organisationResponse, HttpStatusCode.NotFound);
 
-        var result = await sut.Index(ukprn, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(ukprn, CancellationToken.None);
 
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result!.RouteName.Should().Be(RouteNames.Home);
+            result.Should().BeOfType<NotFoundResult>();
         }
 
         outerApiClientMock.Verify(
@@ -129,7 +129,7 @@ public class RestrictedApprenticeshipsControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingRestrictedApprenticeships_AndRestrictedApprenticeshipsAreNotFound_ThenRedirectsToHome(
+    public async Task WhenGettingRestrictedApprenticeships_AndRestrictedApprenticeshipsAreNotFound_ThenRedirectsToNotFoundPage(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] RestrictedApprenticeshipsController sut,
         string providerName,
@@ -145,12 +145,12 @@ public class RestrictedApprenticeshipsControllerGetTests
                 new RefitSettings(),
                 null));
 
-        var result = await sut.Index(ukprn, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(ukprn, CancellationToken.None);
 
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result!.RouteName.Should().Be(RouteNames.Home);
+            result.Should().BeOfType<NotFoundResult>();
         }
     }
 
