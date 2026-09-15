@@ -42,4 +42,40 @@ public class EnumExtensionsDeliveryStatusTests
         DateTime? pastDate = today.AddDays(-1);
         pastDate.ToDeliveryStatus(today).Should().Be(DeliveryStatus.ClosedToNewStarts);
     }
+
+    [Test]
+    public void WhenConvertingToDeliveryStatus_AndIsStartRestricted_ThenReturnsClosedToNewStarts()
+    {
+        var today = new DateTime(2026, 7, 27);
+        DateTime? futureDate = today.AddDays(1);
+        futureDate.ToDeliveryStatus(isStartRestricted: true, today).Should().Be(DeliveryStatus.ClosedToNewStarts);
+    }
+
+    [Test]
+    public void WhenConvertingToDeliveryStatus_AndIsStartRestrictedWithNoDate_ThenReturnsClosedToNewStarts()
+    {
+        ((DateTime?)null).ToDeliveryStatus(isStartRestricted: true).Should().Be(DeliveryStatus.ClosedToNewStarts);
+    }
+
+    [Test]
+    public void WhenConvertingToDeliveryStatus_AndNotRestrictedWithNoDate_ThenReturnsOpenToNewStarts()
+    {
+        ((DateTime?)null).ToDeliveryStatus(isStartRestricted: false).Should().Be(DeliveryStatus.OpenToNewStarts);
+    }
+
+    [Test]
+    public void WhenConvertingToDeliveryStatus_AndNotRestrictedWithFutureDate_ThenReturnsLastStartDateAdded()
+    {
+        var today = new DateTime(2026, 7, 27);
+        DateTime? futureDate = today.AddDays(1);
+        futureDate.ToDeliveryStatus(isStartRestricted: false, today).Should().Be(DeliveryStatus.LastStartDateAdded);
+    }
+
+    [Test]
+    public void WhenConvertingToDeliveryStatus_AndNotRestrictedWithDateEqualToToday_ThenReturnsLastStartDateAdded()
+    {
+        var today = new DateTime(2026, 7, 27);
+        DateTime? todayDate = today;
+        todayDate.ToDeliveryStatus(isStartRestricted: false, today).Should().Be(DeliveryStatus.LastStartDateAdded);
+    }
 }
