@@ -39,7 +39,7 @@ public class RestrictedApprenticeshipsControllerGetTests
                 Title = "Zebra course",
                 Level = 3,
                 LastDateStarts = DateTime.UtcNow.Date.AddDays(-1),
-                IsStartRestricted = false
+                IsClosedToNewStarts = false
             },
             new RestrictedApprenticeshipModel
             {
@@ -47,7 +47,7 @@ public class RestrictedApprenticeshipsControllerGetTests
                 Title = "Alpha course",
                 Level = 6,
                 LastDateStarts = DateTime.UtcNow.Date.AddDays(5),
-                IsStartRestricted = false
+                IsClosedToNewStarts = false
             }
         ];
 

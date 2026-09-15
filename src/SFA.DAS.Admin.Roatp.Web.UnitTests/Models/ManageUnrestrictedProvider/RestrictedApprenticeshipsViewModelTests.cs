@@ -22,7 +22,7 @@ public class RestrictedApprenticeshipsViewModelTests
                     Title = "Zebra course",
                     Level = 3,
                     LastDateStarts = DateTime.UtcNow.Date.AddDays(-1),
-                    IsStartRestricted = false
+                    IsClosedToNewStarts = false
                 },
                 new RestrictedApprenticeshipModel
                 {
@@ -30,7 +30,7 @@ public class RestrictedApprenticeshipsViewModelTests
                     Title = "Open course",
                     Level = 2,
                     LastDateStarts = null,
-                    IsStartRestricted = false
+                    IsClosedToNewStarts = false
                 },
                 new RestrictedApprenticeshipModel
                 {
@@ -38,7 +38,7 @@ public class RestrictedApprenticeshipsViewModelTests
                     Title = "Alpha course",
                     Level = 6,
                     LastDateStarts = DateTime.UtcNow.Date.AddDays(5),
-                    IsStartRestricted = false
+                    IsClosedToNewStarts = false
                 }
             ]
         };
@@ -86,7 +86,7 @@ public class RestrictedApprenticeshipsViewModelTests
                     Title = "Open course",
                     Level = 2,
                     LastDateStarts = null,
-                    IsStartRestricted = false
+                    IsClosedToNewStarts = false
                 }
             ]
         };
@@ -129,7 +129,7 @@ public class RestrictedApprenticeshipsViewModelTests
                     Title = "Chartered manager",
                     Level = 6,
                     LastDateStarts = DateTime.UtcNow.Date.AddDays(-1),
-                    IsStartRestricted = false
+                    IsClosedToNewStarts = false
                 }
             ]
         };

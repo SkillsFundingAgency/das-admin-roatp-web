@@ -30,7 +30,7 @@ public class EnumExtensionsDeliveryStatusTests
     [Test]
     public void WhenConvertingToDeliveryStatus_AndFutureDate_ThenReturnsLastStartDateAdded()
     {
-        var today = new DateTime(2026, 7, 27);
+        var today = new DateTime(2026, 7, 27, 0, 0, 0, DateTimeKind.Unspecified);
         DateTime? futureDate = today.AddDays(1);
         futureDate.ToDeliveryStatus(today).Should().Be(DeliveryStatus.LastStartDateAdded);
     }
@@ -38,44 +38,44 @@ public class EnumExtensionsDeliveryStatusTests
     [Test]
     public void WhenConvertingToDeliveryStatus_AndPastDate_ThenReturnsClosedToNewStarts()
     {
-        var today = new DateTime(2026, 7, 27);
+        var today = new DateTime(2026, 7, 27, 0, 0, 0, DateTimeKind.Unspecified);
         DateTime? pastDate = today.AddDays(-1);
         pastDate.ToDeliveryStatus(today).Should().Be(DeliveryStatus.ClosedToNewStarts);
     }
 
     [Test]
-    public void WhenConvertingToDeliveryStatus_AndIsStartRestricted_ThenReturnsClosedToNewStarts()
+    public void WhenConvertingToDeliveryStatus_AndIsClosedToNewStarts_ThenReturnsClosedToNewStarts()
     {
-        var today = new DateTime(2026, 7, 27);
+        var today = new DateTime(2026, 7, 27, 0, 0, 0, DateTimeKind.Unspecified);
         DateTime? futureDate = today.AddDays(1);
-        futureDate.ToDeliveryStatus(isStartRestricted: true, today).Should().Be(DeliveryStatus.ClosedToNewStarts);
+        futureDate.ToDeliveryStatus(isClosedToNewStarts: true, today).Should().Be(DeliveryStatus.ClosedToNewStarts);
     }
 
     [Test]
-    public void WhenConvertingToDeliveryStatus_AndIsStartRestrictedWithNoDate_ThenReturnsClosedToNewStarts()
+    public void WhenConvertingToDeliveryStatus_AndIsClosedToNewStartsWithNoDate_ThenReturnsClosedToNewStarts()
     {
-        ((DateTime?)null).ToDeliveryStatus(isStartRestricted: true).Should().Be(DeliveryStatus.ClosedToNewStarts);
+        ((DateTime?)null).ToDeliveryStatus(isClosedToNewStarts: true).Should().Be(DeliveryStatus.ClosedToNewStarts);
     }
 
     [Test]
-    public void WhenConvertingToDeliveryStatus_AndNotRestrictedWithNoDate_ThenReturnsOpenToNewStarts()
+    public void WhenConvertingToDeliveryStatus_AndNotClosedToNewStartsWithNoDate_ThenReturnsOpenToNewStarts()
     {
-        ((DateTime?)null).ToDeliveryStatus(isStartRestricted: false).Should().Be(DeliveryStatus.OpenToNewStarts);
+        ((DateTime?)null).ToDeliveryStatus(isClosedToNewStarts: false).Should().Be(DeliveryStatus.OpenToNewStarts);
     }
 
     [Test]
-    public void WhenConvertingToDeliveryStatus_AndNotRestrictedWithFutureDate_ThenReturnsLastStartDateAdded()
+    public void WhenConvertingToDeliveryStatus_AndNotClosedToNewStartsWithFutureDate_ThenReturnsLastStartDateAdded()
     {
-        var today = new DateTime(2026, 7, 27);
+        var today = new DateTime(2026, 7, 27, 0, 0, 0, DateTimeKind.Unspecified);
         DateTime? futureDate = today.AddDays(1);
-        futureDate.ToDeliveryStatus(isStartRestricted: false, today).Should().Be(DeliveryStatus.LastStartDateAdded);
+        futureDate.ToDeliveryStatus(isClosedToNewStarts: false, today).Should().Be(DeliveryStatus.LastStartDateAdded);
     }
 
     [Test]
-    public void WhenConvertingToDeliveryStatus_AndNotRestrictedWithDateEqualToToday_ThenReturnsLastStartDateAdded()
+    public void WhenConvertingToDeliveryStatus_AndNotClosedToNewStartsWithDateEqualToToday_ThenReturnsLastStartDateAdded()
     {
-        var today = new DateTime(2026, 7, 27);
+        var today = new DateTime(2026, 7, 27, 0, 0, 0, DateTimeKind.Unspecified);
         DateTime? todayDate = today;
-        todayDate.ToDeliveryStatus(isStartRestricted: false, today).Should().Be(DeliveryStatus.LastStartDateAdded);
+        todayDate.ToDeliveryStatus(isClosedToNewStarts: false, today).Should().Be(DeliveryStatus.LastStartDateAdded);
     }
 }

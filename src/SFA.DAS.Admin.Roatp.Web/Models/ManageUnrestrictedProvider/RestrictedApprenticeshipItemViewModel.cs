@@ -9,7 +9,7 @@ public class RestrictedApprenticeshipItemViewModel : ICourseDisplayModel
     public required string Title { get; set; }
     public int Level { get; set; }
     public DateTime? LastDateStarts { get; set; }
-    public bool IsStartRestricted { get; set; }
+    public bool IsClosedToNewStarts { get; set; }
     public DeliveryStatus DeliveryStatus { get; set; }
 
     public string DisplayTitle => this.GetDisplayTitle();
@@ -22,7 +22,7 @@ public class RestrictedApprenticeshipItemViewModel : ICourseDisplayModel
         Title = course.Title,
         Level = course.Level,
         LastDateStarts = course.LastDateStarts,
-        IsStartRestricted = course.IsStartRestricted,
-        DeliveryStatus = course.LastDateStarts.ToDeliveryStatus(course.IsStartRestricted)
+        IsClosedToNewStarts = course.IsClosedToNewStarts,
+        DeliveryStatus = course.LastDateStarts.ToDeliveryStatus(course.IsClosedToNewStarts)
     };
 }

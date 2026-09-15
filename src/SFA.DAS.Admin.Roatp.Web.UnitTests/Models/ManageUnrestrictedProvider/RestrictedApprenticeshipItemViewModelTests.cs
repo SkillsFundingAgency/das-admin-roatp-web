@@ -17,7 +17,7 @@ public class RestrictedApprenticeshipItemViewModelTests
             Title = "Chartered manager",
             Level = 6,
             LastDateStarts = DateTime.UtcNow.Date.AddDays(-1),
-            IsStartRestricted = false
+            IsClosedToNewStarts = false
         };
 
         RestrictedApprenticeshipItemViewModel model = course;
@@ -43,7 +43,7 @@ public class RestrictedApprenticeshipItemViewModelTests
             Title = "Chartered manager",
             Level = 6,
             LastDateStarts = DateTime.UtcNow.Date.AddDays(10),
-            IsStartRestricted = true
+            IsClosedToNewStarts = true
         };
 
         RestrictedApprenticeshipItemViewModel model = course;
@@ -64,7 +64,7 @@ public class RestrictedApprenticeshipItemViewModelTests
             Title = "Chartered manager",
             Level = 6,
             LastDateStarts = DateTime.UtcNow.Date.AddDays(10),
-            IsStartRestricted = false
+            IsClosedToNewStarts = false
         };
 
         RestrictedApprenticeshipItemViewModel model = course;
@@ -86,7 +86,7 @@ public class RestrictedApprenticeshipItemViewModelTests
             Title = "Chartered manager",
             Level = 6,
             LastDateStarts = null,
-            IsStartRestricted = false
+            IsClosedToNewStarts = false
         };
 
         RestrictedApprenticeshipItemViewModel model = course;

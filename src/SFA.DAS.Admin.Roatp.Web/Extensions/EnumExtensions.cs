@@ -49,9 +49,9 @@ public static class EnumExtensions
             : DeliveryStatus.ClosedToNewStarts;
     }
 
-    public static DeliveryStatus ToDeliveryStatus(this DateTime? lastDateStarts, bool isStartRestricted, DateTime? today = null)
+    public static DeliveryStatus ToDeliveryStatus(this DateTime? lastDateStarts, bool isClosedToNewStarts, DateTime? today = null)
     {
-        if (isStartRestricted)
+        if (isClosedToNewStarts)
         {
             return DeliveryStatus.ClosedToNewStarts;
         }
