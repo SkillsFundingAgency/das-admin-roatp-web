@@ -5,7 +5,7 @@
 }
 
 <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-column-full">
         <span class="govuk-caption-xl">@Model.ProviderName</span>
         <h1 class="govuk-heading-xl">Manage the apprenticeships this provider cannot deliver</h1>
 
@@ -24,11 +24,10 @@
 <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-6">
 
 <div class="govuk-grid-row">
+    <h2 class="govuk-heading-l">Courses this provider is not allowed to deliver</h2>
+
+    <p asp-show="Model.HasNoCourses" class="govuk-body">This provider has no restricted courses.</p>
     <div class="govuk-grid-column-two-thirds">
-        <h2 class="govuk-heading-l">Courses this provider is not allowed to deliver</h2>
-
-        <p asp-show="Model.HasNoCourses" class="govuk-body">This provider has no restricted courses.</p>
-
         <div asp-show="Model.HasCourses">
             <p class="govuk-body">The list below shows the apprenticeships this provider is not allowed to deliver.</p>
 

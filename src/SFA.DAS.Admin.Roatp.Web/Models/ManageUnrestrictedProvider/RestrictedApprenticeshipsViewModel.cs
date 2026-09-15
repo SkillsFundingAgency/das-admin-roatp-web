@@ -22,7 +22,6 @@ public class RestrictedApprenticeshipsViewModel : ICustomBackLink
     public static implicit operator RestrictedApprenticeshipsViewModel(GetRestrictedApprenticeshipsResponse? response)
     {
         var courses = response?.Courses ?? [];
-
         return new RestrictedApprenticeshipsViewModel
         {
             Courses = courses
