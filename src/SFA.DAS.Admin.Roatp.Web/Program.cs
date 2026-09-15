@@ -49,17 +49,19 @@ builder.Services.AddValidatorsFromAssembly(typeof(SelectTrainingProviderValidato
 
 var app = builder.Build();
 
-
-app
-    .UseHsts()
-    .UseStatusCodePagesWithReExecute("/error/{0}")
-    .UseExceptionHandler("/error");
+app.UseStatusCodePagesWithReExecute("/error/{0}");
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseDeveloperExceptionPage();
+}
+else
+{
+    app
+        .UseHsts()
+        .UseExceptionHandler("/error");
 }
 
 app
