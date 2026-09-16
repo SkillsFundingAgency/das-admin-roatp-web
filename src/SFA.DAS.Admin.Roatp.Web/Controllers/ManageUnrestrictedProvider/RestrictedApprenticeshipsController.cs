@@ -11,7 +11,6 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient) : Controller
 {
     public const string ViewPath = "~/Views/ManageUnrestrictedProvider/RestrictedApprenticeships/Index.cshtml";
-    public const string ProviderLegalNameTempDataKey = "ProviderLegalName";
 
     [HttpGet]
     public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
@@ -38,10 +37,10 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
 
     private async Task<string?> GetProviderName(int ukprn, CancellationToken cancellationToken)
     {
-        var cachedProviderName = TempData.Peek(ProviderLegalNameTempDataKey) as string;
+        var cachedProviderName = TempData.Peek(TempDataKeys.ProviderLegalName) as string;
         if (!string.IsNullOrWhiteSpace(cachedProviderName))
         {
-            TempData.Keep(ProviderLegalNameTempDataKey);
+            TempData.Keep(TempDataKeys.ProviderLegalName);
             return cachedProviderName;
         }
 
@@ -52,7 +51,7 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
         }
 
         var providerName = organisationApiResponse.Content!.LegalName;
-        TempData[ProviderLegalNameTempDataKey] = providerName;
+        TempData[TempDataKeys.ProviderLegalName] = providerName;
         return providerName;
     }
 }

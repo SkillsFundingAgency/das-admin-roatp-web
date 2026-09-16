@@ -2,15 +2,12 @@
 using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using Refit;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers;
-using SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
@@ -56,7 +53,7 @@ public class ProviderSummaryControllerGetTests
     {
         getOrganisationResponse.Ukprn = ukprn;
         _editOrganisationSessionModel.Ukprn = ukprn;
-        SetupTempData(sut);
+        sut.AddTempData();
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.SelectProvider, selectOrganisationLink)
             .AddUrlForRoute(RouteNames.ProviderStatusUpdate, providerStatusUpdateLink)
@@ -64,8 +61,7 @@ public class ProviderSummaryControllerGetTests
             .AddUrlForRoute(RouteNames.OrganisationTypeUpdate, organisationTypeUpdateLink)
             .AddUrlForRoute(RouteNames.ApprenticeshipUnitsUpdate, apprenticeshipUnitsUpdateLink)
             .AddUrlForRoute(RouteNames.ProviderSummary, providerSummaryLink)
-            .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, providerRestrictedCoursesLink)
-            ;
+            .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, providerRestrictedCoursesLink);
 
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
@@ -87,17 +83,8 @@ public class ProviderSummaryControllerGetTests
             model.ManageApprovedCoursesUrl.Should().Be(providerSummaryLink);
             model.ChangeHowWeManageThisProviderUrl.Should().Be(providerSummaryLink);
             model.ManageApprovedUnitsUrl.Should().Be(providerSummaryLink);
-            sut.TempData.Peek(RestrictedApprenticeshipsController.ProviderLegalNameTempDataKey)
+            sut.TempData.Peek(TempDataKeys.ProviderLegalName)
                 .Should().Be(getOrganisationResponse.LegalName);
         }
-    }
-
-    private static void SetupTempData(ProviderSummaryController sut)
-    {
-        sut.ControllerContext = new ControllerContext
-        {
-            HttpContext = new DefaultHttpContext()
-        };
-        sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
     }
 }

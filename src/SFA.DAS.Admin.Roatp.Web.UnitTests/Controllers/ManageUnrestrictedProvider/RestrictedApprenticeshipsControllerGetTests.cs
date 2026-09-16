@@ -2,9 +2,7 @@ using System.Net;
 using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using Refit;
 using SFA.DAS.Admin.Roatp.Domain.Models;
@@ -51,8 +49,8 @@ public class RestrictedApprenticeshipsControllerGetTests
             }
         ];
 
-        SetupTempData(sut);
-        sut.TempData[RestrictedApprenticeshipsController.ProviderLegalNameTempDataKey] = providerName;
+        sut.AddTempData();
+        sut.TempData[TempDataKeys.ProviderLegalName] = providerName;
         SetupRestrictedApprenticeships(outerApiClientMock, ukprn, response);
         SetupUrlHelper(sut);
 
@@ -86,7 +84,7 @@ public class RestrictedApprenticeshipsControllerGetTests
         organisationResponse.Ukprn = ukprn;
         restrictedResponse.Courses = [];
 
-        SetupTempData(sut);
+        sut.AddTempData();
         SetupOrganisation(outerApiClientMock, ukprn, organisationResponse, HttpStatusCode.OK);
         SetupRestrictedApprenticeships(outerApiClientMock, ukprn, restrictedResponse);
         SetupUrlHelper(sut);
@@ -100,9 +98,10 @@ public class RestrictedApprenticeshipsControllerGetTests
             model.Should().NotBeNull();
             model!.ProviderName.Should().Be(organisationResponse.LegalName);
             model.HasNoCourses.Should().BeTrue();
-            sut.TempData.Peek(RestrictedApprenticeshipsController.ProviderLegalNameTempDataKey)
-                .Should().Be(organisationResponse.LegalName);
+            sut.TempData.Peek(TempDataKeys.ProviderLegalName).Should().Be(organisationResponse.LegalName);
         }
+
+        outerApiClientMock.Verify(c => c.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test, MoqAutoData]
@@ -112,7 +111,7 @@ public class RestrictedApprenticeshipsControllerGetTests
         GetOrganisationResponse organisationResponse,
         int ukprn)
     {
-        SetupTempData(sut);
+        sut.AddTempData();
         SetupOrganisation(outerApiClientMock, ukprn, organisationResponse, HttpStatusCode.NotFound);
 
         var result = await sut.Index(ukprn, CancellationToken.None);
@@ -135,8 +134,8 @@ public class RestrictedApprenticeshipsControllerGetTests
         string providerName,
         int ukprn)
     {
-        SetupTempData(sut);
-        sut.TempData[RestrictedApprenticeshipsController.ProviderLegalNameTempDataKey] = providerName;
+        sut.AddTempData();
+        sut.TempData[TempDataKeys.ProviderLegalName] = providerName;
         outerApiClientMock
             .Setup(c => c.GetRestrictedApprenticeships(ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetRestrictedApprenticeshipsResponse>(
@@ -159,15 +158,6 @@ public class RestrictedApprenticeshipsControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl)
             .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
-    }
-
-    private static void SetupTempData(RestrictedApprenticeshipsController sut)
-    {
-        sut.ControllerContext = new ControllerContext
-        {
-            HttpContext = new DefaultHttpContext()
-        };
-        sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
     }
 
     private static void SetupRestrictedApprenticeships(
