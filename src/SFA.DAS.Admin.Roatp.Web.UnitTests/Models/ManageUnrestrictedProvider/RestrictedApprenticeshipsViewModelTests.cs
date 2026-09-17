@@ -138,4 +138,21 @@ public class RestrictedApprenticeshipsViewModelTests
 
         model.TotalCountDescription.Should().Be("1 course");
     }
+
+    [Test]
+    public void WhenActiveFiltersAndNoCourses_ThenShowsNoFilterResults()
+    {
+        var model = new RestrictedApprenticeshipsViewModel
+        {
+            HasActiveFilters = true
+        };
+
+        using (new AssertionScope())
+        {
+            model.HasNoFilterResults.Should().BeTrue();
+            model.HasNoCourses.Should().BeFalse();
+            model.ShowCourseResults.Should().BeTrue();
+            model.HasCourses.Should().BeFalse();
+        }
+    }
 }

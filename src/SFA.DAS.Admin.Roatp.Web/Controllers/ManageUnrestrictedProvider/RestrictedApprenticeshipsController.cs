@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
+using SFA.DAS.Admin.Roatp.Web.Services;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 
@@ -13,7 +14,10 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
     public const string ViewPath = "~/Views/ManageUnrestrictedProvider/RestrictedApprenticeships/Index.cshtml";
 
     [HttpGet]
-    public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(
+        int ukprn,
+        GetRestrictedApprenticeshipsRequest request,
+        CancellationToken cancellationToken)
     {
         var providerName = await GetProviderName(ukprn, cancellationToken);
         if (providerName is null)
@@ -31,6 +35,11 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
         model.ProviderName = providerName;
         model.BackLinkUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!;
         model.RestrictACourseUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn })!;
+        model.HasActiveFilters = request.HasFilters;
+        model.Filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(request, ukprn, Url);
+        model.Courses = RestrictedApprenticeshipsFilterBuilder
+            .ApplyFilters(model.Courses, request)
+            .ToList();
 
         return View(ViewPath, model);
     }
