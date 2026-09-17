@@ -81,6 +81,44 @@ public class RestrictedApprenticeshipsFilterBuilderTests
     }
 
     [Test]
+    public void WhenApplyingDuplicateDeliveryStatusValues_ThenMatchesDistinctStatuses()
+    {
+        var courses = CreateCourses();
+
+        var filtered = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(
+            courses,
+            new GetRestrictedApprenticeshipsRequest
+            {
+                DeliveryStatus = [DeliveryStatus.ClosedToNewStarts, DeliveryStatus.ClosedToNewStarts]
+            }).ToList();
+
+        using (new AssertionScope())
+        {
+            filtered.Should().OnlyContain(c => c.DeliveryStatus == DeliveryStatus.ClosedToNewStarts);
+            filtered.Should().HaveCount(2);
+        }
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_AndSearchTermIsNull_ThenSearchTermFilterIsNotSelected()
+    {
+        var urlHelper = CreateUrlHelper();
+        var request = new GetRestrictedApprenticeshipsRequest
+        {
+            SearchTerm = null!
+        };
+
+        var filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(request, Ukprn, urlHelper.Object);
+
+        using (new AssertionScope())
+        {
+            filters.ShowFilterOptions.Should().BeFalse();
+            filters.FilterSections[0].Should().BeOfType<TextBoxFilterSectionViewModel>()
+                .Which.InputValue.Should().BeEmpty();
+        }
+    }
+
+    [Test]
     public void WhenCreatingFiltersViewModel_ThenBuildsCourseNameAndDeliveryStatusSections()
     {
         var urlHelper = CreateUrlHelper();

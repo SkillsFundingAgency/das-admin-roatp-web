@@ -65,4 +65,21 @@ public class GetRestrictedApprenticeshipsRequestTests
             request.HasFilters.Should().BeTrue();
         }
     }
+
+    [Test]
+    public void WhenSearchTermAndDeliveryStatusSelected_ThenHasFiltersIsTrue()
+    {
+        var request = new GetRestrictedApprenticeshipsRequest
+        {
+            SearchTerm = "Paint",
+            DeliveryStatus = [DeliveryStatus.LastStartDateAdded, DeliveryStatus.ClosedToNewStarts]
+        };
+
+        using (new AssertionScope())
+        {
+            request.HasSearchTermFilter.Should().BeTrue();
+            request.HasDeliveryStatusFilter.Should().BeTrue();
+            request.HasFilters.Should().BeTrue();
+        }
+    }
 }
