@@ -140,6 +140,20 @@ public class RestrictedApprenticeshipsViewModelTests
     }
 
     [Test]
+    public void WhenNoActiveFiltersAndNoCourses_ThenHasNoFilterResultsIsFalse()
+    {
+        var model = new RestrictedApprenticeshipsViewModel();
+
+        using (new AssertionScope())
+        {
+            model.HasNoFilterResults.Should().BeFalse();
+            model.HasNoCourses.Should().BeTrue();
+            model.ShowCourseResults.Should().BeFalse();
+            model.HasCourses.Should().BeFalse();
+        }
+    }
+
+    [Test]
     public void WhenActiveFiltersAndNoCourses_ThenShowsNoFilterResults()
     {
         var model = new RestrictedApprenticeshipsViewModel
@@ -153,6 +167,31 @@ public class RestrictedApprenticeshipsViewModelTests
             model.HasNoCourses.Should().BeFalse();
             model.ShowCourseResults.Should().BeTrue();
             model.HasCourses.Should().BeFalse();
+        }
+    }
+
+    [Test]
+    public void WhenActiveFiltersAndHasCourses_ThenHasNoFilterResultsIsFalse()
+    {
+        var model = new RestrictedApprenticeshipsViewModel
+        {
+            HasActiveFilters = true,
+            Courses =
+            [
+                new RestrictedApprenticeshipItemViewModel
+                {
+                    LarsCode = "105",
+                    Title = "Alpha course"
+                }
+            ]
+        };
+
+        using (new AssertionScope())
+        {
+            model.HasNoFilterResults.Should().BeFalse();
+            model.HasNoCourses.Should().BeFalse();
+            model.ShowCourseResults.Should().BeTrue();
+            model.HasCourses.Should().BeTrue();
         }
     }
 }
