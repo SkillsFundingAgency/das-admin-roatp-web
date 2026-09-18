@@ -1,6 +1,4 @@
 using Humanizer;
-using SFA.DAS.Admin.Roatp.Domain.Models;
-using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Models.Filters;
 using SFA.DAS.Admin.Roatp.Web.Models.Shared;
 
@@ -25,19 +23,4 @@ public class RestrictedApprenticeshipsViewModel : ICustomBackLink
     public bool HasNoFilteredResults => HasActiveFilters && !HasCourses;
     public bool ShowCourseResults => !HasNoCourses;
     public string TotalCountDescription => "course".ToQuantity(TotalCount);
-
-    public static implicit operator RestrictedApprenticeshipsViewModel(GetRestrictedApprenticeshipsResponse? response)
-    {
-        var courses = (response?.Courses ?? [])
-            .Select(course => (RestrictedApprenticeshipItemViewModel)course)
-            .Where(course => course.DeliveryStatus != DeliveryStatus.OpenToNewStarts)
-            .OrderBy(course => course.DisplayTitle, StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        return new RestrictedApprenticeshipsViewModel
-        {
-            Courses = courses,
-            TotalCount = courses.Count
-        };
-    }
 }

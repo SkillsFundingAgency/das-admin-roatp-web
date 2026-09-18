@@ -60,7 +60,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
 
         using (new AssertionScope())
         {
-            filtered.Should().OnlyContain(c => c.DeliveryStatus == DeliveryStatus.ClosedToNewStarts);
+            filtered.Should().OnlyContain(c => c.IsClosedToNewStarts);
             filtered.Should().HaveCount(2);
         }
     }
@@ -92,6 +92,30 @@ public class RestrictedApprenticeshipsFilterBuilderTests
     }
 
     [Test]
+    public void WhenApplyingFilters_ThenExcludesOpenCourses()
+    {
+        var courses = CreateCourses();
+        courses.Add(new RestrictedApprenticeshipModel
+        {
+            LarsCode = "100",
+            Title = "Open course",
+            Level = 2,
+            LastDateStarts = null,
+            IsClosedToNewStarts = false
+        });
+
+        var filtered = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(
+            courses,
+            new GetRestrictedApprenticeshipsModel()).ToList();
+
+        using (new AssertionScope())
+        {
+            filtered.Should().HaveCount(3);
+            filtered.Should().NotContain(course => course.LarsCode == "100");
+        }
+    }
+
+    [Test]
     public void WhenApplyingDuplicateDeliveryStatusValues_ThenMatchesDistinctStatuses()
     {
         var courses = CreateCourses();
@@ -105,7 +129,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
 
         using (new AssertionScope())
         {
-            filtered.Should().OnlyContain(c => c.DeliveryStatus == DeliveryStatus.ClosedToNewStarts);
+            filtered.Should().OnlyContain(c => c.IsClosedToNewStarts);
             filtered.Should().HaveCount(2);
         }
     }
@@ -252,7 +276,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
             $"{RestrictedApprenticeshipsUrl}?DeliveryStatus=ClosedToNewStarts#{RestrictedApprenticeshipsFilterBuilder.RestrictedApprenticeshipFilterResultsFragment}");
     }
 
-    private static List<RestrictedApprenticeshipItemViewModel> CreateCourses() =>
+    private static List<RestrictedApprenticeshipModel> CreateCourses() =>
     [
         new()
         {
@@ -260,8 +284,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
             Title = "Chartered manager course",
             Level = 6,
             LastDateStarts = DateTime.UtcNow.Date.AddDays(5),
-            IsClosedToNewStarts = false,
-            DeliveryStatus = DeliveryStatus.LastStartDateAdded
+            IsClosedToNewStarts = false
         },
         new()
         {
@@ -269,8 +292,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
             Title = "Cleaning hygiene operative",
             Level = 2,
             LastDateStarts = DateTime.UtcNow.Date.AddDays(-1),
-            IsClosedToNewStarts = true,
-            DeliveryStatus = DeliveryStatus.ClosedToNewStarts
+            IsClosedToNewStarts = true
         },
         new()
         {
@@ -278,8 +300,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
             Title = "Paint unit",
             Level = 3,
             LastDateStarts = DateTime.UtcNow.Date.AddDays(-1),
-            IsClosedToNewStarts = true,
-            DeliveryStatus = DeliveryStatus.ClosedToNewStarts
+            IsClosedToNewStarts = true
         }
     ];
 

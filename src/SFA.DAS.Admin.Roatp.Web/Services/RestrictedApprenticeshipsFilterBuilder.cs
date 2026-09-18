@@ -74,28 +74,32 @@ public static class RestrictedApprenticeshipsFilterBuilder
         };
     }
 
-    public static IEnumerable<RestrictedApprenticeshipItemViewModel> ApplyFilters(
-        IEnumerable<RestrictedApprenticeshipItemViewModel> courses,
+    public static IEnumerable<RestrictedApprenticeshipModel> ApplyFilters(
+        IEnumerable<RestrictedApprenticeshipModel> courses,
         GetRestrictedApprenticeshipsModel request)
     {
-        var filtered = courses;
+        var filtered = courses.Where(course => GetDeliveryStatus(course) != DeliveryStatus.OpenToNewStarts);
 
         if (request.HasSearchTermFilter)
         {
             var searchTerm = request.SearchTerm.Trim();
             filtered = filtered.Where(course =>
-                course.DisplayTitle.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+                CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level)
+                    .Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
                 || course.LarsCode.Equals(searchTerm, StringComparison.OrdinalIgnoreCase));
         }
 
         if (request.HasDeliveryStatusFilter)
         {
             var selectedStatuses = request.DeliveryStatus.Distinct().ToHashSet();
-            filtered = filtered.Where(course => selectedStatuses.Contains(course.DeliveryStatus));
+            filtered = filtered.Where(course => selectedStatuses.Contains(GetDeliveryStatus(course)));
         }
 
         return filtered;
     }
+
+    private static DeliveryStatus GetDeliveryStatus(RestrictedApprenticeshipModel course)
+        => course.LastDateStarts.ToDeliveryStatus(course.IsClosedToNewStarts);
 
     private static List<FilterItemViewModel> BuildDeliveryStatusItems(GetRestrictedApprenticeshipsModel model)
         =>

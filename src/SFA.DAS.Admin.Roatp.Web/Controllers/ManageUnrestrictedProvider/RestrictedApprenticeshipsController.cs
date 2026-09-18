@@ -1,6 +1,8 @@
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SFA.DAS.Admin.Roatp.Domain.Models;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
 using SFA.DAS.Admin.Roatp.Web.Models.Shared;
@@ -32,15 +34,21 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
             return NotFound();
         }
 
-        RestrictedApprenticeshipsViewModel viewModel = apiResponse.Content!;
-        viewModel.ProviderName = providerName;
-        viewModel.BackLinkUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!;
-        viewModel.RestrictACourseUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn })!;
-        viewModel.HasActiveFilters = model.HasFilters;
-        viewModel.Filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(model, ukprn, Url);
+        var courses = apiResponse.Content?.Courses ?? [];
+        var viewModel = new RestrictedApprenticeshipsViewModel
+        {
+            ProviderName = providerName,
+            BackLinkUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!,
+            RestrictACourseUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn })!,
+            HasActiveFilters = model.HasFilters,
+            Filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(model, ukprn, Url)
+        };
 
         var filteredCourses = RestrictedApprenticeshipsFilterBuilder
-            .ApplyFilters(viewModel.Courses, model)
+            .ApplyFilters(courses, model)
+            .OrderBy(
+                course => CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level),
+                StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         ApplyPagination(viewModel, filteredCourses, model);
@@ -50,7 +58,7 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
 
     private void ApplyPagination(
         RestrictedApprenticeshipsViewModel viewModel,
-        List<RestrictedApprenticeshipItemViewModel> filteredCourses,
+        List<RestrictedApprenticeshipModel> filteredCourses,
         GetRestrictedApprenticeshipsModel model)
     {
         var (pagedItems, totalCount, pagination) = PaginationHelper.Paginate(
@@ -62,7 +70,9 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
             RestrictedApprenticeshipsFilterBuilder.RestrictedApprenticeshipFilterResultsFragment);
 
         viewModel.TotalCount = totalCount;
-        viewModel.Courses = pagedItems;
+        viewModel.Courses = pagedItems
+            .Select(course => (RestrictedApprenticeshipItemViewModel)course)
+            .ToList();
         viewModel.Pagination = pagination;
     }
 

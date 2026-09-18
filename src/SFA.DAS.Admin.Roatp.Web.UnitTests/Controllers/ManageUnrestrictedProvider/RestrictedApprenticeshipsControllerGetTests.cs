@@ -41,6 +41,14 @@ public class RestrictedApprenticeshipsControllerGetTests
             },
             new RestrictedApprenticeshipModel
             {
+                LarsCode = "100",
+                Title = "Open course",
+                Level = 2,
+                LastDateStarts = null,
+                IsClosedToNewStarts = false
+            },
+            new RestrictedApprenticeshipModel
+            {
                 LarsCode = "105",
                 Title = "Alpha course",
                 Level = 6,
@@ -71,6 +79,7 @@ public class RestrictedApprenticeshipsControllerGetTests
             model.ShowCourseResults.Should().BeTrue();
             model.Filters.FilterSections.Should().HaveCount(2);
             model.Courses.Select(course => course.LarsCode).Should().Equal("105", "200");
+            model.Courses.Should().NotContain(course => course.DeliveryStatus == DeliveryStatus.OpenToNewStarts);
         }
 
         outerApiClientMock.Verify(c => c.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
