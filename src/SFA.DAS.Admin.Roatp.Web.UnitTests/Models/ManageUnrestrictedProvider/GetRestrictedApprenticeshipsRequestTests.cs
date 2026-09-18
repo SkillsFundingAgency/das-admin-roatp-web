@@ -11,7 +11,7 @@ public class GetRestrictedApprenticeshipsRequestTests
     [Test]
     public void WhenNoFiltersSelected_ThenHasFiltersIsFalse()
     {
-        var request = new GetRestrictedApprenticeshipsRequest();
+        var request = new GetRestrictedApprenticeshipsModel();
 
         using (new AssertionScope())
         {
@@ -24,7 +24,7 @@ public class GetRestrictedApprenticeshipsRequestTests
     [Test]
     public void WhenSearchTermProvided_ThenHasSearchTermFilterIsTrue()
     {
-        var request = new GetRestrictedApprenticeshipsRequest
+        var request = new GetRestrictedApprenticeshipsModel
         {
             SearchTerm = "Paint"
         };
@@ -39,7 +39,7 @@ public class GetRestrictedApprenticeshipsRequestTests
     [Test]
     public void WhenSearchTermIsWhitespace_ThenHasSearchTermFilterIsFalse()
     {
-        var request = new GetRestrictedApprenticeshipsRequest
+        var request = new GetRestrictedApprenticeshipsModel
         {
             SearchTerm = "   "
         };
@@ -54,7 +54,7 @@ public class GetRestrictedApprenticeshipsRequestTests
     [Test]
     public void WhenDeliveryStatusSelected_ThenHasDeliveryStatusFilterIsTrue()
     {
-        var request = new GetRestrictedApprenticeshipsRequest
+        var request = new GetRestrictedApprenticeshipsModel
         {
             DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
         };
@@ -69,7 +69,7 @@ public class GetRestrictedApprenticeshipsRequestTests
     [Test]
     public void WhenSearchTermAndDeliveryStatusSelected_ThenHasFiltersIsTrue()
     {
-        var request = new GetRestrictedApprenticeshipsRequest
+        var request = new GetRestrictedApprenticeshipsModel
         {
             SearchTerm = "Paint",
             DeliveryStatus = [DeliveryStatus.LastStartDateAdded, DeliveryStatus.ClosedToNewStarts]
@@ -86,7 +86,7 @@ public class GetRestrictedApprenticeshipsRequestTests
     [Test]
     public void PageNumber_WhenNotSet_ThenDefaultsToOne()
     {
-        var request = new GetRestrictedApprenticeshipsRequest();
+        var request = new GetRestrictedApprenticeshipsModel();
 
         request.PageNumber.Should().Be(1);
     }
@@ -94,7 +94,7 @@ public class GetRestrictedApprenticeshipsRequestTests
     [Test]
     public void ToQueryString_WhenFiltersApplied_ThenIncludesSearchTermAndDeliveryStatus()
     {
-        var request = new GetRestrictedApprenticeshipsRequest
+        var request = new GetRestrictedApprenticeshipsModel
         {
             SearchTerm = " Paint ",
             DeliveryStatus = [DeliveryStatus.LastStartDateAdded, DeliveryStatus.ClosedToNewStarts],
@@ -105,18 +105,18 @@ public class GetRestrictedApprenticeshipsRequestTests
 
         using (new AssertionScope())
         {
-            queryString.Should().Contain((nameof(GetRestrictedApprenticeshipsRequest.SearchTerm), "Paint"));
-            queryString.Should().Contain((nameof(GetRestrictedApprenticeshipsRequest.DeliveryStatus), nameof(DeliveryStatus.LastStartDateAdded)));
-            queryString.Should().Contain((nameof(GetRestrictedApprenticeshipsRequest.DeliveryStatus), nameof(DeliveryStatus.ClosedToNewStarts)));
-            queryString.Should().NotContain(q => q.Item1 == nameof(GetRestrictedApprenticeshipsRequest.PageNumber));
+            queryString.Should().Contain((nameof(GetRestrictedApprenticeshipsModel.SearchTerm), "Paint"));
+            queryString.Should().Contain((nameof(GetRestrictedApprenticeshipsModel.DeliveryStatus), nameof(DeliveryStatus.LastStartDateAdded)));
+            queryString.Should().Contain((nameof(GetRestrictedApprenticeshipsModel.DeliveryStatus), nameof(DeliveryStatus.ClosedToNewStarts)));
+            queryString.Should().NotContain(q => q.Item1 == nameof(GetRestrictedApprenticeshipsModel.PageNumber));
         }
     }
 
     [Test]
     public void ToQueryString_WhenNoFilters_ThenReturnsEmpty()
     {
-        var request = new GetRestrictedApprenticeshipsRequest();
+        var model = new GetRestrictedApprenticeshipsModel();
 
-        request.ToQueryString().Should().BeEmpty();
+        model.ToQueryString().Should().BeEmpty();
     }
 }

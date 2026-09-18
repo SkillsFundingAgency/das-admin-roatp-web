@@ -19,7 +19,7 @@ public static class RestrictedApprenticeshipsFilterBuilder
     private const string ClosedToNewStartsDescription = "This will be removed once all learners have completed the course";
 
     public static FiltersViewModel CreateFiltersViewModel(
-        GetRestrictedApprenticeshipsRequest request,
+        GetRestrictedApprenticeshipsModel request,
         int ukprn,
         IUrlHelper urlHelper)
     {
@@ -76,7 +76,7 @@ public static class RestrictedApprenticeshipsFilterBuilder
 
     public static IEnumerable<RestrictedApprenticeshipItemViewModel> ApplyFilters(
         IEnumerable<RestrictedApprenticeshipItemViewModel> courses,
-        GetRestrictedApprenticeshipsRequest request)
+        GetRestrictedApprenticeshipsModel request)
     {
         var filtered = courses;
 
@@ -97,22 +97,22 @@ public static class RestrictedApprenticeshipsFilterBuilder
         return filtered;
     }
 
-    private static List<FilterItemViewModel> BuildDeliveryStatusItems(GetRestrictedApprenticeshipsRequest request)
+    private static List<FilterItemViewModel> BuildDeliveryStatusItems(GetRestrictedApprenticeshipsModel model)
         =>
         [
-            CreateDeliveryStatusItem(DeliveryStatus.LastStartDateAdded, request, LastStartDateAddedDescription),
-            CreateDeliveryStatusItem(DeliveryStatus.ClosedToNewStarts, request, ClosedToNewStartsDescription)
+            CreateDeliveryStatusItem(DeliveryStatus.LastStartDateAdded, model, LastStartDateAddedDescription),
+            CreateDeliveryStatusItem(DeliveryStatus.ClosedToNewStarts, model, ClosedToNewStartsDescription)
         ];
 
     private static FilterItemViewModel CreateDeliveryStatusItem(
         DeliveryStatus status,
-        GetRestrictedApprenticeshipsRequest request,
+        GetRestrictedApprenticeshipsModel model,
         string description)
         => new()
         {
             Value = status.ToString(),
             DisplayText = status.GetDescription(),
             DisplayDescription = description,
-            IsSelected = request.DeliveryStatus.Contains(status)
+            IsSelected = model.DeliveryStatus.Contains(status)
         };
 }

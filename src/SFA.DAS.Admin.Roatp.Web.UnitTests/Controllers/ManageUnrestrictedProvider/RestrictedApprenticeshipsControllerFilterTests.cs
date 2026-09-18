@@ -55,14 +55,14 @@ public class RestrictedApprenticeshipsControllerFilterTests
 
         var result = await sut.Index(
             ukprn,
-            new GetRestrictedApprenticeshipsRequest { SearchTerm = "Alpha" },
+            new GetRestrictedApprenticeshipsModel { SearchTerm = "Alpha" },
             CancellationToken.None) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())
         {
             model!.HasActiveFilters.Should().BeTrue();
-            model.HasNoFilterResults.Should().BeFalse();
+            model.HasNoFilteredResults.Should().BeFalse();
             model.Courses.Should().ContainSingle(course => course.LarsCode == "105");
             model.Filters.ShowFilterOptions.Should().BeTrue();
             model.Filters.ClearFilterSections.Should().ContainSingle(section => section.Title == CourseNameSectionHeading);
@@ -102,7 +102,7 @@ public class RestrictedApprenticeshipsControllerFilterTests
 
         var result = await sut.Index(
             ukprn,
-            new GetRestrictedApprenticeshipsRequest
+            new GetRestrictedApprenticeshipsModel
             {
                 DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
             },
@@ -142,7 +142,7 @@ public class RestrictedApprenticeshipsControllerFilterTests
 
         var result = await sut.Index(
             ukprn,
-            new GetRestrictedApprenticeshipsRequest { SearchTerm = "nomatch" },
+            new GetRestrictedApprenticeshipsModel { SearchTerm = "nomatch" },
             CancellationToken.None) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
 
@@ -151,7 +151,7 @@ public class RestrictedApprenticeshipsControllerFilterTests
             model!.HasActiveFilters.Should().BeTrue();
             model.HasCourses.Should().BeFalse();
             model.HasNoCourses.Should().BeFalse();
-            model.HasNoFilterResults.Should().BeTrue();
+            model.HasNoFilteredResults.Should().BeTrue();
             model.ShowCourseResults.Should().BeTrue();
             model.Filters.ShowFilterOptions.Should().BeTrue();
             model.Courses.Should().BeEmpty();

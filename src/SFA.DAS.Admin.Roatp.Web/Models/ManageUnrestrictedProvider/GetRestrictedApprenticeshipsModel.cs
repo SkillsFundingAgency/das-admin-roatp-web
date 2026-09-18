@@ -2,7 +2,7 @@ using SFA.DAS.Admin.Roatp.Domain.Models;
 
 namespace SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
 
-public class GetRestrictedApprenticeshipsRequest
+public class GetRestrictedApprenticeshipsModel
 {
     public string SearchTerm { get; set; } = string.Empty;
 

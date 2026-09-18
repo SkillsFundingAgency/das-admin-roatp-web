@@ -140,13 +140,13 @@ public class RestrictedApprenticeshipsViewModelTests
     }
 
     [Test]
-    public void WhenNoActiveFiltersAndNoCourses_ThenHasNoFilterResultsIsFalse()
+    public void WhenNoActiveFiltersAndNoCourses_ThenHasNoFilteredResultsIsFalse()
     {
         var model = new RestrictedApprenticeshipsViewModel();
 
         using (new AssertionScope())
         {
-            model.HasNoFilterResults.Should().BeFalse();
+            model.HasNoFilteredResults.Should().BeFalse();
             model.HasNoCourses.Should().BeTrue();
             model.ShowCourseResults.Should().BeFalse();
             model.HasCourses.Should().BeFalse();
@@ -163,7 +163,7 @@ public class RestrictedApprenticeshipsViewModelTests
 
         using (new AssertionScope())
         {
-            model.HasNoFilterResults.Should().BeTrue();
+            model.HasNoFilteredResults.Should().BeTrue();
             model.HasNoCourses.Should().BeFalse();
             model.ShowCourseResults.Should().BeTrue();
             model.HasCourses.Should().BeFalse();
@@ -171,7 +171,7 @@ public class RestrictedApprenticeshipsViewModelTests
     }
 
     [Test]
-    public void WhenActiveFiltersAndHasCourses_ThenHasNoFilterResultsIsFalse()
+    public void WhenActiveFiltersAndHasCourses_ThenHasNoFilteredResultsIsFalse()
     {
         var model = new RestrictedApprenticeshipsViewModel
         {
@@ -189,7 +189,7 @@ public class RestrictedApprenticeshipsViewModelTests
 
         using (new AssertionScope())
         {
-            model.HasNoFilterResults.Should().BeFalse();
+            model.HasNoFilteredResults.Should().BeFalse();
             model.HasNoCourses.Should().BeFalse();
             model.ShowCourseResults.Should().BeTrue();
             model.HasCourses.Should().BeTrue();

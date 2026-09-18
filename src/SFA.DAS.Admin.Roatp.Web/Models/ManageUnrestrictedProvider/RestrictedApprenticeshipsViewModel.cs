@@ -22,7 +22,7 @@ public class RestrictedApprenticeshipsViewModel : ICustomBackLink
     public int TotalCount { get; set; }
     public bool HasCourses => TotalCount > 0;
     public bool HasNoCourses => !HasActiveFilters && !HasCourses;
-    public bool HasNoFilterResults => HasActiveFilters && !HasCourses;
+    public bool HasNoFilteredResults => HasActiveFilters && !HasCourses;
     public bool ShowCourseResults => !HasNoCourses;
     public string TotalCountDescription => "course".ToQuantity(TotalCount);
 

@@ -133,7 +133,7 @@ public class RestrictedCourseDetailsControllerGetTests
         using (new AssertionScope())
         {
             model!.HasNoProviders.Should().BeTrue();
-            model.HasNoFilterResults.Should().BeFalse();
+            model.HasNoFilteredResults.Should().BeFalse();
             model.AllowedProviders.Should().BeEmpty();
         }
     }

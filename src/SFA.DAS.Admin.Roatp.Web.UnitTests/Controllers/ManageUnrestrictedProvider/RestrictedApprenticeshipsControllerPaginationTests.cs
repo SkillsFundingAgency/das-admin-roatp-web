@@ -32,7 +32,7 @@ public class RestrictedApprenticeshipsControllerPaginationTests
     {
         SetupController(sut, outerApiClientMock, ukprn, providerName, CreateCourses(15));
 
-        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsRequest(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsModel(), CancellationToken.None) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())
@@ -58,7 +58,7 @@ public class RestrictedApprenticeshipsControllerPaginationTests
 
         var result = await sut.Index(
             ukprn,
-            new GetRestrictedApprenticeshipsRequest { PageNumber = 2 },
+            new GetRestrictedApprenticeshipsModel { PageNumber = 2 },
             CancellationToken.None) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
 
@@ -83,7 +83,7 @@ public class RestrictedApprenticeshipsControllerPaginationTests
     {
         SetupController(sut, outerApiClientMock, ukprn, providerName, CreateCourses(10));
 
-        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsRequest(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsModel(), CancellationToken.None) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())
@@ -104,7 +104,7 @@ public class RestrictedApprenticeshipsControllerPaginationTests
 
         var result = await sut.Index(
             ukprn,
-            new GetRestrictedApprenticeshipsRequest { PageNumber = 0 },
+            new GetRestrictedApprenticeshipsModel { PageNumber = 0 },
             CancellationToken.None) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
 
@@ -128,7 +128,7 @@ public class RestrictedApprenticeshipsControllerPaginationTests
 
         var result = await sut.Index(
             ukprn,
-            new GetRestrictedApprenticeshipsRequest { PageNumber = 99 },
+            new GetRestrictedApprenticeshipsModel { PageNumber = 99 },
             CancellationToken.None) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
 
@@ -153,7 +153,7 @@ public class RestrictedApprenticeshipsControllerPaginationTests
 
         var result = await sut.Index(
             ukprn,
-            new GetRestrictedApprenticeshipsRequest
+            new GetRestrictedApprenticeshipsModel
             {
                 SearchTerm = "Course",
                 DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
@@ -184,7 +184,7 @@ public class RestrictedApprenticeshipsControllerPaginationTests
 
         var result = await sut.Index(
             ukprn,
-            new GetRestrictedApprenticeshipsRequest { PageNumber = 4 },
+            new GetRestrictedApprenticeshipsModel { PageNumber = 4 },
             CancellationToken.None) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
         var numberedPages = model!.Pagination.Pages
@@ -211,7 +211,7 @@ public class RestrictedApprenticeshipsControllerPaginationTests
     {
         SetupController(sut, outerApiClientMock, ukprn, providerName, CreateCourses(70));
 
-        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsRequest(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsModel(), CancellationToken.None) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
         var numberedPages = model!.Pagination.Pages
             .Where(p => p.Title != PaginationViewModel.PreviousPageTitle
@@ -241,7 +241,7 @@ public class RestrictedApprenticeshipsControllerPaginationTests
 
         var result = await sut.Index(
             ukprn,
-            new GetRestrictedApprenticeshipsRequest { PageNumber = 7 },
+            new GetRestrictedApprenticeshipsModel { PageNumber = 7 },
             CancellationToken.None) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
         var numberedPages = model!.Pagination.Pages

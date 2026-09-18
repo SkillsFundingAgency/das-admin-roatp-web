@@ -77,7 +77,7 @@ public class RestrictedCourseDetailsViewModelTests
             AllowedProviders = []
         };
 
-        model.HasNoFilterResults.Should().BeTrue();
+        model.HasNoFilteredResults.Should().BeTrue();
         model.HasNoProviders.Should().BeFalse();
         model.ShowProviderResults.Should().BeTrue();
     }

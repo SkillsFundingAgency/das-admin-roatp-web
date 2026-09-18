@@ -24,10 +24,10 @@ public class RestrictedApprenticeshipsFilterBuilderTests
         var courses = CreateCourses();
 
         var byName = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(courses,
-            new GetRestrictedApprenticeshipsRequest { SearchTerm = "cleaning" }).ToList();
+            new GetRestrictedApprenticeshipsModel { SearchTerm = "cleaning" }).ToList();
 
         var byLarsCode = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(courses,
-            new GetRestrictedApprenticeshipsRequest { SearchTerm = "124" }).ToList();
+            new GetRestrictedApprenticeshipsModel { SearchTerm = "124" }).ToList();
 
         using (new AssertionScope())
         {
@@ -42,7 +42,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
         var courses = CreateCourses();
 
         var filtered = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(courses,
-            new GetRestrictedApprenticeshipsRequest
+            new GetRestrictedApprenticeshipsModel
             {
                 DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
             }).ToList();
@@ -60,7 +60,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
         var courses = CreateCourses();
 
         var filtered = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(courses,
-            new GetRestrictedApprenticeshipsRequest
+            new GetRestrictedApprenticeshipsModel
             {
                 SearchTerm = "course",
                 DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
@@ -75,7 +75,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
         var courses = CreateCourses();
 
         var filtered = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(courses,
-            new GetRestrictedApprenticeshipsRequest()).ToList();
+            new GetRestrictedApprenticeshipsModel()).ToList();
 
         filtered.Should().HaveCount(courses.Count);
     }
@@ -87,7 +87,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
 
         var filtered = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(
             courses,
-            new GetRestrictedApprenticeshipsRequest
+            new GetRestrictedApprenticeshipsModel
             {
                 DeliveryStatus = [DeliveryStatus.ClosedToNewStarts, DeliveryStatus.ClosedToNewStarts]
             }).ToList();
@@ -103,12 +103,12 @@ public class RestrictedApprenticeshipsFilterBuilderTests
     public void WhenCreatingFiltersViewModel_AndSearchTermIsNull_ThenSearchTermFilterIsNotSelected()
     {
         var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedApprenticeshipsRequest
+        var model = new GetRestrictedApprenticeshipsModel
         {
             SearchTerm = null!
         };
 
-        var filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(request, Ukprn, urlHelper.Object);
+        var filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(model, Ukprn, urlHelper.Object);
 
         using (new AssertionScope())
         {
@@ -122,13 +122,13 @@ public class RestrictedApprenticeshipsFilterBuilderTests
     public void WhenCreatingFiltersViewModel_ThenBuildsCourseNameAndDeliveryStatusSections()
     {
         var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedApprenticeshipsRequest
+        var model = new GetRestrictedApprenticeshipsModel
         {
             SearchTerm = "Paint",
             DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
         };
 
-        var filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(request, Ukprn, urlHelper.Object);
+        var filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(model, Ukprn, urlHelper.Object);
 
         using (new AssertionScope())
         {
@@ -178,12 +178,12 @@ public class RestrictedApprenticeshipsFilterBuilderTests
     public void WhenCreatingFiltersViewModel_AndSearchTermHasSurroundingWhitespace_ThenTrimsSearchTermForClearLink()
     {
         var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedApprenticeshipsRequest
+        var model = new GetRestrictedApprenticeshipsModel
         {
             SearchTerm = "  Paint  "
         };
 
-        var filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(request, Ukprn, urlHelper.Object);
+        var filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(model, Ukprn, urlHelper.Object);
 
         filters.ClearFilterSections.Single().Items.Single().DisplayText.Should().Be("Paint");
     }
@@ -194,7 +194,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
         var urlHelper = CreateUrlHelper();
 
         var filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(
-            new GetRestrictedApprenticeshipsRequest(),
+            new GetRestrictedApprenticeshipsModel(),
             Ukprn,
             urlHelper.Object);
 
@@ -210,12 +210,12 @@ public class RestrictedApprenticeshipsFilterBuilderTests
     public void WhenCreatingFiltersViewModel_AndClearingLastFilter_ThenClearLinkIsBaseUrl()
     {
         var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedApprenticeshipsRequest
+        var model = new GetRestrictedApprenticeshipsModel
         {
             SearchTerm = "Paint"
         };
 
-        var filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(request, Ukprn, urlHelper.Object);
+        var filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(model, Ukprn, urlHelper.Object);
 
         filters.ClearFilterSections.Single().Items.Single().ClearLink.Should().Be(
             $"{RestrictedApprenticeshipsUrl}#{RestrictedApprenticeshipsFilterBuilder.RestrictedApprenticeshipFilterResultsFragment}");
@@ -225,12 +225,12 @@ public class RestrictedApprenticeshipsFilterBuilderTests
     public void WhenCreatingFiltersViewModel_AndClearingOneOfMultipleStatuses_ThenKeepsRemainingStatus()
     {
         var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedApprenticeshipsRequest
+        var model = new GetRestrictedApprenticeshipsModel
         {
             DeliveryStatus = [DeliveryStatus.LastStartDateAdded, DeliveryStatus.ClosedToNewStarts]
         };
 
-        var filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(request, Ukprn, urlHelper.Object);
+        var filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(model, Ukprn, urlHelper.Object);
 
         var clearLastStartDateLink = filters.ClearFilterSections
             .Single(section => section.Title == DeliveryStatusSectionHeading)

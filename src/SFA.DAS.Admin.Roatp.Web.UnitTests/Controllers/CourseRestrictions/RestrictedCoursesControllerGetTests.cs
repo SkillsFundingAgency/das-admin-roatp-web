@@ -111,7 +111,7 @@ public class RestrictedCoursesControllerGetTests
 
         var model = result!.Model as RestrictedCoursesViewModel;
         model!.HasActiveFilters.Should().BeTrue();
-        model.HasNoFilterResults.Should().BeFalse();
+        model.HasNoFilteredResults.Should().BeFalse();
         model.TotalCount.Should().Be(3);
         model.Courses.Select(c => c.DisplayTitle).Should().ContainInOrder(
             "Alpha course (Level 3)",
@@ -153,7 +153,7 @@ public class RestrictedCoursesControllerGetTests
         model!.HasActiveFilters.Should().BeTrue();
         model.HasCourses.Should().BeFalse();
         model.HasNoCourses.Should().BeFalse();
-        model.HasNoFilterResults.Should().BeTrue();
+        model.HasNoFilteredResults.Should().BeTrue();
         model.ShowCourseResults.Should().BeTrue();
         model.TotalCount.Should().Be(0);
         model.Filters.ShowFilterOptions.Should().BeTrue();

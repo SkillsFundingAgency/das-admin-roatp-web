@@ -17,7 +17,7 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
     [HttpGet]
     public async Task<IActionResult> Index(
         int ukprn,
-        GetRestrictedApprenticeshipsRequest request,
+        GetRestrictedApprenticeshipsModel model,
         CancellationToken cancellationToken)
     {
         var providerName = await GetProviderName(ukprn, cancellationToken);
@@ -32,38 +32,38 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
             return NotFound();
         }
 
-        RestrictedApprenticeshipsViewModel model = apiResponse.Content!;
-        model.ProviderName = providerName;
-        model.BackLinkUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!;
-        model.RestrictACourseUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn })!;
-        model.HasActiveFilters = request.HasFilters;
-        model.Filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(request, ukprn, Url);
+        RestrictedApprenticeshipsViewModel viewModel = apiResponse.Content!;
+        viewModel.ProviderName = providerName;
+        viewModel.BackLinkUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!;
+        viewModel.RestrictACourseUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn })!;
+        viewModel.HasActiveFilters = model.HasFilters;
+        viewModel.Filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(model, ukprn, Url);
 
         var filteredCourses = RestrictedApprenticeshipsFilterBuilder
-            .ApplyFilters(model.Courses, request)
+            .ApplyFilters(viewModel.Courses, model)
             .ToList();
 
-        ApplyPagination(model, filteredCourses, request);
+        ApplyPagination(viewModel, filteredCourses, model);
 
-        return View(ViewPath, model);
+        return View(ViewPath, viewModel);
     }
 
     private void ApplyPagination(
-        RestrictedApprenticeshipsViewModel model,
+        RestrictedApprenticeshipsViewModel viewModel,
         List<RestrictedApprenticeshipItemViewModel> filteredCourses,
-        GetRestrictedApprenticeshipsRequest request)
+        GetRestrictedApprenticeshipsModel model)
     {
         var (pagedItems, totalCount, pagination) = PaginationHelper.Paginate(
             filteredCourses,
-            request.PageNumber,
+            model.PageNumber,
             Url,
             RouteNames.ProviderRestrictedCourses,
-            request.ToQueryString(),
+            model.ToQueryString(),
             RestrictedApprenticeshipsFilterBuilder.RestrictedApprenticeshipFilterResultsFragment);
 
-        model.TotalCount = totalCount;
-        model.Courses = pagedItems;
-        model.Pagination = pagination;
+        viewModel.TotalCount = totalCount;
+        viewModel.Courses = pagedItems;
+        viewModel.Pagination = pagination;
     }
 
     private async Task<string?> GetProviderName(int ukprn, CancellationToken cancellationToken)

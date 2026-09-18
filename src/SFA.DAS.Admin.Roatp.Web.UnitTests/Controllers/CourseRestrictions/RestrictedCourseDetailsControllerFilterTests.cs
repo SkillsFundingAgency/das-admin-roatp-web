@@ -114,7 +114,7 @@ public class RestrictedCourseDetailsControllerFilterTests
         var result = await sut.Index(LarsCode, request, CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
-        model!.HasNoFilterResults.Should().BeTrue();
+        model!.HasNoFilteredResults.Should().BeTrue();
         model.HasNoProviders.Should().BeFalse();
         model.HasActiveFilters.Should().BeTrue();
         model.AllowedProviders.Should().BeEmpty();
