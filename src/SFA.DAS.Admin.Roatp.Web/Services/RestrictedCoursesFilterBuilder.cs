@@ -17,27 +17,19 @@ public static class RestrictedCoursesFilterBuilder
     private const string LearningTypeFilterId = "learning-type-filter";
 
     public static FiltersViewModel CreateFiltersViewModel(
-        GetRestrictedCoursesRequest request,
+        GetRestrictedCoursesRequestModel requestModel,
         IUrlHelper urlHelper)
     {
         var selectedFilters = new Dictionary<FilterType, IEnumerable<string>>();
-        AddSelectedFilter(selectedFilters, FilterType.SearchTerm, request.SearchTerm?.Trim());
+        AddSelectedFilter(selectedFilters, FilterType.SearchTerm, requestModel.SearchTerm?.Trim());
 
-        if (request.HasLearningTypeFilter)
+        if (requestModel.HasLearningTypeFilter)
         {
             AddSelectedFilter(
                 selectedFilters,
                 FilterType.LearningType,
-                request.LearningType.Distinct().Select(type => type.GetDescription()));
+                requestModel.LearningType.Distinct().Select(type => type.ToString()));
         }
-
-        var overrideValueFunctions = new Dictionary<FilterType, Func<string, string>>
-        {
-            [FilterType.LearningType] = displayText =>
-                Enum.GetValues<LearningType>()
-                    .First(type => type.GetDescription() == displayText)
-                    .ToString()
-        };
 
         var sectionHeadingOverrides = new Dictionary<FilterType, string>
         {
@@ -57,61 +49,62 @@ public static class RestrictedCoursesFilterBuilder
                     CourseNameSectionHeading,
                     CourseNameSectionSubHeading,
                     nameof(FilterType.SearchTerm),
-                    request.SearchTerm),
+                    requestModel.SearchTerm),
                 CreateCheckboxListFilterSection(
                     LearningTypeFilterId,
                     nameof(FilterType.LearningType),
                     LearningTypeSectionHeading,
                     null,
-                    BuildLearningTypeItems(request))
+                    BuildLearningTypeItems(requestModel))
             ],
             ClearFilterSections = CreateClearFilterSections(
                 selectedFilters,
                 clearFiltersBaseUrl,
-                overrideValueFunctions,
+                useDisplayText: true,
                 RestrictedCourseFilterResultsFragment,
                 sectionHeadingOverrides)
         };
     }
 
-    public static IEnumerable<RestrictedCourseItemViewModel> ApplyFilters(
-        IEnumerable<RestrictedCourseItemViewModel> courses,
-        GetRestrictedCoursesRequest request)
+    public static IEnumerable<RestrictedCourseModel> ApplyFilters(
+        IEnumerable<RestrictedCourseModel> courses,
+        GetRestrictedCoursesRequestModel requestModel)
     {
         var filtered = courses;
 
-        if (request.HasSearchTermFilter)
+        if (requestModel.HasSearchTermFilter)
         {
-            var searchTerm = request.SearchTerm.Trim();
+            var searchTerm = requestModel.SearchTerm.Trim();
             filtered = filtered.Where(course =>
-                course.DisplayTitle.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
-                || course.LarsCode.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+                CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level)
+                    .Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+                || course.LarsCode.Equals(searchTerm, StringComparison.OrdinalIgnoreCase));
         }
 
-        if (request.HasLearningTypeFilter)
+        if (requestModel.HasLearningTypeFilter)
         {
-            var selectedTypes = request.LearningType.Distinct().ToHashSet();
+            var selectedTypes = requestModel.LearningType.Distinct().ToHashSet();
             filtered = filtered.Where(course => selectedTypes.Contains(course.LearningType));
         }
 
         return filtered;
     }
 
-    private static List<FilterItemViewModel> BuildLearningTypeItems(GetRestrictedCoursesRequest request)
+    private static List<FilterItemViewModel> BuildLearningTypeItems(GetRestrictedCoursesRequestModel requestModel)
         =>
         [
-            CreateLearningTypeItem(LearningType.Apprenticeship, request),
-            CreateLearningTypeItem(LearningType.ApprenticeshipUnit, request),
-            CreateLearningTypeItem(LearningType.FoundationApprenticeship, request)
+            CreateLearningTypeItem(LearningType.Apprenticeship, requestModel),
+            CreateLearningTypeItem(LearningType.ApprenticeshipUnit, requestModel),
+            CreateLearningTypeItem(LearningType.FoundationApprenticeship, requestModel)
         ];
 
     private static FilterItemViewModel CreateLearningTypeItem(
         LearningType learningType,
-        GetRestrictedCoursesRequest request)
+        GetRestrictedCoursesRequestModel requestModel)
         => new()
         {
             Value = learningType.ToString(),
             DisplayText = learningType.GetDescription(),
-            IsSelected = request.LearningType.Contains(learningType)
+            IsSelected = requestModel.LearningType.Contains(learningType)
         };
 }

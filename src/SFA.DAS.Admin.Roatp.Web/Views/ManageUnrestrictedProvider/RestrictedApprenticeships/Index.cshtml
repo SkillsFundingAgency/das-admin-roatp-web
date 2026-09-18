@@ -1,4 +1,5 @@
 @using SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider
+@using SFA.DAS.Admin.Roatp.Web.Services
 @model RestrictedApprenticeshipsViewModel
 @{
     ViewData["Title"] = "Manage the apprenticeships this provider cannot deliver";
@@ -23,14 +24,18 @@
 
 <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-6">
 
-<div class="govuk-grid-row">
-    <h2 class="govuk-heading-l">Courses this provider is not allowed to deliver</h2>
+<h2 class="govuk-heading-l">Courses this provider is not allowed to deliver</h2>
 
-    <p asp-show="Model.HasNoCourses" class="govuk-body">This provider has no restricted courses.</p>
-    <div class="govuk-grid-column-full">
+<p asp-show="Model.HasNoCourses" class="govuk-body">This provider has no restricted courses.</p>
+<p asp-show="Model.ShowCourseResults" class="govuk-body">The list below shows the apprenticeships this provider is not allowed to deliver.</p>
+
+<div asp-show="Model.ShowCourseResults" class="govuk-grid-row govuk-!-margin-top-6" id="@RestrictedApprenticeshipsFilterBuilder.RestrictedApprenticeshipFilterResultsFragment">
+    <div class="govuk-grid-column-one-third">
+        @await Html.PartialAsync("_filters", Model.Filters)
+    </div>
+
+    <div class="govuk-grid-column-two-thirds">
         <div asp-show="Model.HasCourses">
-            <p class="govuk-body">The list below shows the apprenticeships this provider is not allowed to deliver.</p>
-
             <div class="app-results-header govuk-!-margin-bottom-3">
                 <p class="govuk-body govuk-!-font-weight-bold govuk-!-margin-bottom-0">@Model.TotalCountDescription</p>
                 <p class="govuk-body govuk-!-margin-bottom-0">
@@ -48,6 +53,21 @@
                     </li>
                 }
             </ul>
+        </div>
+
+        <div asp-show="Model.HasNoFilteredResults">
+            <h2 class="govuk-heading-l">No results</h2>
+            <p class="govuk-body">There are no courses that match your search.</p>
+            <p class="govuk-body">You may need to:</p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>clear filters you've selected</li>
+                <li>check your spelling or enter another search term and try again</li>
+            </ul>
+            <p class="govuk-body">Change your search using the filters on this page.</p>
+        </div>
+
+        <div class="govuk-!-margin-top-4">
+            @await Html.PartialAsync("_pagination", Model.Pagination)
         </div>
     </div>
 </div>

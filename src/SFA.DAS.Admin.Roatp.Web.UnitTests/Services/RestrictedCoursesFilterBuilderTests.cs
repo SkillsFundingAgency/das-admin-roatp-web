@@ -1,4 +1,5 @@
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
@@ -23,15 +24,29 @@ public class RestrictedCoursesFilterBuilderTests
 
         var byName = RestrictedCoursesFilterBuilder.ApplyFilters(
             courses,
-            new GetRestrictedCoursesRequest { SearchTerm = "cleaning" }).ToList();
-
-        byName.Should().ContainSingle(c => c.LarsCode == "163");
+            new GetRestrictedCoursesRequestModel { SearchTerm = "cleaning" }).ToList();
 
         var byLarsCode = RestrictedCoursesFilterBuilder.ApplyFilters(
             courses,
-            new GetRestrictedCoursesRequest { SearchTerm = "124" }).ToList();
+            new GetRestrictedCoursesRequestModel { SearchTerm = "124" }).ToList();
 
-        byLarsCode.Should().ContainSingle(c => c.LarsCode == "124");
+        using (new AssertionScope())
+        {
+            byName.Should().ContainSingle(c => c.LarsCode == "163");
+            byLarsCode.Should().ContainSingle(c => c.LarsCode == "124");
+        }
+    }
+
+    [Test]
+    public void WhenApplyingCourseNameFilter_AndLarsCodeIsPartial_ThenDoesNotMatch()
+    {
+        var courses = CreateCourses();
+
+        var filtered = RestrictedCoursesFilterBuilder.ApplyFilters(
+            courses,
+            new GetRestrictedCoursesRequestModel { SearchTerm = "12" }).ToList();
+
+        filtered.Should().BeEmpty();
     }
 
     [Test]
@@ -41,7 +56,7 @@ public class RestrictedCoursesFilterBuilderTests
 
         var filtered = RestrictedCoursesFilterBuilder.ApplyFilters(
             courses,
-            new GetRestrictedCoursesRequest
+            new GetRestrictedCoursesRequestModel
             {
                 LearningType = [LearningType.ApprenticeshipUnit]
             }).ToList();
@@ -56,7 +71,7 @@ public class RestrictedCoursesFilterBuilderTests
 
         var filtered = RestrictedCoursesFilterBuilder.ApplyFilters(
             courses,
-            new GetRestrictedCoursesRequest
+            new GetRestrictedCoursesRequestModel
             {
                 LearningType =
                 [
@@ -76,7 +91,7 @@ public class RestrictedCoursesFilterBuilderTests
 
         var filtered = RestrictedCoursesFilterBuilder.ApplyFilters(
             courses,
-            new GetRestrictedCoursesRequest()).ToList();
+            new GetRestrictedCoursesRequestModel()).ToList();
 
         filtered.Should().HaveCount(courses.Count);
     }
@@ -85,12 +100,12 @@ public class RestrictedCoursesFilterBuilderTests
     public void WhenCreatingFiltersViewModel_AndSearchTermHasSurroundingWhitespace_ThenTrimsSearchTermForClearLink()
     {
         var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedCoursesRequest
+        var requestModel = new GetRestrictedCoursesRequestModel
         {
             SearchTerm = "  Paint  "
         };
 
-        var filters = RestrictedCoursesFilterBuilder.CreateFiltersViewModel(request, urlHelper.Object);
+        var filters = RestrictedCoursesFilterBuilder.CreateFiltersViewModel(requestModel, urlHelper.Object);
 
         filters.ClearFilterSections.Single().Items.Single().DisplayText.Should().Be("Paint");
     }
@@ -99,13 +114,13 @@ public class RestrictedCoursesFilterBuilderTests
     public void WhenCreatingFiltersViewModel_ThenBuildsSectionsAndClearLinks()
     {
         var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedCoursesRequest
+        var requestModel = new GetRestrictedCoursesRequestModel
         {
             SearchTerm = "Paint",
             LearningType = [LearningType.ApprenticeshipUnit]
         };
 
-        var filters = RestrictedCoursesFilterBuilder.CreateFiltersViewModel(request, urlHelper.Object);
+        var filters = RestrictedCoursesFilterBuilder.CreateFiltersViewModel(requestModel, urlHelper.Object);
 
         filters.ShowFilterOptions.Should().BeTrue();
         filters.LarsCode.Should().BeNull();
@@ -142,7 +157,7 @@ public class RestrictedCoursesFilterBuilderTests
     public void WhenCreatingFiltersViewModel_AndAllLearningTypesSelected_ThenShowsLearningTypesInSelectedFilters()
     {
         var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedCoursesRequest
+        var requestModel = new GetRestrictedCoursesRequestModel
         {
             LearningType =
             [
@@ -152,7 +167,7 @@ public class RestrictedCoursesFilterBuilderTests
             ]
         };
 
-        var filters = RestrictedCoursesFilterBuilder.CreateFiltersViewModel(request, urlHelper.Object);
+        var filters = RestrictedCoursesFilterBuilder.CreateFiltersViewModel(requestModel, urlHelper.Object);
 
         filters.ShowFilterOptions.Should().BeTrue();
 
@@ -173,18 +188,18 @@ public class RestrictedCoursesFilterBuilderTests
     public void WhenCreatingFiltersViewModel_AndClearingLastFilter_ThenClearLinkIsBaseUrl()
     {
         var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedCoursesRequest
+        var requestModel = new GetRestrictedCoursesRequestModel
         {
             SearchTerm = "Paint"
         };
 
-        var filters = RestrictedCoursesFilterBuilder.CreateFiltersViewModel(request, urlHelper.Object);
+        var filters = RestrictedCoursesFilterBuilder.CreateFiltersViewModel(requestModel, urlHelper.Object);
 
         filters.ClearFilterSections.Single().Items.Single().ClearLink.Should().Be(
             $"{RestrictedCoursesUrl}#{RestrictedCoursesFilterBuilder.RestrictedCourseFilterResultsFragment}");
     }
 
-    private static List<RestrictedCourseItemViewModel> CreateCourses() =>
+    private static List<RestrictedCourseModel> CreateCourses() =>
     [
         new()
         {

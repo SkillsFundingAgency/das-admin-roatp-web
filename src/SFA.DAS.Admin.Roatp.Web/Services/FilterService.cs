@@ -1,4 +1,6 @@
 using System.Text;
+using SFA.DAS.Admin.Roatp.Domain.Models;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Models.Filters.Abstract;
 using SFA.DAS.Admin.Roatp.Web.Models.Filters.FilterComponents;
 
@@ -68,7 +70,7 @@ public static class FilterService
     public static IReadOnlyList<ClearFilterSectionViewModel> CreateClearFilterSections(
         Dictionary<FilterType, IEnumerable<string>> selectedFilters,
         string clearFiltersBaseUrl,
-        Dictionary<FilterType, Func<string, string>>? overrideValueFunctions = null,
+        bool useDisplayText = false,
         string? filterResultsFragment = null,
         Dictionary<FilterType, string>? sectionHeadingOverrides = null)
     {
@@ -95,13 +97,12 @@ public static class FilterService
                 Title = title,
                 Items = filter.Value.Select(value => new ClearFilterItemViewModel
                 {
-                    DisplayText = value,
+                    DisplayText = GetDisplayText(filter.Key, value, useDisplayText),
                     ClearLink = BuildClearLink(
                         clearFiltersBaseUrl,
                         filter.Key,
                         value,
                         selectedFilters,
-                        overrideValueFunctions,
                         filterResultsFragment)
                 }).ToList()
             });
@@ -133,15 +134,31 @@ public static class FilterService
         }
     }
 
+    private static string GetDisplayText(FilterType filterType, string value, bool useDisplayText)
+    {
+        if (!useDisplayText)
+        {
+            return value;
+        }
+
+        return filterType switch
+        {
+            FilterType.DeliveryStatus when Enum.TryParse<DeliveryStatus>(value, out var status)
+                => status.GetDescription(),
+            FilterType.LearningType when Enum.TryParse<LearningType>(value, out var learningType)
+                => learningType.GetDescription(),
+            _ => value
+        };
+    }
+
     private static string BuildClearLink(
         string clearFiltersBaseUrl,
         FilterType filterType,
         string value,
         Dictionary<FilterType, IEnumerable<string>> queryParams,
-        Dictionary<FilterType, Func<string, string>>? overrideValueFunctions,
         string? filterResultsFragment)
     {
-        var queryString = BuildQueryWithoutValue(filterType, value, queryParams, overrideValueFunctions);
+        var queryString = BuildQueryWithoutValue(filterType, value, queryParams);
         var clearLink = string.IsNullOrEmpty(queryString)
             ? clearFiltersBaseUrl
             : $"{clearFiltersBaseUrl}{queryString}";
@@ -154,8 +171,7 @@ public static class FilterService
     private static string BuildQueryWithoutValue(
         FilterType filterType,
         string value,
-        Dictionary<FilterType, IEnumerable<string>> queryParams,
-        Dictionary<FilterType, Func<string, string>>? overrideValueFunctions)
+        Dictionary<FilterType, IEnumerable<string>> queryParams)
     {
         var queryBuilder = new StringBuilder();
 
@@ -170,11 +186,9 @@ public static class FilterService
                 ? param.Value.Where(v => v != value)
                 : param.Value;
 
-            var overrideValueFunction = overrideValueFunctions?.GetValueOrDefault(param.Key);
-
             foreach (var val in values)
             {
-                AppendQueryParam(queryBuilder, param.Key, val, overrideValueFunction);
+                AppendQueryParam(queryBuilder, param.Key, val);
             }
         }
 
@@ -184,16 +198,14 @@ public static class FilterService
     private static void AppendQueryParam(
         StringBuilder builder,
         FilterType key,
-        string value,
-        Func<string, string>? overrideValueFunction = null)
+        string value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
             return;
         }
 
-        var queryValue = overrideValueFunction?.Invoke(value) ?? value;
-        var encodedValue = Uri.EscapeDataString(queryValue);
+        var encodedValue = Uri.EscapeDataString(value);
 
         builder
             .Append(builder.Length > 0 ? '&' : '?')

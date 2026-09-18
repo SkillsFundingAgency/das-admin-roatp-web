@@ -35,4 +35,16 @@ public class FiltersViewModelTests
 
         model.ShowFilterOptions.Should().BeTrue();
     }
+
+    [Test]
+    public void Ukprn_WhenSet_ThenIsReturned()
+    {
+        var model = new FiltersViewModel
+        {
+            Route = "route",
+            Ukprn = 10019900
+        };
+
+        model.Ukprn.Should().Be(10019900);
+    }
 }
