@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
+using SFA.DAS.Admin.Roatp.Web.Models.Shared;
 using SFA.DAS.Admin.Roatp.Web.Services;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
@@ -37,11 +38,32 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
         model.RestrictACourseUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn })!;
         model.HasActiveFilters = request.HasFilters;
         model.Filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(request, ukprn, Url);
-        model.Courses = RestrictedApprenticeshipsFilterBuilder
+
+        var filteredCourses = RestrictedApprenticeshipsFilterBuilder
             .ApplyFilters(model.Courses, request)
             .ToList();
 
+        ApplyPagination(model, filteredCourses, request);
+
         return View(ViewPath, model);
+    }
+
+    private void ApplyPagination(
+        RestrictedApprenticeshipsViewModel model,
+        List<RestrictedApprenticeshipItemViewModel> filteredCourses,
+        GetRestrictedApprenticeshipsRequest request)
+    {
+        var (pagedItems, totalCount, pagination) = PaginationHelper.Paginate(
+            filteredCourses,
+            request.PageNumber,
+            Url,
+            RouteNames.ProviderRestrictedCourses,
+            request.ToQueryString(),
+            RestrictedApprenticeshipsFilterBuilder.RestrictedApprenticeshipFilterResultsFragment);
+
+        model.TotalCount = totalCount;
+        model.Courses = pagedItems;
+        model.Pagination = pagination;
     }
 
     private async Task<string?> GetProviderName(int ukprn, CancellationToken cancellationToken)

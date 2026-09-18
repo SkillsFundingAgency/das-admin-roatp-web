@@ -2,6 +2,7 @@ using Humanizer;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Models.Filters;
+using SFA.DAS.Admin.Roatp.Web.Models.Shared;
 
 namespace SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
 
@@ -16,8 +17,9 @@ public class RestrictedApprenticeshipsViewModel : ICustomBackLink
     public IReadOnlyList<RestrictedApprenticeshipItemViewModel> Courses { get; set; } = [];
     public bool HasActiveFilters { get; set; }
     public FiltersViewModel Filters { get; set; } = new() { Route = string.Empty };
+    public PaginationViewModel Pagination { get; set; } = null!;
 
-    public int TotalCount => Courses.Count;
+    public int TotalCount { get; set; }
     public bool HasCourses => TotalCount > 0;
     public bool HasNoCourses => !HasActiveFilters && !HasCourses;
     public bool HasNoFilterResults => HasActiveFilters && !HasCourses;
@@ -26,14 +28,16 @@ public class RestrictedApprenticeshipsViewModel : ICustomBackLink
 
     public static implicit operator RestrictedApprenticeshipsViewModel(GetRestrictedApprenticeshipsResponse? response)
     {
-        var courses = response?.Courses ?? [];
+        var courses = (response?.Courses ?? [])
+            .Select(course => (RestrictedApprenticeshipItemViewModel)course)
+            .Where(course => course.DeliveryStatus != DeliveryStatus.OpenToNewStarts)
+            .OrderBy(course => course.DisplayTitle, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
         return new RestrictedApprenticeshipsViewModel
         {
-            Courses = courses
-                .Select(course => (RestrictedApprenticeshipItemViewModel)course)
-                .Where(course => course.DeliveryStatus != DeliveryStatus.OpenToNewStarts)
-                .OrderBy(course => course.DisplayTitle, StringComparer.OrdinalIgnoreCase)
-                .ToList()
+            Courses = courses,
+            TotalCount = courses.Count
         };
     }
 }

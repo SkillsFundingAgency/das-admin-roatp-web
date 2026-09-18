@@ -176,6 +176,7 @@ public class RestrictedApprenticeshipsViewModelTests
         var model = new RestrictedApprenticeshipsViewModel
         {
             HasActiveFilters = true,
+            TotalCount = 1,
             Courses =
             [
                 new RestrictedApprenticeshipItemViewModel

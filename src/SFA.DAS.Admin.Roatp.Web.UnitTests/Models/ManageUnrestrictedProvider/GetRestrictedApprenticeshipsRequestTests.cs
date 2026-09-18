@@ -82,4 +82,41 @@ public class GetRestrictedApprenticeshipsRequestTests
             request.HasFilters.Should().BeTrue();
         }
     }
+
+    [Test]
+    public void PageNumber_WhenNotSet_ThenDefaultsToOne()
+    {
+        var request = new GetRestrictedApprenticeshipsRequest();
+
+        request.PageNumber.Should().Be(1);
+    }
+
+    [Test]
+    public void ToQueryString_WhenFiltersApplied_ThenIncludesSearchTermAndDeliveryStatus()
+    {
+        var request = new GetRestrictedApprenticeshipsRequest
+        {
+            SearchTerm = " Paint ",
+            DeliveryStatus = [DeliveryStatus.LastStartDateAdded, DeliveryStatus.ClosedToNewStarts],
+            PageNumber = 2
+        };
+
+        var queryString = request.ToQueryString();
+
+        using (new AssertionScope())
+        {
+            queryString.Should().Contain((nameof(GetRestrictedApprenticeshipsRequest.SearchTerm), "Paint"));
+            queryString.Should().Contain((nameof(GetRestrictedApprenticeshipsRequest.DeliveryStatus), nameof(DeliveryStatus.LastStartDateAdded)));
+            queryString.Should().Contain((nameof(GetRestrictedApprenticeshipsRequest.DeliveryStatus), nameof(DeliveryStatus.ClosedToNewStarts)));
+            queryString.Should().NotContain(q => q.Item1 == nameof(GetRestrictedApprenticeshipsRequest.PageNumber));
+        }
+    }
+
+    [Test]
+    public void ToQueryString_WhenNoFilters_ThenReturnsEmpty()
+    {
+        var request = new GetRestrictedApprenticeshipsRequest();
+
+        request.ToQueryString().Should().BeEmpty();
+    }
 }
