@@ -1,0 +1,53 @@
+@using SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider
+@model RestrictedApprenticeshipsViewModel
+@{
+    ViewData["Title"] = "Manage the apprenticeships this provider cannot deliver";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <span class="govuk-caption-xl">@Model.ProviderName</span>
+        <h1 class="govuk-heading-xl">Manage the apprenticeships this provider cannot deliver</h1>
+
+        <p class="govuk-body">This provider's account permissions mean that they can offer any apprenticeship.</p>
+        <p class="govuk-body">You can stop them from delivering a specific course, or review the courses we have already restricted.</p>
+    </div>
+</div>
+
+<div class="app-action-panel govuk-!-margin-bottom-8 govuk-!-margin-top-2">
+    <h2 class="govuk-heading-l">Stop this provider from offering a course</h2>
+    <p class="govuk-body">Restricting a course means the provider will not be able to add it to their account in Course management. If the provider currently offers this course, you will need to add a last start date for learners.</p>
+    <p class="govuk-body">Once this date has passed, the provider cannot accept any new starts and it will not show on Find apprenticeship training. If the provider submits an ILR for a learner who starts after this date, it will be rejected.</p>
+    <a class="govuk-button govuk-!-margin-bottom-0" href="@Model.RestrictACourseUrl" data-module="govuk-button">Restrict a course</a>
+</div>
+
+<hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-6">
+
+<div class="govuk-grid-row">
+    <h2 class="govuk-heading-l">Courses this provider is not allowed to deliver</h2>
+
+    <p asp-show="Model.HasNoCourses" class="govuk-body">This provider has no restricted courses.</p>
+    <div class="govuk-grid-column-full">
+        <div asp-show="Model.HasCourses">
+            <p class="govuk-body">The list below shows the apprenticeships this provider is not allowed to deliver.</p>
+
+            <div class="app-results-header govuk-!-margin-bottom-3">
+                <p class="govuk-body govuk-!-font-weight-bold govuk-!-margin-bottom-0">@Model.TotalCountDescription</p>
+                <p class="govuk-body govuk-!-margin-bottom-0">
+                    Sorted by: <span class="govuk-!-font-weight-bold">Name of course</span>
+                </p>
+            </div>
+
+            <ul class="govuk-list app-results-list app-results-list--bordered">
+                @foreach (var course in Model.Courses)
+                {
+                    <li class="app-results-list__item">
+                        <strong class="govuk-tag @course.DeliveryStatusTagClass app-tag govuk-!-margin-bottom-2">@course.DeliveryStatusDescription</strong>
+                        <h3 class="govuk-heading-s govuk-!-margin-bottom-1">@course.DisplayTitle</h3>
+                        <p class="govuk-body govuk-!-margin-bottom-0">LARS Code: @course.LarsCode</p>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>

@@ -48,4 +48,16 @@ public static class EnumExtensions
             ? DeliveryStatus.LastStartDateAdded
             : DeliveryStatus.ClosedToNewStarts;
     }
+
+    public static DeliveryStatus ToDeliveryStatus(this DateTime? lastDateStarts, bool isClosedToNewStarts)
+    {
+        if (isClosedToNewStarts)
+        {
+            return DeliveryStatus.ClosedToNewStarts;
+        }
+
+        return lastDateStarts.HasValue
+            ? DeliveryStatus.LastStartDateAdded
+            : DeliveryStatus.OpenToNewStarts;
+    }
 }
