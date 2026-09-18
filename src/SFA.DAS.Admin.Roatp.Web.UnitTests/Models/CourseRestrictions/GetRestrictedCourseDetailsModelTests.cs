@@ -5,12 +5,12 @@ using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models.CourseRestrictions;
 
 [TestFixture]
-public class GetRestrictedCourseDetailsRequestTests
+public class GetRestrictedCourseDetailsModelTests
 {
     [Test]
     public void HasSearchTermFilter_WhenSearchTermIsEmpty_ThenIsFalse()
     {
-        var request = new GetRestrictedCourseDetailsRequest();
+        var request = new GetRestrictedCourseDetailsModel();
 
         var result = request.HasSearchTermFilter;
 
@@ -20,7 +20,7 @@ public class GetRestrictedCourseDetailsRequestTests
     [Test]
     public void HasSearchTermFilter_WhenSearchTermIsWhitespace_ThenIsFalse()
     {
-        var request = new GetRestrictedCourseDetailsRequest { SearchTerm = "   " };
+        var request = new GetRestrictedCourseDetailsModel { SearchTerm = "   " };
 
         var result = request.HasSearchTermFilter;
 
@@ -30,7 +30,7 @@ public class GetRestrictedCourseDetailsRequestTests
     [Test]
     public void HasSearchTermFilter_WhenSearchTermHasValue_ThenIsTrue()
     {
-        var request = new GetRestrictedCourseDetailsRequest { SearchTerm = "Beacon" };
+        var request = new GetRestrictedCourseDetailsModel { SearchTerm = "Beacon" };
 
         var result = request.HasSearchTermFilter;
 
@@ -40,7 +40,7 @@ public class GetRestrictedCourseDetailsRequestTests
     [Test]
     public void HasDeliveryStatusFilter_WhenNoStatuses_ThenIsFalse()
     {
-        var request = new GetRestrictedCourseDetailsRequest();
+        var request = new GetRestrictedCourseDetailsModel();
 
         var result = request.HasDeliveryStatusFilter;
 
@@ -50,7 +50,7 @@ public class GetRestrictedCourseDetailsRequestTests
     [Test]
     public void HasDeliveryStatusFilter_WhenStatusesSelected_ThenIsTrue()
     {
-        var request = new GetRestrictedCourseDetailsRequest
+        var request = new GetRestrictedCourseDetailsModel
         {
             DeliveryStatus = [DeliveryStatus.OpenToNewStarts]
         };
@@ -63,7 +63,7 @@ public class GetRestrictedCourseDetailsRequestTests
     [Test]
     public void HasFilters_WhenSearchTermPresent_ThenIsTrue()
     {
-        var request = new GetRestrictedCourseDetailsRequest { SearchTerm = "Beacon" };
+        var request = new GetRestrictedCourseDetailsModel { SearchTerm = "Beacon" };
 
         var result = request.HasFilters;
 
@@ -73,7 +73,7 @@ public class GetRestrictedCourseDetailsRequestTests
     [Test]
     public void HasFilters_WhenDeliveryStatusPresent_ThenIsTrue()
     {
-        var request = new GetRestrictedCourseDetailsRequest
+        var request = new GetRestrictedCourseDetailsModel
         {
             DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
         };
@@ -86,7 +86,7 @@ public class GetRestrictedCourseDetailsRequestTests
     [Test]
     public void HasFilters_WhenNoFiltersPresent_ThenIsFalse()
     {
-        var request = new GetRestrictedCourseDetailsRequest();
+        var request = new GetRestrictedCourseDetailsModel();
 
         var result = request.HasFilters;
 
@@ -96,7 +96,7 @@ public class GetRestrictedCourseDetailsRequestTests
     [Test]
     public void PageNumber_WhenNotSet_ThenDefaultsToOne()
     {
-        var request = new GetRestrictedCourseDetailsRequest();
+        var request = new GetRestrictedCourseDetailsModel();
 
         request.PageNumber.Should().Be(1);
     }
@@ -104,7 +104,7 @@ public class GetRestrictedCourseDetailsRequestTests
     [Test]
     public void ToQueryString_WhenFiltersPresent_ThenIncludesSearchTermAndDeliveryStatus()
     {
-        var request = new GetRestrictedCourseDetailsRequest
+        var request = new GetRestrictedCourseDetailsModel
         {
             SearchTerm = " Beacon ",
             DeliveryStatus = [DeliveryStatus.OpenToNewStarts, DeliveryStatus.ClosedToNewStarts]
@@ -112,16 +112,16 @@ public class GetRestrictedCourseDetailsRequestTests
 
         var result = request.ToQueryString();
 
-        result.Should().Contain((nameof(GetRestrictedCourseDetailsRequest.SearchTerm), "Beacon"));
-        result.Should().Contain((nameof(GetRestrictedCourseDetailsRequest.DeliveryStatus), nameof(DeliveryStatus.OpenToNewStarts)));
-        result.Should().Contain((nameof(GetRestrictedCourseDetailsRequest.DeliveryStatus), nameof(DeliveryStatus.ClosedToNewStarts)));
-        result.Should().NotContain(q => q.Item1 == nameof(GetRestrictedCourseDetailsRequest.PageNumber));
+        result.Should().Contain((nameof(GetRestrictedCourseDetailsModel.SearchTerm), "Beacon"));
+        result.Should().Contain((nameof(GetRestrictedCourseDetailsModel.DeliveryStatus), nameof(DeliveryStatus.OpenToNewStarts)));
+        result.Should().Contain((nameof(GetRestrictedCourseDetailsModel.DeliveryStatus), nameof(DeliveryStatus.ClosedToNewStarts)));
+        result.Should().NotContain(q => q.Item1 == nameof(GetRestrictedCourseDetailsModel.PageNumber));
     }
 
     [Test]
     public void ToQueryString_WhenNoFiltersPresent_ThenReturnsEmpty()
     {
-        var request = new GetRestrictedCourseDetailsRequest();
+        var request = new GetRestrictedCourseDetailsModel();
 
         request.ToQueryString().Should().BeEmpty();
     }

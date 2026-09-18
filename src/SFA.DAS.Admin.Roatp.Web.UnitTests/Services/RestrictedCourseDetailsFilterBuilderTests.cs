@@ -29,13 +29,13 @@ public class RestrictedCourseDetailsFilterBuilderTests
 
         var byName = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
             providers,
-            new GetRestrictedCourseDetailsRequest { SearchTerm = "acorn" });
+            new GetRestrictedCourseDetailsModel { SearchTerm = "acorn" });
 
         byName.Should().ContainSingle(p => p.ProviderName == "ACORN SKILLS TRAINING");
 
         var byUkprn = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
             providers,
-            new GetRestrictedCourseDetailsRequest { SearchTerm = babingtonUkprn.ToString() });
+            new GetRestrictedCourseDetailsModel { SearchTerm = babingtonUkprn.ToString() });
 
         byUkprn.Should().ContainSingle(p => p.Ukprn == babingtonUkprn);
     }
@@ -51,7 +51,7 @@ public class RestrictedCourseDetailsFilterBuilderTests
 
         var filtered = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
             providers,
-            new GetRestrictedCourseDetailsRequest
+            new GetRestrictedCourseDetailsModel
             {
                 DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
             });
@@ -63,7 +63,7 @@ public class RestrictedCourseDetailsFilterBuilderTests
     public void WhenCreatingFiltersViewModel_ThenBuildsSectionsAndClearLinks()
     {
         var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedCourseDetailsRequest
+        var request = new GetRestrictedCourseDetailsModel
         {
             SearchTerm = "Beacon",
             DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
@@ -95,7 +95,7 @@ public class RestrictedCourseDetailsFilterBuilderTests
     public void WhenCreatingFiltersViewModel_AndClearingLastFilter_ThenClearLinkIsBaseUrl()
     {
         var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedCourseDetailsRequest
+        var request = new GetRestrictedCourseDetailsModel
         {
             SearchTerm = "Beacon"
         };
@@ -118,7 +118,7 @@ public class RestrictedCourseDetailsFilterBuilderTests
 
         var filtered = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
             providers,
-            new GetRestrictedCourseDetailsRequest
+            new GetRestrictedCourseDetailsModel
             {
                 SearchTerm = "Beacon",
                 DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
@@ -138,7 +138,7 @@ public class RestrictedCourseDetailsFilterBuilderTests
 
         var filtered = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
             providers,
-            new GetRestrictedCourseDetailsRequest());
+            new GetRestrictedCourseDetailsModel());
 
         filtered.Should().HaveCount(2);
     }
@@ -147,7 +147,7 @@ public class RestrictedCourseDetailsFilterBuilderTests
     public void WhenCreatingFiltersViewModel_AndSearchTermIsNullOrWhitespace_ThenSearchTermFilterNotAdded()
     {
         var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedCourseDetailsRequest
+        var request = new GetRestrictedCourseDetailsModel
         {
             SearchTerm = "   ",
             DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
@@ -166,7 +166,7 @@ public class RestrictedCourseDetailsFilterBuilderTests
         var urlHelper = CreateUrlHelper();
 
         var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(
-            new GetRestrictedCourseDetailsRequest(),
+            new GetRestrictedCourseDetailsModel(),
             LarsCode,
             urlHelper.Object);
 
@@ -179,12 +179,12 @@ public class RestrictedCourseDetailsFilterBuilderTests
     public void WhenCreatingFiltersViewModel_ThenMarksSelectedDeliveryStatusItems()
     {
         var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedCourseDetailsRequest
+        var model = new GetRestrictedCourseDetailsModel
         {
             DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
         };
 
-        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, LarsCode, urlHelper.Object);
+        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(model, LarsCode, urlHelper.Object);
 
         var deliveryStatusSection = filters.FilterSections
             .OfType<SFA.DAS.Admin.Roatp.Web.Models.Filters.FilterComponents.CheckboxListFilterSectionViewModel>()
@@ -199,12 +199,12 @@ public class RestrictedCourseDetailsFilterBuilderTests
     public void WhenCreatingFiltersViewModel_AndClearingOneOfMultipleStatuses_ThenKeepsRemainingStatus()
     {
         var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedCourseDetailsRequest
+        var model = new GetRestrictedCourseDetailsModel
         {
             DeliveryStatus = [DeliveryStatus.OpenToNewStarts, DeliveryStatus.ClosedToNewStarts]
         };
 
-        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, LarsCode, urlHelper.Object);
+        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(model, LarsCode, urlHelper.Object);
 
         var clearOpenLink = filters.ClearFilterSections
             .Single(section => section.Title == DeliveryStatusSectionHeading)

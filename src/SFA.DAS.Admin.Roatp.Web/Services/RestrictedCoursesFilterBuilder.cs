@@ -17,18 +17,18 @@ public static class RestrictedCoursesFilterBuilder
     private const string LearningTypeFilterId = "learning-type-filter";
 
     public static FiltersViewModel CreateFiltersViewModel(
-        GetRestrictedCoursesRequest request,
+        GetRestrictedCoursesModel model,
         IUrlHelper urlHelper)
     {
         var selectedFilters = new Dictionary<FilterType, IEnumerable<string>>();
-        AddSelectedFilter(selectedFilters, FilterType.SearchTerm, request.SearchTerm?.Trim());
+        AddSelectedFilter(selectedFilters, FilterType.SearchTerm, model.SearchTerm?.Trim());
 
-        if (request.HasLearningTypeFilter)
+        if (model.HasLearningTypeFilter)
         {
             AddSelectedFilter(
                 selectedFilters,
                 FilterType.LearningType,
-                request.LearningType.Distinct().Select(type => type.ToString()));
+                model.LearningType.Distinct().Select(type => type.ToString()));
         }
 
         var sectionHeadingOverrides = new Dictionary<FilterType, string>
@@ -49,13 +49,13 @@ public static class RestrictedCoursesFilterBuilder
                     CourseNameSectionHeading,
                     CourseNameSectionSubHeading,
                     nameof(FilterType.SearchTerm),
-                    request.SearchTerm),
+                    model.SearchTerm),
                 CreateCheckboxListFilterSection(
                     LearningTypeFilterId,
                     nameof(FilterType.LearningType),
                     LearningTypeSectionHeading,
                     null,
-                    BuildLearningTypeItems(request))
+                    BuildLearningTypeItems(model))
             ],
             ClearFilterSections = CreateClearFilterSections(
                 selectedFilters,
@@ -68,42 +68,42 @@ public static class RestrictedCoursesFilterBuilder
 
     public static IEnumerable<RestrictedCourseItemViewModel> ApplyFilters(
         IEnumerable<RestrictedCourseItemViewModel> courses,
-        GetRestrictedCoursesRequest request)
+        GetRestrictedCoursesModel model)
     {
         var filtered = courses;
 
-        if (request.HasSearchTermFilter)
+        if (model.HasSearchTermFilter)
         {
-            var searchTerm = request.SearchTerm.Trim();
+            var searchTerm = model.SearchTerm.Trim();
             filtered = filtered.Where(course =>
                 course.DisplayTitle.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
                 || course.LarsCode.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
         }
 
-        if (request.HasLearningTypeFilter)
+        if (model.HasLearningTypeFilter)
         {
-            var selectedTypes = request.LearningType.Distinct().ToHashSet();
+            var selectedTypes = model.LearningType.Distinct().ToHashSet();
             filtered = filtered.Where(course => selectedTypes.Contains(course.LearningType));
         }
 
         return filtered;
     }
 
-    private static List<FilterItemViewModel> BuildLearningTypeItems(GetRestrictedCoursesRequest request)
+    private static List<FilterItemViewModel> BuildLearningTypeItems(GetRestrictedCoursesModel model)
         =>
         [
-            CreateLearningTypeItem(LearningType.Apprenticeship, request),
-            CreateLearningTypeItem(LearningType.ApprenticeshipUnit, request),
-            CreateLearningTypeItem(LearningType.FoundationApprenticeship, request)
+            CreateLearningTypeItem(LearningType.Apprenticeship, model),
+            CreateLearningTypeItem(LearningType.ApprenticeshipUnit, model),
+            CreateLearningTypeItem(LearningType.FoundationApprenticeship, model)
         ];
 
     private static FilterItemViewModel CreateLearningTypeItem(
         LearningType learningType,
-        GetRestrictedCoursesRequest request)
+        GetRestrictedCoursesModel model)
         => new()
         {
             Value = learningType.ToString(),
             DisplayText = learningType.GetDescription(),
-            IsSelected = request.LearningType.Contains(learningType)
+            IsSelected = model.LearningType.Contains(learningType)
         };
 }

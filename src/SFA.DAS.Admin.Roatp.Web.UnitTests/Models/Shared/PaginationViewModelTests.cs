@@ -165,7 +165,7 @@ public sealed class PaginationViewModelTests
     {
         var queryParams = new List<(string, string)>
         {
-            (nameof(GetRestrictedCourseDetailsRequest.SearchTerm), "Beacon"),
+            (nameof(GetRestrictedCourseDetailsModel.SearchTerm), "Beacon"),
             ("PageNumber", "1")
         };
 

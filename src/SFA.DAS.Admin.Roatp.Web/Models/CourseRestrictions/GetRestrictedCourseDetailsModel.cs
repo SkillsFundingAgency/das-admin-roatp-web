@@ -2,19 +2,19 @@ using SFA.DAS.Admin.Roatp.Domain.Models;
 
 namespace SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
 
-public class GetRestrictedCoursesRequest
+public class GetRestrictedCourseDetailsModel
 {
     public string SearchTerm { get; set; } = string.Empty;
 
-    public List<LearningType> LearningType { get; set; } = [];
+    public List<DeliveryStatus> DeliveryStatus { get; set; } = [];
 
     public int PageNumber { get; set; } = 1;
 
     public bool HasSearchTermFilter => !string.IsNullOrWhiteSpace(SearchTerm);
 
-    public bool HasLearningTypeFilter => LearningType.Count > 0;
+    public bool HasDeliveryStatusFilter => DeliveryStatus.Count > 0;
 
-    public bool HasFilters => HasSearchTermFilter || HasLearningTypeFilter;
+    public bool HasFilters => HasSearchTermFilter || HasDeliveryStatusFilter;
 
     public List<(string, string)> ToQueryString()
     {
@@ -25,9 +25,9 @@ public class GetRestrictedCoursesRequest
             queryParams.Add((nameof(SearchTerm), SearchTerm.Trim()));
         }
 
-        foreach (var learningType in LearningType.Distinct())
+        foreach (var status in DeliveryStatus.Distinct())
         {
-            queryParams.Add((nameof(LearningType), learningType.ToString()));
+            queryParams.Add((nameof(DeliveryStatus), status.ToString()));
         }
 
         return queryParams;

@@ -16,40 +16,40 @@ public class RestrictedCoursesController(IOuterApiClient outerApiClient) : Contr
 
     [HttpGet]
     public async Task<IActionResult> Index(
-        GetRestrictedCoursesRequest request,
+        GetRestrictedCoursesModel model,
         CancellationToken cancellationToken)
     {
         GetRestrictedCoursesResponse response = await outerApiClient.GetRestrictedCourses(restricted: true, cancellationToken);
 
-        RestrictedCoursesViewModel model = response;
-        model.HasActiveFilters = request.HasFilters;
-        model.Filters = RestrictedCoursesFilterBuilder.CreateFiltersViewModel(request, Url);
+        RestrictedCoursesViewModel viewModel = response;
+        viewModel.HasActiveFilters = model.HasFilters;
+        viewModel.Filters = RestrictedCoursesFilterBuilder.CreateFiltersViewModel(model, Url);
 
         var filteredCourses = RestrictedCoursesFilterBuilder
-            .ApplyFilters(model.Courses, request)
+            .ApplyFilters(viewModel.Courses, model)
             .OrderBy(course => course.DisplayTitle, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        ApplyPagination(model, filteredCourses, request);
+        ApplyPagination(viewModel, filteredCourses, model);
 
-        return View(ViewPath, model);
+        return View(ViewPath, viewModel);
     }
 
     private void ApplyPagination(
-        RestrictedCoursesViewModel model,
+        RestrictedCoursesViewModel viewModel,
         List<RestrictedCourseItemViewModel> filteredCourses,
-        GetRestrictedCoursesRequest request)
+        GetRestrictedCoursesModel model)
     {
         var (pagedItems, totalCount, pagination) = PaginationHelper.Paginate(
             filteredCourses,
-            request.PageNumber,
+            model.PageNumber,
             Url,
             RouteNames.RestrictedCourses,
-            request.ToQueryString(),
+            model.ToQueryString(),
             RestrictedCoursesFilterBuilder.RestrictedCourseFilterResultsFragment);
 
-        model.TotalCount = totalCount;
-        model.Courses = pagedItems;
-        model.Pagination = pagination;
+        viewModel.TotalCount = totalCount;
+        viewModel.Courses = pagedItems;
+        viewModel.Pagination = pagination;
     }
 }

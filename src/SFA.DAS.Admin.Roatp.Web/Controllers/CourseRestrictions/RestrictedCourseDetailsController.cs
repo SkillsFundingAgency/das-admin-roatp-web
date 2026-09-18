@@ -19,7 +19,7 @@ public class RestrictedCourseDetailsController(IOuterApiClient outerApiClient) :
     [HttpGet]
     public async Task<IActionResult> Index(
         [FromRoute] string larsCode,
-        GetRestrictedCourseDetailsRequest request,
+        GetRestrictedCourseDetailsModel model,
         CancellationToken cancellationToken)
     {
         var courseDetails = await GetCourseDetailsAsync(larsCode, cancellationToken);
@@ -33,28 +33,28 @@ public class RestrictedCourseDetailsController(IOuterApiClient outerApiClient) :
             return RedirectToRoute(RouteNames.UnrestrictedCourseDetails, new { larsCode });
         }
 
-        RestrictedCourseDetailsViewModel model = courseDetails;
-        model.RestrictedCourseDetailsPageUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!;
-        model.AddProviderUrl = Url.RouteUrl(RouteNames.AddProviderToRestrictedCourse, new { larsCode })!;
-        model.HasActiveFilters = request.HasFilters;
-        model.Filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, larsCode, Url);
+        RestrictedCourseDetailsViewModel viewModel = courseDetails;
+        viewModel.RestrictedCourseDetailsPageUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!;
+        viewModel.AddProviderUrl = Url.RouteUrl(RouteNames.AddProviderToRestrictedCourse, new { larsCode })!;
+        viewModel.HasActiveFilters = model.HasFilters;
+        viewModel.Filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(model, larsCode, Url);
 
         var filteredProviders = RestrictedCourseDetailsFilterBuilder
-            .ApplyFilters(model.AllowedProviders, request)
+            .ApplyFilters(viewModel.AllowedProviders, model)
             .ToList();
 
-        ApplyPagination(model, filteredProviders, request);
+        ApplyPagination(viewModel, filteredProviders, model);
 
-        foreach (var provider in model.AllowedProviders)
+        foreach (var provider in viewModel.AllowedProviders)
         {
             provider.ChangeUrl = provider.HasLastDateStarts
                 ? Url.RouteUrl(RouteNames.ChangeCourseRestriction, new { larsCode, ukprn = provider.Ukprn })!
                 : Url.RouteUrl(RouteNames.SetLastDateStarts, new { larsCode, ukprn = provider.Ukprn })!;
         }
 
-        model.SuccessBannerMessage = TempData?[SuccessBannerTempDataKey] as string;
+        viewModel.SuccessBannerMessage = TempData?[SuccessBannerTempDataKey] as string;
 
-        return View(ViewPath, model);
+        return View(ViewPath, viewModel);
     }
 
     private async Task<GetRestrictedCourseDetailsResponse?> GetCourseDetailsAsync(
@@ -72,20 +72,20 @@ public class RestrictedCourseDetailsController(IOuterApiClient outerApiClient) :
     }
 
     private void ApplyPagination(
-        RestrictedCourseDetailsViewModel model,
+        RestrictedCourseDetailsViewModel viewModel,
         List<AllowedProviderViewModel> filteredProviders,
-        GetRestrictedCourseDetailsRequest request)
+        GetRestrictedCourseDetailsModel model)
     {
         var (pagedItems, totalCount, pagination) = PaginationHelper.Paginate(
             filteredProviders,
-            request.PageNumber,
+            model.PageNumber,
             Url,
             RouteNames.RestrictedCourseDetails,
-            request.ToQueryString(),
+            model.ToQueryString(),
             RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment);
 
-        model.TotalProviderCount = totalCount;
-        model.AllowedProviders = pagedItems;
-        model.Pagination = pagination;
+        viewModel.TotalProviderCount = totalCount;
+        viewModel.AllowedProviders = pagedItems;
+        viewModel.Pagination = pagination;
     }
 }

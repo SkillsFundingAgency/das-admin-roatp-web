@@ -37,7 +37,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
-        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsModel(), CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.ProviderCount.Should().Be(15);
@@ -62,7 +62,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
-        var request = new GetRestrictedCourseDetailsRequest { PageNumber = 2 };
+        var request = new GetRestrictedCourseDetailsModel { PageNumber = 2 };
 
         var result = await sut.Index(LarsCode, request, CancellationToken.None) as ViewResult;
 
@@ -89,7 +89,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
-        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequest(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsModel(), CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.AllowedProviders.Should().HaveCount(10);
@@ -112,7 +112,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
-        var request = new GetRestrictedCourseDetailsRequest { PageNumber = 0 };
+        var request = new GetRestrictedCourseDetailsModel { PageNumber = 0 };
 
         var result = await sut.Index(LarsCode, request, CancellationToken.None) as ViewResult;
 
@@ -139,7 +139,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
-        var request = new GetRestrictedCourseDetailsRequest { PageNumber = 99 };
+        var request = new GetRestrictedCourseDetailsModel { PageNumber = 99 };
 
         var result = await sut.Index(LarsCode, request, CancellationToken.None) as ViewResult;
 

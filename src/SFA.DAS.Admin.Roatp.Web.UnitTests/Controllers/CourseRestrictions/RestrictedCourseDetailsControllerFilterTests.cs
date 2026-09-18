@@ -42,7 +42,7 @@ public class RestrictedCourseDetailsControllerFilterTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
-        var request = new GetRestrictedCourseDetailsRequest { SearchTerm = "Beacon" };
+        var request = new GetRestrictedCourseDetailsModel { SearchTerm = "Beacon" };
 
         var result = await sut.Index(LarsCode, request, CancellationToken.None) as ViewResult;
 
@@ -76,17 +76,17 @@ public class RestrictedCourseDetailsControllerFilterTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
-        var request = new GetRestrictedCourseDetailsRequest
+        var model = new GetRestrictedCourseDetailsModel
         {
             DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
         };
 
-        var result = await sut.Index(LarsCode, request, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, model, CancellationToken.None) as ViewResult;
 
-        var model = result!.Model as RestrictedCourseDetailsViewModel;
-        model!.AllowedProviders.Should().ContainSingle(p => p.ProviderName == "Last Start Provider");
-        model.Filters.ClearFilterSections.Should().ContainSingle(section => section.Title == "Delivery status");
-        model.Filters.FilterSections.Should().Contain(section =>
+        var viewModel = result!.Model as RestrictedCourseDetailsViewModel;
+        viewModel!.AllowedProviders.Should().ContainSingle(p => p.ProviderName == "Last Start Provider");
+        viewModel.Filters.ClearFilterSections.Should().ContainSingle(section => section.Title == "Delivery status");
+        viewModel.Filters.FilterSections.Should().Contain(section =>
             section.For == nameof(FilterType.DeliveryStatus));
     }
 
@@ -109,15 +109,15 @@ public class RestrictedCourseDetailsControllerFilterTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
-        var request = new GetRestrictedCourseDetailsRequest { SearchTerm = "Beacon" };
+        var model = new GetRestrictedCourseDetailsModel { SearchTerm = "Beacon" };
 
-        var result = await sut.Index(LarsCode, request, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, model, CancellationToken.None) as ViewResult;
 
-        var model = result!.Model as RestrictedCourseDetailsViewModel;
-        model!.HasNoFilteredResults.Should().BeTrue();
-        model.HasNoProviders.Should().BeFalse();
-        model.HasActiveFilters.Should().BeTrue();
-        model.AllowedProviders.Should().BeEmpty();
+        var viewModel = result!.Model as RestrictedCourseDetailsViewModel;
+        viewModel!.HasNoFilteredResults.Should().BeTrue();
+        viewModel.HasNoProviders.Should().BeFalse();
+        viewModel.HasActiveFilters.Should().BeTrue();
+        viewModel.AllowedProviders.Should().BeEmpty();
     }
 
     private static void SetupCourseResponse(
