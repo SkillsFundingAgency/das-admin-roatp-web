@@ -37,6 +37,17 @@ public class RestrictedApprenticeshipsFilterBuilderTests
     }
 
     [Test]
+    public void WhenApplyingCourseNameFilter_AndLarsCodeIsPartial_ThenDoesNotMatch()
+    {
+        var courses = CreateCourses();
+
+        var filtered = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(courses,
+            new GetRestrictedApprenticeshipsModel { SearchTerm = "12" }).ToList();
+
+        filtered.Should().BeEmpty();
+    }
+
+    [Test]
     public void WhenApplyingDeliveryStatusFilter_ThenMatchesSelectedStatuses()
     {
         var courses = CreateCourses();

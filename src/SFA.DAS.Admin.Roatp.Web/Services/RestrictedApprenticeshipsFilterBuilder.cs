@@ -85,7 +85,7 @@ public static class RestrictedApprenticeshipsFilterBuilder
             var searchTerm = request.SearchTerm.Trim();
             filtered = filtered.Where(course =>
                 course.DisplayTitle.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
-                || course.LarsCode.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+                || course.LarsCode.Equals(searchTerm, StringComparison.OrdinalIgnoreCase));
         }
 
         if (request.HasDeliveryStatusFilter)
