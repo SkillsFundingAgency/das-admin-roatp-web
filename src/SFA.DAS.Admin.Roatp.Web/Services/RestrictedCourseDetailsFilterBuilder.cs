@@ -73,7 +73,7 @@ public static class RestrictedCourseDetailsFilterBuilder
             var searchTerm = requestModel.SearchTerm.Trim();
             filtered = filtered.Where(provider =>
                 provider.ProviderName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
-                || provider.Ukprn.ToString().Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+                || provider.Ukprn.ToString().Equals(searchTerm, StringComparison.OrdinalIgnoreCase));
         }
 
         if (requestModel.HasDeliveryStatusFilter)

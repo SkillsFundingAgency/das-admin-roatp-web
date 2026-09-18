@@ -1,4 +1,5 @@
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
@@ -32,13 +33,31 @@ public class RestrictedCourseDetailsFilterBuilderTests
             providers,
             new GetRestrictedCourseDetailsRequestModel { SearchTerm = "acorn" });
 
-        byName.Should().ContainSingle(p => p.ProviderName == "ACORN SKILLS TRAINING");
-
         var byUkprn = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
             providers,
             new GetRestrictedCourseDetailsRequestModel { SearchTerm = babingtonUkprn.ToString() });
 
-        byUkprn.Should().ContainSingle(p => p.Ukprn == babingtonUkprn);
+        using (new AssertionScope())
+        {
+            byName.Should().ContainSingle(p => p.ProviderName == "ACORN SKILLS TRAINING");
+            byUkprn.Should().ContainSingle(p => p.Ukprn == babingtonUkprn);
+        }
+    }
+
+    [Test]
+    public void WhenApplyingProviderNameFilter_AndUkprnIsPartial_ThenDoesNotMatch()
+    {
+        const int babingtonUkprn = 10019900;
+        var providers = new List<ProviderCourseModel>
+        {
+            new() { Ukprn = babingtonUkprn, ProviderName = "BABINGTON LTD", LastDateStarts = null }
+        };
+
+        var filtered = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
+            providers,
+            new GetRestrictedCourseDetailsRequestModel { SearchTerm = "10019" });
+
+        filtered.Should().BeEmpty();
     }
 
     [Test]

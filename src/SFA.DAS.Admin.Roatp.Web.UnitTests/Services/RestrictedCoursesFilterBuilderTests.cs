@@ -1,4 +1,5 @@
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
@@ -25,13 +26,27 @@ public class RestrictedCoursesFilterBuilderTests
             courses,
             new GetRestrictedCoursesRequestModel { SearchTerm = "cleaning" }).ToList();
 
-        byName.Should().ContainSingle(c => c.LarsCode == "163");
-
         var byLarsCode = RestrictedCoursesFilterBuilder.ApplyFilters(
             courses,
             new GetRestrictedCoursesRequestModel { SearchTerm = "124" }).ToList();
 
-        byLarsCode.Should().ContainSingle(c => c.LarsCode == "124");
+        using (new AssertionScope())
+        {
+            byName.Should().ContainSingle(c => c.LarsCode == "163");
+            byLarsCode.Should().ContainSingle(c => c.LarsCode == "124");
+        }
+    }
+
+    [Test]
+    public void WhenApplyingCourseNameFilter_AndLarsCodeIsPartial_ThenDoesNotMatch()
+    {
+        var courses = CreateCourses();
+
+        var filtered = RestrictedCoursesFilterBuilder.ApplyFilters(
+            courses,
+            new GetRestrictedCoursesRequestModel { SearchTerm = "12" }).ToList();
+
+        filtered.Should().BeEmpty();
     }
 
     [Test]

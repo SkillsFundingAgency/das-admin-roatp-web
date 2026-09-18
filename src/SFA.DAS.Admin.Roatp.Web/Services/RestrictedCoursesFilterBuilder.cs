@@ -78,7 +78,7 @@ public static class RestrictedCoursesFilterBuilder
             filtered = filtered.Where(course =>
                 CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level)
                     .Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
-                || course.LarsCode.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+                || course.LarsCode.Equals(searchTerm, StringComparison.OrdinalIgnoreCase));
         }
 
         if (requestModel.HasLearningTypeFilter)
