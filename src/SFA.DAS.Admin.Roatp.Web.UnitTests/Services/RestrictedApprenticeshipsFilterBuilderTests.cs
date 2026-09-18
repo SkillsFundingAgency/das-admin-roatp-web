@@ -92,30 +92,6 @@ public class RestrictedApprenticeshipsFilterBuilderTests
     }
 
     [Test]
-    public void WhenApplyingFilters_ThenExcludesOpenCourses()
-    {
-        var courses = CreateCourses();
-        courses.Add(new RestrictedApprenticeshipModel
-        {
-            LarsCode = "100",
-            Title = "Open course",
-            Level = 2,
-            LastDateStarts = null,
-            IsClosedToNewStarts = false
-        });
-
-        var filtered = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(
-            courses,
-            new GetRestrictedApprenticeshipsRequestModel()).ToList();
-
-        using (new AssertionScope())
-        {
-            filtered.Should().HaveCount(3);
-            filtered.Should().NotContain(course => course.LarsCode == "100");
-        }
-    }
-
-    [Test]
     public void WhenApplyingDuplicateDeliveryStatusValues_ThenMatchesDistinctStatuses()
     {
         var courses = CreateCourses();

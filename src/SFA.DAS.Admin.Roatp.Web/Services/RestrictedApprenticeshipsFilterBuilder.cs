@@ -70,7 +70,7 @@ public static class RestrictedApprenticeshipsFilterBuilder
         IEnumerable<RestrictedApprenticeshipModel> courses,
         GetRestrictedApprenticeshipsRequestModel requestModel)
     {
-        var filtered = courses.Where(course => GetDeliveryStatus(course) != DeliveryStatus.OpenToNewStarts);
+        var filtered = courses;
 
         if (requestModel.HasSearchTermFilter)
         {
