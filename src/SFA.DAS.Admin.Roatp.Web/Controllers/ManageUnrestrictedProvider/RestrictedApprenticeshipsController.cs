@@ -19,7 +19,7 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
     [HttpGet]
     public async Task<IActionResult> Index(
         int ukprn,
-        GetRestrictedApprenticeshipsModel model,
+        GetRestrictedApprenticeshipsRequestModel requestModel,
         CancellationToken cancellationToken)
     {
         var providerName = await GetProviderName(ukprn, cancellationToken);
@@ -40,18 +40,18 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
             ProviderName = providerName,
             BackLinkUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!,
             RestrictACourseUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn })!,
-            HasActiveFilters = model.HasFilters,
-            Filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(model, ukprn, Url)
+            HasActiveFilters = requestModel.HasFilters,
+            Filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(requestModel, ukprn, Url)
         };
 
         var filteredCourses = RestrictedApprenticeshipsFilterBuilder
-            .ApplyFilters(courses, model)
+            .ApplyFilters(courses, requestModel)
             .OrderBy(
                 course => CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level),
                 StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        ApplyPagination(viewModel, filteredCourses, model);
+        ApplyPagination(viewModel, filteredCourses, requestModel);
 
         return View(ViewPath, viewModel);
     }
@@ -59,14 +59,14 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
     private void ApplyPagination(
         RestrictedApprenticeshipsViewModel viewModel,
         List<RestrictedApprenticeshipModel> filteredCourses,
-        GetRestrictedApprenticeshipsModel model)
+        GetRestrictedApprenticeshipsRequestModel requestModel)
     {
         var (pagedItems, totalCount, pagination) = PaginationHelper.Paginate(
             filteredCourses,
-            model.PageNumber,
+            requestModel.PageNumber,
             Url,
             RouteNames.ProviderRestrictedCourses,
-            model.ToQueryString(),
+            requestModel.ToQueryString(),
             RestrictedApprenticeshipsFilterBuilder.RestrictedApprenticeshipFilterResultsFragment);
 
         viewModel.TotalCount = totalCount;

@@ -43,7 +43,7 @@ public class RestrictedCourseDetailsControllerGetTests
             .AddUrlForRoute(RouteNames.ChangeCourseRestriction, ChangeCourseRestrictionUrl)
             .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
-        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequestModel(), CancellationToken.None) as ViewResult;
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
@@ -79,7 +79,7 @@ public class RestrictedCourseDetailsControllerGetTests
         SetupRestrictedCourseWithProviders(response, outerApiClientMock);
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequestModel(), CancellationToken.None) as ViewResult;
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         var provider = model!.AllowedProviders.First(p => !p.HasLastDateStarts);
 
@@ -99,7 +99,7 @@ public class RestrictedCourseDetailsControllerGetTests
         SetupRestrictedCourseWithProviders(response, outerApiClientMock);
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequestModel(), CancellationToken.None) as ViewResult;
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         var provider = model!.AllowedProviders.First(p => p.HasLastDateStarts);
 
@@ -127,7 +127,7 @@ public class RestrictedCourseDetailsControllerGetTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
-        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequestModel(), CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         using (new AssertionScope())
@@ -159,7 +159,7 @@ public class RestrictedCourseDetailsControllerGetTests
         SetupTempData(sut);
         sut.TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey] = successMessage;
 
-        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequestModel(), CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.SuccessBannerMessage.Should().Be(successMessage);
@@ -186,7 +186,7 @@ public class RestrictedCourseDetailsControllerGetTests
         sut.TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey] =
             RestrictCourseConfirmController.SuccessBannerMessage;
 
-        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequestModel(), CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         using (new AssertionScope())
@@ -206,7 +206,7 @@ public class RestrictedCourseDetailsControllerGetTests
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
                 new HttpResponseMessage(HttpStatusCode.NotFound), null, new RefitSettings(), null));
 
-        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsModel(), CancellationToken.None);
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequestModel(), CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
         outerApiClientMock.Verify(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()), Times.Once);
@@ -231,7 +231,7 @@ public class RestrictedCourseDetailsControllerGetTests
 
         var sut = new RestrictedCourseDetailsController(outerApiClientMock.Object);
 
-        var act = () => sut.Index(LarsCode, new GetRestrictedCourseDetailsModel(), CancellationToken.None);
+        var act = () => sut.Index(LarsCode, new GetRestrictedCourseDetailsRequestModel(), CancellationToken.None);
 
         await act.Should().ThrowAsync<ApiException>();
     }
@@ -247,7 +247,7 @@ public class RestrictedCourseDetailsControllerGetTests
 
         SetupCourseResponse(outerApiClientMock, response);
 
-        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsModel(), CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequestModel(), CancellationToken.None) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {

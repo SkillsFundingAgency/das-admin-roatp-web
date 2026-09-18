@@ -42,9 +42,9 @@ public class RestrictedCourseDetailsControllerFilterTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
-        var request = new GetRestrictedCourseDetailsModel { SearchTerm = "Beacon" };
+        var requestModel = new GetRestrictedCourseDetailsRequestModel { SearchTerm = "Beacon" };
 
-        var result = await sut.Index(LarsCode, request, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, requestModel, CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.HasActiveFilters.Should().BeTrue();
@@ -76,12 +76,12 @@ public class RestrictedCourseDetailsControllerFilterTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
-        var model = new GetRestrictedCourseDetailsModel
+        var requestModel = new GetRestrictedCourseDetailsRequestModel
         {
             DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
         };
 
-        var result = await sut.Index(LarsCode, model, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, requestModel, CancellationToken.None) as ViewResult;
 
         var viewModel = result!.Model as RestrictedCourseDetailsViewModel;
         viewModel!.AllowedProviders.Should().ContainSingle(p => p.ProviderName == "Last Start Provider");
@@ -109,9 +109,9 @@ public class RestrictedCourseDetailsControllerFilterTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
-        var model = new GetRestrictedCourseDetailsModel { SearchTerm = "Beacon" };
+        var requestModel = new GetRestrictedCourseDetailsRequestModel { SearchTerm = "Beacon" };
 
-        var result = await sut.Index(LarsCode, model, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, requestModel, CancellationToken.None) as ViewResult;
 
         var viewModel = result!.Model as RestrictedCourseDetailsViewModel;
         viewModel!.HasNoFilteredResults.Should().BeTrue();

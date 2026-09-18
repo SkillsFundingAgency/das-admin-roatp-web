@@ -1,20 +1,20 @@
 using SFA.DAS.Admin.Roatp.Domain.Models;
 
-namespace SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
+namespace SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
 
-public class GetRestrictedApprenticeshipsModel
+public class GetRestrictedCoursesRequestModel
 {
     public string SearchTerm { get; set; } = string.Empty;
 
-    public List<DeliveryStatus> DeliveryStatus { get; set; } = [];
+    public List<LearningType> LearningType { get; set; } = [];
 
     public int PageNumber { get; set; } = 1;
 
     public bool HasSearchTermFilter => !string.IsNullOrWhiteSpace(SearchTerm);
 
-    public bool HasDeliveryStatusFilter => DeliveryStatus.Count > 0;
+    public bool HasLearningTypeFilter => LearningType.Count > 0;
 
-    public bool HasFilters => HasSearchTermFilter || HasDeliveryStatusFilter;
+    public bool HasFilters => HasSearchTermFilter || HasLearningTypeFilter;
 
     public List<(string, string)> ToQueryString()
     {
@@ -25,9 +25,9 @@ public class GetRestrictedApprenticeshipsModel
             queryParams.Add((nameof(SearchTerm), SearchTerm.Trim()));
         }
 
-        foreach (var status in DeliveryStatus.Distinct())
+        foreach (var learningType in LearningType.Distinct())
         {
-            queryParams.Add((nameof(DeliveryStatus), status.ToString()));
+            queryParams.Add((nameof(LearningType), learningType.ToString()));
         }
 
         return queryParams;

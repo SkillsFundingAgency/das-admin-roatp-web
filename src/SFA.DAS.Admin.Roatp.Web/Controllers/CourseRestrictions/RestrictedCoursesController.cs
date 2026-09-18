@@ -17,7 +17,7 @@ public class RestrictedCoursesController(IOuterApiClient outerApiClient) : Contr
 
     [HttpGet]
     public async Task<IActionResult> Index(
-        GetRestrictedCoursesModel model,
+        GetRestrictedCoursesRequestModel requestModel,
         CancellationToken cancellationToken)
     {
         var response = await outerApiClient.GetRestrictedCourses(restricted: true, cancellationToken);
@@ -25,18 +25,18 @@ public class RestrictedCoursesController(IOuterApiClient outerApiClient) : Contr
 
         var viewModel = new RestrictedCoursesViewModel
         {
-            HasActiveFilters = model.HasFilters,
-            Filters = RestrictedCoursesFilterBuilder.CreateFiltersViewModel(model, Url)
+            HasActiveFilters = requestModel.HasFilters,
+            Filters = RestrictedCoursesFilterBuilder.CreateFiltersViewModel(requestModel, Url)
         };
 
         var filteredCourses = RestrictedCoursesFilterBuilder
-            .ApplyFilters(courses, model)
+            .ApplyFilters(courses, requestModel)
             .OrderBy(
                 course => CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level),
                 StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        ApplyPagination(viewModel, filteredCourses, model);
+        ApplyPagination(viewModel, filteredCourses, requestModel);
 
         return View(ViewPath, viewModel);
     }
@@ -44,14 +44,14 @@ public class RestrictedCoursesController(IOuterApiClient outerApiClient) : Contr
     private void ApplyPagination(
         RestrictedCoursesViewModel viewModel,
         List<RestrictedCourseModel> filteredCourses,
-        GetRestrictedCoursesModel model)
+        GetRestrictedCoursesRequestModel requestModel)
     {
         var (pagedItems, totalCount, pagination) = PaginationHelper.Paginate(
             filteredCourses,
-            model.PageNumber,
+            requestModel.PageNumber,
             Url,
             RouteNames.RestrictedCourses,
-            model.ToQueryString(),
+            requestModel.ToQueryString(),
             RestrictedCoursesFilterBuilder.RestrictedCourseFilterResultsFragment);
 
         viewModel.TotalCount = totalCount;

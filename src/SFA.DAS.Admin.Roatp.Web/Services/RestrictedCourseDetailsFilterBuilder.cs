@@ -21,16 +21,16 @@ public static class RestrictedCourseDetailsFilterBuilder
     private const string ClosedToNewStartsDescription = "Training providers are no longer allowed to offer this course.";
 
     public static FiltersViewModel CreateFiltersViewModel(
-        GetRestrictedCourseDetailsModel model,
+        GetRestrictedCourseDetailsRequestModel requestModel,
         string larsCode,
         IUrlHelper urlHelper)
     {
         var selectedFilters = new Dictionary<FilterType, IEnumerable<string>>();
-        AddSelectedFilter(selectedFilters, FilterType.SearchTerm, model.SearchTerm?.Trim());
+        AddSelectedFilter(selectedFilters, FilterType.SearchTerm, requestModel.SearchTerm?.Trim());
         AddSelectedFilter(
             selectedFilters,
             FilterType.DeliveryStatus,
-            model.DeliveryStatus.Distinct().Select(status => status.ToString()));
+            requestModel.DeliveryStatus.Distinct().Select(status => status.ToString()));
 
         var clearFiltersBaseUrl = urlHelper.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!;
 
@@ -46,13 +46,13 @@ public static class RestrictedCourseDetailsFilterBuilder
                     SearchTermSectionHeading,
                     SearchTermSectionSubHeading,
                     nameof(FilterType.SearchTerm),
-                    model.SearchTerm),
+                    requestModel.SearchTerm),
                 CreateCheckboxListFilterSection(
                     DeliveryStatusFilterId,
                     nameof(FilterType.DeliveryStatus),
                     DeliveryStatusSectionHeading,
                     null,
-                    BuildDeliveryStatusItems(model))
+                    BuildDeliveryStatusItems(requestModel))
             ],
             ClearFilterSections = CreateClearFilterSections(
                 selectedFilters,
@@ -64,21 +64,21 @@ public static class RestrictedCourseDetailsFilterBuilder
 
     public static IEnumerable<ProviderCourseModel> ApplyFilters(
         IEnumerable<ProviderCourseModel> providers,
-        GetRestrictedCourseDetailsModel model)
+        GetRestrictedCourseDetailsRequestModel requestModel)
     {
         var filtered = providers;
 
-        if (model.HasSearchTermFilter)
+        if (requestModel.HasSearchTermFilter)
         {
-            var searchTerm = model.SearchTerm.Trim();
+            var searchTerm = requestModel.SearchTerm.Trim();
             filtered = filtered.Where(provider =>
                 provider.ProviderName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
                 || provider.Ukprn.ToString().Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
         }
 
-        if (model.HasDeliveryStatusFilter)
+        if (requestModel.HasDeliveryStatusFilter)
         {
-            var selectedStatuses = model.DeliveryStatus.Distinct().ToHashSet();
+            var selectedStatuses = requestModel.DeliveryStatus.Distinct().ToHashSet();
             filtered = filtered.Where(provider =>
                 selectedStatuses.Contains(provider.LastDateStarts.ToDeliveryStatus()));
         }
@@ -86,32 +86,32 @@ public static class RestrictedCourseDetailsFilterBuilder
         return filtered;
     }
 
-    private static List<FilterItemViewModel> BuildDeliveryStatusItems(GetRestrictedCourseDetailsModel model)
+    private static List<FilterItemViewModel> BuildDeliveryStatusItems(GetRestrictedCourseDetailsRequestModel requestModel)
         =>
         [
             CreateDeliveryStatusItem(
                 DeliveryStatus.OpenToNewStarts,
-                model,
+                requestModel,
                 OpenToNewStartsDescription),
             CreateDeliveryStatusItem(
                 DeliveryStatus.LastStartDateAdded,
-                model,
+                requestModel,
                 LastStartDateAddedDescription),
             CreateDeliveryStatusItem(
                 DeliveryStatus.ClosedToNewStarts,
-                model,
+                requestModel,
                 ClosedToNewStartsDescription)
         ];
 
     private static FilterItemViewModel CreateDeliveryStatusItem(
         DeliveryStatus status,
-        GetRestrictedCourseDetailsModel model,
+        GetRestrictedCourseDetailsRequestModel requestModel,
         string description)
         => new()
         {
             Value = status.ToString(),
             DisplayText = status.GetDescription(),
             DisplayDescription = description,
-            IsSelected = model.DeliveryStatus.Contains(status)
+            IsSelected = requestModel.DeliveryStatus.Contains(status)
         };
 }

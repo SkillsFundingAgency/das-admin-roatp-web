@@ -62,7 +62,7 @@ public class RestrictedApprenticeshipsControllerGetTests
         SetupRestrictedApprenticeships(outerApiClientMock, ukprn, response);
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
         var model = result?.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())
@@ -101,7 +101,7 @@ public class RestrictedApprenticeshipsControllerGetTests
         SetupRestrictedApprenticeships(outerApiClientMock, ukprn, restrictedResponse);
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
         var model = result?.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())
@@ -127,7 +127,7 @@ public class RestrictedApprenticeshipsControllerGetTests
         sut.AddTempData();
         SetupOrganisation(outerApiClientMock, ukprn, organisationResponse, HttpStatusCode.NotFound);
 
-        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsModel(), CancellationToken.None);
+        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsRequestModel(), CancellationToken.None);
 
         using (new AssertionScope())
         {
@@ -157,7 +157,7 @@ public class RestrictedApprenticeshipsControllerGetTests
                 new RefitSettings(),
                 null));
 
-        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsModel(), CancellationToken.None);
+        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsRequestModel(), CancellationToken.None);
 
         using (new AssertionScope())
         {

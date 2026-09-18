@@ -19,7 +19,7 @@ public class RestrictedCourseDetailsController(IOuterApiClient outerApiClient) :
     [HttpGet]
     public async Task<IActionResult> Index(
         [FromRoute] string larsCode,
-        GetRestrictedCourseDetailsModel model,
+        GetRestrictedCourseDetailsRequestModel requestModel,
         CancellationToken cancellationToken)
     {
         var courseDetails = await GetCourseDetailsAsync(larsCode, cancellationToken);
@@ -44,17 +44,17 @@ public class RestrictedCourseDetailsController(IOuterApiClient outerApiClient) :
             IsCourseRestricted = courseDetails.IsCourseRestricted,
             RestrictedCourseDetailsPageUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!,
             AddProviderUrl = Url.RouteUrl(RouteNames.AddProviderToRestrictedCourse, new { larsCode })!,
-            HasActiveFilters = model.HasFilters,
-            Filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(model, larsCode, Url),
+            HasActiveFilters = requestModel.HasFilters,
+            Filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(requestModel, larsCode, Url),
             SuccessBannerMessage = TempData?[SuccessBannerTempDataKey] as string
         };
 
         var filteredProviders = RestrictedCourseDetailsFilterBuilder
-            .ApplyFilters(courseDetails.Providers, model)
+            .ApplyFilters(courseDetails.Providers, requestModel)
             .OrderBy(provider => provider.ProviderName, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        ApplyPagination(viewModel, filteredProviders, model);
+        ApplyPagination(viewModel, filteredProviders, requestModel);
 
         foreach (var provider in viewModel.AllowedProviders)
         {
@@ -83,14 +83,14 @@ public class RestrictedCourseDetailsController(IOuterApiClient outerApiClient) :
     private void ApplyPagination(
         RestrictedCourseDetailsViewModel viewModel,
         List<ProviderCourseModel> filteredProviders,
-        GetRestrictedCourseDetailsModel model)
+        GetRestrictedCourseDetailsRequestModel requestModel)
     {
         var (pagedItems, totalCount, pagination) = PaginationHelper.Paginate(
             filteredProviders,
-            model.PageNumber,
+            requestModel.PageNumber,
             Url,
             RouteNames.RestrictedCourseDetails,
-            model.ToQueryString(),
+            requestModel.ToQueryString(),
             RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment);
 
         viewModel.TotalProviderCount = totalCount;

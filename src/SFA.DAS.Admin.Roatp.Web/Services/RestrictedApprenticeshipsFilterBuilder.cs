@@ -19,16 +19,16 @@ public static class RestrictedApprenticeshipsFilterBuilder
     private const string ClosedToNewStartsDescription = "This will be removed once all learners have completed the course";
 
     public static FiltersViewModel CreateFiltersViewModel(
-        GetRestrictedApprenticeshipsModel request,
+        GetRestrictedApprenticeshipsRequestModel requestModel,
         int ukprn,
         IUrlHelper urlHelper)
     {
         var selectedFilters = new Dictionary<FilterType, IEnumerable<string>>();
-        AddSelectedFilter(selectedFilters, FilterType.SearchTerm, request.SearchTerm?.Trim());
+        AddSelectedFilter(selectedFilters, FilterType.SearchTerm, requestModel.SearchTerm?.Trim());
         AddSelectedFilter(
             selectedFilters,
             FilterType.DeliveryStatus,
-            request.DeliveryStatus.Distinct().Select(status => status.ToString()));
+            requestModel.DeliveryStatus.Distinct().Select(status => status.ToString()));
 
         var sectionHeadingOverrides = new Dictionary<FilterType, string>
         {
@@ -49,13 +49,13 @@ public static class RestrictedApprenticeshipsFilterBuilder
                     CourseNameSectionHeading,
                     CourseNameSectionSubHeading,
                     nameof(FilterType.SearchTerm),
-                    request.SearchTerm),
+                    requestModel.SearchTerm),
                 CreateCheckboxListFilterSection(
                     DeliveryStatusFilterId,
                     nameof(FilterType.DeliveryStatus),
                     DeliveryStatusSectionHeading,
                     null,
-                    BuildDeliveryStatusItems(request))
+                    BuildDeliveryStatusItems(requestModel))
             ],
             ClearFilterSections = CreateClearFilterSections(
                 selectedFilters,
@@ -68,22 +68,22 @@ public static class RestrictedApprenticeshipsFilterBuilder
 
     public static IEnumerable<RestrictedApprenticeshipModel> ApplyFilters(
         IEnumerable<RestrictedApprenticeshipModel> courses,
-        GetRestrictedApprenticeshipsModel request)
+        GetRestrictedApprenticeshipsRequestModel requestModel)
     {
         var filtered = courses.Where(course => GetDeliveryStatus(course) != DeliveryStatus.OpenToNewStarts);
 
-        if (request.HasSearchTermFilter)
+        if (requestModel.HasSearchTermFilter)
         {
-            var searchTerm = request.SearchTerm.Trim();
+            var searchTerm = requestModel.SearchTerm.Trim();
             filtered = filtered.Where(course =>
                 CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level)
                     .Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
                 || course.LarsCode.Equals(searchTerm, StringComparison.OrdinalIgnoreCase));
         }
 
-        if (request.HasDeliveryStatusFilter)
+        if (requestModel.HasDeliveryStatusFilter)
         {
-            var selectedStatuses = request.DeliveryStatus.Distinct().ToHashSet();
+            var selectedStatuses = requestModel.DeliveryStatus.Distinct().ToHashSet();
             filtered = filtered.Where(course => selectedStatuses.Contains(GetDeliveryStatus(course)));
         }
 
@@ -93,22 +93,22 @@ public static class RestrictedApprenticeshipsFilterBuilder
     private static DeliveryStatus GetDeliveryStatus(RestrictedApprenticeshipModel course)
         => course.LastDateStarts.ToDeliveryStatus(course.IsClosedToNewStarts);
 
-    private static List<FilterItemViewModel> BuildDeliveryStatusItems(GetRestrictedApprenticeshipsModel model)
+    private static List<FilterItemViewModel> BuildDeliveryStatusItems(GetRestrictedApprenticeshipsRequestModel requestModel)
         =>
         [
-            CreateDeliveryStatusItem(DeliveryStatus.LastStartDateAdded, model, LastStartDateAddedDescription),
-            CreateDeliveryStatusItem(DeliveryStatus.ClosedToNewStarts, model, ClosedToNewStartsDescription)
+            CreateDeliveryStatusItem(DeliveryStatus.LastStartDateAdded, requestModel, LastStartDateAddedDescription),
+            CreateDeliveryStatusItem(DeliveryStatus.ClosedToNewStarts, requestModel, ClosedToNewStartsDescription)
         ];
 
     private static FilterItemViewModel CreateDeliveryStatusItem(
         DeliveryStatus status,
-        GetRestrictedApprenticeshipsModel model,
+        GetRestrictedApprenticeshipsRequestModel requestModel,
         string description)
         => new()
         {
             Value = status.ToString(),
             DisplayText = status.GetDescription(),
             DisplayDescription = description,
-            IsSelected = model.DeliveryStatus.Contains(status)
+            IsSelected = requestModel.DeliveryStatus.Contains(status)
         };
 }

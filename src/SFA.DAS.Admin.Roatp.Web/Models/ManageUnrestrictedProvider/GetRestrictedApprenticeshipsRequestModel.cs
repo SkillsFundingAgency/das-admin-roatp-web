@@ -1,8 +1,8 @@
 using SFA.DAS.Admin.Roatp.Domain.Models;
 
-namespace SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
+namespace SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
 
-public class GetRestrictedCourseDetailsModel
+public class GetRestrictedApprenticeshipsRequestModel
 {
     public string SearchTerm { get; set; } = string.Empty;
 
