@@ -28,15 +28,7 @@ public static class RestrictedApprenticeshipsFilterBuilder
         AddSelectedFilter(
             selectedFilters,
             FilterType.DeliveryStatus,
-            request.DeliveryStatus.Distinct().Select(status => status.GetDescription()));
-
-        var overrideValueFunctions = new Dictionary<FilterType, Func<string, string>>
-        {
-            [FilterType.DeliveryStatus] = displayText =>
-                Enum.GetValues<DeliveryStatus>()
-                    .First(status => status.GetDescription() == displayText)
-                    .ToString()
-        };
+            request.DeliveryStatus.Distinct().Select(status => status.ToString()));
 
         var sectionHeadingOverrides = new Dictionary<FilterType, string>
         {
@@ -68,7 +60,7 @@ public static class RestrictedApprenticeshipsFilterBuilder
             ClearFilterSections = CreateClearFilterSections(
                 selectedFilters,
                 clearFiltersBaseUrl,
-                overrideValueFunctions,
+                useDisplayText: true,
                 RestrictedApprenticeshipFilterResultsFragment,
                 sectionHeadingOverrides)
         };

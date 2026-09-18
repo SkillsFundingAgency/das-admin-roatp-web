@@ -28,16 +28,8 @@ public static class RestrictedCoursesFilterBuilder
             AddSelectedFilter(
                 selectedFilters,
                 FilterType.LearningType,
-                request.LearningType.Distinct().Select(type => type.GetDescription()));
+                request.LearningType.Distinct().Select(type => type.ToString()));
         }
-
-        var overrideValueFunctions = new Dictionary<FilterType, Func<string, string>>
-        {
-            [FilterType.LearningType] = displayText =>
-                Enum.GetValues<LearningType>()
-                    .First(type => type.GetDescription() == displayText)
-                    .ToString()
-        };
 
         var sectionHeadingOverrides = new Dictionary<FilterType, string>
         {
@@ -68,7 +60,7 @@ public static class RestrictedCoursesFilterBuilder
             ClearFilterSections = CreateClearFilterSections(
                 selectedFilters,
                 clearFiltersBaseUrl,
-                overrideValueFunctions,
+                useDisplayText: true,
                 RestrictedCourseFilterResultsFragment,
                 sectionHeadingOverrides)
         };

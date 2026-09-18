@@ -29,15 +29,7 @@ public static class RestrictedCourseDetailsFilterBuilder
         AddSelectedFilter(
             selectedFilters,
             FilterType.DeliveryStatus,
-            request.DeliveryStatus.Distinct().Select(status => status.GetDescription()));
-
-        var overrideValueFunctions = new Dictionary<FilterType, Func<string, string>>
-        {
-            [FilterType.DeliveryStatus] = displayText =>
-                Enum.GetValues<DeliveryStatus>()
-                    .First(status => status.GetDescription() == displayText)
-                    .ToString()
-        };
+            request.DeliveryStatus.Distinct().Select(status => status.ToString()));
 
         var clearFiltersBaseUrl = urlHelper.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!;
 
@@ -64,7 +56,7 @@ public static class RestrictedCourseDetailsFilterBuilder
             ClearFilterSections = CreateClearFilterSections(
                 selectedFilters,
                 clearFiltersBaseUrl,
-                overrideValueFunctions,
+                useDisplayText: true,
                 ProviderFilterResultsFragment)
         };
     }
