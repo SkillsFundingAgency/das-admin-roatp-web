@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
+using SFA.DAS.Admin.Roatp.Domain.Models;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
 using SFA.DAS.Admin.Roatp.Web.Models.Shared;
@@ -19,15 +20,20 @@ public class RestrictedCoursesController(IOuterApiClient outerApiClient) : Contr
         GetRestrictedCoursesModel model,
         CancellationToken cancellationToken)
     {
-        GetRestrictedCoursesResponse response = await outerApiClient.GetRestrictedCourses(restricted: true, cancellationToken);
+        var response = await outerApiClient.GetRestrictedCourses(restricted: true, cancellationToken);
+        var courses = response?.Courses ?? [];
 
-        RestrictedCoursesViewModel viewModel = response;
-        viewModel.HasActiveFilters = model.HasFilters;
-        viewModel.Filters = RestrictedCoursesFilterBuilder.CreateFiltersViewModel(model, Url);
+        var viewModel = new RestrictedCoursesViewModel
+        {
+            HasActiveFilters = model.HasFilters,
+            Filters = RestrictedCoursesFilterBuilder.CreateFiltersViewModel(model, Url)
+        };
 
         var filteredCourses = RestrictedCoursesFilterBuilder
-            .ApplyFilters(viewModel.Courses, model)
-            .OrderBy(course => course.DisplayTitle, StringComparer.OrdinalIgnoreCase)
+            .ApplyFilters(courses, model)
+            .OrderBy(
+                course => CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level),
+                StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         ApplyPagination(viewModel, filteredCourses, model);
@@ -37,7 +43,7 @@ public class RestrictedCoursesController(IOuterApiClient outerApiClient) : Contr
 
     private void ApplyPagination(
         RestrictedCoursesViewModel viewModel,
-        List<RestrictedCourseItemViewModel> filteredCourses,
+        List<RestrictedCourseModel> filteredCourses,
         GetRestrictedCoursesModel model)
     {
         var (pagedItems, totalCount, pagination) = PaginationHelper.Paginate(
@@ -49,7 +55,9 @@ public class RestrictedCoursesController(IOuterApiClient outerApiClient) : Contr
             RestrictedCoursesFilterBuilder.RestrictedCourseFilterResultsFragment);
 
         viewModel.TotalCount = totalCount;
-        viewModel.Courses = pagedItems;
+        viewModel.Courses = pagedItems
+            .Select(course => (RestrictedCourseItemViewModel)course)
+            .ToList();
         viewModel.Pagination = pagination;
     }
 }

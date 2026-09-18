@@ -184,7 +184,7 @@ public class RestrictedCoursesFilterBuilderTests
             $"{RestrictedCoursesUrl}#{RestrictedCoursesFilterBuilder.RestrictedCourseFilterResultsFragment}");
     }
 
-    private static List<RestrictedCourseItemViewModel> CreateCourses() =>
+    private static List<RestrictedCourseModel> CreateCourses() =>
     [
         new()
         {

@@ -1,7 +1,7 @@
 using Humanizer;
 using SFA.DAS.Admin.Roatp.Domain.Models;
-using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
+using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Models.Filters;
 using SFA.DAS.Admin.Roatp.Web.Models.Shared;
 
@@ -36,26 +36,4 @@ public class RestrictedCourseDetailsViewModel : ICourseDisplayModel, IBackLink, 
     public PaginationViewModel Pagination { get; set; } = null!;
     public string? SuccessBannerMessage { get; set; }
     public bool HasSuccessBanner => !string.IsNullOrWhiteSpace(SuccessBannerMessage);
-
-    public static implicit operator RestrictedCourseDetailsViewModel(
-        GetRestrictedCourseDetailsResponse response)
-    {
-        var providers = response.Providers
-            .OrderBy(provider => provider.ProviderName, StringComparer.OrdinalIgnoreCase)
-            .Select(provider => (AllowedProviderViewModel)provider)
-            .ToList();
-
-        return new()
-        {
-            LarsCode = response.LarsCode,
-            CourseName = response.CourseName,
-            Level = response.Level,
-            Title = response.CourseName,
-            Sector = response.Route,
-            LearningType = response.LearningType,
-            IsCourseRestricted = response.IsCourseRestricted,
-            AllowedProviders = providers,
-            TotalProviderCount = providers.Count
-        };
-    }
 }

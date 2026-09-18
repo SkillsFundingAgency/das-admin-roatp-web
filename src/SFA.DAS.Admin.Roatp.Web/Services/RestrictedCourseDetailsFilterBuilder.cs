@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.Models;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
@@ -61,8 +62,8 @@ public static class RestrictedCourseDetailsFilterBuilder
         };
     }
 
-    public static IEnumerable<AllowedProviderViewModel> ApplyFilters(
-        IEnumerable<AllowedProviderViewModel> providers,
+    public static IEnumerable<ProviderCourseModel> ApplyFilters(
+        IEnumerable<ProviderCourseModel> providers,
         GetRestrictedCourseDetailsModel model)
     {
         var filtered = providers;
@@ -78,26 +79,27 @@ public static class RestrictedCourseDetailsFilterBuilder
         if (model.HasDeliveryStatusFilter)
         {
             var selectedStatuses = model.DeliveryStatus.Distinct().ToHashSet();
-            filtered = filtered.Where(provider => selectedStatuses.Contains(provider.DeliveryStatus));
+            filtered = filtered.Where(provider =>
+                selectedStatuses.Contains(provider.LastDateStarts.ToDeliveryStatus()));
         }
 
         return filtered;
     }
 
-    private static List<FilterItemViewModel> BuildDeliveryStatusItems(GetRestrictedCourseDetailsModel request)
+    private static List<FilterItemViewModel> BuildDeliveryStatusItems(GetRestrictedCourseDetailsModel model)
         =>
         [
             CreateDeliveryStatusItem(
                 DeliveryStatus.OpenToNewStarts,
-                request,
+                model,
                 OpenToNewStartsDescription),
             CreateDeliveryStatusItem(
                 DeliveryStatus.LastStartDateAdded,
-                request,
+                model,
                 LastStartDateAddedDescription),
             CreateDeliveryStatusItem(
                 DeliveryStatus.ClosedToNewStarts,
-                request,
+                model,
                 ClosedToNewStartsDescription)
         ];
 

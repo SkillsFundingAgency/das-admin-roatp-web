@@ -33,14 +33,25 @@ public class RestrictedCourseDetailsController(IOuterApiClient outerApiClient) :
             return RedirectToRoute(RouteNames.UnrestrictedCourseDetails, new { larsCode });
         }
 
-        RestrictedCourseDetailsViewModel viewModel = courseDetails;
-        viewModel.RestrictedCourseDetailsPageUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!;
-        viewModel.AddProviderUrl = Url.RouteUrl(RouteNames.AddProviderToRestrictedCourse, new { larsCode })!;
-        viewModel.HasActiveFilters = model.HasFilters;
-        viewModel.Filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(model, larsCode, Url);
+        var viewModel = new RestrictedCourseDetailsViewModel
+        {
+            LarsCode = courseDetails.LarsCode,
+            CourseName = courseDetails.CourseName,
+            Level = courseDetails.Level,
+            Title = courseDetails.CourseName,
+            Sector = courseDetails.Route,
+            LearningType = courseDetails.LearningType,
+            IsCourseRestricted = courseDetails.IsCourseRestricted,
+            RestrictedCourseDetailsPageUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!,
+            AddProviderUrl = Url.RouteUrl(RouteNames.AddProviderToRestrictedCourse, new { larsCode })!,
+            HasActiveFilters = model.HasFilters,
+            Filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(model, larsCode, Url),
+            SuccessBannerMessage = TempData?[SuccessBannerTempDataKey] as string
+        };
 
         var filteredProviders = RestrictedCourseDetailsFilterBuilder
-            .ApplyFilters(viewModel.AllowedProviders, model)
+            .ApplyFilters(courseDetails.Providers, model)
+            .OrderBy(provider => provider.ProviderName, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         ApplyPagination(viewModel, filteredProviders, model);
@@ -51,8 +62,6 @@ public class RestrictedCourseDetailsController(IOuterApiClient outerApiClient) :
                 ? Url.RouteUrl(RouteNames.ChangeCourseRestriction, new { larsCode, ukprn = provider.Ukprn })!
                 : Url.RouteUrl(RouteNames.SetLastDateStarts, new { larsCode, ukprn = provider.Ukprn })!;
         }
-
-        viewModel.SuccessBannerMessage = TempData?[SuccessBannerTempDataKey] as string;
 
         return View(ViewPath, viewModel);
     }
@@ -73,7 +82,7 @@ public class RestrictedCourseDetailsController(IOuterApiClient outerApiClient) :
 
     private void ApplyPagination(
         RestrictedCourseDetailsViewModel viewModel,
-        List<AllowedProviderViewModel> filteredProviders,
+        List<ProviderCourseModel> filteredProviders,
         GetRestrictedCourseDetailsModel model)
     {
         var (pagedItems, totalCount, pagination) = PaginationHelper.Paginate(
@@ -85,7 +94,9 @@ public class RestrictedCourseDetailsController(IOuterApiClient outerApiClient) :
             RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment);
 
         viewModel.TotalProviderCount = totalCount;
-        viewModel.AllowedProviders = pagedItems;
+        viewModel.AllowedProviders = pagedItems
+            .Select(provider => (AllowedProviderViewModel)provider)
+            .ToList();
         viewModel.Pagination = pagination;
     }
 }

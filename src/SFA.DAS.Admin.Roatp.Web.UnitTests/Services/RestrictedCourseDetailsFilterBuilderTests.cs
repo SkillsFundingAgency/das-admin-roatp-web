@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using SFA.DAS.Admin.Roatp.Domain.Models;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
 using SFA.DAS.Admin.Roatp.Web.Services;
@@ -21,10 +22,10 @@ public class RestrictedCourseDetailsFilterBuilderTests
     {
         const int babingtonUkprn = 10019900;
         const int acornUkprn = 10000001;
-        var providers = new List<AllowedProviderViewModel>
+        var providers = new List<ProviderCourseModel>
         {
-            new() { Ukprn = babingtonUkprn, ProviderName = "BABINGTON LTD", DeliveryStatus = DeliveryStatus.OpenToNewStarts },
-            new() { Ukprn = acornUkprn, ProviderName = "ACORN SKILLS TRAINING", DeliveryStatus = DeliveryStatus.OpenToNewStarts }
+            new() { Ukprn = babingtonUkprn, ProviderName = "BABINGTON LTD", LastDateStarts = null },
+            new() { Ukprn = acornUkprn, ProviderName = "ACORN SKILLS TRAINING", LastDateStarts = null }
         };
 
         var byName = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
@@ -43,10 +44,10 @@ public class RestrictedCourseDetailsFilterBuilderTests
     [Test]
     public void WhenApplyingDeliveryStatusFilter_ThenMatchesSelectedStatuses()
     {
-        var providers = new List<AllowedProviderViewModel>
+        var providers = new List<ProviderCourseModel>
         {
-            new() { Ukprn = 1, ProviderName = "Open", DeliveryStatus = DeliveryStatus.OpenToNewStarts },
-            new() { Ukprn = 2, ProviderName = "Closed", DeliveryStatus = DeliveryStatus.ClosedToNewStarts }
+            new() { Ukprn = 1, ProviderName = "Open", LastDateStarts = null },
+            new() { Ukprn = 2, ProviderName = "Closed", LastDateStarts = DateTime.UtcNow.Date.AddDays(-1) }
         };
 
         var filtered = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
@@ -109,11 +110,11 @@ public class RestrictedCourseDetailsFilterBuilderTests
     [Test]
     public void WhenApplyingBothFilters_ThenRequiresNameAndStatusMatch()
     {
-        var providers = new List<AllowedProviderViewModel>
+        var providers = new List<ProviderCourseModel>
         {
-            new() { Ukprn = 1, ProviderName = "Beacon Open", DeliveryStatus = DeliveryStatus.OpenToNewStarts },
-            new() { Ukprn = 2, ProviderName = "Beacon Closed", DeliveryStatus = DeliveryStatus.ClosedToNewStarts },
-            new() { Ukprn = 3, ProviderName = "Other Closed", DeliveryStatus = DeliveryStatus.ClosedToNewStarts }
+            new() { Ukprn = 1, ProviderName = "Beacon Open", LastDateStarts = null },
+            new() { Ukprn = 2, ProviderName = "Beacon Closed", LastDateStarts = DateTime.UtcNow.Date.AddDays(-1) },
+            new() { Ukprn = 3, ProviderName = "Other Closed", LastDateStarts = DateTime.UtcNow.Date.AddDays(-1) }
         };
 
         var filtered = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
@@ -130,10 +131,10 @@ public class RestrictedCourseDetailsFilterBuilderTests
     [Test]
     public void WhenApplyingNoFilters_ThenReturnsAllProviders()
     {
-        var providers = new List<AllowedProviderViewModel>
+        var providers = new List<ProviderCourseModel>
         {
-            new() { Ukprn = 1, ProviderName = "A", DeliveryStatus = DeliveryStatus.OpenToNewStarts },
-            new() { Ukprn = 2, ProviderName = "B", DeliveryStatus = DeliveryStatus.ClosedToNewStarts }
+            new() { Ukprn = 1, ProviderName = "A", LastDateStarts = null },
+            new() { Ukprn = 2, ProviderName = "B", LastDateStarts = DateTime.UtcNow.Date.AddDays(-1) }
         };
 
         var filtered = RestrictedCourseDetailsFilterBuilder.ApplyFilters(

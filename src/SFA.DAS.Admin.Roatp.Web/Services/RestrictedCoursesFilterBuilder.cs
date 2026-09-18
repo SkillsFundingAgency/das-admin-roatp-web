@@ -66,8 +66,8 @@ public static class RestrictedCoursesFilterBuilder
         };
     }
 
-    public static IEnumerable<RestrictedCourseItemViewModel> ApplyFilters(
-        IEnumerable<RestrictedCourseItemViewModel> courses,
+    public static IEnumerable<RestrictedCourseModel> ApplyFilters(
+        IEnumerable<RestrictedCourseModel> courses,
         GetRestrictedCoursesModel model)
     {
         var filtered = courses;
@@ -76,7 +76,8 @@ public static class RestrictedCoursesFilterBuilder
         {
             var searchTerm = model.SearchTerm.Trim();
             filtered = filtered.Where(course =>
-                course.DisplayTitle.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+                CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level)
+                    .Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
                 || course.LarsCode.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
         }
 
