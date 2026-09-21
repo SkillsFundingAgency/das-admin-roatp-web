@@ -15,7 +15,7 @@ using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 using static SFA.DAS.Admin.Roatp.Web.Services.FilterService;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageUnrestrictedProvider;
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageUnrestrictedProvider.RestrictedApprenticeshipsControllerTests;
 
 [TestFixture]
 public class RestrictedApprenticeshipsControllerFilterTests

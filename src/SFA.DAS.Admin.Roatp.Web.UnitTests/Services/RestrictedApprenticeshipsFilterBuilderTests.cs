@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
+using SFA.DAS.Admin.Roatp.Web.Models.Filters;
 using SFA.DAS.Admin.Roatp.Web.Models.Filters.FilterComponents;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
 using SFA.DAS.Admin.Roatp.Web.Services;
@@ -19,21 +20,26 @@ public class RestrictedApprenticeshipsFilterBuilderTests
     private const string RestrictedApprenticeshipsUrl = "/providers/10019900/restricted-courses";
 
     [Test]
-    public void WhenApplyingCourseNameFilter_ThenMatchesDisplayTitleOrLarsCode()
+    public void WhenApplyingCourseNameFilterByName_ThenMatchesDisplayTitle()
     {
         var courses = CreateCourses();
 
         var byName = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(courses,
-            new GetRestrictedApprenticeshipsRequestModel { SearchTerm = "cleaning" }).ToList();
+            new GetRestrictedApprenticeshipsRequestModel { SearchTerm = "Cleaning" }).ToList();
+
+        byName.Should().ContainSingle(c => c.Title == "Cleaning hygiene operative");
+    }
+
+    [Test]
+    public void WhenApplyingCourseNameFilterByLarsCode_ThenMatchesLarsCode()
+    {
+        var courses = CreateCourses();
+
 
         var byLarsCode = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(courses,
             new GetRestrictedApprenticeshipsRequestModel { SearchTerm = "124" }).ToList();
 
-        using (new AssertionScope())
-        {
-            byName.Should().ContainSingle(c => c.LarsCode == "163");
-            byLarsCode.Should().ContainSingle(c => c.LarsCode == "124");
-        }
+        byLarsCode.Should().ContainSingle(c => c.LarsCode == "124");
     }
 
     [Test]
@@ -130,44 +136,123 @@ public class RestrictedApprenticeshipsFilterBuilderTests
     }
 
     [Test]
-    public void WhenCreatingFiltersViewModel_ThenBuildsCourseNameAndDeliveryStatusSections()
+    public void WhenCreatingFiltersViewModel_AndFiltersAreApplied_ThenShowFilterOptionsIsTrue()
     {
-        var urlHelper = CreateUrlHelper();
-        var requestModel = new GetRestrictedApprenticeshipsRequestModel
-        {
-            SearchTerm = "Paint",
-            DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
-        };
+        var filters = CreateFiltersViewModelWithSelectedFilters();
 
-        var filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(requestModel, Ukprn, urlHelper.Object);
+        filters.ShowFilterOptions.Should().BeTrue();
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenSetsUkprn()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
+
+        filters.Ukprn.Should().Be(Ukprn);
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenDoesNotSetLarsCode()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
+
+        filters.LarsCode.Should().BeNull();
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenSetsRoute()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
+
+        filters.Route.Should().Be(RouteNames.ProviderRestrictedCourses);
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenSetsFilterResultsFragment()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
+
+        filters.FilterResultsFragment.Should().Be(
+            RestrictedApprenticeshipsFilterBuilder.RestrictedApprenticeshipFilterResultsFragment);
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenHasTwoFilterSections()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
+
+        filters.FilterSections.Should().HaveCount(2);
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenBuildsCourseNameSection()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
 
         using (new AssertionScope())
         {
-            filters.ShowFilterOptions.Should().BeTrue();
-            filters.Ukprn.Should().Be(Ukprn);
-            filters.LarsCode.Should().BeNull();
-            filters.Route.Should().Be(RouteNames.ProviderRestrictedCourses);
-            filters.FilterResultsFragment.Should().Be(
-                RestrictedApprenticeshipsFilterBuilder.RestrictedApprenticeshipFilterResultsFragment);
-            filters.FilterSections.Should().HaveCount(2);
-
             var searchSection = filters.FilterSections[0].Should().BeOfType<TextBoxFilterSectionViewModel>().Subject;
             searchSection.Heading.Should().Be(CourseNameSectionHeading);
             searchSection.SubHeading.Should().Be(CourseNameSectionSubHeading);
             searchSection.InputValue.Should().Be("Paint");
+        }
+    }
 
-            var deliveryStatusSection = filters.FilterSections[1].Should().BeOfType<CheckboxListFilterSectionViewModel>().Subject;
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenBuildsDeliveryStatusSection()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
+
+        using (new AssertionScope())
+        {
+            var deliveryStatusSection = filters.FilterSections[1]
+                .Should().BeOfType<CheckboxListFilterSectionViewModel>().Subject;
             deliveryStatusSection.Heading.Should().Be(DeliveryStatusSectionHeading);
             deliveryStatusSection.Items.Select(item => item.Value).Should().Equal(
                 nameof(DeliveryStatus.LastStartDateAdded),
                 nameof(DeliveryStatus.ClosedToNewStarts));
-            deliveryStatusSection.Items.Single(i => i.Value == nameof(DeliveryStatus.LastStartDateAdded)).IsSelected.Should().BeTrue();
-            deliveryStatusSection.Items.Single(i => i.Value == nameof(DeliveryStatus.ClosedToNewStarts)).IsSelected.Should().BeFalse();
+        }
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenMarksSelectedDeliveryStatus()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
+
+        using (new AssertionScope())
+        {
+            var deliveryStatusSection = filters.FilterSections[1]
+                .Should().BeOfType<CheckboxListFilterSectionViewModel>().Subject;
+            deliveryStatusSection.Items.Single(i => i.Value == nameof(DeliveryStatus.LastStartDateAdded))
+                .IsSelected.Should().BeTrue();
+            deliveryStatusSection.Items.Single(i => i.Value == nameof(DeliveryStatus.ClosedToNewStarts))
+                .IsSelected.Should().BeFalse();
+        }
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenSetsDeliveryStatusDescriptions()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
+
+        using (new AssertionScope())
+        {
+            var deliveryStatusSection = filters.FilterSections[1]
+                .Should().BeOfType<CheckboxListFilterSectionViewModel>().Subject;
             deliveryStatusSection.Items.Single(i => i.Value == nameof(DeliveryStatus.LastStartDateAdded))
                 .DisplayDescription.Should().Be("Course will be restricted after this date");
             deliveryStatusSection.Items.Single(i => i.Value == nameof(DeliveryStatus.ClosedToNewStarts))
                 .DisplayDescription.Should().Be("This will be removed once all learners have completed the course");
+        }
+    }
 
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenBuildsClearFilterSections()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
+
+        using (new AssertionScope())
+        {
             filters.ClearFilterSections.Should().HaveCount(2);
             filters.ClearFilterSections.Should().Contain(section =>
                 section.Title == CourseNameSectionHeading
@@ -175,14 +260,20 @@ public class RestrictedApprenticeshipsFilterBuilderTests
             filters.ClearFilterSections.Should().Contain(section =>
                 section.Title == DeliveryStatusSectionHeading
                 && section.Items.Single().DisplayText == "Last start date added");
-
-            var clearCourseNameLink = filters.ClearFilterSections
-                .Single(section => section.Title == CourseNameSectionHeading)
-                .Items.Single().ClearLink;
-
-            clearCourseNameLink.Should().Be(
-                $"{RestrictedApprenticeshipsUrl}?DeliveryStatus=LastStartDateAdded#{RestrictedApprenticeshipsFilterBuilder.RestrictedApprenticeshipFilterResultsFragment}");
         }
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenClearCourseNameLinkKeepsDeliveryStatus()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
+
+        var clearCourseNameLink = filters.ClearFilterSections
+            .Single(section => section.Title == CourseNameSectionHeading)
+            .Items.Single().ClearLink;
+
+        clearCourseNameLink.Should().Be(
+            $"{RestrictedApprenticeshipsUrl}?DeliveryStatus=LastStartDateAdded#{RestrictedApprenticeshipsFilterBuilder.RestrictedApprenticeshipFilterResultsFragment}");
     }
 
     [Test]
@@ -250,6 +341,20 @@ public class RestrictedApprenticeshipsFilterBuilderTests
 
         clearLastStartDateLink.Should().Be(
             $"{RestrictedApprenticeshipsUrl}?DeliveryStatus=ClosedToNewStarts#{RestrictedApprenticeshipsFilterBuilder.RestrictedApprenticeshipFilterResultsFragment}");
+    }
+
+    private static FiltersViewModel CreateFiltersViewModelWithSelectedFilters()
+    {
+        var requestModel = new GetRestrictedApprenticeshipsRequestModel
+        {
+            SearchTerm = "Paint",
+            DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
+        };
+
+        return RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(
+            requestModel,
+            Ukprn,
+            CreateUrlHelper().Object);
     }
 
     private static List<RestrictedApprenticeshipModel> CreateCourses() =>

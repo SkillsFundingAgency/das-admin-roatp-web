@@ -7,6 +7,8 @@ using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
+using SFA.DAS.Admin.Roatp.Web.Models.Filters;
+using SFA.DAS.Admin.Roatp.Web.Models.Filters.FilterComponents;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using static SFA.DAS.Admin.Roatp.Web.Services.FilterService;
 
@@ -80,27 +82,58 @@ public class RestrictedCourseDetailsFilterBuilderTests
     }
 
     [Test]
-    public void WhenCreatingFiltersViewModel_ThenBuildsSectionsAndClearLinks()
+    public void WhenCreatingFiltersViewModel_AndFiltersAreApplied_ThenShowFilterOptionsIsTrue()
     {
-        var urlHelper = CreateUrlHelper();
-        var requestModel = new GetRestrictedCourseDetailsRequestModel
-        {
-            SearchTerm = "Beacon",
-            DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
-        };
-
-        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(requestModel, LarsCode, urlHelper.Object);
+        var filters = CreateFiltersViewModelWithSelectedFilters();
 
         filters.ShowFilterOptions.Should().BeTrue();
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenSetsLarsCode()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
+
         filters.LarsCode.Should().Be(LarsCode);
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenHasTwoFilterSections()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
+
         filters.FilterSections.Should().HaveCount(2);
-        filters.ClearFilterSections.Should().HaveCount(2);
-        filters.ClearFilterSections.Should().Contain(section =>
-            section.Title == SearchTermSectionHeading
-            && section.Items.Single().DisplayText == "Beacon");
-        filters.ClearFilterSections.Should().Contain(section =>
-            section.Title == DeliveryStatusSectionHeading
-            && section.Items.Single().DisplayText == "Last start date added");
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenSetsFilterResultsFragment()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
+
+        filters.FilterResultsFragment.Should().Be(RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment);
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenBuildsClearFilterSections()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
+
+        using (new AssertionScope())
+        {
+            filters.ClearFilterSections.Should().HaveCount(2);
+            filters.ClearFilterSections.Should().Contain(section =>
+                section.Title == SearchTermSectionHeading
+                && section.Items.Single().DisplayText == "Beacon");
+            filters.ClearFilterSections.Should().Contain(section =>
+                section.Title == DeliveryStatusSectionHeading
+                && section.Items.Single().DisplayText == "Last start date added");
+        }
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenClearProviderNameLinkKeepsDeliveryStatus()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
 
         var clearProviderLink = filters.ClearFilterSections
             .Single(section => section.Title == SearchTermSectionHeading)
@@ -108,7 +141,6 @@ public class RestrictedCourseDetailsFilterBuilderTests
 
         clearProviderLink.Should().Be(
             $"{RestrictedCourseDetailsUrl}?DeliveryStatus=LastStartDateAdded#{RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment}");
-        filters.FilterResultsFragment.Should().Be(RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment);
     }
 
     [Test]
@@ -175,9 +207,12 @@ public class RestrictedCourseDetailsFilterBuilderTests
 
         var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(requestModel, LarsCode, urlHelper.Object);
 
-        filters.ClearFilterSections.Should().ContainSingle();
-        filters.ClearFilterSections.Should().NotContain(section => section.Title == SearchTermSectionHeading);
-        filters.ClearFilterSections.Should().Contain(section => section.Title == DeliveryStatusSectionHeading);
+        using (new AssertionScope())
+        {
+            filters.ClearFilterSections.Should().ContainSingle();
+            filters.ClearFilterSections.Should().NotContain(section => section.Title == SearchTermSectionHeading);
+            filters.ClearFilterSections.Should().Contain(section => section.Title == DeliveryStatusSectionHeading);
+        }
     }
 
     [Test]
@@ -190,9 +225,12 @@ public class RestrictedCourseDetailsFilterBuilderTests
             LarsCode,
             urlHelper.Object);
 
-        filters.ShowFilterOptions.Should().BeFalse();
-        filters.ClearFilterSections.Should().BeEmpty();
-        filters.FilterSections.Should().HaveCount(2);
+        using (new AssertionScope())
+        {
+            filters.ShowFilterOptions.Should().BeFalse();
+            filters.ClearFilterSections.Should().BeEmpty();
+            filters.FilterSections.Should().HaveCount(2);
+        }
     }
 
     [Test]
@@ -206,13 +244,16 @@ public class RestrictedCourseDetailsFilterBuilderTests
 
         var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(requestModel, LarsCode, urlHelper.Object);
 
-        var deliveryStatusSection = filters.FilterSections
-            .OfType<SFA.DAS.Admin.Roatp.Web.Models.Filters.FilterComponents.CheckboxListFilterSectionViewModel>()
-            .Single();
+        using (new AssertionScope())
+        {
+            var deliveryStatusSection = filters.FilterSections
+                .OfType<CheckboxListFilterSectionViewModel>()
+                .Single();
 
-        deliveryStatusSection.Items.Should().ContainSingle(item => item.IsSelected);
-        deliveryStatusSection.Items.Single(item => item.IsSelected).Value
-            .Should().Be(nameof(DeliveryStatus.ClosedToNewStarts));
+            deliveryStatusSection.Items.Should().ContainSingle(item => item.IsSelected);
+            deliveryStatusSection.Items.Single(item => item.IsSelected).Value
+                .Should().Be(nameof(DeliveryStatus.ClosedToNewStarts));
+        }
     }
 
     [Test]
@@ -233,6 +274,20 @@ public class RestrictedCourseDetailsFilterBuilderTests
 
         clearOpenLink.Should().Be(
             $"{RestrictedCourseDetailsUrl}?DeliveryStatus=ClosedToNewStarts#{RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment}");
+    }
+
+    private static FiltersViewModel CreateFiltersViewModelWithSelectedFilters()
+    {
+        var requestModel = new GetRestrictedCourseDetailsRequestModel
+        {
+            SearchTerm = "Beacon",
+            DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
+        };
+
+        return RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(
+            requestModel,
+            LarsCode,
+            CreateUrlHelper().Object);
     }
 
     private static Mock<IUrlHelper> CreateUrlHelper()
