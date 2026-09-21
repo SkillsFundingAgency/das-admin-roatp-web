@@ -71,4 +71,8 @@ public interface IOuterApiClient
         string larsCode,
         CancellationToken cancellationToken);
 
+    [Get("/providers/{ukprn}/restricted-apprenticeships")]
+    Task<ApiResponse<GetRestrictedApprenticeshipsResponse>> GetRestrictedApprenticeships(
+        int ukprn,
+        CancellationToken cancellationToken);
 }
