@@ -31,13 +31,13 @@ public class RestrictCourseSearchControllerPostTests
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IValidator<RestrictCourseSearchSubmitModel>> validator,
-        [Greedy] RestrictCourseSearchController controller)
+        [Greedy] RestrictCourseSearchController sut)
     {
         SetupSearchableCourses(outerApiClientMock);
         validator.Setup(x => x.Validate(It.IsAny<RestrictCourseSearchSubmitModel>()))
             .Returns(new ValidationResult());
 
-        var actual = await controller.Index(
+        var actual = await sut.Index(
             Ukprn,
             new RestrictCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
             CancellationToken.None) as ViewResult;
@@ -51,7 +51,7 @@ public class RestrictCourseSearchControllerPostTests
             model!.Ukprn.Should().Be(Ukprn);
             model.SelectedLarsCode.Should().Be(SelectedLarsCode);
             model.Courses.Should().Contain(course => course.Value == SelectedLarsCode && course.Selected);
-            controller.ModelState.IsValid.Should().BeTrue();
+            sut.ModelState.IsValid.Should().BeTrue();
         }
 
         sessionServiceMock.Verify(s => s.Set(
@@ -69,7 +69,7 @@ public class RestrictCourseSearchControllerPostTests
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IValidator<RestrictCourseSearchSubmitModel>> validator,
-        [Greedy] RestrictCourseSearchController controller)
+        [Greedy] RestrictCourseSearchController sut)
     {
         SetupSearchableCourses(outerApiClientMock);
         validator.Setup(x => x.Validate(It.IsAny<RestrictCourseSearchSubmitModel>()))
@@ -80,7 +80,7 @@ public class RestrictCourseSearchControllerPostTests
                     RestrictCourseSearchSubmitModelValidator.NoCourseSelectedErrorMessage)
             ]));
 
-        var actual = await controller.Index(
+        var actual = await sut.Index(
             Ukprn,
             new RestrictCourseSearchSubmitModel(),
             CancellationToken.None) as ViewResult;
@@ -93,7 +93,7 @@ public class RestrictCourseSearchControllerPostTests
             model.Should().NotBeNull();
             model!.Courses.Should().HaveCount(2);
             model.SelectedLarsCode.Should().BeNull();
-            controller.ModelState.IsValid.Should().BeFalse();
+            sut.ModelState.IsValid.Should().BeFalse();
         }
 
         sessionServiceMock.Verify(
@@ -106,13 +106,13 @@ public class RestrictCourseSearchControllerPostTests
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IValidator<RestrictCourseSearchSubmitModel>> validator,
-        [Greedy] RestrictCourseSearchController controller)
+        [Greedy] RestrictCourseSearchController sut)
     {
         SetupSearchableCourses(outerApiClientMock);
         validator.Setup(x => x.Validate(It.IsAny<RestrictCourseSearchSubmitModel>()))
             .Returns(new ValidationResult());
 
-        var actual = await controller.Index(
+        var actual = await sut.Index(
             Ukprn,
             new RestrictCourseSearchSubmitModel { SelectedLarsCode = "999" },
             CancellationToken.None);
@@ -129,13 +129,13 @@ public class RestrictCourseSearchControllerPostTests
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IValidator<RestrictCourseSearchSubmitModel>> validator,
-        [Greedy] RestrictCourseSearchController controller)
+        [Greedy] RestrictCourseSearchController sut)
     {
         SetupNotRestrictedApprenticeships(outerApiClientMock, HttpStatusCode.NotFound);
         validator.Setup(x => x.Validate(It.IsAny<RestrictCourseSearchSubmitModel>()))
             .Returns(new ValidationResult());
 
-        var actual = await controller.Index(
+        var actual = await sut.Index(
             Ukprn,
             new RestrictCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
             CancellationToken.None);
@@ -152,7 +152,7 @@ public class RestrictCourseSearchControllerPostTests
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IValidator<RestrictCourseSearchSubmitModel>> validator,
-        [Greedy] RestrictCourseSearchController controller)
+        [Greedy] RestrictCourseSearchController sut)
     {
         SetupNotRestrictedApprenticeships(outerApiClientMock, HttpStatusCode.NotFound);
         validator.Setup(x => x.Validate(It.IsAny<RestrictCourseSearchSubmitModel>()))
@@ -163,7 +163,7 @@ public class RestrictCourseSearchControllerPostTests
                     RestrictCourseSearchSubmitModelValidator.NoCourseSelectedErrorMessage)
             ]));
 
-        var actual = await controller.Index(
+        var actual = await sut.Index(
             Ukprn,
             new RestrictCourseSearchSubmitModel(),
             CancellationToken.None) as ViewResult;
@@ -175,7 +175,7 @@ public class RestrictCourseSearchControllerPostTests
             actual!.ViewName.Should().Be(RestrictCourseSearchController.ViewPath);
             model.Should().NotBeNull();
             model!.Courses.Should().BeEmpty();
-            controller.ModelState.IsValid.Should().BeFalse();
+            sut.ModelState.IsValid.Should().BeFalse();
         }
 
         sessionServiceMock.Verify(

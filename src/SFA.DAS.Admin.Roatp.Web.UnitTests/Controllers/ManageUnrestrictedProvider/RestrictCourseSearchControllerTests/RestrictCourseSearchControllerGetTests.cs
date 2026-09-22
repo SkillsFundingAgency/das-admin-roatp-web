@@ -29,11 +29,11 @@ public class RestrictCourseSearchControllerGetTests
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] IValidator<RestrictCourseSearchSubmitModel> validator,
-        [Greedy] RestrictCourseSearchController controller)
+        [Greedy] RestrictCourseSearchController sut)
     {
         SetupSearchableCourses(outerApiClientMock);
 
-        var actual = await controller.Index(Ukprn, CancellationToken.None) as ViewResult;
+        var actual = await sut.Index(Ukprn, CancellationToken.None) as ViewResult;
         var model = actual?.Model as RestrictCourseSearchViewModel;
 
         using (new AssertionScope())
@@ -56,11 +56,11 @@ public class RestrictCourseSearchControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictCourseSearch_AndNotRestrictedApprenticeshipsAreNotFound_ThenReturnsNotFound(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] RestrictCourseSearchController controller)
+        [Greedy] RestrictCourseSearchController sut)
     {
         SetupNotRestrictedApprenticeships(outerApiClientMock, HttpStatusCode.NotFound);
 
-        var actual = await controller.Index(Ukprn, CancellationToken.None);
+        var actual = await sut.Index(Ukprn, CancellationToken.None);
 
         actual.Should().BeOfType<NotFoundResult>();
     }
@@ -68,11 +68,11 @@ public class RestrictCourseSearchControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictCourseSearch_AndResponseContentIsNull_ThenReturnsViewWithNoCourses(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] RestrictCourseSearchController controller)
+        [Greedy] RestrictCourseSearchController sut)
     {
         SetupNotRestrictedApprenticeships(outerApiClientMock, HttpStatusCode.OK, null);
 
-        var actual = await controller.Index(Ukprn, CancellationToken.None) as ViewResult;
+        var actual = await sut.Index(Ukprn, CancellationToken.None) as ViewResult;
         var model = actual?.Model as RestrictCourseSearchViewModel;
 
         using (new AssertionScope())
@@ -88,14 +88,14 @@ public class RestrictCourseSearchControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictCourseSearch_AndCoursesAreNull_ThenReturnsViewWithNoCourses(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] RestrictCourseSearchController controller)
+        [Greedy] RestrictCourseSearchController sut)
     {
         SetupNotRestrictedApprenticeships(
             outerApiClientMock,
             HttpStatusCode.OK,
             new GetNotRestrictedApprenticeshipsResponse { Courses = null! });
 
-        var actual = await controller.Index(Ukprn, CancellationToken.None) as ViewResult;
+        var actual = await sut.Index(Ukprn, CancellationToken.None) as ViewResult;
         var model = actual?.Model as RestrictCourseSearchViewModel;
 
         using (new AssertionScope())
