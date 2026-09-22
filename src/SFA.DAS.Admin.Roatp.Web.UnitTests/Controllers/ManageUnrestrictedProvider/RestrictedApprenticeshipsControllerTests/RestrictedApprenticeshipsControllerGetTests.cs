@@ -20,6 +20,7 @@ public class RestrictedApprenticeshipsControllerGetTests
 {
     private const string ProviderSummaryUrl = "/providers/10019900";
     private const string RestrictedCoursesUrl = "/providers/10019900/restricted-courses";
+    private const string RestrictCourseSearchUrl = "/providers/10019900/restricted-courses/add";
 
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndProviderNameIsInTempData_ThenReturnsViewWithMappedModel(
@@ -65,7 +66,7 @@ public class RestrictedApprenticeshipsControllerGetTests
             model!.ProviderName.Should().Be(providerName);
             model.BackLinkUrl.Should().Be(ProviderSummaryUrl);
             model.BackLinkText.Should().Be(RestrictedApprenticeshipsViewModel.BackLinkTextValue);
-            model.RestrictACourseUrl.Should().Be(RestrictedCoursesUrl);
+            model.RestrictACourseUrl.Should().Be(RestrictCourseSearchUrl);
             model.HasCourses.Should().BeTrue();
             model.HasActiveFilters.Should().BeFalse();
             model.ShowCourseResults.Should().BeTrue();
@@ -164,7 +165,8 @@ public class RestrictedApprenticeshipsControllerGetTests
     {
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl)
-            .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
+            .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl)
+            .AddUrlForRoute(RouteNames.RestrictCourseSearch, RestrictCourseSearchUrl);
     }
 
     private static void SetupRestrictedApprenticeships(

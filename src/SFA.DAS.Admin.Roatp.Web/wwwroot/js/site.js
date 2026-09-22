@@ -101,7 +101,7 @@ $('.app-autocomplete').each(function () {
 
     accessibleAutocomplete.enhanceSelectElement({
         selectElement: this,
-        minLength: 3,
+        minLength: Number.parseInt(this.dataset.minLength || '3', 10),
         autoselect: false,
         defaultValue: '',
         showAllValues: true,

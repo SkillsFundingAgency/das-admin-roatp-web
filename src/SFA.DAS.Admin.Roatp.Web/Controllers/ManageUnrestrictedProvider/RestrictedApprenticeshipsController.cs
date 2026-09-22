@@ -39,7 +39,7 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
         {
             ProviderName = providerName,
             BackLinkUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!,
-            RestrictACourseUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn })!,
+            RestrictACourseUrl = Url.RouteUrl(RouteNames.RestrictCourseSearch, new { ukprn })!,
             HasActiveFilters = requestModel.HasFilters,
             Filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(requestModel, ukprn, Url)
         };
