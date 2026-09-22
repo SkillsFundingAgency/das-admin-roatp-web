@@ -124,20 +124,10 @@ public class FilterServiceTests
         var selectedFilters = new Dictionary<FilterType, IEnumerable<string>>
         {
             [FilterType.SearchTerm] = ["Beacon"],
-            [FilterType.DeliveryStatus] = ["Open to new starts", "Closed to new starts"]
+            [FilterType.DeliveryStatus] = ["OpenToNewStarts", "ClosedToNewStarts"]
         };
 
-        var overrideValueFunctions = new Dictionary<FilterType, Func<string, string>>
-        {
-            [FilterType.DeliveryStatus] = displayText => displayText switch
-            {
-                "Open to new starts" => "OpenToNewStarts",
-                "Closed to new starts" => "ClosedToNewStarts",
-                _ => displayText
-            }
-        };
-
-        var result = CreateClearFilterSections(selectedFilters, ClearFiltersBaseUrl, overrideValueFunctions);
+        var result = CreateClearFilterSections(selectedFilters, ClearFiltersBaseUrl, useDisplayText: true);
 
         result.Should().HaveCount(2);
 

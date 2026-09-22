@@ -13,7 +13,7 @@ using SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageUnrestrictedProvider;
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageUnrestrictedProvider.RestrictedApprenticeshipsControllerTests;
 
 [TestFixture]
 public class RestrictedApprenticeshipsControllerGetTests
@@ -54,7 +54,7 @@ public class RestrictedApprenticeshipsControllerGetTests
         SetupRestrictedApprenticeships(outerApiClientMock, ukprn, response);
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(ukprn, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
         var model = result?.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())
@@ -67,7 +67,13 @@ public class RestrictedApprenticeshipsControllerGetTests
             model.BackLinkText.Should().Be(RestrictedApprenticeshipsViewModel.BackLinkTextValue);
             model.RestrictACourseUrl.Should().Be(RestrictedCoursesUrl);
             model.HasCourses.Should().BeTrue();
+            model.HasActiveFilters.Should().BeFalse();
+            model.ShowCourseResults.Should().BeTrue();
+            model.Filters.FilterSections.Should().HaveCount(2);
             model.Courses.Select(course => course.LarsCode).Should().Equal("105", "200");
+            model.Courses.Select(course => course.DeliveryStatus).Should().Equal(
+                DeliveryStatus.LastStartDateAdded,
+                DeliveryStatus.ClosedToNewStarts);
         }
 
         outerApiClientMock.Verify(c => c.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -89,7 +95,7 @@ public class RestrictedApprenticeshipsControllerGetTests
         SetupRestrictedApprenticeships(outerApiClientMock, ukprn, restrictedResponse);
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(ukprn, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
         var model = result?.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())
@@ -98,6 +104,7 @@ public class RestrictedApprenticeshipsControllerGetTests
             model.Should().NotBeNull();
             model!.ProviderName.Should().Be(organisationResponse.LegalName);
             model.HasNoCourses.Should().BeTrue();
+            model.ShowCourseResults.Should().BeFalse();
             sut.TempData.Peek(TempDataKeys.ProviderLegalName).Should().Be(organisationResponse.LegalName);
         }
 
@@ -114,7 +121,7 @@ public class RestrictedApprenticeshipsControllerGetTests
         sut.AddTempData();
         SetupOrganisation(outerApiClientMock, ukprn, organisationResponse, HttpStatusCode.NotFound);
 
-        var result = await sut.Index(ukprn, CancellationToken.None);
+        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsRequestModel(), CancellationToken.None);
 
         using (new AssertionScope())
         {
@@ -144,7 +151,7 @@ public class RestrictedApprenticeshipsControllerGetTests
                 new RefitSettings(),
                 null));
 
-        var result = await sut.Index(ukprn, CancellationToken.None);
+        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsRequestModel(), CancellationToken.None);
 
         using (new AssertionScope())
         {

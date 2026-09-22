@@ -1,10 +1,14 @@
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using SFA.DAS.Admin.Roatp.Domain.Models;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
+using SFA.DAS.Admin.Roatp.Web.Models.Filters;
+using SFA.DAS.Admin.Roatp.Web.Models.Filters.FilterComponents;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using static SFA.DAS.Admin.Roatp.Web.Services.FilterService;
 
@@ -21,37 +25,55 @@ public class RestrictedCourseDetailsFilterBuilderTests
     {
         const int babingtonUkprn = 10019900;
         const int acornUkprn = 10000001;
-        var providers = new List<AllowedProviderViewModel>
+        var providers = new List<ProviderCourseModel>
         {
-            new() { Ukprn = babingtonUkprn, ProviderName = "BABINGTON LTD", DeliveryStatus = DeliveryStatus.OpenToNewStarts },
-            new() { Ukprn = acornUkprn, ProviderName = "ACORN SKILLS TRAINING", DeliveryStatus = DeliveryStatus.OpenToNewStarts }
+            new() { Ukprn = babingtonUkprn, ProviderName = "BABINGTON LTD", LastDateStarts = null },
+            new() { Ukprn = acornUkprn, ProviderName = "ACORN SKILLS TRAINING", LastDateStarts = null }
         };
 
         var byName = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
             providers,
-            new GetRestrictedCourseDetailsRequest { SearchTerm = "acorn" });
-
-        byName.Should().ContainSingle(p => p.ProviderName == "ACORN SKILLS TRAINING");
+            new GetRestrictedCourseDetailsRequestModel { SearchTerm = "acorn" });
 
         var byUkprn = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
             providers,
-            new GetRestrictedCourseDetailsRequest { SearchTerm = babingtonUkprn.ToString() });
+            new GetRestrictedCourseDetailsRequestModel { SearchTerm = babingtonUkprn.ToString() });
 
-        byUkprn.Should().ContainSingle(p => p.Ukprn == babingtonUkprn);
+        using (new AssertionScope())
+        {
+            byName.Should().ContainSingle(p => p.ProviderName == "ACORN SKILLS TRAINING");
+            byUkprn.Should().ContainSingle(p => p.Ukprn == babingtonUkprn);
+        }
+    }
+
+    [Test]
+    public void WhenApplyingProviderNameFilter_AndUkprnIsPartial_ThenDoesNotMatch()
+    {
+        const int babingtonUkprn = 10019900;
+        var providers = new List<ProviderCourseModel>
+        {
+            new() { Ukprn = babingtonUkprn, ProviderName = "BABINGTON LTD", LastDateStarts = null }
+        };
+
+        var filtered = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
+            providers,
+            new GetRestrictedCourseDetailsRequestModel { SearchTerm = "10019" });
+
+        filtered.Should().BeEmpty();
     }
 
     [Test]
     public void WhenApplyingDeliveryStatusFilter_ThenMatchesSelectedStatuses()
     {
-        var providers = new List<AllowedProviderViewModel>
+        var providers = new List<ProviderCourseModel>
         {
-            new() { Ukprn = 1, ProviderName = "Open", DeliveryStatus = DeliveryStatus.OpenToNewStarts },
-            new() { Ukprn = 2, ProviderName = "Closed", DeliveryStatus = DeliveryStatus.ClosedToNewStarts }
+            new() { Ukprn = 1, ProviderName = "Open", LastDateStarts = null },
+            new() { Ukprn = 2, ProviderName = "Closed", LastDateStarts = DateTime.UtcNow.Date.AddDays(-1) }
         };
 
         var filtered = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
             providers,
-            new GetRestrictedCourseDetailsRequest
+            new GetRestrictedCourseDetailsRequestModel
             {
                 DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
             });
@@ -60,27 +82,58 @@ public class RestrictedCourseDetailsFilterBuilderTests
     }
 
     [Test]
-    public void WhenCreatingFiltersViewModel_ThenBuildsSectionsAndClearLinks()
+    public void WhenCreatingFiltersViewModel_AndFiltersAreApplied_ThenShowFilterOptionsIsTrue()
     {
-        var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedCourseDetailsRequest
-        {
-            SearchTerm = "Beacon",
-            DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
-        };
-
-        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, LarsCode, urlHelper.Object);
+        var filters = CreateFiltersViewModelWithSelectedFilters();
 
         filters.ShowFilterOptions.Should().BeTrue();
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenSetsLarsCode()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
+
         filters.LarsCode.Should().Be(LarsCode);
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenHasTwoFilterSections()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
+
         filters.FilterSections.Should().HaveCount(2);
-        filters.ClearFilterSections.Should().HaveCount(2);
-        filters.ClearFilterSections.Should().Contain(section =>
-            section.Title == SearchTermSectionHeading
-            && section.Items.Single().DisplayText == "Beacon");
-        filters.ClearFilterSections.Should().Contain(section =>
-            section.Title == DeliveryStatusSectionHeading
-            && section.Items.Single().DisplayText == "Last start date added");
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenSetsFilterResultsFragment()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
+
+        filters.FilterResultsFragment.Should().Be(RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment);
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenBuildsClearFilterSections()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
+
+        using (new AssertionScope())
+        {
+            filters.ClearFilterSections.Should().HaveCount(2);
+            filters.ClearFilterSections.Should().Contain(section =>
+                section.Title == SearchTermSectionHeading
+                && section.Items.Single().DisplayText == "Beacon");
+            filters.ClearFilterSections.Should().Contain(section =>
+                section.Title == DeliveryStatusSectionHeading
+                && section.Items.Single().DisplayText == "Last start date added");
+        }
+    }
+
+    [Test]
+    public void WhenCreatingFiltersViewModel_ThenClearProviderNameLinkKeepsDeliveryStatus()
+    {
+        var filters = CreateFiltersViewModelWithSelectedFilters();
 
         var clearProviderLink = filters.ClearFilterSections
             .Single(section => section.Title == SearchTermSectionHeading)
@@ -88,19 +141,18 @@ public class RestrictedCourseDetailsFilterBuilderTests
 
         clearProviderLink.Should().Be(
             $"{RestrictedCourseDetailsUrl}?DeliveryStatus=LastStartDateAdded#{RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment}");
-        filters.FilterResultsFragment.Should().Be(RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment);
     }
 
     [Test]
     public void WhenCreatingFiltersViewModel_AndClearingLastFilter_ThenClearLinkIsBaseUrl()
     {
         var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedCourseDetailsRequest
+        var requestModel = new GetRestrictedCourseDetailsRequestModel
         {
             SearchTerm = "Beacon"
         };
 
-        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, LarsCode, urlHelper.Object);
+        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(requestModel, LarsCode, urlHelper.Object);
 
         filters.ClearFilterSections.Single().Items.Single().ClearLink
             .Should().Be($"{RestrictedCourseDetailsUrl}#{RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment}");
@@ -109,16 +161,16 @@ public class RestrictedCourseDetailsFilterBuilderTests
     [Test]
     public void WhenApplyingBothFilters_ThenRequiresNameAndStatusMatch()
     {
-        var providers = new List<AllowedProviderViewModel>
+        var providers = new List<ProviderCourseModel>
         {
-            new() { Ukprn = 1, ProviderName = "Beacon Open", DeliveryStatus = DeliveryStatus.OpenToNewStarts },
-            new() { Ukprn = 2, ProviderName = "Beacon Closed", DeliveryStatus = DeliveryStatus.ClosedToNewStarts },
-            new() { Ukprn = 3, ProviderName = "Other Closed", DeliveryStatus = DeliveryStatus.ClosedToNewStarts }
+            new() { Ukprn = 1, ProviderName = "Beacon Open", LastDateStarts = null },
+            new() { Ukprn = 2, ProviderName = "Beacon Closed", LastDateStarts = DateTime.UtcNow.Date.AddDays(-1) },
+            new() { Ukprn = 3, ProviderName = "Other Closed", LastDateStarts = DateTime.UtcNow.Date.AddDays(-1) }
         };
 
         var filtered = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
             providers,
-            new GetRestrictedCourseDetailsRequest
+            new GetRestrictedCourseDetailsRequestModel
             {
                 SearchTerm = "Beacon",
                 DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
@@ -130,15 +182,15 @@ public class RestrictedCourseDetailsFilterBuilderTests
     [Test]
     public void WhenApplyingNoFilters_ThenReturnsAllProviders()
     {
-        var providers = new List<AllowedProviderViewModel>
+        var providers = new List<ProviderCourseModel>
         {
-            new() { Ukprn = 1, ProviderName = "A", DeliveryStatus = DeliveryStatus.OpenToNewStarts },
-            new() { Ukprn = 2, ProviderName = "B", DeliveryStatus = DeliveryStatus.ClosedToNewStarts }
+            new() { Ukprn = 1, ProviderName = "A", LastDateStarts = null },
+            new() { Ukprn = 2, ProviderName = "B", LastDateStarts = DateTime.UtcNow.Date.AddDays(-1) }
         };
 
         var filtered = RestrictedCourseDetailsFilterBuilder.ApplyFilters(
             providers,
-            new GetRestrictedCourseDetailsRequest());
+            new GetRestrictedCourseDetailsRequestModel());
 
         filtered.Should().HaveCount(2);
     }
@@ -147,17 +199,20 @@ public class RestrictedCourseDetailsFilterBuilderTests
     public void WhenCreatingFiltersViewModel_AndSearchTermIsNullOrWhitespace_ThenSearchTermFilterNotAdded()
     {
         var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedCourseDetailsRequest
+        var requestModel = new GetRestrictedCourseDetailsRequestModel
         {
             SearchTerm = "   ",
             DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
         };
 
-        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, LarsCode, urlHelper.Object);
+        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(requestModel, LarsCode, urlHelper.Object);
 
-        filters.ClearFilterSections.Should().ContainSingle();
-        filters.ClearFilterSections.Should().NotContain(section => section.Title == SearchTermSectionHeading);
-        filters.ClearFilterSections.Should().Contain(section => section.Title == DeliveryStatusSectionHeading);
+        using (new AssertionScope())
+        {
+            filters.ClearFilterSections.Should().ContainSingle();
+            filters.ClearFilterSections.Should().NotContain(section => section.Title == SearchTermSectionHeading);
+            filters.ClearFilterSections.Should().Contain(section => section.Title == DeliveryStatusSectionHeading);
+        }
     }
 
     [Test]
@@ -166,45 +221,51 @@ public class RestrictedCourseDetailsFilterBuilderTests
         var urlHelper = CreateUrlHelper();
 
         var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(
-            new GetRestrictedCourseDetailsRequest(),
+            new GetRestrictedCourseDetailsRequestModel(),
             LarsCode,
             urlHelper.Object);
 
-        filters.ShowFilterOptions.Should().BeFalse();
-        filters.ClearFilterSections.Should().BeEmpty();
-        filters.FilterSections.Should().HaveCount(2);
+        using (new AssertionScope())
+        {
+            filters.ShowFilterOptions.Should().BeFalse();
+            filters.ClearFilterSections.Should().BeEmpty();
+            filters.FilterSections.Should().HaveCount(2);
+        }
     }
 
     [Test]
     public void WhenCreatingFiltersViewModel_ThenMarksSelectedDeliveryStatusItems()
     {
         var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedCourseDetailsRequest
+        var requestModel = new GetRestrictedCourseDetailsRequestModel
         {
             DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
         };
 
-        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, LarsCode, urlHelper.Object);
+        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(requestModel, LarsCode, urlHelper.Object);
 
-        var deliveryStatusSection = filters.FilterSections
-            .OfType<SFA.DAS.Admin.Roatp.Web.Models.Filters.FilterComponents.CheckboxListFilterSectionViewModel>()
-            .Single();
+        using (new AssertionScope())
+        {
+            var deliveryStatusSection = filters.FilterSections
+                .OfType<CheckboxListFilterSectionViewModel>()
+                .Single();
 
-        deliveryStatusSection.Items.Should().ContainSingle(item => item.IsSelected);
-        deliveryStatusSection.Items.Single(item => item.IsSelected).Value
-            .Should().Be(nameof(DeliveryStatus.ClosedToNewStarts));
+            deliveryStatusSection.Items.Should().ContainSingle(item => item.IsSelected);
+            deliveryStatusSection.Items.Single(item => item.IsSelected).Value
+                .Should().Be(nameof(DeliveryStatus.ClosedToNewStarts));
+        }
     }
 
     [Test]
     public void WhenCreatingFiltersViewModel_AndClearingOneOfMultipleStatuses_ThenKeepsRemainingStatus()
     {
         var urlHelper = CreateUrlHelper();
-        var request = new GetRestrictedCourseDetailsRequest
+        var requestModel = new GetRestrictedCourseDetailsRequestModel
         {
             DeliveryStatus = [DeliveryStatus.OpenToNewStarts, DeliveryStatus.ClosedToNewStarts]
         };
 
-        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(request, LarsCode, urlHelper.Object);
+        var filters = RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(requestModel, LarsCode, urlHelper.Object);
 
         var clearOpenLink = filters.ClearFilterSections
             .Single(section => section.Title == DeliveryStatusSectionHeading)
@@ -213,6 +274,20 @@ public class RestrictedCourseDetailsFilterBuilderTests
 
         clearOpenLink.Should().Be(
             $"{RestrictedCourseDetailsUrl}?DeliveryStatus=ClosedToNewStarts#{RestrictedCourseDetailsFilterBuilder.ProviderFilterResultsFragment}");
+    }
+
+    private static FiltersViewModel CreateFiltersViewModelWithSelectedFilters()
+    {
+        var requestModel = new GetRestrictedCourseDetailsRequestModel
+        {
+            SearchTerm = "Beacon",
+            DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
+        };
+
+        return RestrictedCourseDetailsFilterBuilder.CreateFiltersViewModel(
+            requestModel,
+            LarsCode,
+            CreateUrlHelper().Object);
     }
 
     private static Mock<IUrlHelper> CreateUrlHelper()

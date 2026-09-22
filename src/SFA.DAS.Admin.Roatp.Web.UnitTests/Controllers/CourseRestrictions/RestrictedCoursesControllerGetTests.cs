@@ -43,7 +43,7 @@ public class RestrictedCoursesControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourses, RestrictedCoursesUrl);
 
-        var result = await sut.Index(new GetRestrictedCoursesRequest(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(new GetRestrictedCoursesRequestModel(), CancellationToken.None) as ViewResult;
 
         result.Should().NotBeNull();
         result!.ViewName.Should().Be(RestrictedCoursesController.ViewPath);
@@ -106,12 +106,12 @@ public class RestrictedCoursesControllerGetTests
             .AddUrlForRoute(RouteNames.RestrictedCourses, RestrictedCoursesUrl);
 
         var result = await sut.Index(
-            new GetRestrictedCoursesRequest { SearchTerm = "course" },
+            new GetRestrictedCoursesRequestModel { SearchTerm = "course" },
             CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCoursesViewModel;
         model!.HasActiveFilters.Should().BeTrue();
-        model.HasNoFilterResults.Should().BeFalse();
+        model.HasNoFilteredResults.Should().BeFalse();
         model.TotalCount.Should().Be(3);
         model.Courses.Select(c => c.DisplayTitle).Should().ContainInOrder(
             "Alpha course (Level 3)",
@@ -146,14 +146,14 @@ public class RestrictedCoursesControllerGetTests
             .AddUrlForRoute(RouteNames.RestrictedCourses, RestrictedCoursesUrl);
 
         var result = await sut.Index(
-            new GetRestrictedCoursesRequest { SearchTerm = "nomatch" },
+            new GetRestrictedCoursesRequestModel { SearchTerm = "nomatch" },
             CancellationToken.None) as ViewResult;
 
         var model = result!.Model as RestrictedCoursesViewModel;
         model!.HasActiveFilters.Should().BeTrue();
         model.HasCourses.Should().BeFalse();
         model.HasNoCourses.Should().BeFalse();
-        model.HasNoFilterResults.Should().BeTrue();
+        model.HasNoFilteredResults.Should().BeTrue();
         model.ShowCourseResults.Should().BeTrue();
         model.TotalCount.Should().Be(0);
         model.Filters.ShowFilterOptions.Should().BeTrue();
