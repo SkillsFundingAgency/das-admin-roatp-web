@@ -15,9 +15,9 @@ using SFA.DAS.Admin.Roatp.Web.Models.Session;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageUnrestrictedProvider.ConfirmRestrictCourseControllerTests;
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageUnrestrictedProvider.ConfirmProviderRestrictedCourseControllerTests;
 
-public class ConfirmRestrictCourseControllerPostTests
+public class ConfirmProviderRestrictedCourseControllerPostTests
 {
     private const int Ukprn = 10019900;
     private const string LarsCode = "105";
@@ -27,7 +27,7 @@ public class ConfirmRestrictCourseControllerPostTests
     public async Task WhenPostingConfirm_ThenRestrictsCourseSetsBannerAndRedirectsToList(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] ConfirmRestrictCourseController sut)
+        [Greedy] ConfirmProviderRestrictedCourseController sut)
     {
         SetupSession(sessionServiceMock);
         SetupAuthenticatedUser(sut);
@@ -42,7 +42,7 @@ public class ConfirmRestrictCourseControllerPostTests
             result!.RouteName.Should().Be(RouteNames.ProviderRestrictedCourses);
             result.RouteValues!["ukprn"].Should().Be(Ukprn);
             sut.TempData[RestrictedApprenticeshipsController.SuccessBannerTempDataKey]
-                .Should().Be(ConfirmRestrictCourseController.GetSuccessBannerMessage(DisplayTitle));
+                .Should().Be(ConfirmProviderRestrictedCourseController.GetSuccessBannerMessage(DisplayTitle));
         }
 
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictCourse), Times.Once);
@@ -61,7 +61,7 @@ public class ConfirmRestrictCourseControllerPostTests
     public async Task WhenPostingConfirm_AndSessionIsMissing_ThenRedirectsWithoutCallingApi(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] ConfirmRestrictCourseController sut)
+        [Greedy] ConfirmProviderRestrictedCourseController sut)
     {
         sessionServiceMock
             .Setup(s => s.Get<RestrictCourseSessionModel>(SessionKeys.RestrictCourse))
@@ -88,7 +88,7 @@ public class ConfirmRestrictCourseControllerPostTests
     public async Task WhenPostingConfirm_AndApiReturnsNotFound_ThenReturnsNotFound(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] ConfirmRestrictCourseController sut)
+        [Greedy] ConfirmProviderRestrictedCourseController sut)
     {
         SetupSession(sessionServiceMock);
         SetupAuthenticatedUser(sut);
@@ -115,7 +115,7 @@ public class ConfirmRestrictCourseControllerPostTests
             });
     }
 
-    private static void SetupAuthenticatedUser(ConfirmRestrictCourseController sut)
+    private static void SetupAuthenticatedUser(ConfirmProviderRestrictedCourseController sut)
     {
         sut.ControllerContext = new ControllerContext
         {

@@ -1,6 +1,6 @@
 namespace SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
 
-public class ConfirmRestrictCourseViewModel
+public class ConfirmProviderRestrictedCourseViewModel
 {
     public required int Ukprn { get; set; }
     public required string ProviderName { get; set; }

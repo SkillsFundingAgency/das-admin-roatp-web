@@ -12,11 +12,11 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
 [Route("providers/{ukprn}/restricted-courses/add/confirm", Name = RouteNames.ConfirmRestrictCourse)]
-public class ConfirmRestrictCourseController(
+public class ConfirmProviderRestrictedCourseController(
     ISessionService sessionService,
     IOuterApiClient outerApiClient) : Controller
 {
-    public const string ViewPath = "~/Views/ManageUnrestrictedProvider/ConfirmRestrictCourse/Index.cshtml";
+    public const string ViewPath = "~/Views/ManageUnrestrictedProvider/ConfirmProviderRestrictedCourse/Index.cshtml";
 
     public static string GetSuccessBannerMessage(string displayTitle) =>
         $"{displayTitle} has been added to the restricted apprenticeships list";
@@ -105,7 +105,7 @@ public class ConfirmRestrictCourseController(
         return providerName;
     }
 
-    private ConfirmRestrictCourseViewModel BuildViewModel(RestrictCourseSessionModel session, string providerName)
+    private ConfirmProviderRestrictedCourseViewModel BuildViewModel(RestrictCourseSessionModel session, string providerName)
         => new()
         {
             Ukprn = session.Ukprn,

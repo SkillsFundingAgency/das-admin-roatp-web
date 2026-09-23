@@ -6,33 +6,33 @@ using SFA.DAS.Admin.Roatp.Web.Validators;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Validators;
 
-public class RestrictCourseSearchSubmitModelValidatorTests
+public class ProviderRestrictedCourseSearchSubmitModelValidatorTests
 {
-    private RestrictCourseSearchSubmitModelValidator _validator = null!;
+    private ProviderRestrictedCourseSearchSubmitModelValidator _validator = null!;
 
     [SetUp]
     public void Setup()
     {
-        _validator = new RestrictCourseSearchSubmitModelValidator();
+        _validator = new ProviderRestrictedCourseSearchSubmitModelValidator();
     }
 
     [Test]
     public void WhenValidatingSelectedLarsCode_AndNoCourseSelected_ThenReturnsExpectedErrorMessage()
     {
-        var result = _validator.TestValidate(new RestrictCourseSearchSubmitModel());
+        var result = _validator.TestValidate(new ProviderRestrictedCourseSearchSubmitModel());
 
         using (new AssertionScope())
         {
             result.IsValid.Should().BeFalse();
             result.ShouldHaveValidationErrorFor(c => c.SelectedLarsCode)
-                .WithErrorMessage(RestrictCourseSearchSubmitModelValidator.NoCourseSelectedErrorMessage);
+                .WithErrorMessage(ProviderRestrictedCourseSearchSubmitModelValidator.NoCourseSelectedErrorMessage);
         }
     }
 
     [Test]
     public void WhenValidatingSelectedLarsCode_AndCourseIsSelected_ThenIsValid()
     {
-        var result = _validator.TestValidate(new RestrictCourseSearchSubmitModel
+        var result = _validator.TestValidate(new ProviderRestrictedCourseSearchSubmitModel
         {
             SelectedLarsCode = "123"
         });

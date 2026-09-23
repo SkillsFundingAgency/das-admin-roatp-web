@@ -1,6 +1,6 @@
 namespace SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
 
-public class RestrictCourseSearchSubmitModel
+public class ProviderRestrictedCourseSearchSubmitModel
 {
     public string? SelectedLarsCode { get; set; }
 }

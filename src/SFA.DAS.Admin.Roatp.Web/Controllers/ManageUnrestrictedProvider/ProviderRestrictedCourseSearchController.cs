@@ -14,12 +14,12 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
 [Route("providers/{ukprn}/restricted-courses/add", Name = RouteNames.RestrictCourseSearch)]
-public class RestrictCourseSearchController(
+public class ProviderRestrictedCourseSearchController(
     IOuterApiClient outerApiClient,
     ISessionService sessionService,
-    IValidator<RestrictCourseSearchSubmitModel> validator) : Controller
+    IValidator<ProviderRestrictedCourseSearchSubmitModel> validator) : Controller
 {
-    public const string ViewPath = "~/Views/ManageUnrestrictedProvider/RestrictCourseSearch/Index.cshtml";
+    public const string ViewPath = "~/Views/ManageUnrestrictedProvider/ProviderRestrictedCourseSearch/Index.cshtml";
 
     [HttpGet]
     public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
@@ -38,7 +38,7 @@ public class RestrictCourseSearchController(
     [HttpPost]
     public async Task<IActionResult> Index(
         int ukprn,
-        RestrictCourseSearchSubmitModel submitModel,
+        ProviderRestrictedCourseSearchSubmitModel submitModel,
         CancellationToken cancellationToken)
     {
         var validationResult = validator.Validate(submitModel);
@@ -86,7 +86,7 @@ public class RestrictCourseSearchController(
         return response.Content?.Courses ?? [];
     }
 
-    private static RestrictCourseSearchViewModel BuildViewModel(
+    private static ProviderRestrictedCourseSearchViewModel BuildViewModel(
         int ukprn,
         IEnumerable<NotRestrictedApprenticeshipModel> courses,
         string? selectedLarsCode = null)
