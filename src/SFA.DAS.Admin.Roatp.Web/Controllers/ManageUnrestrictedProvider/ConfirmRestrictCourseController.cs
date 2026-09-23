@@ -24,7 +24,7 @@ public class ConfirmRestrictCourseController(
     [HttpGet]
     public async Task<IActionResult> Index(int ukprn)
     {
-        var session = GetSession(ukprn);
+        var session = GetRestrictCourseSession(ukprn);
         if (session is null)
         {
             return RedirectToRoute(RouteNames.ProviderRestrictedCourses, new { ukprn });
@@ -42,7 +42,7 @@ public class ConfirmRestrictCourseController(
     [HttpPost]
     public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
     {
-        var session = GetSession(ukprn);
+        var session = GetRestrictCourseSession(ukprn);
         if (session is null)
         {
             return RedirectToRoute(RouteNames.ProviderRestrictedCourses, new { ukprn });
@@ -74,7 +74,7 @@ public class ConfirmRestrictCourseController(
         return RedirectToRoute(RouteNames.ProviderRestrictedCourses, new { ukprn });
     }
 
-    private RestrictCourseSessionModel? GetSession(int ukprn)
+    private RestrictCourseSessionModel? GetRestrictCourseSession(int ukprn)
     {
         var session = sessionService.Get<RestrictCourseSessionModel>(SessionKeys.RestrictCourse);
         if (session is null || session.Ukprn != ukprn)
