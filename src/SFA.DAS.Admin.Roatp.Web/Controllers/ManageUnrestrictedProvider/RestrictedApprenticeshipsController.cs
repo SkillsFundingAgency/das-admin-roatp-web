@@ -15,6 +15,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient) : Controller
 {
     public const string ViewPath = "~/Views/ManageUnrestrictedProvider/RestrictedApprenticeships/Index.cshtml";
+    public const string SuccessBannerTempDataKey = "SuccessBannerMessage";
 
     [HttpGet]
     public async Task<IActionResult> Index(
@@ -39,7 +40,8 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
         {
             ProviderName = providerName,
             BackLinkUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!,
-            RestrictACourseUrl = Url.RouteUrl(RouteNames.RestrictCourseSearch, new { ukprn })!,
+            RestrictACourseUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourseSearch, new { ukprn })!,
+            SuccessBannerMessage = TempData[SuccessBannerTempDataKey] as string,
             HasActiveFilters = requestModel.HasFilters,
             Filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(requestModel, ukprn, Url)
         };

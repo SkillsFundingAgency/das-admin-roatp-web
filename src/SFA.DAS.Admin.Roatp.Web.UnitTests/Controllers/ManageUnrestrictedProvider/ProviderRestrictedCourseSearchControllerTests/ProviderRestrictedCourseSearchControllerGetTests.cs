@@ -14,9 +14,9 @@ using SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageUnrestrictedProvider.RestrictCourseSearchControllerTests;
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageUnrestrictedProvider.ProviderRestrictedCourseSearchControllerTests;
 
-public class RestrictCourseSearchControllerGetTests
+public class ProviderRestrictedCourseSearchControllerGetTests
 {
     private const int Ukprn = 10019900;
     private const string UnrestrictedLarsCode = "105";
@@ -28,18 +28,18 @@ public class RestrictCourseSearchControllerGetTests
     public async Task WhenGettingRestrictCourseSearch_ThenReturnsCoursesTheProviderIsAllowedToDeliver(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] IValidator<RestrictCourseSearchSubmitModel> validator,
-        [Greedy] RestrictCourseSearchController sut)
+        [Frozen] IValidator<ProviderRestrictedCourseSearchSubmitModel> validator,
+        [Greedy] ProviderRestrictedCourseSearchController sut)
     {
         SetupSearchableCourses(outerApiClientMock);
 
         var actual = await sut.Index(Ukprn, CancellationToken.None) as ViewResult;
-        var model = actual?.Model as RestrictCourseSearchViewModel;
+        var model = actual?.Model as ProviderRestrictedCourseSearchViewModel;
 
         using (new AssertionScope())
         {
             actual.Should().NotBeNull();
-            actual!.ViewName.Should().Be(RestrictCourseSearchController.ViewPath);
+            actual!.ViewName.Should().Be(ProviderRestrictedCourseSearchController.ViewPath);
             model.Should().NotBeNull();
             model!.Ukprn.Should().Be(Ukprn);
             model.Courses.Select(course => course.Value).Should().Equal(
@@ -50,13 +50,13 @@ public class RestrictCourseSearchControllerGetTests
                 "Beta course (Level 4)");
         }
 
-        sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictCourse), Times.Once);
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourse), Times.Once);
     }
 
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictCourseSearch_AndNotRestrictedApprenticeshipsAreNotFound_ThenReturnsNotFound(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] RestrictCourseSearchController sut)
+        [Greedy] ProviderRestrictedCourseSearchController sut)
     {
         SetupNotRestrictedApprenticeships(outerApiClientMock, HttpStatusCode.NotFound);
 
@@ -68,17 +68,17 @@ public class RestrictCourseSearchControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictCourseSearch_AndResponseContentIsNull_ThenReturnsViewWithNoCourses(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] RestrictCourseSearchController sut)
+        [Greedy] ProviderRestrictedCourseSearchController sut)
     {
         SetupNotRestrictedApprenticeships(outerApiClientMock, HttpStatusCode.OK, null);
 
         var actual = await sut.Index(Ukprn, CancellationToken.None) as ViewResult;
-        var model = actual?.Model as RestrictCourseSearchViewModel;
+        var model = actual?.Model as ProviderRestrictedCourseSearchViewModel;
 
         using (new AssertionScope())
         {
             actual.Should().NotBeNull();
-            actual!.ViewName.Should().Be(RestrictCourseSearchController.ViewPath);
+            actual!.ViewName.Should().Be(ProviderRestrictedCourseSearchController.ViewPath);
             model.Should().NotBeNull();
             model!.Ukprn.Should().Be(Ukprn);
             model.Courses.Should().BeEmpty();
@@ -88,7 +88,7 @@ public class RestrictCourseSearchControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictCourseSearch_AndCoursesAreNull_ThenReturnsViewWithNoCourses(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] RestrictCourseSearchController sut)
+        [Greedy] ProviderRestrictedCourseSearchController sut)
     {
         SetupNotRestrictedApprenticeships(
             outerApiClientMock,
@@ -96,12 +96,12 @@ public class RestrictCourseSearchControllerGetTests
             new GetNotRestrictedApprenticeshipsResponse { Courses = null! });
 
         var actual = await sut.Index(Ukprn, CancellationToken.None) as ViewResult;
-        var model = actual?.Model as RestrictCourseSearchViewModel;
+        var model = actual?.Model as ProviderRestrictedCourseSearchViewModel;
 
         using (new AssertionScope())
         {
             actual.Should().NotBeNull();
-            actual!.ViewName.Should().Be(RestrictCourseSearchController.ViewPath);
+            actual!.ViewName.Should().Be(ProviderRestrictedCourseSearchController.ViewPath);
             model.Should().NotBeNull();
             model!.Ukprn.Should().Be(Ukprn);
             model.Courses.Should().BeEmpty();
@@ -118,13 +118,13 @@ public class RestrictCourseSearchControllerGetTests
                 {
                     Courses =
                     [
-                        new RestrictedCourseModel
+                        new NotRestrictedApprenticeshipModel
                         {
                             LarsCode = UnrestrictedLarsCode,
                             Title = UnrestrictedCourseTitle,
                             Level = UnrestrictedCourseLevel
                         },
-                        new RestrictedCourseModel
+                        new NotRestrictedApprenticeshipModel
                         {
                             LarsCode = AllowedRestrictedLarsCode,
                             Title = "Beta course",

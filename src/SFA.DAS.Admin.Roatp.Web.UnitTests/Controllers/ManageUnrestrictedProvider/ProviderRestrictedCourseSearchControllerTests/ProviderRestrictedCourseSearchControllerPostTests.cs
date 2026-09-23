@@ -17,9 +17,9 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.Validators;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageUnrestrictedProvider.RestrictCourseSearchControllerTests;
+namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageUnrestrictedProvider.ProviderRestrictedCourseSearchControllerTests;
 
-public class RestrictCourseSearchControllerPostTests
+public class ProviderRestrictedCourseSearchControllerPostTests
 {
     private const int Ukprn = 10019900;
     private const string SelectedLarsCode = "105";
@@ -27,36 +27,31 @@ public class RestrictCourseSearchControllerPostTests
     private const int SelectedCourseLevel = 6;
 
     [Test, MoqAutoData]
-    public async Task WhenPostingRestrictCourseSearch_AndCourseIsSelected_ThenStoresSessionAndRefreshesPage(
+    public async Task WhenPostingRestrictCourseSearch_AndCourseIsSelected_ThenStoresSessionAndRedirectsToConfirm(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IValidator<RestrictCourseSearchSubmitModel>> validator,
-        [Greedy] RestrictCourseSearchController sut)
+        [Frozen] Mock<IValidator<ProviderRestrictedCourseSearchSubmitModel>> validator,
+        [Greedy] ProviderRestrictedCourseSearchController sut)
     {
         SetupSearchableCourses(outerApiClientMock);
-        validator.Setup(x => x.Validate(It.IsAny<RestrictCourseSearchSubmitModel>()))
+        validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
             .Returns(new ValidationResult());
 
         var actual = await sut.Index(
             Ukprn,
-            new RestrictCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
-            CancellationToken.None) as ViewResult;
-        var model = actual?.Model as RestrictCourseSearchViewModel;
+            new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
+            CancellationToken.None) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
             actual.Should().NotBeNull();
-            actual!.ViewName.Should().Be(RestrictCourseSearchController.ViewPath);
-            model.Should().NotBeNull();
-            model!.Ukprn.Should().Be(Ukprn);
-            model.SelectedLarsCode.Should().Be(SelectedLarsCode);
-            model.Courses.Should().Contain(course => course.Value == SelectedLarsCode && course.Selected);
-            sut.ModelState.IsValid.Should().BeTrue();
+            actual!.RouteName.Should().Be(RouteNames.ConfirmProviderRestrictedCourse);
+            actual.RouteValues!["ukprn"].Should().Be(Ukprn);
         }
 
         sessionServiceMock.Verify(s => s.Set(
-            SessionKeys.RestrictCourse,
-            It.Is<RestrictCourseSessionModel>(m =>
+            SessionKeys.ProviderRestrictedCourse,
+            It.Is<ProviderRestrictedCourseSessionModel>(m =>
                 m.Ukprn == Ukprn &&
                 m.LarsCode == SelectedLarsCode &&
                 m.Title == SelectedCourseTitle &&
@@ -68,28 +63,28 @@ public class RestrictCourseSearchControllerPostTests
     public async Task WhenPostingRestrictCourseSearch_AndNoCourseIsSelected_ThenReloadsViewWithError(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IValidator<RestrictCourseSearchSubmitModel>> validator,
-        [Greedy] RestrictCourseSearchController sut)
+        [Frozen] Mock<IValidator<ProviderRestrictedCourseSearchSubmitModel>> validator,
+        [Greedy] ProviderRestrictedCourseSearchController sut)
     {
         SetupSearchableCourses(outerApiClientMock);
-        validator.Setup(x => x.Validate(It.IsAny<RestrictCourseSearchSubmitModel>()))
+        validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
             .Returns(new ValidationResult(
             [
                 new ValidationFailure(
-                    nameof(RestrictCourseSearchSubmitModel.SelectedLarsCode),
-                    RestrictCourseSearchSubmitModelValidator.NoCourseSelectedErrorMessage)
+                    nameof(ProviderRestrictedCourseSearchSubmitModel.SelectedLarsCode),
+                    ProviderRestrictedCourseSearchSubmitModelValidator.NoCourseSelectedErrorMessage)
             ]));
 
         var actual = await sut.Index(
             Ukprn,
-            new RestrictCourseSearchSubmitModel(),
+            new ProviderRestrictedCourseSearchSubmitModel(),
             CancellationToken.None) as ViewResult;
-        var model = actual?.Model as RestrictCourseSearchViewModel;
+        var model = actual?.Model as ProviderRestrictedCourseSearchViewModel;
 
         using (new AssertionScope())
         {
             actual.Should().NotBeNull();
-            actual!.ViewName.Should().Be(RestrictCourseSearchController.ViewPath);
+            actual!.ViewName.Should().Be(ProviderRestrictedCourseSearchController.ViewPath);
             model.Should().NotBeNull();
             model!.Courses.Should().HaveCount(2);
             model.SelectedLarsCode.Should().BeNull();
@@ -97,7 +92,7 @@ public class RestrictCourseSearchControllerPostTests
         }
 
         sessionServiceMock.Verify(
-            s => s.Set(SessionKeys.RestrictCourse, It.IsAny<RestrictCourseSessionModel>()),
+            s => s.Set(SessionKeys.ProviderRestrictedCourse, It.IsAny<ProviderRestrictedCourseSessionModel>()),
             Times.Never);
     }
 
@@ -105,22 +100,22 @@ public class RestrictCourseSearchControllerPostTests
     public async Task WhenPostingRestrictCourseSearch_AndSelectedCourseIsNotInList_ThenReturnsNotFound(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IValidator<RestrictCourseSearchSubmitModel>> validator,
-        [Greedy] RestrictCourseSearchController sut)
+        [Frozen] Mock<IValidator<ProviderRestrictedCourseSearchSubmitModel>> validator,
+        [Greedy] ProviderRestrictedCourseSearchController sut)
     {
         SetupSearchableCourses(outerApiClientMock);
-        validator.Setup(x => x.Validate(It.IsAny<RestrictCourseSearchSubmitModel>()))
+        validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
             .Returns(new ValidationResult());
 
         var actual = await sut.Index(
             Ukprn,
-            new RestrictCourseSearchSubmitModel { SelectedLarsCode = "999" },
+            new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = "999" },
             CancellationToken.None);
 
         actual.Should().BeOfType<NotFoundResult>();
 
         sessionServiceMock.Verify(
-            s => s.Set(SessionKeys.RestrictCourse, It.IsAny<RestrictCourseSessionModel>()),
+            s => s.Set(SessionKeys.ProviderRestrictedCourse, It.IsAny<ProviderRestrictedCourseSessionModel>()),
             Times.Never);
     }
 
@@ -128,22 +123,22 @@ public class RestrictCourseSearchControllerPostTests
     public async Task WhenPostingRestrictCourseSearch_AndCourseIsSelected_AndNotRestrictedApprenticeshipsAreNotFound_ThenReturnsNotFound(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IValidator<RestrictCourseSearchSubmitModel>> validator,
-        [Greedy] RestrictCourseSearchController sut)
+        [Frozen] Mock<IValidator<ProviderRestrictedCourseSearchSubmitModel>> validator,
+        [Greedy] ProviderRestrictedCourseSearchController sut)
     {
         SetupNotRestrictedApprenticeships(outerApiClientMock, HttpStatusCode.NotFound);
-        validator.Setup(x => x.Validate(It.IsAny<RestrictCourseSearchSubmitModel>()))
+        validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
             .Returns(new ValidationResult());
 
         var actual = await sut.Index(
             Ukprn,
-            new RestrictCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
+            new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
             CancellationToken.None);
 
         actual.Should().BeOfType<NotFoundResult>();
 
         sessionServiceMock.Verify(
-            s => s.Set(SessionKeys.RestrictCourse, It.IsAny<RestrictCourseSessionModel>()),
+            s => s.Set(SessionKeys.ProviderRestrictedCourse, It.IsAny<ProviderRestrictedCourseSessionModel>()),
             Times.Never);
     }
 
@@ -151,35 +146,35 @@ public class RestrictCourseSearchControllerPostTests
     public async Task WhenPostingRestrictCourseSearch_AndNoCourseIsSelected_AndNotRestrictedApprenticeshipsAreNotFound_ThenReloadsViewWithEmptyCourses(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IValidator<RestrictCourseSearchSubmitModel>> validator,
-        [Greedy] RestrictCourseSearchController sut)
+        [Frozen] Mock<IValidator<ProviderRestrictedCourseSearchSubmitModel>> validator,
+        [Greedy] ProviderRestrictedCourseSearchController sut)
     {
         SetupNotRestrictedApprenticeships(outerApiClientMock, HttpStatusCode.NotFound);
-        validator.Setup(x => x.Validate(It.IsAny<RestrictCourseSearchSubmitModel>()))
+        validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
             .Returns(new ValidationResult(
             [
                 new ValidationFailure(
-                    nameof(RestrictCourseSearchSubmitModel.SelectedLarsCode),
-                    RestrictCourseSearchSubmitModelValidator.NoCourseSelectedErrorMessage)
+                    nameof(ProviderRestrictedCourseSearchSubmitModel.SelectedLarsCode),
+                    ProviderRestrictedCourseSearchSubmitModelValidator.NoCourseSelectedErrorMessage)
             ]));
 
         var actual = await sut.Index(
             Ukprn,
-            new RestrictCourseSearchSubmitModel(),
+            new ProviderRestrictedCourseSearchSubmitModel(),
             CancellationToken.None) as ViewResult;
-        var model = actual?.Model as RestrictCourseSearchViewModel;
+        var model = actual?.Model as ProviderRestrictedCourseSearchViewModel;
 
         using (new AssertionScope())
         {
             actual.Should().NotBeNull();
-            actual!.ViewName.Should().Be(RestrictCourseSearchController.ViewPath);
+            actual!.ViewName.Should().Be(ProviderRestrictedCourseSearchController.ViewPath);
             model.Should().NotBeNull();
             model!.Courses.Should().BeEmpty();
             sut.ModelState.IsValid.Should().BeFalse();
         }
 
         sessionServiceMock.Verify(
-            s => s.Set(SessionKeys.RestrictCourse, It.IsAny<RestrictCourseSessionModel>()),
+            s => s.Set(SessionKeys.ProviderRestrictedCourse, It.IsAny<ProviderRestrictedCourseSessionModel>()),
             Times.Never);
     }
 
@@ -193,13 +188,13 @@ public class RestrictCourseSearchControllerPostTests
                 {
                     Courses =
                     [
-                        new RestrictedCourseModel
+                        new NotRestrictedApprenticeshipModel
                         {
                             LarsCode = SelectedLarsCode,
                             Title = SelectedCourseTitle,
                             Level = SelectedCourseLevel
                         },
-                        new RestrictedCourseModel
+                        new NotRestrictedApprenticeshipModel
                         {
                             LarsCode = "300",
                             Title = "Beta course",
