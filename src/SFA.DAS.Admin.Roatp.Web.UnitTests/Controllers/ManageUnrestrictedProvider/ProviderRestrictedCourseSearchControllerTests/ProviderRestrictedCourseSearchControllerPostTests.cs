@@ -45,13 +45,13 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         using (new AssertionScope())
         {
             actual.Should().NotBeNull();
-            actual!.RouteName.Should().Be(RouteNames.ConfirmRestrictCourse);
+            actual!.RouteName.Should().Be(RouteNames.ConfirmProviderRestrictedCourse);
             actual.RouteValues!["ukprn"].Should().Be(Ukprn);
         }
 
         sessionServiceMock.Verify(s => s.Set(
-            SessionKeys.RestrictCourse,
-            It.Is<RestrictCourseSessionModel>(m =>
+            SessionKeys.ProviderRestrictedCourse,
+            It.Is<ProviderRestrictedCourseSessionModel>(m =>
                 m.Ukprn == Ukprn &&
                 m.LarsCode == SelectedLarsCode &&
                 m.Title == SelectedCourseTitle &&
@@ -92,7 +92,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         }
 
         sessionServiceMock.Verify(
-            s => s.Set(SessionKeys.RestrictCourse, It.IsAny<RestrictCourseSessionModel>()),
+            s => s.Set(SessionKeys.ProviderRestrictedCourse, It.IsAny<ProviderRestrictedCourseSessionModel>()),
             Times.Never);
     }
 
@@ -115,7 +115,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         actual.Should().BeOfType<NotFoundResult>();
 
         sessionServiceMock.Verify(
-            s => s.Set(SessionKeys.RestrictCourse, It.IsAny<RestrictCourseSessionModel>()),
+            s => s.Set(SessionKeys.ProviderRestrictedCourse, It.IsAny<ProviderRestrictedCourseSessionModel>()),
             Times.Never);
     }
 
@@ -138,7 +138,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         actual.Should().BeOfType<NotFoundResult>();
 
         sessionServiceMock.Verify(
-            s => s.Set(SessionKeys.RestrictCourse, It.IsAny<RestrictCourseSessionModel>()),
+            s => s.Set(SessionKeys.ProviderRestrictedCourse, It.IsAny<ProviderRestrictedCourseSessionModel>()),
             Times.Never);
     }
 
@@ -174,7 +174,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         }
 
         sessionServiceMock.Verify(
-            s => s.Set(SessionKeys.RestrictCourse, It.IsAny<RestrictCourseSessionModel>()),
+            s => s.Set(SessionKeys.ProviderRestrictedCourse, It.IsAny<ProviderRestrictedCourseSessionModel>()),
             Times.Never);
     }
 

@@ -13,7 +13,7 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
-[Route("providers/{ukprn}/restricted-courses/add", Name = RouteNames.RestrictCourseSearch)]
+[Route("providers/{ukprn}/restricted-courses/add", Name = RouteNames.ProviderRestrictedCourseSearch)]
 public class ProviderRestrictedCourseSearchController(
     IOuterApiClient outerApiClient,
     ISessionService sessionService,
@@ -24,7 +24,7 @@ public class ProviderRestrictedCourseSearchController(
     [HttpGet]
     public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
     {
-        sessionService.Delete(SessionKeys.RestrictCourse);
+        sessionService.Delete(SessionKeys.ProviderRestrictedCourse);
 
         var courses = await GetSearchableCoursesAsync(ukprn, cancellationToken);
         if (courses is null)
@@ -61,7 +61,7 @@ public class ProviderRestrictedCourseSearchController(
             return NotFound();
         }
 
-        sessionService.Set(SessionKeys.RestrictCourse, new RestrictCourseSessionModel
+        sessionService.Set(SessionKeys.ProviderRestrictedCourse, new ProviderRestrictedCourseSessionModel
         {
             Ukprn = ukprn,
             LarsCode = course.LarsCode,
@@ -70,7 +70,7 @@ public class ProviderRestrictedCourseSearchController(
             DisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level)
         });
 
-        return RedirectToRoute(RouteNames.ConfirmRestrictCourse, new { ukprn });
+        return RedirectToRoute(RouteNames.ConfirmProviderRestrictedCourse, new { ukprn });
     }
 
     private async Task<List<NotRestrictedApprenticeshipModel>?> GetSearchableCoursesAsync(

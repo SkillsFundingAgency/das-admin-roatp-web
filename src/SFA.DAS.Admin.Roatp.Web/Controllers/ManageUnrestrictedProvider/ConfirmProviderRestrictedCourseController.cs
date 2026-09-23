@@ -11,7 +11,7 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
-[Route("providers/{ukprn}/restricted-courses/add/confirm", Name = RouteNames.ConfirmRestrictCourse)]
+[Route("providers/{ukprn}/restricted-courses/add/confirm", Name = RouteNames.ConfirmProviderRestrictedCourse)]
 public class ConfirmProviderRestrictedCourseController(
     ISessionService sessionService,
     IOuterApiClient outerApiClient) : Controller
@@ -67,16 +67,16 @@ public class ConfirmProviderRestrictedCourseController(
 
         await response.EnsureSuccessStatusCodeAsync();
 
-        sessionService.Delete(SessionKeys.RestrictCourse);
+        sessionService.Delete(SessionKeys.ProviderRestrictedCourse);
         TempData[RestrictedApprenticeshipsController.SuccessBannerTempDataKey] =
             GetSuccessBannerMessage(session.DisplayTitle);
 
         return RedirectToRoute(RouteNames.ProviderRestrictedCourses, new { ukprn });
     }
 
-    private RestrictCourseSessionModel? GetRestrictCourseSession(int ukprn)
+    private ProviderRestrictedCourseSessionModel? GetRestrictCourseSession(int ukprn)
     {
-        var session = sessionService.Get<RestrictCourseSessionModel>(SessionKeys.RestrictCourse);
+        var session = sessionService.Get<ProviderRestrictedCourseSessionModel>(SessionKeys.ProviderRestrictedCourse);
         if (session is null || session.Ukprn != ukprn)
         {
             return null;
@@ -105,7 +105,7 @@ public class ConfirmProviderRestrictedCourseController(
         return providerName;
     }
 
-    private ConfirmProviderRestrictedCourseViewModel BuildViewModel(RestrictCourseSessionModel session, string providerName)
+    private ConfirmProviderRestrictedCourseViewModel BuildViewModel(ProviderRestrictedCourseSessionModel session, string providerName)
         => new()
         {
             Ukprn = session.Ukprn,

@@ -195,7 +195,7 @@ public class RestrictedApprenticeshipsControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl)
             .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl)
-            .AddUrlForRoute(RouteNames.RestrictCourseSearch, RestrictCourseSearchUrl);
+            .AddUrlForRoute(RouteNames.ProviderRestrictedCourseSearch, RestrictCourseSearchUrl);
     }
 
     private static void SetupRestrictedApprenticeships(

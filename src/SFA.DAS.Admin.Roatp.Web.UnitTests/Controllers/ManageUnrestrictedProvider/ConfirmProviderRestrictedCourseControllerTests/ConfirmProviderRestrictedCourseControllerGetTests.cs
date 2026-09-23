@@ -83,8 +83,8 @@ public class ConfirmProviderRestrictedCourseControllerGetTests
         [Greedy] ConfirmProviderRestrictedCourseController sut)
     {
         sessionServiceMock
-            .Setup(s => s.Get<RestrictCourseSessionModel>(SessionKeys.RestrictCourse))
-            .Returns((RestrictCourseSessionModel?)null);
+            .Setup(s => s.Get<ProviderRestrictedCourseSessionModel>(SessionKeys.ProviderRestrictedCourse))
+            .Returns((ProviderRestrictedCourseSessionModel?)null);
 
         var result = await sut.Index(Ukprn) as RedirectToRouteResult;
 
@@ -132,8 +132,8 @@ public class ConfirmProviderRestrictedCourseControllerGetTests
     private static void SetupSession(Mock<ISessionService> sessionServiceMock, int ukprn = Ukprn)
     {
         sessionServiceMock
-            .Setup(s => s.Get<RestrictCourseSessionModel>(SessionKeys.RestrictCourse))
-            .Returns(new RestrictCourseSessionModel
+            .Setup(s => s.Get<ProviderRestrictedCourseSessionModel>(SessionKeys.ProviderRestrictedCourse))
+            .Returns(new ProviderRestrictedCourseSessionModel
             {
                 Ukprn = ukprn,
                 LarsCode = LarsCode,

@@ -17,7 +17,7 @@
         <p class="govuk-body">
             If they currently offer it, you will need to add a last date for new starts. If the provider submits an ILR for a learner who starts after this date, it will be rejected.
         </p>
-        <form asp-route="@RouteNames.RestrictCourseSearch" asp-route-ukprn="@Model.Ukprn" method="POST" novalidate>
+        <form asp-route="@RouteNames.ProviderRestrictedCourseSearch" asp-route-ukprn="@Model.Ukprn" method="POST" novalidate>
             <div esfa-validation-marker-for="SelectedLarsCode" class="govuk-form-group">
                 <label class="govuk-visually-hidden" asp-for="SelectedLarsCode">
                     Start typing in the box and its name will appear

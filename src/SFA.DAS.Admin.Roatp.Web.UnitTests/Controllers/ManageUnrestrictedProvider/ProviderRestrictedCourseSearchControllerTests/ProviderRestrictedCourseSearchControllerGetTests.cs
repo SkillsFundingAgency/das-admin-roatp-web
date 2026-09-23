@@ -50,7 +50,7 @@ public class ProviderRestrictedCourseSearchControllerGetTests
                 "Beta course (Level 4)");
         }
 
-        sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictCourse), Times.Once);
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourse), Times.Once);
     }
 
     [Test, MoqAutoData]

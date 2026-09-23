@@ -45,7 +45,7 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
                 .Should().Be(ConfirmProviderRestrictedCourseController.GetSuccessBannerMessage(DisplayTitle));
         }
 
-        sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictCourse), Times.Once);
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourse), Times.Once);
         outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
             Ukprn,
             LarsCode,
@@ -64,8 +64,8 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
         [Greedy] ConfirmProviderRestrictedCourseController sut)
     {
         sessionServiceMock
-            .Setup(s => s.Get<RestrictCourseSessionModel>(SessionKeys.RestrictCourse))
-            .Returns((RestrictCourseSessionModel?)null);
+            .Setup(s => s.Get<ProviderRestrictedCourseSessionModel>(SessionKeys.ProviderRestrictedCourse))
+            .Returns((ProviderRestrictedCourseSessionModel?)null);
 
         var result = await sut.Index(Ukprn, CancellationToken.None) as RedirectToRouteResult;
 
@@ -81,7 +81,7 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
             It.IsAny<string>(),
             It.IsAny<UpsertProviderAllowedCourseRequest>(),
             It.IsAny<CancellationToken>()), Times.Never);
-        sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictCourse), Times.Never);
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourse), Times.Never);
     }
 
     [Test, MoqAutoData]
@@ -98,14 +98,14 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
 
         result.Should().BeOfType<NotFoundResult>();
 
-        sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictCourse), Times.Never);
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourse), Times.Never);
     }
 
     private static void SetupSession(Mock<ISessionService> sessionServiceMock)
     {
         sessionServiceMock
-            .Setup(s => s.Get<RestrictCourseSessionModel>(SessionKeys.RestrictCourse))
-            .Returns(new RestrictCourseSessionModel
+            .Setup(s => s.Get<ProviderRestrictedCourseSessionModel>(SessionKeys.ProviderRestrictedCourse))
+            .Returns(new ProviderRestrictedCourseSessionModel
             {
                 Ukprn = Ukprn,
                 LarsCode = LarsCode,
