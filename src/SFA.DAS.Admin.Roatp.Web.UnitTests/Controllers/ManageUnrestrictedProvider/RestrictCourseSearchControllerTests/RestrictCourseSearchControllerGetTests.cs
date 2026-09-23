@@ -118,13 +118,13 @@ public class RestrictCourseSearchControllerGetTests
                 {
                     Courses =
                     [
-                        new RestrictedCourseModel
+                        new NotRestrictedApprenticeshipModel
                         {
                             LarsCode = UnrestrictedLarsCode,
                             Title = UnrestrictedCourseTitle,
                             Level = UnrestrictedCourseLevel
                         },
-                        new RestrictedCourseModel
+                        new NotRestrictedApprenticeshipModel
                         {
                             LarsCode = AllowedRestrictedLarsCode,
                             Title = "Beta course",

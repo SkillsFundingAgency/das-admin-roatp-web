@@ -70,10 +70,10 @@ public class RestrictCourseSearchController(
             DisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level)
         });
 
-        return View(ViewPath, BuildViewModel(ukprn, searchableCourses, submitModel.SelectedLarsCode));
+        return RedirectToRoute(RouteNames.ConfirmRestrictCourse, new { ukprn });
     }
 
-    private async Task<List<RestrictedCourseModel>?> GetSearchableCoursesAsync(
+    private async Task<List<NotRestrictedApprenticeshipModel>?> GetSearchableCoursesAsync(
         int ukprn,
         CancellationToken cancellationToken)
     {
@@ -88,7 +88,7 @@ public class RestrictCourseSearchController(
 
     private static RestrictCourseSearchViewModel BuildViewModel(
         int ukprn,
-        IEnumerable<RestrictedCourseModel> courses,
+        IEnumerable<NotRestrictedApprenticeshipModel> courses,
         string? selectedLarsCode = null)
         => new()
         {

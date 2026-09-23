@@ -75,9 +75,38 @@ public class RestrictedApprenticeshipsControllerGetTests
             model.Courses.Select(course => course.DeliveryStatus).Should().Equal(
                 DeliveryStatus.LastStartDateAdded,
                 DeliveryStatus.ClosedToNewStarts);
+            model.HasSuccessBanner.Should().BeFalse();
         }
 
         outerApiClientMock.Verify(c => c.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingRestrictedApprenticeships_AndTempDataContainsSuccessBanner_ThenModelHasSuccessBanner(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Greedy] RestrictedApprenticeshipsController sut,
+        GetRestrictedApprenticeshipsResponse response,
+        string providerName,
+        int ukprn)
+    {
+        const string successMessage = "Carpentry (Level 1) has been added to the restricted apprenticeships list";
+        response.Courses = [];
+
+        sut.AddTempData();
+        sut.TempData[TempDataKeys.ProviderLegalName] = providerName;
+        sut.TempData[RestrictedApprenticeshipsController.SuccessBannerTempDataKey] = successMessage;
+        SetupRestrictedApprenticeships(outerApiClientMock, ukprn, response);
+        SetupUrlHelper(sut);
+
+        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
+        var model = result?.Model as RestrictedApprenticeshipsViewModel;
+
+        using (new AssertionScope())
+        {
+            model.Should().NotBeNull();
+            model!.SuccessBannerMessage.Should().Be(successMessage);
+            model.HasSuccessBanner.Should().BeTrue();
+        }
     }
 
     [Test, MoqAutoData]

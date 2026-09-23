@@ -27,7 +27,7 @@ public class RestrictCourseSearchControllerPostTests
     private const int SelectedCourseLevel = 6;
 
     [Test, MoqAutoData]
-    public async Task WhenPostingRestrictCourseSearch_AndCourseIsSelected_ThenStoresSessionAndRefreshesPage(
+    public async Task WhenPostingRestrictCourseSearch_AndCourseIsSelected_ThenStoresSessionAndRedirectsToConfirm(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IValidator<RestrictCourseSearchSubmitModel>> validator,
@@ -40,18 +40,13 @@ public class RestrictCourseSearchControllerPostTests
         var actual = await sut.Index(
             Ukprn,
             new RestrictCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
-            CancellationToken.None) as ViewResult;
-        var model = actual?.Model as RestrictCourseSearchViewModel;
+            CancellationToken.None) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
             actual.Should().NotBeNull();
-            actual!.ViewName.Should().Be(RestrictCourseSearchController.ViewPath);
-            model.Should().NotBeNull();
-            model!.Ukprn.Should().Be(Ukprn);
-            model.SelectedLarsCode.Should().Be(SelectedLarsCode);
-            model.Courses.Should().Contain(course => course.Value == SelectedLarsCode && course.Selected);
-            sut.ModelState.IsValid.Should().BeTrue();
+            actual!.RouteName.Should().Be(RouteNames.ConfirmRestrictCourse);
+            actual.RouteValues!["ukprn"].Should().Be(Ukprn);
         }
 
         sessionServiceMock.Verify(s => s.Set(
@@ -193,13 +188,13 @@ public class RestrictCourseSearchControllerPostTests
                 {
                     Courses =
                     [
-                        new RestrictedCourseModel
+                        new NotRestrictedApprenticeshipModel
                         {
                             LarsCode = SelectedLarsCode,
                             Title = SelectedCourseTitle,
                             Level = SelectedCourseLevel
                         },
-                        new RestrictedCourseModel
+                        new NotRestrictedApprenticeshipModel
                         {
                             LarsCode = "300",
                             Title = "Beta course",
