@@ -69,8 +69,7 @@ public class ChangeProviderRestrictedCourseController(
     private RestrictedApprenticeshipModel? GetCachedCourse(int ukprn, string larsCode)
     {
         if (!applicationCacheService.TryGet<List<RestrictedApprenticeshipModel>>(
-                ApplicationCacheKeys.RestrictedApprenticeships(ukprn),
-                out var courses)
+                ApplicationCacheKeys.RestrictedApprenticeships(ukprn), out var courses)
             || courses is null)
         {
             return null;
