@@ -63,7 +63,12 @@
                 @foreach (var course in Model.Courses)
                 {
                     <li class="app-results-list__item">
-                        <strong class="govuk-tag @course.DeliveryStatusTagClass app-tag govuk-!-margin-bottom-2">@course.DeliveryStatusDescription</strong>
+                        <div class="app-results-list__content govuk-!-margin-bottom-2">
+                            <strong class="govuk-tag @course.DeliveryStatusTagClass app-tag">@course.DeliveryStatusDescription</strong>
+                            <div class="app-results-list__actions">
+                                <a class="govuk-link govuk-link--no-visited-state" href="@course.ChangeUrl">Change</a>
+                            </div>
+                        </div>
                         <h3 class="govuk-heading-s govuk-!-margin-bottom-1">@course.DisplayTitle</h3>
                         <p class="govuk-body govuk-!-margin-bottom-0">LARS Code: @course.LarsCode</p>
                     </li>

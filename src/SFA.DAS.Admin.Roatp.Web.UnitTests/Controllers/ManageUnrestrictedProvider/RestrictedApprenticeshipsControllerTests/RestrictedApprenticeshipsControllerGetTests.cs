@@ -10,6 +10,7 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
+using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -21,10 +22,12 @@ public class RestrictedApprenticeshipsControllerGetTests
     private const string ProviderSummaryUrl = "/providers/10019900";
     private const string RestrictedCoursesUrl = "/providers/10019900/restricted-courses";
     private const string RestrictCourseSearchUrl = "/providers/10019900/restricted-courses/add";
+    private const string ChangeProviderRestrictedCourseUrl = "/providers/10019900/restricted-courses/105/change-restriction";
 
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndProviderNameIsInTempData_ThenReturnsViewWithMappedModel(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
         [Greedy] RestrictedApprenticeshipsController sut,
         GetRestrictedApprenticeshipsResponse response,
         string providerName,
@@ -75,9 +78,16 @@ public class RestrictedApprenticeshipsControllerGetTests
             model.Courses.Select(course => course.DeliveryStatus).Should().Equal(
                 DeliveryStatus.LastStartDateAdded,
                 DeliveryStatus.ClosedToNewStarts);
+            model.Courses.Should().OnlyContain(course => course.ChangeUrl == ChangeProviderRestrictedCourseUrl);
             model.HasSuccessBanner.Should().BeFalse();
         }
 
+        applicationCacheMock.Verify(
+            c => c.Set(
+                ApplicationCacheKeys.RestrictedApprenticeships(ukprn),
+                response.Courses,
+                null),
+            Times.Once);
         outerApiClientMock.Verify(c => c.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -195,7 +205,8 @@ public class RestrictedApprenticeshipsControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl)
             .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl)
-            .AddUrlForRoute(RouteNames.ProviderRestrictedCourseSearch, RestrictCourseSearchUrl);
+            .AddUrlForRoute(RouteNames.ProviderRestrictedCourseSearch, RestrictCourseSearchUrl)
+            .AddUrlForRoute(RouteNames.ChangeProviderRestrictedCourse, ChangeProviderRestrictedCourseUrl);
     }
 
     private static void SetupRestrictedApprenticeships(

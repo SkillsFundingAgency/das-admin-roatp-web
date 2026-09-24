@@ -12,7 +12,9 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
 [Route("providers/{ukprn}/restricted-courses", Name = RouteNames.ProviderRestrictedCourses)]
-public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient) : Controller
+public class RestrictedApprenticeshipsController(
+    IOuterApiClient outerApiClient,
+    IApplicationCacheService applicationCacheService) : Controller
 {
     public const string ViewPath = "~/Views/ManageUnrestrictedProvider/RestrictedApprenticeships/Index.cshtml";
     public const string SuccessBannerTempDataKey = "SuccessBannerMessage";
@@ -36,6 +38,8 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
         }
 
         var courses = apiResponse.Content?.Courses ?? [];
+        applicationCacheService.Set(ApplicationCacheKeys.RestrictedApprenticeships(ukprn), courses);
+
         var viewModel = new RestrictedApprenticeshipsViewModel
         {
             ProviderName = providerName,
@@ -53,7 +57,7 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
                 StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        ApplyPagination(viewModel, filteredCourses, requestModel);
+        ApplyPagination(viewModel, filteredCourses, requestModel, ukprn);
 
         return View(ViewPath, viewModel);
     }
@@ -61,7 +65,8 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
     private void ApplyPagination(
         RestrictedApprenticeshipsViewModel viewModel,
         List<RestrictedApprenticeshipModel> filteredCourses,
-        GetRestrictedApprenticeshipsRequestModel requestModel)
+        GetRestrictedApprenticeshipsRequestModel requestModel,
+        int ukprn)
     {
         var (pagedItems, totalCount, pagination) = PaginationHelper.Paginate(
             filteredCourses,
@@ -73,7 +78,14 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
 
         viewModel.TotalCount = totalCount;
         viewModel.Courses = pagedItems
-            .Select(course => (RestrictedApprenticeshipItemViewModel)course)
+            .Select(course =>
+            {
+                RestrictedApprenticeshipItemViewModel item = course;
+                item.ChangeUrl = Url.RouteUrl(
+                    RouteNames.ChangeProviderRestrictedCourse,
+                    new { ukprn, larsCode = course.LarsCode })!;
+                return item;
+            })
             .ToList();
         viewModel.Pagination = pagination;
     }
