@@ -69,6 +69,13 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
         }
 
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourse), Times.Once);
+        validatorMock.Verify(
+            v => v.ValidateAsync(
+                It.Is<SetLastDateStartsSubmitModel>(m =>
+                    m.LarsCode == LarsCode
+                    && m.CourseLastDateStarts == CourseLastDateStarts),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
         outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
             Ukprn,
             LarsCode,
@@ -144,11 +151,16 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
             Ukprn,
             new SetLastDateStartsSubmitModel { Day = "02", Month = "06", Year = "2028" },
             CancellationToken.None) as ViewResult;
+        var model = result?.Model as ProviderRestrictedCourseSetLastStartDateViewModel;
 
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
             result!.ViewName.Should().Be(ProviderRestrictedCourseSetLastStartDateController.ViewPath);
+            model.Should().NotBeNull();
+            model!.Day.Should().Be("02");
+            model.Month.Should().Be("06");
+            model.Year.Should().Be("2028");
             sut.ModelState.IsValid.Should().BeFalse();
             sut.ModelState[SetLastDateStartsSubmitModelValidator.DateFieldName]!
                 .Errors.Should().ContainSingle(e =>
@@ -196,6 +208,45 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
     }
 
     [Test, MoqAutoData]
+    public async Task WhenPostingSetLastStartDate_AndValidationPassesButEnteredDateCannotBeParsed_ThenReloadsViewWithError(
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> validatorMock,
+        [Greedy] ProviderRestrictedCourseSetLastStartDateController sut)
+    {
+        SetupSession(sessionServiceMock);
+        SetupCourseLastDateStarts(outerApiClientMock);
+        sut.AddTempData();
+        sut.TempData[TempDataKeys.ProviderLegalName] = ProviderName;
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
+        validatorMock
+            .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+
+        var result = await sut.Index(
+            Ukprn,
+            new SetLastDateStartsSubmitModel { Day = "31", Month = "02", Year = "2027" },
+            CancellationToken.None) as ViewResult;
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.ViewName.Should().Be(ProviderRestrictedCourseSetLastStartDateController.ViewPath);
+            sut.ModelState.IsValid.Should().BeFalse();
+            sut.ModelState[SetLastDateStartsSubmitModelValidator.DateFieldName]!
+                .Errors.Should().ContainSingle(e =>
+                    e.ErrorMessage == SetLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
+        }
+
+        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
+            It.IsAny<int>(),
+            It.IsAny<string>(),
+            It.IsAny<UpsertProviderAllowedCourseRequest>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test, MoqAutoData]
     public async Task WhenPostingSetLastStartDate_AndSessionIsMissing_ThenRedirectsWithoutCallingApi(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
@@ -216,6 +267,64 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
             result!.RouteName.Should().Be(RouteNames.ProviderRestrictedCourses);
             result.RouteValues!["ukprn"].Should().Be(Ukprn);
         }
+
+        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
+            It.IsAny<int>(),
+            It.IsAny<string>(),
+            It.IsAny<UpsertProviderAllowedCourseRequest>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenPostingSetLastStartDate_AndSessionUkprnDoesNotMatch_ThenRedirectsWithoutCallingApi(
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Greedy] ProviderRestrictedCourseSetLastStartDateController sut)
+    {
+        SetupSession(sessionServiceMock, ukprn: 99999999);
+
+        var result = await sut.Index(
+            Ukprn,
+            new SetLastDateStartsSubmitModel { Day = "12", Month = "07", Year = "2027" },
+            CancellationToken.None) as RedirectToRouteResult;
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.RouteName.Should().Be(RouteNames.ProviderRestrictedCourses);
+            result.RouteValues!["ukprn"].Should().Be(Ukprn);
+        }
+
+        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
+            It.IsAny<int>(),
+            It.IsAny<string>(),
+            It.IsAny<UpsertProviderAllowedCourseRequest>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenPostingSetLastStartDate_AndOrganisationIsNotFound_ThenReturnsNotFound(
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Greedy] ProviderRestrictedCourseSetLastStartDateController sut,
+        GetOrganisationResponse organisationResponse)
+    {
+        SetupSession(sessionServiceMock);
+        sut.AddTempData();
+        outerApiClientMock
+            .Setup(c => c.GetOrganisation(Ukprn, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(
+                new HttpResponseMessage(HttpStatusCode.NotFound),
+                organisationResponse,
+                new RefitSettings(),
+                null));
+
+        var result = await sut.Index(
+            Ukprn,
+            new SetLastDateStartsSubmitModel { Day = "12", Month = "07", Year = "2027" },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NotFoundResult>();
 
         outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
             It.IsAny<int>(),
@@ -252,13 +361,45 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourse), Times.Never);
     }
 
-    private static void SetupSession(Mock<ISessionService> sessionServiceMock)
+    [TestCase(HttpStatusCode.BadRequest)]
+    [TestCase(HttpStatusCode.InternalServerError)]
+    public async Task WhenPostingSetLastStartDate_AndApiReturnsUnexpectedError_ThenThrows(HttpStatusCode statusCode)
+    {
+        var sessionServiceMock = new Mock<ISessionService>();
+        var outerApiClientMock = new Mock<IOuterApiClient>();
+        var validatorMock = new Mock<IValidator<SetLastDateStartsSubmitModel>>();
+        SetupSession(sessionServiceMock);
+        SetupCourseLastDateStarts(outerApiClientMock);
+        validatorMock
+            .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+        SetupUpsertResponse(outerApiClientMock, statusCode);
+
+        var sut = new ProviderRestrictedCourseSetLastStartDateController(
+            sessionServiceMock.Object,
+            outerApiClientMock.Object,
+            validatorMock.Object);
+        SetupAuthenticatedUser(sut);
+        sut.TempData[TempDataKeys.ProviderLegalName] = ProviderName;
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
+
+        var act = () => sut.Index(
+            Ukprn,
+            new SetLastDateStartsSubmitModel { Day = "12", Month = "07", Year = "2027" },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ApiException>();
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourse), Times.Never);
+    }
+
+    private static void SetupSession(Mock<ISessionService> sessionServiceMock, int ukprn = Ukprn)
     {
         sessionServiceMock
             .Setup(s => s.Get<ProviderRestrictedCourseSessionModel>(SessionKeys.ProviderRestrictedCourse))
             .Returns(new ProviderRestrictedCourseSessionModel
             {
-                Ukprn = Ukprn,
+                Ukprn = ukprn,
                 LarsCode = LarsCode,
                 Title = "Electrical",
                 Level = 3,
@@ -303,6 +444,17 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
 
     private static void SetupUpsertResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
     {
+        var httpResponse = new HttpResponseMessage(statusCode);
+        ApiException? apiException = null;
+        if (statusCode != HttpStatusCode.OK && statusCode != HttpStatusCode.NotFound)
+        {
+            apiException = ApiException.Create(
+                new HttpRequestMessage(),
+                HttpMethod.Post,
+                httpResponse,
+                new RefitSettings()).GetAwaiter().GetResult();
+        }
+
         outerApiClientMock
             .Setup(c => c.UpsertProviderAllowedCourse(
                 Ukprn,
@@ -310,9 +462,9 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
                 It.IsAny<UpsertProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<object>(
-                new HttpResponseMessage(statusCode),
+                httpResponse,
                 null,
                 new RefitSettings(),
-                null));
+                apiException));
     }
 }

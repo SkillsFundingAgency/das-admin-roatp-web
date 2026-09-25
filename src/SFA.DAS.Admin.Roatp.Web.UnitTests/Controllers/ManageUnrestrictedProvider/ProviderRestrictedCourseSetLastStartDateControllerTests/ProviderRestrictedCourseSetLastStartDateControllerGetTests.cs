@@ -104,17 +104,98 @@ public class ProviderRestrictedCourseSetLastStartDateControllerGetTests
     {
         SetupSession(sessionServiceMock);
         sut.AddTempData();
-        outerApiClientMock
-            .Setup(c => c.GetOrganisation(Ukprn, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(
-                new HttpResponseMessage(HttpStatusCode.NotFound),
-                organisationResponse,
-                new RefitSettings(),
-                null));
+        SetupOrganisation(outerApiClientMock, organisationResponse, HttpStatusCode.NotFound);
 
         var result = await sut.Index(Ukprn);
 
         result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingSetLastStartDate_AndProviderNameIsNotInTempData_ThenLoadsNameFromOrganisation(
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Greedy] ProviderRestrictedCourseSetLastStartDateController sut,
+        GetOrganisationResponse organisationResponse)
+    {
+        organisationResponse.Ukprn = Ukprn;
+        SetupSession(sessionServiceMock);
+        SetupCourseLastDateStarts(outerApiClientMock);
+        SetupOrganisation(outerApiClientMock, organisationResponse, HttpStatusCode.OK);
+        sut.AddTempData();
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
+
+        var result = await sut.Index(Ukprn) as ViewResult;
+        var model = result?.Model as ProviderRestrictedCourseSetLastStartDateViewModel;
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            model.Should().NotBeNull();
+            model!.ProviderName.Should().Be(organisationResponse.LegalName);
+            sut.TempData.Peek(TempDataKeys.ProviderLegalName).Should().Be(organisationResponse.LegalName);
+        }
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingSetLastStartDate_AndCourseLastDateStartsApiReturnsNotFound_ThenReturnsViewWithNullCourseLastDateStarts(
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Greedy] ProviderRestrictedCourseSetLastStartDateController sut)
+    {
+        SetupSession(sessionServiceMock);
+        sut.AddTempData();
+        sut.TempData[TempDataKeys.ProviderLegalName] = ProviderName;
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
+        outerApiClientMock
+            .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
+                new HttpResponseMessage(HttpStatusCode.NotFound),
+                null,
+                new RefitSettings(),
+                null));
+
+        var result = await sut.Index(Ukprn) as ViewResult;
+        var model = result?.Model as ProviderRestrictedCourseSetLastStartDateViewModel;
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.ViewName.Should().Be(ProviderRestrictedCourseSetLastStartDateController.ViewPath);
+            model.Should().NotBeNull();
+            model!.CourseLastDateStarts.Should().BeNull();
+            model.ProviderName.Should().Be(ProviderName);
+        }
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingSetLastStartDate_AndCourseLastDateStartsApiReturnsUnexpectedError_ThenThrows(
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Greedy] ProviderRestrictedCourseSetLastStartDateController sut)
+    {
+        SetupSession(sessionServiceMock);
+        sut.AddTempData();
+        sut.TempData[TempDataKeys.ProviderLegalName] = ProviderName;
+        var httpResponse = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+        var apiException = await ApiException.Create(
+            new HttpRequestMessage(),
+            HttpMethod.Get,
+            httpResponse,
+            new RefitSettings());
+        outerApiClientMock
+            .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
+                httpResponse,
+                null,
+                new RefitSettings(),
+                apiException));
+
+        var act = () => sut.Index(Ukprn);
+
+        await act.Should().ThrowAsync<ApiException>();
     }
 
     private static void SetupSession(Mock<ISessionService> sessionServiceMock, int ukprn = Ukprn)
@@ -145,6 +226,20 @@ public class ProviderRestrictedCourseSetLastStartDateControllerGetTests
                     Route = "Construction",
                     LastDateStarts = CourseLastDateStarts
                 },
+                new RefitSettings(),
+                null));
+    }
+
+    private static void SetupOrganisation(
+        Mock<IOuterApiClient> outerApiClientMock,
+        GetOrganisationResponse response,
+        HttpStatusCode statusCode)
+    {
+        outerApiClientMock
+            .Setup(c => c.GetOrganisation(Ukprn, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(
+                new HttpResponseMessage(statusCode),
+                response,
                 new RefitSettings(),
                 null));
     }

@@ -75,7 +75,7 @@ public class TempDataExtensionsTests
         }
     }
 
-    private static ITempDataDictionary CreateTempData()
+    private static TempDataDictionary CreateTempData()
         => new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
 
     private static void SetupOrganisation(
