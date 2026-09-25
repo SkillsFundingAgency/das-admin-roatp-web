@@ -1,4 +1,3 @@
-using System.Net;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -116,7 +115,7 @@ public class ProviderRestrictedCourseSetLastStartDateController(
         SetLastDateStartsSubmitModel? submitModel,
         CancellationToken cancellationToken)
     {
-        var providerName = await GetProviderName(session.Ukprn, cancellationToken);
+        var providerName = await TempData.GetProviderName(outerApiClient, session.Ukprn, cancellationToken);
         if (providerName is null)
         {
             return null;
@@ -134,26 +133,6 @@ public class ProviderRestrictedCourseSetLastStartDateController(
             Year = submitModel?.Year,
             CancelUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn = session.Ukprn })!
         };
-    }
-
-    private async Task<string?> GetProviderName(int ukprn, CancellationToken cancellationToken)
-    {
-        var cachedProviderName = TempData.Peek(TempDataKeys.ProviderLegalName) as string;
-        if (!string.IsNullOrWhiteSpace(cachedProviderName))
-        {
-            TempData.Keep(TempDataKeys.ProviderLegalName);
-            return cachedProviderName;
-        }
-
-        var organisationApiResponse = await outerApiClient.GetOrganisation(ukprn, cancellationToken);
-        if (organisationApiResponse.StatusCode != HttpStatusCode.OK)
-        {
-            return null;
-        }
-
-        var providerName = organisationApiResponse.Content!.LegalName;
-        TempData[TempDataKeys.ProviderLegalName] = providerName;
-        return providerName;
     }
 
     private async Task<DateTime?> GetCourseLastDateStartsAsync(string larsCode, CancellationToken cancellationToken)
