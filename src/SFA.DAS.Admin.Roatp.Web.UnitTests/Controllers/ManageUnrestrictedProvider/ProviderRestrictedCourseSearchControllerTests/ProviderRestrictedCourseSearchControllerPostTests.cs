@@ -57,7 +57,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
                 m.LarsCode == SelectedLarsCode &&
                 m.Title == SelectedCourseTitle &&
                 m.Level == SelectedCourseLevel &&
-                m.DisplayTitle == "Alpha course (Level 6)")), Times.Once);
+                m.CourseDisplayTitle == "Alpha course (Level 6)")), Times.Once);
         outerApiClientMock.Verify(
             c => c.GetProviderCourse(Ukprn, SelectedLarsCode, It.IsAny<CancellationToken>()),
             Times.Once);
@@ -92,7 +92,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
             It.Is<ProviderRestrictedCourseSessionModel>(m =>
                 m.Ukprn == Ukprn &&
                 m.LarsCode == SelectedLarsCode &&
-                m.DisplayTitle == "Alpha course (Level 6)")), Times.Once);
+                m.CourseDisplayTitle == "Alpha course (Level 6)")), Times.Once);
         outerApiClientMock.Verify(
             c => c.GetProviderCourse(Ukprn, SelectedLarsCode, It.IsAny<CancellationToken>()),
             Times.Once);

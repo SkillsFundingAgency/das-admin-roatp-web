@@ -3,7 +3,6 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
-using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
@@ -96,7 +95,7 @@ public class ProviderRestrictedCourseSetLastStartDateController(
 
         sessionService.Delete(SessionKeys.ProviderRestrictedCourse);
         TempData[RestrictedApprenticeshipsController.SuccessBannerTempDataKey] =
-            GetSuccessBannerMessage(session.DisplayTitle);
+            GetSuccessBannerMessage(session.CourseDisplayTitle);
 
         return RedirectToRoute(RouteNames.ProviderRestrictedCourses, new { ukprn });
     }
@@ -127,7 +126,7 @@ public class ProviderRestrictedCourseSetLastStartDateController(
         {
             Ukprn = session.Ukprn,
             ProviderName = providerName,
-            DisplayTitle = session.DisplayTitle,
+            DisplayTitle = session.CourseDisplayTitle,
             LarsCode = session.LarsCode,
             CourseLastDateStarts = await GetCourseLastDateStartsAsync(session.LarsCode, cancellationToken),
             Day = submitModel?.Day,

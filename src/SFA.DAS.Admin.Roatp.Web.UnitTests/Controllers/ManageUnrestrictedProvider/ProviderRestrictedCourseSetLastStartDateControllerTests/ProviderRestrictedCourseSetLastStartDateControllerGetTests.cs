@@ -127,7 +127,7 @@ public class ProviderRestrictedCourseSetLastStartDateControllerGetTests
                 LarsCode = LarsCode,
                 Title = "Electrical",
                 Level = 3,
-                DisplayTitle = DisplayTitle
+                CourseDisplayTitle = DisplayTitle
             });
     }
 

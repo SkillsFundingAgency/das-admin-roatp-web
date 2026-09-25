@@ -71,7 +71,7 @@ public class ProviderRestrictedCourseSearchController(
             LarsCode = course.LarsCode,
             Title = course.Title,
             Level = course.Level,
-            DisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level)
+            CourseDisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level)
         });
 
         return RedirectToRoute(

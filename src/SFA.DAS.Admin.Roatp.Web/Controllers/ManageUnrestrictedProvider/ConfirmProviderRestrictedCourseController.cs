@@ -69,7 +69,7 @@ public class ConfirmProviderRestrictedCourseController(
 
         sessionService.Delete(SessionKeys.ProviderRestrictedCourse);
         TempData[RestrictedApprenticeshipsController.SuccessBannerTempDataKey] =
-            GetSuccessBannerMessage(session.DisplayTitle);
+            GetSuccessBannerMessage(session.CourseDisplayTitle);
 
         return RedirectToRoute(RouteNames.ProviderRestrictedCourses, new { ukprn });
     }
@@ -110,7 +110,7 @@ public class ConfirmProviderRestrictedCourseController(
         {
             Ukprn = session.Ukprn,
             ProviderName = providerName,
-            DisplayTitle = session.DisplayTitle,
+            DisplayTitle = session.CourseDisplayTitle,
             LarsCode = session.LarsCode,
             CancelUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn = session.Ukprn })!
         };
