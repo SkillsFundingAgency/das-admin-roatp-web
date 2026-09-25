@@ -6,6 +6,6 @@ public class ProviderRestrictedCourseSetLastStartDateViewModel : SetLastDateStar
 {
     public int Ukprn { get; set; }
     public required string ProviderName { get; set; }
-    public required string DisplayTitle { get; set; }
+    public required string CourseDisplayTitle { get; set; }
     public required string CancelUrl { get; set; }
 }

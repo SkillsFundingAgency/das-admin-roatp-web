@@ -113,7 +113,7 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
             result.Should().NotBeNull();
             result!.ViewName.Should().Be(ProviderRestrictedCourseSetLastStartDateController.ViewPath);
             model.Should().NotBeNull();
-            model!.DisplayTitle.Should().Be(DisplayTitle);
+            model!.CourseDisplayTitle.Should().Be(DisplayTitle);
             sut.ModelState.IsValid.Should().BeFalse();
         }
 

@@ -49,7 +49,7 @@ public class ProviderRestrictedCourseSetLastStartDateControllerGetTests
             model.Should().NotBeNull();
             model!.Ukprn.Should().Be(Ukprn);
             model.ProviderName.Should().Be(ProviderName);
-            model.DisplayTitle.Should().Be(DisplayTitle);
+            model.CourseDisplayTitle.Should().Be(DisplayTitle);
             model.LarsCode.Should().Be(LarsCode);
             model.CourseLastDateStarts.Should().Be(CourseLastDateStarts);
             model.CancelUrl.Should().Be(RestrictedCoursesUrl);

@@ -126,7 +126,7 @@ public class ProviderRestrictedCourseSetLastStartDateController(
         {
             Ukprn = session.Ukprn,
             ProviderName = providerName,
-            DisplayTitle = session.CourseDisplayTitle,
+            CourseDisplayTitle = session.CourseDisplayTitle,
             LarsCode = session.LarsCode,
             CourseLastDateStarts = await GetCourseLastDateStartsAsync(session.LarsCode, cancellationToken),
             Day = submitModel?.Day,
