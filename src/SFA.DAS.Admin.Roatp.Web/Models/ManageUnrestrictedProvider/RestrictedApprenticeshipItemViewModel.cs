@@ -11,6 +11,7 @@ public class RestrictedApprenticeshipItemViewModel : ICourseDisplayModel
     public DateTime? LastDateStarts { get; set; }
     public bool IsClosedToNewStarts { get; set; }
     public DeliveryStatus DeliveryStatus { get; set; }
+    public string ChangeUrl { get; set; } = string.Empty;
 
     public string DisplayTitle => this.GetDisplayTitle();
     public string DeliveryStatusDescription => DeliveryStatus.GetDescription();

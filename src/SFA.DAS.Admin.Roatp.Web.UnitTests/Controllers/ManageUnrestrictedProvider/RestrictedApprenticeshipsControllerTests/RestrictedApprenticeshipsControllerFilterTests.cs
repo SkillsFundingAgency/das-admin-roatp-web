@@ -169,7 +169,8 @@ public class RestrictedApprenticeshipsControllerFilterTests
         sut.TempData[TempDataKeys.ProviderLegalName] = providerName;
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl)
-            .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
+            .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl)
+            .AddUrlForRoute(RouteNames.ChangeProviderRestrictedCourse);
 
         outerApiClientMock
             .Setup(c => c.GetRestrictedApprenticeships(ukprn, It.IsAny<CancellationToken>()))
