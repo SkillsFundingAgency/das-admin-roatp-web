@@ -16,6 +16,8 @@ public class RestrictedApprenticeshipsViewModel : ICustomBackLink
     public bool HasActiveFilters { get; set; }
     public FiltersViewModel Filters { get; set; } = new() { Route = string.Empty };
     public PaginationViewModel Pagination { get; set; } = null!;
+    public string? SuccessBannerMessage { get; set; }
+    public bool HasSuccessBanner => !string.IsNullOrWhiteSpace(SuccessBannerMessage);
 
     public int TotalCount { get; set; }
     public bool HasCourses => TotalCount > 0;

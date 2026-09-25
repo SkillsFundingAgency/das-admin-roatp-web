@@ -20,6 +20,7 @@ public class RestrictedApprenticeshipsControllerGetTests
 {
     private const string ProviderSummaryUrl = "/providers/10019900";
     private const string RestrictedCoursesUrl = "/providers/10019900/restricted-courses";
+    private const string RestrictCourseSearchUrl = "/providers/10019900/restricted-courses/add";
 
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndProviderNameIsInTempData_ThenReturnsViewWithMappedModel(
@@ -65,7 +66,7 @@ public class RestrictedApprenticeshipsControllerGetTests
             model!.ProviderName.Should().Be(providerName);
             model.BackLinkUrl.Should().Be(ProviderSummaryUrl);
             model.BackLinkText.Should().Be(RestrictedApprenticeshipsViewModel.BackLinkTextValue);
-            model.RestrictACourseUrl.Should().Be(RestrictedCoursesUrl);
+            model.RestrictACourseUrl.Should().Be(RestrictCourseSearchUrl);
             model.HasCourses.Should().BeTrue();
             model.HasActiveFilters.Should().BeFalse();
             model.ShowCourseResults.Should().BeTrue();
@@ -74,9 +75,38 @@ public class RestrictedApprenticeshipsControllerGetTests
             model.Courses.Select(course => course.DeliveryStatus).Should().Equal(
                 DeliveryStatus.LastStartDateAdded,
                 DeliveryStatus.ClosedToNewStarts);
+            model.HasSuccessBanner.Should().BeFalse();
         }
 
         outerApiClientMock.Verify(c => c.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingRestrictedApprenticeships_AndTempDataContainsSuccessBanner_ThenModelHasSuccessBanner(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Greedy] RestrictedApprenticeshipsController sut,
+        GetRestrictedApprenticeshipsResponse response,
+        string providerName,
+        int ukprn)
+    {
+        const string successMessage = "Carpentry (Level 1) has been added to the restricted apprenticeships list";
+        response.Courses = [];
+
+        sut.AddTempData();
+        sut.TempData[TempDataKeys.ProviderLegalName] = providerName;
+        sut.TempData[RestrictedApprenticeshipsController.SuccessBannerTempDataKey] = successMessage;
+        SetupRestrictedApprenticeships(outerApiClientMock, ukprn, response);
+        SetupUrlHelper(sut);
+
+        var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
+        var model = result?.Model as RestrictedApprenticeshipsViewModel;
+
+        using (new AssertionScope())
+        {
+            model.Should().NotBeNull();
+            model!.SuccessBannerMessage.Should().Be(successMessage);
+            model.HasSuccessBanner.Should().BeTrue();
+        }
     }
 
     [Test, MoqAutoData]
@@ -164,7 +194,8 @@ public class RestrictedApprenticeshipsControllerGetTests
     {
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl)
-            .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
+            .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl)
+            .AddUrlForRoute(RouteNames.ProviderRestrictedCourseSearch, RestrictCourseSearchUrl);
     }
 
     private static void SetupRestrictedApprenticeships(

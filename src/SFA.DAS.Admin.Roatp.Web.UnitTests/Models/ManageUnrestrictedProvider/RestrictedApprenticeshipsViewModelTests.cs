@@ -77,4 +77,26 @@ public class RestrictedApprenticeshipsViewModelTests
             model.HasCourses.Should().BeTrue();
         }
     }
+
+    [Test]
+    public void WhenSuccessBannerMessageIsSet_ThenHasSuccessBannerIsTrue()
+    {
+        var model = new RestrictedApprenticeshipsViewModel
+        {
+            SuccessBannerMessage = "Carpentry (Level 1) has been added to the restricted apprenticeships list"
+        };
+
+        model.HasSuccessBanner.Should().BeTrue();
+    }
+
+    [Test]
+    public void WhenSuccessBannerMessageIsBlank_ThenHasSuccessBannerIsFalse()
+    {
+        var model = new RestrictedApprenticeshipsViewModel
+        {
+            SuccessBannerMessage = " "
+        };
+
+        model.HasSuccessBanner.Should().BeFalse();
+    }
 }

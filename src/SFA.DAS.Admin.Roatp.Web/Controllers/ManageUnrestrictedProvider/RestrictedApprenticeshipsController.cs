@@ -15,6 +15,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient) : Controller
 {
     public const string ViewPath = "~/Views/ManageUnrestrictedProvider/RestrictedApprenticeships/Index.cshtml";
+    public const string SuccessBannerTempDataKey = "SuccessBannerMessage";
 
     [HttpGet]
     public async Task<IActionResult> Index(
@@ -22,7 +23,7 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
         GetRestrictedApprenticeshipsRequestModel requestModel,
         CancellationToken cancellationToken)
     {
-        var providerName = await GetProviderName(ukprn, cancellationToken);
+        var providerName = await TempData.GetProviderName(outerApiClient, ukprn, cancellationToken);
         if (providerName is null)
         {
             return NotFound();
@@ -39,7 +40,8 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
         {
             ProviderName = providerName,
             BackLinkUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!,
-            RestrictACourseUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn })!,
+            RestrictACourseUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourseSearch, new { ukprn })!,
+            SuccessBannerMessage = TempData[SuccessBannerTempDataKey] as string,
             HasActiveFilters = requestModel.HasFilters,
             Filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(requestModel, ukprn, Url)
         };
@@ -74,25 +76,5 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
             .Select(course => (RestrictedApprenticeshipItemViewModel)course)
             .ToList();
         viewModel.Pagination = pagination;
-    }
-
-    private async Task<string?> GetProviderName(int ukprn, CancellationToken cancellationToken)
-    {
-        var cachedProviderName = TempData.Peek(TempDataKeys.ProviderLegalName) as string;
-        if (!string.IsNullOrWhiteSpace(cachedProviderName))
-        {
-            TempData.Keep(TempDataKeys.ProviderLegalName);
-            return cachedProviderName;
-        }
-
-        var organisationApiResponse = await outerApiClient.GetOrganisation(ukprn, cancellationToken);
-        if (organisationApiResponse.StatusCode != HttpStatusCode.OK)
-        {
-            return null;
-        }
-
-        var providerName = organisationApiResponse.Content!.LegalName;
-        TempData[TempDataKeys.ProviderLegalName] = providerName;
-        return providerName;
     }
 }

@@ -1,0 +1,29 @@
+@using SFA.DAS.Admin.Roatp.Web.Infrastructure
+@model SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider.ConfirmProviderRestrictedCourseViewModel
+@{
+    ViewData["Title"] = $"Stop {Model.ProviderName} from delivering this course";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <span class="govuk-caption-xl">Remove a course</span>
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">
+            Stop @Model.ProviderName from delivering this course
+        </h1>
+        <p class="govuk-body">
+            This provider doesn't offer this course. Confirm that you want to stop them from being able to add it to their account in Course management.
+        </p>
+        <div class="app-action-panel govuk-!-margin-bottom-6">
+            <p class="govuk-body govuk-!-font-weight-bold govuk-!-margin-bottom-1">@Model.DisplayTitle</p>
+            <p class="govuk-body govuk-!-margin-bottom-0">LARS Code: @Model.LarsCode</p>
+        </div>
+        <form asp-route="@RouteNames.ConfirmProviderRestrictedCourse" asp-route-ukprn="@Model.Ukprn" method="post">
+            <div class="govuk-button-group">
+                <button type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button" data-disable-on-submit="true">
+                    Confirm restriction
+                </button>
+                <a class="govuk-link" href="@Model.CancelUrl">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
