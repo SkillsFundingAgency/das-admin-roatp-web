@@ -64,7 +64,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenPostingRestrictCourseSearch_AndProviderCourseIsFound_ThenStoresSessionAndRefreshesPage(
+    public async Task WhenPostingRestrictCourseSearch_AndProviderCourseIsFound_ThenStoresSessionAndRedirectsToSetLastStartDate(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IValidator<ProviderRestrictedCourseSearchSubmitModel>> validator,
@@ -78,18 +78,13 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         var actual = await sut.Index(
             Ukprn,
             new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
-            CancellationToken.None) as ViewResult;
-        var model = actual?.Model as ProviderRestrictedCourseSearchViewModel;
+            CancellationToken.None) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
             actual.Should().NotBeNull();
-            actual!.ViewName.Should().Be(ProviderRestrictedCourseSearchController.ViewPath);
-            model.Should().NotBeNull();
-            model!.Ukprn.Should().Be(Ukprn);
-            model.SelectedLarsCode.Should().Be(SelectedLarsCode);
-            model.Courses.Should().Contain(course => course.Value == SelectedLarsCode && course.Selected);
-            sut.ModelState.IsValid.Should().BeTrue();
+            actual!.RouteName.Should().Be(RouteNames.ProviderRestrictedCourseSetLastStartDate);
+            actual.RouteValues!["ukprn"].Should().Be(Ukprn);
         }
 
         sessionServiceMock.Verify(s => s.Set(
@@ -124,7 +119,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
 
         sessionServiceMock.Verify(s => s.Set(
             SessionKeys.ProviderRestrictedCourse,
-            It.IsAny<ProviderRestrictedCourseSessionModel>()), Times.Once);
+            It.IsAny<ProviderRestrictedCourseSessionModel>()), Times.Never);
     }
 
     [Test, MoqAutoData]
