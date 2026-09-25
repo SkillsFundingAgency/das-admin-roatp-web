@@ -54,7 +54,7 @@ public class ProviderRestrictedCourseSearchControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingRestrictCourseSearch_AndNotRestrictedApprenticeshipsAreNotFound_ThenReturnsNotFound(
+    public async Task WhenGettingRestrictCourseSearch_AndNotRestrictedApprenticeshipsReturnsNotFound(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] ProviderRestrictedCourseSearchController sut)
     {

@@ -24,7 +24,7 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
     private const string DisplayTitle = "Carpentry (Level 1)";
 
     [Test, MoqAutoData]
-    public async Task WhenPostingConfirm_ThenRestrictsCourseSetsBannerAndRedirectsToList(
+    public async Task WhenPostingConfirm_ThenRestrictsCourseSetsBanner_AndRedirectsToList(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] ConfirmProviderRestrictedCourseController sut)
@@ -111,7 +111,7 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
                 LarsCode = LarsCode,
                 Title = "Carpentry",
                 Level = 1,
-                DisplayTitle = DisplayTitle
+                CourseDisplayTitle = DisplayTitle
             });
     }
 

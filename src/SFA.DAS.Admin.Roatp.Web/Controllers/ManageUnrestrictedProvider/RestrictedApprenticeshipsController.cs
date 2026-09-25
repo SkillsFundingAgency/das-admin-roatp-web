@@ -25,7 +25,7 @@ public class RestrictedApprenticeshipsController(
         GetRestrictedApprenticeshipsRequestModel requestModel,
         CancellationToken cancellationToken)
     {
-        var providerName = await GetProviderName(ukprn, cancellationToken);
+        var providerName = await TempData.GetProviderName(outerApiClient, ukprn, cancellationToken);
         if (providerName is null)
         {
             return NotFound();
@@ -88,25 +88,5 @@ public class RestrictedApprenticeshipsController(
             })
             .ToList();
         viewModel.Pagination = pagination;
-    }
-
-    private async Task<string?> GetProviderName(int ukprn, CancellationToken cancellationToken)
-    {
-        var cachedProviderName = TempData.Peek(TempDataKeys.ProviderLegalName) as string;
-        if (!string.IsNullOrWhiteSpace(cachedProviderName))
-        {
-            TempData.Keep(TempDataKeys.ProviderLegalName);
-            return cachedProviderName;
-        }
-
-        var organisationApiResponse = await outerApiClient.GetOrganisation(ukprn, cancellationToken);
-        if (organisationApiResponse.StatusCode != HttpStatusCode.OK)
-        {
-            return null;
-        }
-
-        var providerName = organisationApiResponse.Content!.LegalName;
-        TempData[TempDataKeys.ProviderLegalName] = providerName;
-        return providerName;
     }
 }

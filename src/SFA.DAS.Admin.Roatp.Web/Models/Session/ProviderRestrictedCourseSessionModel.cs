@@ -6,5 +6,5 @@ public class ProviderRestrictedCourseSessionModel : ISessionModel
     public required string LarsCode { get; set; }
     public required string Title { get; set; }
     public int Level { get; set; }
-    public required string DisplayTitle { get; set; }
+    public required string CourseDisplayTitle { get; set; }
 }
