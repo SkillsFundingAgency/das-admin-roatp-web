@@ -70,7 +70,19 @@ public class ProviderRestrictedCourseSearchController(
             DisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level)
         });
 
-        return RedirectToRoute(RouteNames.ConfirmProviderRestrictedCourse, new { ukprn });
+        var providerCourseResponse = await outerApiClient.GetProviderCourse(
+            ukprn,
+            course.LarsCode,
+            cancellationToken);
+
+        if (providerCourseResponse.IsNotFound())
+        {
+            return RedirectToRoute(RouteNames.ConfirmProviderRestrictedCourse, new { ukprn });
+        }
+
+        await providerCourseResponse.EnsureSuccessStatusCodeAsync();
+
+        return View(ViewPath, BuildViewModel(ukprn, searchableCourses, submitModel.SelectedLarsCode));
     }
 
     private async Task<List<NotRestrictedApprenticeshipModel>?> GetSearchableCoursesAsync(

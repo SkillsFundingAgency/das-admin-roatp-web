@@ -80,4 +80,10 @@ public interface IOuterApiClient
     Task<ApiResponse<GetNotRestrictedApprenticeshipsResponse>> GetNotRestrictedApprenticeships(
         int ukprn,
         CancellationToken cancellationToken);
+
+    [Get("/providers/{ukprn}/courses/{larsCode}")]
+    Task<ApiResponse<object>> GetProviderCourse(
+        int ukprn,
+        string larsCode,
+        CancellationToken cancellationToken);
 }
