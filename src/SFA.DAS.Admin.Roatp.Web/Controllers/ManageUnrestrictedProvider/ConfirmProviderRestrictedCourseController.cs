@@ -1,4 +1,3 @@
-using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
@@ -30,7 +29,7 @@ public class ConfirmProviderRestrictedCourseController(
             return RedirectToRoute(RouteNames.ProviderRestrictedCourses, new { ukprn });
         }
 
-        var providerName = await GetProviderName(ukprn, CancellationToken.None);
+        var providerName = await TempData.GetProviderName(outerApiClient, ukprn, CancellationToken.None);
         if (providerName is null)
         {
             return NotFound();
@@ -69,7 +68,7 @@ public class ConfirmProviderRestrictedCourseController(
 
         sessionService.Delete(SessionKeys.ProviderRestrictedCourse);
         TempData[RestrictedApprenticeshipsController.SuccessBannerTempDataKey] =
-            GetSuccessBannerMessage(session.DisplayTitle);
+            GetSuccessBannerMessage(session.CourseDisplayTitle);
 
         return RedirectToRoute(RouteNames.ProviderRestrictedCourses, new { ukprn });
     }
@@ -85,32 +84,12 @@ public class ConfirmProviderRestrictedCourseController(
         return session;
     }
 
-    private async Task<string?> GetProviderName(int ukprn, CancellationToken cancellationToken)
-    {
-        var cachedProviderName = TempData.Peek(TempDataKeys.ProviderLegalName) as string;
-        if (!string.IsNullOrWhiteSpace(cachedProviderName))
-        {
-            TempData.Keep(TempDataKeys.ProviderLegalName);
-            return cachedProviderName;
-        }
-
-        var organisationApiResponse = await outerApiClient.GetOrganisation(ukprn, cancellationToken);
-        if (organisationApiResponse.StatusCode != HttpStatusCode.OK)
-        {
-            return null;
-        }
-
-        var providerName = organisationApiResponse.Content!.LegalName;
-        TempData[TempDataKeys.ProviderLegalName] = providerName;
-        return providerName;
-    }
-
     private ConfirmProviderRestrictedCourseViewModel BuildViewModel(ProviderRestrictedCourseSessionModel session, string providerName)
         => new()
         {
             Ukprn = session.Ukprn,
             ProviderName = providerName,
-            DisplayTitle = session.DisplayTitle,
+            DisplayTitle = session.CourseDisplayTitle,
             LarsCode = session.LarsCode,
             CancelUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn = session.Ukprn })!
         };

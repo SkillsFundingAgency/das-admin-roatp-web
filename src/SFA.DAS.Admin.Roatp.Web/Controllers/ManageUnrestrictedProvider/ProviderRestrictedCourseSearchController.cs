@@ -41,24 +41,28 @@ public class ProviderRestrictedCourseSearchController(
         ProviderRestrictedCourseSearchSubmitModel submitModel,
         CancellationToken cancellationToken)
     {
+        var courses = await GetSearchableCoursesAsync(ukprn, cancellationToken);
+
         var validationResult = validator.Validate(submitModel);
         if (!validationResult.IsValid)
         {
             ModelState.AddValidationErrors(validationResult.Errors);
-            var courses = await GetSearchableCoursesAsync(ukprn, cancellationToken) ?? [];
-            return View(ViewPath, BuildViewModel(ukprn, courses));
+            return View(ViewPath, BuildViewModel(ukprn, courses ?? []));
         }
 
-        var searchableCourses = await GetSearchableCoursesAsync(ukprn, cancellationToken);
-        if (searchableCourses is null)
-        {
-            return NotFound();
-        }
-
-        var course = searchableCourses.FirstOrDefault(c => c.LarsCode == submitModel.SelectedLarsCode);
+        var course = courses?.FirstOrDefault(c => c.LarsCode == submitModel.SelectedLarsCode);
         if (course is null)
         {
             return NotFound();
+        }
+
+        var providerCourseResponse = await outerApiClient.GetProviderCourse(
+            ukprn,
+            course.LarsCode,
+            cancellationToken);
+        if (!providerCourseResponse.IsNotFound())
+        {
+            await providerCourseResponse.EnsureSuccessStatusCodeAsync();
         }
 
         sessionService.Set(SessionKeys.ProviderRestrictedCourse, new ProviderRestrictedCourseSessionModel
@@ -67,22 +71,14 @@ public class ProviderRestrictedCourseSearchController(
             LarsCode = course.LarsCode,
             Title = course.Title,
             Level = course.Level,
-            DisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level)
+            CourseDisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level)
         });
 
-        var providerCourseResponse = await outerApiClient.GetProviderCourse(
-            ukprn,
-            course.LarsCode,
-            cancellationToken);
-
-        if (providerCourseResponse.IsNotFound())
-        {
-            return RedirectToRoute(RouteNames.ConfirmProviderRestrictedCourse, new { ukprn });
-        }
-
-        await providerCourseResponse.EnsureSuccessStatusCodeAsync();
-
-        return View(ViewPath, BuildViewModel(ukprn, searchableCourses, submitModel.SelectedLarsCode));
+        return RedirectToRoute(
+            providerCourseResponse.IsNotFound()
+                ? RouteNames.ConfirmProviderRestrictedCourse
+                : RouteNames.ProviderRestrictedCourseSetLastStartDate,
+            new { ukprn });
     }
 
     private async Task<List<NotRestrictedApprenticeshipModel>?> GetSearchableCoursesAsync(

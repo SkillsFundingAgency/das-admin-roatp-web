@@ -139,7 +139,7 @@ public class ConfirmProviderRestrictedCourseControllerGetTests
                 LarsCode = LarsCode,
                 Title = "Carpentry",
                 Level = 1,
-                DisplayTitle = DisplayTitle
+                CourseDisplayTitle = DisplayTitle
             });
     }
 
