@@ -83,7 +83,7 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
                 r.UserId == "TestUser@education.gov.uk"
                 && r.UserDisplayName == "Test User"
                 && r.LastDateStarts == EnteredDate
-                && r.IsStartRestricted),
+                && r.IsStartRestricted == false),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
