@@ -333,34 +333,7 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
             It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Test, MoqAutoData]
-    public async Task WhenPostingSetLastStartDate_AndApiReturnsNotFound_ThenReturnsNotFound(
-        [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> validatorMock,
-        [Greedy] ProviderRestrictedCourseSetLastStartDateController sut)
-    {
-        SetupSession(sessionServiceMock);
-        SetupCourseLastDateStarts(outerApiClientMock);
-        SetupAuthenticatedUser(sut);
-        sut.TempData[TempDataKeys.ProviderLegalName] = ProviderName;
-        sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
-        validatorMock
-            .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ValidationResult());
-        SetupUpsertResponse(outerApiClientMock, HttpStatusCode.NotFound);
-
-        var result = await sut.Index(
-            Ukprn,
-            new SetLastDateStartsSubmitModel { Day = "12", Month = "07", Year = "2027" },
-            CancellationToken.None);
-
-        result.Should().BeOfType<NotFoundResult>();
-
-        sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourse), Times.Never);
-    }
-
+    [TestCase(HttpStatusCode.NotFound)]
     [TestCase(HttpStatusCode.BadRequest)]
     [TestCase(HttpStatusCode.InternalServerError)]
     public async Task WhenPostingSetLastStartDate_AndApiReturnsUnexpectedError_ThenThrows(HttpStatusCode statusCode)
@@ -446,7 +419,7 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
     {
         var httpResponse = new HttpResponseMessage(statusCode);
         ApiException? apiException = null;
-        if (statusCode != HttpStatusCode.OK && statusCode != HttpStatusCode.NotFound)
+        if (statusCode != HttpStatusCode.OK)
         {
             apiException = ApiException.Create(
                 new HttpRequestMessage(),

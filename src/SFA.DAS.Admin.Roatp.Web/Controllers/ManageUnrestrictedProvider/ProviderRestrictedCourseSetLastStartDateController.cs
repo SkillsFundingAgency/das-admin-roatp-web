@@ -84,11 +84,6 @@ public class ProviderRestrictedCourseSetLastStartDateController(
             },
             cancellationToken);
 
-        if (response.IsNotFound())
-        {
-            return NotFound();
-        }
-
         await response.EnsureSuccessStatusCodeAsync();
 
         sessionService.Delete(SessionKeys.ProviderRestrictedCourse);

@@ -85,7 +85,7 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenPostingConfirm_AndApiReturnsNotFound_ThenReturnsNotFound(
+    public async Task WhenPostingConfirm_AndApiReturnsNotFound_ThenThrows(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] ConfirmProviderRestrictedCourseController sut)
@@ -94,10 +94,9 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
         SetupAuthenticatedUser(sut);
         SetupUpsertResponse(outerApiClientMock, HttpStatusCode.NotFound);
 
-        var result = await sut.Index(Ukprn, CancellationToken.None);
+        var act = () => sut.Index(Ukprn, CancellationToken.None);
 
-        result.Should().BeOfType<NotFoundResult>();
-
+        await act.Should().ThrowAsync<ApiException>();
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourse), Times.Never);
     }
 
@@ -133,6 +132,17 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
 
     private static void SetupUpsertResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
     {
+        var httpResponse = new HttpResponseMessage(statusCode);
+        ApiException? apiException = null;
+        if (statusCode != HttpStatusCode.OK)
+        {
+            apiException = ApiException.Create(
+                new HttpRequestMessage(),
+                HttpMethod.Post,
+                httpResponse,
+                new RefitSettings()).GetAwaiter().GetResult();
+        }
+
         outerApiClientMock
             .Setup(c => c.UpsertProviderAllowedCourse(
                 Ukprn,
@@ -140,9 +150,9 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
                 It.IsAny<UpsertProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<object>(
-                new HttpResponseMessage(statusCode),
+                httpResponse,
                 null,
                 new RefitSettings(),
-                null));
+                apiException));
     }
 }
