@@ -42,17 +42,16 @@ public class ProviderRestrictedCourseSearchController(
         ProviderRestrictedCourseSearchSubmitModel submitModel,
         CancellationToken cancellationToken)
     {
-        var response = await GetNotRestrictedApprenticeships(ukprn, cancellationToken);
-
         var validationResult = validator.Validate(submitModel);
         if (!validationResult.IsValid)
         {
             ModelState.AddValidationErrors(validationResult.Errors);
-            return View(ViewPath, BuildViewModel(ukprn, response?.Courses ?? []));
+            var coursesResponse = await GetNotRestrictedApprenticeships(ukprn, cancellationToken);
+            return View(ViewPath, BuildViewModel(ukprn, coursesResponse?.Courses ?? []));
         }
 
-        var course = response?.Courses?.FirstOrDefault(c => c.LarsCode == submitModel.SelectedLarsCode);
-        if (response is null || course is null)
+        var course = await GetCourse(submitModel.SelectedLarsCode!, cancellationToken);
+        if (course is null)
         {
             return NotFound();
         }
@@ -63,23 +62,37 @@ public class ProviderRestrictedCourseSearchController(
             return NotFound();
         }
 
-        var hasProviderCourse = await HasProviderCourse(ukprn, course.LarsCode, cancellationToken);
-
         sessionService.Set(SessionKeys.ProviderRestrictedCourse, new ProviderRestrictedCourseSessionModel
         {
             Ukprn = ukprn,
-            LarsCode = course.LarsCode,
+            LarsCode = submitModel.SelectedLarsCode!,
             Title = course.Title,
             Level = course.Level,
             CourseDisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level),
             ProviderName = organisation.LegalName
         });
 
+        var hasProviderCourse = await HasProviderCourse(ukprn, submitModel.SelectedLarsCode!, cancellationToken);
+
         return RedirectToRoute(
             hasProviderCourse
                 ? RouteNames.ProviderRestrictedCourseSetLastStartDate
                 : RouteNames.ConfirmProviderRestrictedCourse,
             new { ukprn });
+    }
+
+    private async Task<GetCourseResponse?> GetCourse(
+        string larsCode,
+        CancellationToken cancellationToken)
+    {
+        var response = await outerApiClient.GetCourses(cancellationToken);
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        await response.EnsureSuccessStatusCodeAsync();
+        return response.Content?.Courses?.FirstOrDefault(course => course.LarsCode == larsCode);
     }
 
     private async Task<bool> HasProviderCourse(
