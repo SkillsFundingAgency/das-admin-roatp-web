@@ -53,7 +53,9 @@ public class SetLastDateStartsController(
         var isValidDate = submitModel.TryGetEnteredDate(out var lastDateStarts);
         if (!isValidDate)
         {
-            ModelState.AddModelError(string.Empty, SetLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
+            ModelState.AddModelError(
+                SetLastDateStartsSubmitModelValidator.DateFieldName,
+                SetLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
             return View(ViewPath, model);
         }
 
