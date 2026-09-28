@@ -89,7 +89,7 @@ public class ConfirmProviderRestrictedCourseController(
         {
             Ukprn = session.Ukprn,
             ProviderName = providerName,
-            DisplayTitle = session.CourseDisplayTitle,
+            CourseDisplayTitle = session.CourseDisplayTitle,
             LarsCode = session.LarsCode,
             CancelUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn = session.Ukprn })!
         };

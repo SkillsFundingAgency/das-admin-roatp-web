@@ -14,7 +14,7 @@
             This provider doesn't offer this course. Confirm that you want to stop them from being able to add it to their account in Course management.
         </p>
         <div class="app-action-panel govuk-!-margin-bottom-6">
-            <p class="govuk-body govuk-!-font-weight-bold govuk-!-margin-bottom-1">@Model.DisplayTitle</p>
+            <p class="govuk-body govuk-!-font-weight-bold govuk-!-margin-bottom-1">@Model.CourseDisplayTitle</p>
             <p class="govuk-body govuk-!-margin-bottom-0">LARS Code: @Model.LarsCode</p>
         </div>
         <form asp-route="@RouteNames.ConfirmProviderRestrictedCourse" asp-route-ukprn="@Model.Ukprn" method="post">

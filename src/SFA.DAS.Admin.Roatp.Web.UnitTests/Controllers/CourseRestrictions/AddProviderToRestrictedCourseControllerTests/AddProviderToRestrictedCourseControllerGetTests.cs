@@ -40,7 +40,7 @@ public class AddProviderToRestrictedCourseControllerGetTests
             model!.LarsCode.Should().Be(LarsCode);
             model.Title.Should().Be("Academic professional");
             model.Level.Should().Be(7);
-            model.DisplayTitle.Should().Be("Academic professional (Level 7)");
+            model.CourseDisplayTitle.Should().Be("Academic professional (Level 7)");
             model.Providers.Should().HaveCount(2);
             model.Providers.Select(p => p.Value).Should().Contain(["10000001", "10000002"]);
             model.Providers.Select(p => p.Text).Should().Contain("ALPHA TRAINING UKPRN: 10000001");
