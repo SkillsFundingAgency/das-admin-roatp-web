@@ -5,7 +5,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Services;
 
 public class ApplicationCacheService(IDistributedCache distributedCache) : IApplicationCacheService
 {
-    public static readonly TimeSpan DefaultExpiry = TimeSpan.FromHours(4);
+    public static readonly TimeSpan DefaultCacheDuration = TimeSpan.FromHours(4);
 
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
@@ -16,13 +16,13 @@ public class ApplicationCacheService(IDistributedCache distributedCache) : IAppl
     public async Task SetAsync<T>(
         string key,
         T value,
-        TimeSpan? expiry = null,
+        TimeSpan? cacheDuration = null,
         CancellationToken cancellationToken = default)
     {
         var json = JsonSerializer.Serialize(value);
         var options = new DistributedCacheEntryOptions
         {
-            AbsoluteExpirationRelativeToNow = expiry ?? DefaultExpiry
+            AbsoluteExpirationRelativeToNow = cacheDuration ?? DefaultCacheDuration
         };
 
         await distributedCache.SetStringAsync(key, json, options, cancellationToken);
