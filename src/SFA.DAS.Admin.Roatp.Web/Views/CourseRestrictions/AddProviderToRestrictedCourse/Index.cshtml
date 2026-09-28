@@ -1,7 +1,7 @@
 @using SFA.DAS.Admin.Roatp.Web.Infrastructure
 @model SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions.AddProviderToRestrictedCourseViewModel
 @{
-    ViewData["Title"] = $"Add a new training provider to {Model.DisplayTitle}";
+    ViewData["Title"] = $"Add a new training provider to {Model.CourseDisplayTitle}";
 }
 
 <div class="govuk-grid-row">
@@ -11,7 +11,7 @@
     <div class="govuk-grid-column-full">
         <span class="govuk-caption-xl">Add a training provider</span>
         <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">
-            Add a new training provider to @Model.DisplayTitle
+            Add a new training provider to @Model.CourseDisplayTitle
         </h1>
     </div>
     <div class="govuk-grid-column-two-thirds">

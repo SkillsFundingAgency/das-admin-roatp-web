@@ -26,7 +26,7 @@ public class ProviderRestrictedCourseSearchController(
     {
         sessionService.Delete(SessionKeys.ProviderRestrictedCourse);
 
-        var courses = await GetSearchableCoursesAsync(ukprn, cancellationToken);
+        var courses = await GetNotRestrictedApprenticeships(ukprn, cancellationToken);
         if (courses is null)
         {
             return NotFound();
@@ -41,7 +41,7 @@ public class ProviderRestrictedCourseSearchController(
         ProviderRestrictedCourseSearchSubmitModel submitModel,
         CancellationToken cancellationToken)
     {
-        var courses = await GetSearchableCoursesAsync(ukprn, cancellationToken);
+        var courses = await GetNotRestrictedApprenticeships(ukprn, cancellationToken);
 
         var validationResult = validator.Validate(submitModel);
         if (!validationResult.IsValid)
@@ -81,7 +81,7 @@ public class ProviderRestrictedCourseSearchController(
             new { ukprn });
     }
 
-    private async Task<List<NotRestrictedApprenticeshipModel>?> GetSearchableCoursesAsync(
+    private async Task<List<NotRestrictedApprenticeshipModel>?> GetNotRestrictedApprenticeships(
         int ukprn,
         CancellationToken cancellationToken)
     {

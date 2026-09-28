@@ -51,11 +51,6 @@ public class ConfirmAddProviderToRestrictedCourseController(
             },
             cancellationToken);
 
-        if (response.IsNotFound())
-        {
-            return NotFound();
-        }
-
         await response.EnsureSuccessStatusCodeAsync();
 
         sessionService.Delete(SessionKeys.AddProviderToRestrictedCourse);

@@ -66,13 +66,24 @@ public class ConfirmAddProviderToRestrictedCourseControllerTests
         Mock<IOuterApiClient> outerApiClientMock,
         HttpStatusCode statusCode)
     {
+        var httpResponse = new HttpResponseMessage(statusCode);
+        ApiException? apiException = null;
+        if (statusCode != HttpStatusCode.OK)
+        {
+            apiException = ApiException.Create(
+                new HttpRequestMessage(),
+                HttpMethod.Post,
+                httpResponse,
+                new RefitSettings()).GetAwaiter().GetResult();
+        }
+
         outerApiClientMock
             .Setup(c => c.UpsertProviderAllowedCourse(
                 Ukprn,
                 LarsCode,
                 It.IsAny<UpsertProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<object>(new HttpResponseMessage(statusCode), null, new RefitSettings(), null));
+            .ReturnsAsync(new ApiResponse<object>(httpResponse, null, new RefitSettings(), apiException));
     }
 
     [Test, MoqAutoData]
@@ -168,7 +179,7 @@ public class ConfirmAddProviderToRestrictedCourseControllerTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenPostingConfirm_AndCourseIsNotFound_ThenReturnsNotFound(
+    public async Task WhenPostingConfirm_AndCourseIsNotFound_ThenThrows(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] ConfirmAddProviderToRestrictedCourseController sut)
@@ -179,14 +190,10 @@ public class ConfirmAddProviderToRestrictedCourseControllerTests
         SetupAuthenticatedUser(sut);
         SetupUpsertProviderAllowedCourseResponse(outerApiClientMock, HttpStatusCode.NotFound);
 
-        var result = await sut.Index(LarsCode, CancellationToken.None);
+        var act = () => sut.Index(LarsCode, CancellationToken.None);
 
-        using (new AssertionScope())
-        {
-            result.Should().BeOfType<NotFoundResult>();
-
-            sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProviderToRestrictedCourse), Times.Never);
-        }
+        await act.Should().ThrowAsync<ApiException>();
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProviderToRestrictedCourse), Times.Never);
     }
 
     [Test, MoqAutoData]

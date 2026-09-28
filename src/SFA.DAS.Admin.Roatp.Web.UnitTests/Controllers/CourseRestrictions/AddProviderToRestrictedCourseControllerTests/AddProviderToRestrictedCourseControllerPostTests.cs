@@ -56,7 +56,7 @@ public class AddProviderToRestrictedCourseControllerPostTests
             result!.ViewName.Should().Be(AddProviderToRestrictedCourseController.ViewPath);
             sut.ModelState.IsValid.Should().BeFalse();
             var model = result.Model as AddProviderToRestrictedCourseViewModel;
-            model!.DisplayTitle.Should().Be("Academic professional (Level 7)");
+            model!.CourseDisplayTitle.Should().Be("Academic professional (Level 7)");
             model.Providers.Should().HaveCount(1);
         }
     }

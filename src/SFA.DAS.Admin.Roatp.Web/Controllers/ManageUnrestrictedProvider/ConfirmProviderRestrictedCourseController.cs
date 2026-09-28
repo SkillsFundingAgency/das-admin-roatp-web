@@ -59,11 +59,6 @@ public class ConfirmProviderRestrictedCourseController(
             },
             cancellationToken);
 
-        if (response.IsNotFound())
-        {
-            return NotFound();
-        }
-
         await response.EnsureSuccessStatusCodeAsync();
 
         sessionService.Delete(SessionKeys.ProviderRestrictedCourse);
@@ -89,7 +84,7 @@ public class ConfirmProviderRestrictedCourseController(
         {
             Ukprn = session.Ukprn,
             ProviderName = providerName,
-            DisplayTitle = session.CourseDisplayTitle,
+            CourseDisplayTitle = session.CourseDisplayTitle,
             LarsCode = session.LarsCode,
             CancelUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn = session.Ukprn })!
         };

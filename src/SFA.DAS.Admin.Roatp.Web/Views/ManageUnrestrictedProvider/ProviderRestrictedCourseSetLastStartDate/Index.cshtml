@@ -2,8 +2,6 @@
 @model SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider.ProviderRestrictedCourseSetLastStartDateViewModel
 @{
     ViewData["Title"] = $"Stop {Model.ProviderName} from delivering this course";
-    var dateError = ViewData.ModelState[nameof(Model.Day)]?.Errors.FirstOrDefault()?.ErrorMessage;
-    var hasDateError = !string.IsNullOrEmpty(dateError);
 }
 
 <div class="govuk-grid-row">
@@ -36,52 +34,50 @@
               asp-route-ukprn="@Model.Ukprn"
               method="post"
               novalidate>
-            <div class="govuk-form-group @(hasDateError ? "govuk-form-group--error" : string.Empty)">
-                <fieldset class="govuk-fieldset" role="group" aria-describedby="last-date-starts-hint@(hasDateError ? " last-date-starts-error" : string.Empty)">
+            <div esfa-validation-marker-for="Day" class="govuk-form-group" id="Day">
+                <fieldset class="govuk-fieldset" role="group" aria-describedby="last-date-starts-hint">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
                         <h2 class="govuk-fieldset__heading">Last date for new starts</h2>
                     </legend>
                     <div id="last-date-starts-hint" class="govuk-hint">
                         Add the last date for new starts. The provider will not be able to add new learners to the course after this date.
                     </div>
-                    <p asp-show="@hasDateError" id="last-date-starts-error" class="govuk-error-message">
-                        <span class="govuk-visually-hidden">Error:</span> @dateError
-                    </p>
+                    <span asp-validation-for="Day" class="govuk-error-message"></span>
                     <div class="govuk-date-input" id="last-date-starts">
                         <div class="govuk-date-input__item">
                             <div class="govuk-form-group">
-                                <label class="govuk-label govuk-date-input__label" asp-for="Day">Day</label>
-                                <input class="govuk-input govuk-date-input__input govuk-input--width-2 @(hasDateError ? "govuk-input--error" : string.Empty)"
+                                <label class="govuk-label govuk-date-input__label" for="last-date-starts-day">Day</label>
+                                <input class="govuk-input govuk-date-input__input govuk-input--width-2"
                                        asp-for="Day"
-                                       id="Day"
+                                       id="last-date-starts-day"
                                        type="text"
                                        inputmode="numeric"
                                        maxlength="2"
-                                       autocomplete="bday-day">
+                                       autocomplete="off">
                             </div>
                         </div>
                         <div class="govuk-date-input__item">
                             <div class="govuk-form-group">
                                 <label class="govuk-label govuk-date-input__label" asp-for="Month">Month</label>
-                                <input class="govuk-input govuk-date-input__input govuk-input--width-2 @(hasDateError ? "govuk-input--error" : string.Empty)"
+                                <input class="govuk-input govuk-date-input__input govuk-input--width-2"
                                        asp-for="Month"
                                        id="Month"
                                        type="text"
                                        inputmode="numeric"
                                        maxlength="2"
-                                       autocomplete="bday-month">
+                                       autocomplete="off">
                             </div>
                         </div>
                         <div class="govuk-date-input__item">
                             <div class="govuk-form-group">
                                 <label class="govuk-label govuk-date-input__label" asp-for="Year">Year</label>
-                                <input class="govuk-input govuk-date-input__input govuk-input--width-4 @(hasDateError ? "govuk-input--error" : string.Empty)"
+                                <input class="govuk-input govuk-date-input__input govuk-input--width-4"
                                        asp-for="Year"
                                        id="Year"
                                        type="text"
                                        inputmode="numeric"
                                        maxlength="4"
-                                       autocomplete="bday-year">
+                                       autocomplete="off">
                             </div>
                         </div>
                     </div>
