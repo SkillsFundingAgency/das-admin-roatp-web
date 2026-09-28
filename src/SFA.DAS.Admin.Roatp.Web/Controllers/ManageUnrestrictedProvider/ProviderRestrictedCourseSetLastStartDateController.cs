@@ -80,8 +80,7 @@ public class ProviderRestrictedCourseSetLastStartDateController(
             {
                 UserId = User.UserId(),
                 UserDisplayName = User.UserDisplayName(),
-                LastDateStarts = lastDateStarts,
-                IsStartRestricted = true
+                LastDateStarts = lastDateStarts
             },
             cancellationToken);
 
