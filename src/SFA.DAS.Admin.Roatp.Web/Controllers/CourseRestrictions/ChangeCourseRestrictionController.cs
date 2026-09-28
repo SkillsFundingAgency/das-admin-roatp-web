@@ -1,3 +1,4 @@
+using System.Net;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -60,7 +61,7 @@ public class ChangeCourseRestrictionController(
             new PatchProviderAllowedCourseRequest { LastDateStarts = null },
             cancellationToken);
 
-        if (response.IsNotFound())
+        if (response.StatusCode == HttpStatusCode.NotFound)
         {
             return NotFound();
         }
@@ -103,7 +104,7 @@ public class ChangeCourseRestrictionController(
         CancellationToken cancellationToken)
     {
         var response = await outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
-        if (response.IsNotFound())
+        if (response.StatusCode == HttpStatusCode.NotFound)
         {
             return null;
         }

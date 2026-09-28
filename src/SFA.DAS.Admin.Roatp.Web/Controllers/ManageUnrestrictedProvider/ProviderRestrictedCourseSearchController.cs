@@ -60,7 +60,7 @@ public class ProviderRestrictedCourseSearchController(
             ukprn,
             course.LarsCode,
             cancellationToken);
-        if (!providerCourseResponse.IsNotFound())
+        if (providerCourseResponse.StatusCode != HttpStatusCode.NotFound)
         {
             await providerCourseResponse.EnsureSuccessStatusCodeAsync();
         }
@@ -75,7 +75,7 @@ public class ProviderRestrictedCourseSearchController(
         });
 
         return RedirectToRoute(
-            providerCourseResponse.IsNotFound()
+            providerCourseResponse.StatusCode == HttpStatusCode.NotFound
                 ? RouteNames.ConfirmProviderRestrictedCourse
                 : RouteNames.ProviderRestrictedCourseSetLastStartDate,
             new { ukprn });

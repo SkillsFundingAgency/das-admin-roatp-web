@@ -1,3 +1,4 @@
+using System.Net;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -132,7 +133,7 @@ public class ProviderRestrictedCourseSetLastStartDateController(
     private async Task<DateTime?> GetCourseLastDateStartsAsync(string larsCode, CancellationToken cancellationToken)
     {
         var response = await outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
-        if (response.IsNotFound())
+        if (response.StatusCode == HttpStatusCode.NotFound)
         {
             return null;
         }

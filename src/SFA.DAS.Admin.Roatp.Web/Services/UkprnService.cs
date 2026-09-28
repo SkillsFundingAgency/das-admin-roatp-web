@@ -1,7 +1,6 @@
 using System.Net;
 using Refit;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
-using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 
 namespace SFA.DAS.Admin.Roatp.Web.Services;
@@ -24,7 +23,7 @@ public class UkprnService(IOuterApiClient outerApiClient, IScopedCacheService sc
     private static async Task<GetOrganisationResponse?> ExtractOrganisationAsync(
         ApiResponse<GetOrganisationResponse> response)
     {
-        if (response.IsNotFound())
+        if (response.StatusCode == HttpStatusCode.NotFound)
         {
             return null;
         }
