@@ -46,7 +46,6 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
         SetupSession(sessionServiceMock);
         SetupCourseLastDateStarts(outerApiClientMock);
         SetupAuthenticatedUser(sut);
-        sut.TempData[TempDataKeys.ProviderLegalName] = ProviderName;
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
         validatorMock
@@ -97,7 +96,6 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
         SetupSession(sessionServiceMock);
         SetupCourseLastDateStarts(outerApiClientMock);
         sut.AddTempData();
-        sut.TempData[TempDataKeys.ProviderLegalName] = ProviderName;
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
         validatorMock
@@ -143,7 +141,6 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
             outerApiClientMock.Object,
             new SetLastDateStartsSubmitModelValidator());
         sut.AddTempData();
-        sut.TempData[TempDataKeys.ProviderLegalName] = ProviderName;
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
 
@@ -187,7 +184,6 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
             outerApiClientMock.Object,
             new SetLastDateStartsSubmitModelValidator());
         sut.AddTempData();
-        sut.TempData[TempDataKeys.ProviderLegalName] = ProviderName;
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
 
@@ -217,7 +213,6 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
         SetupSession(sessionServiceMock);
         SetupCourseLastDateStarts(outerApiClientMock);
         sut.AddTempData();
-        sut.TempData[TempDataKeys.ProviderLegalName] = ProviderName;
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
         validatorMock
@@ -302,37 +297,6 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
             It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Test, MoqAutoData]
-    public async Task WhenPostingSetLastStartDate_AndOrganisationIsNotFound_ThenReturnsNotFound(
-        [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] ProviderRestrictedCourseSetLastStartDateController sut,
-        GetOrganisationResponse organisationResponse)
-    {
-        SetupSession(sessionServiceMock);
-        sut.AddTempData();
-        outerApiClientMock
-            .Setup(c => c.GetOrganisation(Ukprn, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(
-                new HttpResponseMessage(HttpStatusCode.NotFound),
-                organisationResponse,
-                new RefitSettings(),
-                null));
-
-        var result = await sut.Index(
-            Ukprn,
-            new SetLastDateStartsSubmitModel { Day = "12", Month = "07", Year = "2027" },
-            CancellationToken.None);
-
-        result.Should().BeOfType<NotFoundResult>();
-
-        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
-            It.IsAny<int>(),
-            It.IsAny<string>(),
-            It.IsAny<UpsertProviderAllowedCourseRequest>(),
-            It.IsAny<CancellationToken>()), Times.Never);
-    }
-
     [TestCase(HttpStatusCode.NotFound)]
     [TestCase(HttpStatusCode.BadRequest)]
     [TestCase(HttpStatusCode.InternalServerError)]
@@ -353,7 +317,6 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
             outerApiClientMock.Object,
             validatorMock.Object);
         SetupAuthenticatedUser(sut);
-        sut.TempData[TempDataKeys.ProviderLegalName] = ProviderName;
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
 
@@ -376,7 +339,8 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
                 LarsCode = LarsCode,
                 Title = "Electrical",
                 Level = 3,
-                CourseDisplayTitle = DisplayTitle
+                CourseDisplayTitle = DisplayTitle,
+                ProviderName = ProviderName
             });
     }
 

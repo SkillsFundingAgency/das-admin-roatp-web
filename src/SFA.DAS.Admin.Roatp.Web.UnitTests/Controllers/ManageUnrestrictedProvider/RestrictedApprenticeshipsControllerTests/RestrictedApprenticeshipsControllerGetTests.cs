@@ -83,10 +83,11 @@ public class RestrictedApprenticeshipsControllerGetTests
         }
 
         applicationCacheMock.Verify(
-            c => c.Set(
+            c => c.SetAsync(
                 ApplicationCacheKeys.RestrictedApprenticeships(ukprn),
                 response.Courses,
-                null),
+                It.IsAny<TimeSpan?>(),
+                It.IsAny<CancellationToken>()),
             Times.Once);
         outerApiClientMock.Verify(c => c.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }

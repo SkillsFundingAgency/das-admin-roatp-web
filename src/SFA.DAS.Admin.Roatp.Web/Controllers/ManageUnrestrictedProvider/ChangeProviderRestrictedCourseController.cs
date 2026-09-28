@@ -18,18 +18,22 @@ public class ChangeProviderRestrictedCourseController(
     public const string ViewPath = "~/Views/ManageUnrestrictedProvider/ChangeProviderRestrictedCourse/Index.cshtml";
 
     [HttpGet]
-    public IActionResult Index(int ukprn, string larsCode)
+    public async Task<IActionResult> Index(int ukprn, string larsCode, CancellationToken cancellationToken = default)
     {
-        var model = BuildViewModel(ukprn, larsCode);
+        var model = await BuildViewModel(ukprn, larsCode, cancellationToken: cancellationToken);
         return model is null
             ? RedirectToRoute(RouteNames.ProviderRestrictedCourses, new { ukprn })
             : View(ViewPath, model);
     }
 
     [HttpPost]
-    public IActionResult Index(int ukprn, string larsCode, ChangeProviderRestrictedCourseSubmitModel submitModel)
+    public async Task<IActionResult> Index(
+        int ukprn,
+        string larsCode,
+        ChangeProviderRestrictedCourseSubmitModel submitModel,
+        CancellationToken cancellationToken = default)
     {
-        var model = BuildViewModel(ukprn, larsCode, submitModel);
+        var model = await BuildViewModel(ukprn, larsCode, cancellationToken, submitModel);
         if (model is null)
         {
             return RedirectToRoute(RouteNames.ProviderRestrictedCourses, new { ukprn });
@@ -44,12 +48,13 @@ public class ChangeProviderRestrictedCourseController(
         return View(ViewPath, model);
     }
 
-    private ChangeProviderRestrictedCourseViewModel? BuildViewModel(
+    private async Task<ChangeProviderRestrictedCourseViewModel?> BuildViewModel(
         int ukprn,
         string larsCode,
+        CancellationToken cancellationToken,
         ChangeProviderRestrictedCourseSubmitModel? submitModel = null)
     {
-        var course = GetCachedCourse(ukprn, larsCode);
+        var course = await GetCachedCourse(ukprn, larsCode, cancellationToken);
         if (course is null)
         {
             return null;
@@ -66,15 +71,15 @@ public class ChangeProviderRestrictedCourseController(
         };
     }
 
-    private RestrictedApprenticeshipModel? GetCachedCourse(int ukprn, string larsCode)
+    private async Task<RestrictedApprenticeshipModel?> GetCachedCourse(
+        int ukprn,
+        string larsCode,
+        CancellationToken cancellationToken)
     {
-        if (!applicationCacheService.TryGet<List<RestrictedApprenticeshipModel>>(
-                ApplicationCacheKeys.RestrictedApprenticeships(ukprn), out var courses)
-            || courses is null)
-        {
-            return null;
-        }
+        var courses = await applicationCacheService.GetAsync<List<RestrictedApprenticeshipModel>>(
+            ApplicationCacheKeys.RestrictedApprenticeships(ukprn),
+            cancellationToken);
 
-        return courses.FirstOrDefault(course => course.LarsCode == larsCode);
+        return courses?.FirstOrDefault(course => course.LarsCode == larsCode);
     }
 }

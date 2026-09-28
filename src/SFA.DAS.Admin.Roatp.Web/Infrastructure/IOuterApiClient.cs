@@ -86,4 +86,8 @@ public interface IOuterApiClient
         int ukprn,
         string larsCode,
         CancellationToken cancellationToken);
+
+    [Get("/courses")]
+    Task<ApiResponse<GetCoursesResponse>> GetCourses(CancellationToken cancellationToken);
+
 }

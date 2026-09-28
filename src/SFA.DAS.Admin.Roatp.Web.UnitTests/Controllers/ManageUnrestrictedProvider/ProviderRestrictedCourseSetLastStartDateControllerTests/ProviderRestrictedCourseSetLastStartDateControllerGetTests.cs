@@ -34,8 +34,6 @@ public class ProviderRestrictedCourseSetLastStartDateControllerGetTests
     {
         SetupSession(sessionServiceMock);
         SetupCourseLastDateStarts(outerApiClientMock);
-        sut.AddTempData();
-        sut.TempData[TempDataKeys.ProviderLegalName] = ProviderName;
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
 
@@ -96,57 +94,12 @@ public class ProviderRestrictedCourseSetLastStartDateControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingSetLastStartDate_AndOrganisationIsNotFound_ThenReturnsNotFound(
-        [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] ProviderRestrictedCourseSetLastStartDateController sut,
-        GetOrganisationResponse organisationResponse)
-    {
-        SetupSession(sessionServiceMock);
-        sut.AddTempData();
-        SetupOrganisation(outerApiClientMock, organisationResponse, HttpStatusCode.NotFound);
-
-        var result = await sut.Index(Ukprn);
-
-        result.Should().BeOfType<NotFoundResult>();
-    }
-
-    [Test, MoqAutoData]
-    public async Task WhenGettingSetLastStartDate_AndProviderNameIsNotInTempData_ThenLoadsNameFromOrganisation(
-        [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Greedy] ProviderRestrictedCourseSetLastStartDateController sut,
-        GetOrganisationResponse organisationResponse)
-    {
-        organisationResponse.Ukprn = Ukprn;
-        SetupSession(sessionServiceMock);
-        SetupCourseLastDateStarts(outerApiClientMock);
-        SetupOrganisation(outerApiClientMock, organisationResponse, HttpStatusCode.OK);
-        sut.AddTempData();
-        sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
-
-        var result = await sut.Index(Ukprn) as ViewResult;
-        var model = result?.Model as ProviderRestrictedCourseSetLastStartDateViewModel;
-
-        using (new AssertionScope())
-        {
-            result.Should().NotBeNull();
-            model.Should().NotBeNull();
-            model!.ProviderName.Should().Be(organisationResponse.LegalName);
-            sut.TempData.Peek(TempDataKeys.ProviderLegalName).Should().Be(organisationResponse.LegalName);
-        }
-    }
-
-    [Test, MoqAutoData]
     public async Task WhenGettingSetLastStartDate_AndCourseLastDateStartsApiReturnsNotFound_ThenReturnsViewWithNullCourseLastDateStarts(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] ProviderRestrictedCourseSetLastStartDateController sut)
     {
         SetupSession(sessionServiceMock);
-        sut.AddTempData();
-        sut.TempData[TempDataKeys.ProviderLegalName] = ProviderName;
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
         outerApiClientMock
@@ -177,8 +130,6 @@ public class ProviderRestrictedCourseSetLastStartDateControllerGetTests
         [Greedy] ProviderRestrictedCourseSetLastStartDateController sut)
     {
         SetupSession(sessionServiceMock);
-        sut.AddTempData();
-        sut.TempData[TempDataKeys.ProviderLegalName] = ProviderName;
         var httpResponse = new HttpResponseMessage(HttpStatusCode.InternalServerError);
         var apiException = await ApiException.Create(
             new HttpRequestMessage(),
@@ -208,7 +159,8 @@ public class ProviderRestrictedCourseSetLastStartDateControllerGetTests
                 LarsCode = LarsCode,
                 Title = "Electrical",
                 Level = 3,
-                CourseDisplayTitle = DisplayTitle
+                CourseDisplayTitle = DisplayTitle,
+                ProviderName = ProviderName
             });
     }
 
@@ -226,20 +178,6 @@ public class ProviderRestrictedCourseSetLastStartDateControllerGetTests
                     Route = "Construction",
                     LastDateStarts = CourseLastDateStarts
                 },
-                new RefitSettings(),
-                null));
-    }
-
-    private static void SetupOrganisation(
-        Mock<IOuterApiClient> outerApiClientMock,
-        GetOrganisationResponse response,
-        HttpStatusCode statusCode)
-    {
-        outerApiClientMock
-            .Setup(c => c.GetOrganisation(Ukprn, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(
-                new HttpResponseMessage(statusCode),
-                response,
                 new RefitSettings(),
                 null));
     }

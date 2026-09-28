@@ -25,15 +25,18 @@ public class ProviderRestrictedCourseSearchControllerPostTests
     private const string SelectedLarsCode = "105";
     private const string SelectedCourseTitle = "Alpha course";
     private const int SelectedCourseLevel = 6;
+    private const string ProviderName = "Denton Business Services Limited";
 
     [Test, MoqAutoData]
     public async Task WhenPostingRestrictCourseSearch_AndProviderCourseIsNotFound_ThenStoresSessionAndRedirectsToConfirm(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
         [Frozen] Mock<IValidator<ProviderRestrictedCourseSearchSubmitModel>> validator,
         [Greedy] ProviderRestrictedCourseSearchController sut)
     {
-        SetupSearchableCourses(outerApiClientMock);
+        SetupGetCourses(outerApiClientMock, applicationCacheMock);
+        SetupOrganisation(outerApiClientMock);
         SetupProviderCourse(outerApiClientMock, HttpStatusCode.NotFound);
         validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
             .Returns(new ValidationResult());
@@ -57,20 +60,102 @@ public class ProviderRestrictedCourseSearchControllerPostTests
                 m.LarsCode == SelectedLarsCode &&
                 m.Title == SelectedCourseTitle &&
                 m.Level == SelectedCourseLevel &&
-                m.CourseDisplayTitle == "Alpha course (Level 6)")), Times.Once);
+                m.CourseDisplayTitle == "Alpha course (Level 6)" &&
+                m.ProviderName == ProviderName)), Times.Once);
+        outerApiClientMock.Verify(
+            c => c.GetCourses(It.IsAny<CancellationToken>()),
+            Times.Once);
         outerApiClientMock.Verify(
             c => c.GetProviderCourse(Ukprn, SelectedLarsCode, It.IsAny<CancellationToken>()),
             Times.Once);
+        outerApiClientMock.Verify(
+            c => c.GetOrganisation(Ukprn, It.IsAny<CancellationToken>()),
+            Times.Once);
+        applicationCacheMock.Verify(
+            c => c.SetAsync(
+                ApplicationCacheKeys.CoursesCacheKey,
+                It.Is<GetCoursesResponse>(r => r.Courses.Any(course => course.LarsCode == SelectedLarsCode)),
+                It.IsAny<TimeSpan?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        outerApiClientMock.Verify(
+            c => c.GetNotRestrictedApprenticeships(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenPostingRestrictCourseSearch_AndCoursesAreCached_ThenDoesNotCallCoursesApi(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
+        [Frozen] Mock<IValidator<ProviderRestrictedCourseSearchSubmitModel>> validator,
+        [Greedy] ProviderRestrictedCourseSearchController sut)
+    {
+        SetupOrganisation(outerApiClientMock);
+        SetupProviderCourse(outerApiClientMock, HttpStatusCode.NotFound);
+        applicationCacheMock
+            .Setup(c => c.GetAsync<GetCoursesResponse>(
+                ApplicationCacheKeys.CoursesCacheKey,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetCoursesResponse
+            {
+                Courses =
+                [
+                    new GetCourseResponse
+                    {
+                        LarsCode = SelectedLarsCode,
+                        Title = SelectedCourseTitle,
+                        Level = SelectedCourseLevel,
+                        CourseType = CourseType.Apprenticeship,
+                        LearningType = LearningType.Apprenticeship
+                    }
+                ]
+            });
+        validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
+            .Returns(new ValidationResult());
+
+        var actual = await sut.Index(
+            Ukprn,
+            new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
+            CancellationToken.None) as RedirectToRouteResult;
+
+        using (new AssertionScope())
+        {
+            actual.Should().NotBeNull();
+            actual!.RouteName.Should().Be(RouteNames.ConfirmProviderRestrictedCourse);
+        }
+
+        sessionServiceMock.Verify(s => s.Set(
+            SessionKeys.ProviderRestrictedCourse,
+            It.Is<ProviderRestrictedCourseSessionModel>(m =>
+                m.Title == SelectedCourseTitle &&
+                m.Level == SelectedCourseLevel &&
+                m.ProviderName == ProviderName)), Times.Once);
+        outerApiClientMock.Verify(
+            c => c.GetCourses(It.IsAny<CancellationToken>()),
+            Times.Never);
+        outerApiClientMock.Verify(
+            c => c.GetOrganisation(Ukprn, It.IsAny<CancellationToken>()),
+            Times.Once);
+        applicationCacheMock.Verify(
+            c => c.SetAsync(
+                It.IsAny<string>(),
+                It.IsAny<GetCoursesResponse>(),
+                It.IsAny<TimeSpan?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Test, MoqAutoData]
     public async Task WhenPostingRestrictCourseSearch_AndProviderCourseIsFound_ThenStoresSessionAndRedirectsToSetLastStartDate(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
         [Frozen] Mock<IValidator<ProviderRestrictedCourseSearchSubmitModel>> validator,
         [Greedy] ProviderRestrictedCourseSearchController sut)
     {
-        SetupSearchableCourses(outerApiClientMock);
+        SetupGetCourses(outerApiClientMock, applicationCacheMock);
+        SetupOrganisation(outerApiClientMock);
         SetupProviderCourse(outerApiClientMock, HttpStatusCode.OK);
         validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
             .Returns(new ValidationResult());
@@ -92,20 +177,32 @@ public class ProviderRestrictedCourseSearchControllerPostTests
             It.Is<ProviderRestrictedCourseSessionModel>(m =>
                 m.Ukprn == Ukprn &&
                 m.LarsCode == SelectedLarsCode &&
-                m.CourseDisplayTitle == "Alpha course (Level 6)")), Times.Once);
+                m.CourseDisplayTitle == "Alpha course (Level 6)" &&
+                m.ProviderName == ProviderName)), Times.Once);
+        outerApiClientMock.Verify(
+            c => c.GetCourses(It.IsAny<CancellationToken>()),
+            Times.Once);
         outerApiClientMock.Verify(
             c => c.GetProviderCourse(Ukprn, SelectedLarsCode, It.IsAny<CancellationToken>()),
             Times.Once);
+        outerApiClientMock.Verify(
+            c => c.GetOrganisation(Ukprn, It.IsAny<CancellationToken>()),
+            Times.Once);
+        outerApiClientMock.Verify(
+            c => c.GetNotRestrictedApprenticeships(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Test, MoqAutoData]
     public async Task WhenPostingRestrictCourseSearch_AndGetProviderCourseReturnsUnexpectedError_ThenThrows(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
         [Frozen] Mock<IValidator<ProviderRestrictedCourseSearchSubmitModel>> validator,
         [Greedy] ProviderRestrictedCourseSearchController sut)
     {
-        SetupSearchableCourses(outerApiClientMock);
+        SetupGetCourses(outerApiClientMock, applicationCacheMock);
+        SetupOrganisation(outerApiClientMock);
         SetupProviderCourse(outerApiClientMock, HttpStatusCode.InternalServerError);
         validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
             .Returns(new ValidationResult());
@@ -119,7 +216,44 @@ public class ProviderRestrictedCourseSearchControllerPostTests
 
         sessionServiceMock.Verify(s => s.Set(
             SessionKeys.ProviderRestrictedCourse,
+            It.IsAny<ProviderRestrictedCourseSessionModel>()), Times.Once);
+        outerApiClientMock.Verify(
+            c => c.GetOrganisation(Ukprn, It.IsAny<CancellationToken>()),
+            Times.Once);
+        outerApiClientMock.Verify(
+            c => c.GetProviderCourse(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenPostingRestrictCourseSearch_AndGetOrganisationReturnsUnexpectedError_ThenThrows(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
+        [Frozen] Mock<IValidator<ProviderRestrictedCourseSearchSubmitModel>> validator,
+        [Greedy] ProviderRestrictedCourseSearchController sut)
+    {
+        SetupGetCourses(outerApiClientMock, applicationCacheMock);
+        SetupOrganisation(outerApiClientMock, statusCode: HttpStatusCode.InternalServerError);
+        validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
+            .Returns(new ValidationResult());
+
+        var act = () => sut.Index(
+            Ukprn,
+            new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ApiException>();
+
+        sessionServiceMock.Verify(s => s.Set(
+            SessionKeys.ProviderRestrictedCourse,
             It.IsAny<ProviderRestrictedCourseSessionModel>()), Times.Never);
+        outerApiClientMock.Verify(
+            c => c.GetOrganisation(Ukprn, It.IsAny<CancellationToken>()),
+            Times.Once);
+        outerApiClientMock.Verify(
+            c => c.GetProviderCourse(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Test, MoqAutoData]
@@ -158,44 +292,25 @@ public class ProviderRestrictedCourseSearchControllerPostTests
             s => s.Set(SessionKeys.ProviderRestrictedCourse, It.IsAny<ProviderRestrictedCourseSessionModel>()),
             Times.Never);
         outerApiClientMock.Verify(
-            c => c.GetProviderCourse(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Test, MoqAutoData]
-    public async Task WhenPostingRestrictCourseSearch_AndSelectedCourseIsNotInList_ThenReturnsNotFound(
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IValidator<ProviderRestrictedCourseSearchSubmitModel>> validator,
-        [Greedy] ProviderRestrictedCourseSearchController sut)
-    {
-        SetupSearchableCourses(outerApiClientMock);
-        validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
-            .Returns(new ValidationResult());
-
-        var actual = await sut.Index(
-            Ukprn,
-            new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = "999" },
-            CancellationToken.None);
-
-        actual.Should().BeOfType<NotFoundResult>();
-
-        sessionServiceMock.Verify(
-            s => s.Set(SessionKeys.ProviderRestrictedCourse, It.IsAny<ProviderRestrictedCourseSessionModel>()),
+            c => c.GetCourses(It.IsAny<CancellationToken>()),
             Times.Never);
         outerApiClientMock.Verify(
             c => c.GetProviderCourse(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
+        outerApiClientMock.Verify(
+            c => c.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Test, MoqAutoData]
-    public async Task WhenPostingRestrictCourseSearch_AndCourseIsSelected_AndNotRestrictedApprenticeshipsReturnsNotFound(
+    public async Task WhenPostingRestrictCourseSearch_AndGetCoursesReturnsNotFound_ThenReturnsNotFound(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
         [Frozen] Mock<IValidator<ProviderRestrictedCourseSearchSubmitModel>> validator,
         [Greedy] ProviderRestrictedCourseSearchController sut)
     {
-        SetupNotRestrictedApprenticeships(outerApiClientMock, HttpStatusCode.NotFound);
+        SetupGetCourses(outerApiClientMock, applicationCacheMock, HttpStatusCode.NotFound);
         validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
             .Returns(new ValidationResult());
 
@@ -210,8 +325,118 @@ public class ProviderRestrictedCourseSearchControllerPostTests
             s => s.Set(SessionKeys.ProviderRestrictedCourse, It.IsAny<ProviderRestrictedCourseSessionModel>()),
             Times.Never);
         outerApiClientMock.Verify(
+            c => c.GetCourses(It.IsAny<CancellationToken>()),
+            Times.Once);
+        outerApiClientMock.Verify(
             c => c.GetProviderCourse(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
+        outerApiClientMock.Verify(
+            c => c.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        outerApiClientMock.Verify(
+            c => c.GetNotRestrictedApprenticeships(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenPostingRestrictCourseSearch_AndSelectedCourseIsNotInCoursesList_ThenReturnsNotFound(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
+        [Frozen] Mock<IValidator<ProviderRestrictedCourseSearchSubmitModel>> validator,
+        [Greedy] ProviderRestrictedCourseSearchController sut)
+    {
+        SetupGetCourses(outerApiClientMock, applicationCacheMock, includeSelectedCourse: false);
+        validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
+            .Returns(new ValidationResult());
+
+        var actual = await sut.Index(
+            Ukprn,
+            new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
+            CancellationToken.None);
+
+        actual.Should().BeOfType<NotFoundResult>();
+
+        sessionServiceMock.Verify(
+            s => s.Set(SessionKeys.ProviderRestrictedCourse, It.IsAny<ProviderRestrictedCourseSessionModel>()),
+            Times.Never);
+        outerApiClientMock.Verify(
+            c => c.GetCourses(It.IsAny<CancellationToken>()),
+            Times.Once);
+        outerApiClientMock.Verify(
+            c => c.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        outerApiClientMock.Verify(
+            c => c.GetProviderCourse(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenPostingRestrictCourseSearch_AndGetCoursesReturnsUnexpectedError_ThenThrows(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
+        [Frozen] Mock<IValidator<ProviderRestrictedCourseSearchSubmitModel>> validator,
+        [Greedy] ProviderRestrictedCourseSearchController sut)
+    {
+        SetupGetCourses(outerApiClientMock, applicationCacheMock, HttpStatusCode.InternalServerError);
+        validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
+            .Returns(new ValidationResult());
+
+        var act = () => sut.Index(
+            Ukprn,
+            new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ApiException>();
+
+        sessionServiceMock.Verify(
+            s => s.Set(SessionKeys.ProviderRestrictedCourse, It.IsAny<ProviderRestrictedCourseSessionModel>()),
+            Times.Never);
+        outerApiClientMock.Verify(
+            c => c.GetCourses(It.IsAny<CancellationToken>()),
+            Times.Once);
+        outerApiClientMock.Verify(
+            c => c.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        outerApiClientMock.Verify(
+            c => c.GetProviderCourse(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenPostingRestrictCourseSearch_AndOrganisationIsNotFound_ThenReturnsNotFound(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
+        [Frozen] Mock<IValidator<ProviderRestrictedCourseSearchSubmitModel>> validator,
+        [Greedy] ProviderRestrictedCourseSearchController sut,
+        GetOrganisationResponse organisationResponse)
+    {
+        SetupGetCourses(outerApiClientMock, applicationCacheMock);
+        validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
+            .Returns(new ValidationResult());
+        SetupOrganisation(outerApiClientMock, organisationResponse, HttpStatusCode.NotFound);
+
+        var actual = await sut.Index(
+            Ukprn,
+            new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
+            CancellationToken.None);
+
+        actual.Should().BeOfType<NotFoundResult>();
+
+        sessionServiceMock.Verify(
+            s => s.Set(SessionKeys.ProviderRestrictedCourse, It.IsAny<ProviderRestrictedCourseSessionModel>()),
+            Times.Never);
+        outerApiClientMock.Verify(
+            c => c.GetCourses(It.IsAny<CancellationToken>()),
+            Times.Once);
+        outerApiClientMock.Verify(
+            c => c.GetProviderCourse(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        outerApiClientMock.Verify(
+            c => c.GetOrganisation(Ukprn, It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Test, MoqAutoData]
@@ -249,8 +474,77 @@ public class ProviderRestrictedCourseSearchControllerPostTests
             s => s.Set(SessionKeys.ProviderRestrictedCourse, It.IsAny<ProviderRestrictedCourseSessionModel>()),
             Times.Never);
         outerApiClientMock.Verify(
+            c => c.GetCourses(It.IsAny<CancellationToken>()),
+            Times.Never);
+        outerApiClientMock.Verify(
             c => c.GetProviderCourse(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
+        outerApiClientMock.Verify(
+            c => c.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    private static void SetupGetCourses(
+        Mock<IOuterApiClient> outerApiClientMock,
+        Mock<IApplicationCacheService> applicationCacheMock,
+        HttpStatusCode statusCode = HttpStatusCode.OK,
+        bool includeSelectedCourse = true)
+    {
+        applicationCacheMock
+            .Setup(c => c.GetAsync<GetCoursesResponse>(
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetCoursesResponse?)null);
+        applicationCacheMock
+            .Setup(c => c.SetAsync(
+                It.IsAny<string>(),
+                It.IsAny<GetCoursesResponse>(),
+                It.IsAny<TimeSpan?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        var httpResponse = new HttpResponseMessage(statusCode);
+        ApiException? apiException = null;
+        if (statusCode != HttpStatusCode.OK && statusCode != HttpStatusCode.NotFound)
+        {
+            apiException = ApiException.Create(
+                new HttpRequestMessage(),
+                HttpMethod.Get,
+                httpResponse,
+                new RefitSettings()).GetAwaiter().GetResult();
+        }
+
+        var courses = new List<GetCourseResponse>
+        {
+            new()
+            {
+                LarsCode = "300",
+                Title = "Beta course",
+                Level = 4,
+                CourseType = CourseType.Apprenticeship,
+                LearningType = LearningType.Apprenticeship
+            }
+        };
+
+        if (includeSelectedCourse)
+        {
+            courses.Insert(0, new GetCourseResponse
+            {
+                LarsCode = SelectedLarsCode,
+                Title = SelectedCourseTitle,
+                Level = SelectedCourseLevel,
+                CourseType = CourseType.Apprenticeship,
+                LearningType = LearningType.Apprenticeship
+            });
+        }
+
+        outerApiClientMock
+            .Setup(c => c.GetCourses(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetCoursesResponse>(
+                httpResponse,
+                new GetCoursesResponse { Courses = courses },
+                new RefitSettings(),
+                apiException));
     }
 
     private static void SetupSearchableCourses(Mock<IOuterApiClient> outerApiClientMock)
@@ -279,6 +573,32 @@ public class ProviderRestrictedCourseSearchControllerPostTests
                 },
                 new RefitSettings(),
                 null));
+    }
+
+    private static void SetupOrganisation(
+        Mock<IOuterApiClient> outerApiClientMock,
+        GetOrganisationResponse? organisationResponse = null,
+        HttpStatusCode statusCode = HttpStatusCode.OK)
+    {
+        organisationResponse ??= new GetOrganisationResponse { LegalName = ProviderName };
+        var httpResponse = new HttpResponseMessage(statusCode);
+        ApiException? apiException = null;
+        if (statusCode != HttpStatusCode.OK && statusCode != HttpStatusCode.NotFound)
+        {
+            apiException = ApiException.Create(
+                new HttpRequestMessage(),
+                HttpMethod.Get,
+                httpResponse,
+                new RefitSettings()).GetAwaiter().GetResult();
+        }
+
+        outerApiClientMock
+            .Setup(c => c.GetOrganisation(Ukprn, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(
+                httpResponse,
+                organisationResponse,
+                new RefitSettings(),
+                apiException));
     }
 
     private static void SetupNotRestrictedApprenticeships(

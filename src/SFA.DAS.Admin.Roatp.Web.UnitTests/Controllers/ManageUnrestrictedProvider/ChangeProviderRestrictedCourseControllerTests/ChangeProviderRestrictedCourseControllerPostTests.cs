@@ -25,7 +25,7 @@ public class ChangeProviderRestrictedCourseControllerPostTests
     private static readonly DateTime LastDateStarts = new(2026, 7, 12, 0, 0, 0, DateTimeKind.Unspecified);
 
     [Test, MoqAutoData]
-    public void WhenPostingChange_AndNoOptionIsSelected_ThenReloadsViewWithError(
+    public async Task WhenPostingChange_AndNoOptionIsSelected_ThenReloadsViewWithError(
         [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
         [Frozen] Mock<IValidator<ChangeProviderRestrictedCourseSubmitModel>> validatorMock,
         [Greedy] ChangeProviderRestrictedCourseController sut)
@@ -42,7 +42,7 @@ public class ChangeProviderRestrictedCourseControllerPostTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
 
-        var result = sut.Index(Ukprn, LarsCode, new ChangeProviderRestrictedCourseSubmitModel()) as ViewResult;
+        var result = await sut.Index(Ukprn, LarsCode, new ChangeProviderRestrictedCourseSubmitModel(), CancellationToken.None) as ViewResult;
         var model = result?.Model as ChangeProviderRestrictedCourseViewModel;
 
         using (new AssertionScope())
@@ -56,7 +56,7 @@ public class ChangeProviderRestrictedCourseControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public void WhenPostingChange_AndAddOrChangeIsSelected_ThenRefreshesPage(
+    public async Task WhenPostingChange_AndAddOrChangeIsSelected_ThenRefreshesPage(
         [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
         [Frozen] Mock<IValidator<ChangeProviderRestrictedCourseSubmitModel>> validatorMock,
         [Greedy] ChangeProviderRestrictedCourseController sut)
@@ -68,13 +68,14 @@ public class ChangeProviderRestrictedCourseControllerPostTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
 
-        var result = sut.Index(
+        var result = await sut.Index(
             Ukprn,
             LarsCode,
             new ChangeProviderRestrictedCourseSubmitModel
             {
                 SelectedOption = ChangeProviderRestrictedCourseOptions.AddOrChange
-            }) as ViewResult;
+            },
+            CancellationToken.None) as ViewResult;
         var model = result?.Model as ChangeProviderRestrictedCourseViewModel;
 
         using (new AssertionScope())
@@ -88,7 +89,7 @@ public class ChangeProviderRestrictedCourseControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public void WhenPostingChange_AndRemoveIsSelected_ThenRefreshesPage(
+    public async Task WhenPostingChange_AndRemoveIsSelected_ThenRefreshesPage(
         [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
         [Frozen] Mock<IValidator<ChangeProviderRestrictedCourseSubmitModel>> validatorMock,
         [Greedy] ChangeProviderRestrictedCourseController sut)
@@ -100,13 +101,14 @@ public class ChangeProviderRestrictedCourseControllerPostTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
 
-        var result = sut.Index(
+        var result = await sut.Index(
             Ukprn,
             LarsCode,
             new ChangeProviderRestrictedCourseSubmitModel
             {
                 SelectedOption = ChangeProviderRestrictedCourseOptions.Remove
-            }) as ViewResult;
+            },
+            CancellationToken.None) as ViewResult;
         var model = result?.Model as ChangeProviderRestrictedCourseViewModel;
 
         using (new AssertionScope())
@@ -120,22 +122,24 @@ public class ChangeProviderRestrictedCourseControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public void WhenPostingChange_AndCacheIsMissing_ThenRedirectsToRestrictedCoursesList(
+    public async Task WhenPostingChange_AndCacheIsMissing_ThenRedirectsToRestrictedCoursesList(
         [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
         [Greedy] ChangeProviderRestrictedCourseController sut)
     {
-        List<RestrictedApprenticeshipModel>? courses = null;
         applicationCacheMock
-            .Setup(c => c.TryGet(ApplicationCacheKeys.RestrictedApprenticeships(Ukprn), out courses))
-            .Returns(false);
+            .Setup(c => c.GetAsync<List<RestrictedApprenticeshipModel>>(
+                ApplicationCacheKeys.RestrictedApprenticeships(Ukprn),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((List<RestrictedApprenticeshipModel>?)null);
 
-        var result = sut.Index(
+        var result = await sut.Index(
             Ukprn,
             LarsCode,
             new ChangeProviderRestrictedCourseSubmitModel
             {
                 SelectedOption = ChangeProviderRestrictedCourseOptions.AddOrChange
-            }) as RedirectToRouteResult;
+            },
+            CancellationToken.None) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -160,7 +164,9 @@ public class ChangeProviderRestrictedCourseControllerPostTests
         ];
 
         applicationCacheMock
-            .Setup(c => c.TryGet(ApplicationCacheKeys.RestrictedApprenticeships(Ukprn), out courses))
-            .Returns(true);
+            .Setup(c => c.GetAsync<List<RestrictedApprenticeshipModel>>(
+                ApplicationCacheKeys.RestrictedApprenticeships(Ukprn),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(courses);
     }
 }

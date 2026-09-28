@@ -1,28 +1,30 @@
-using Microsoft.Extensions.Caching.Memory;
+using System.Text.Json;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace SFA.DAS.Admin.Roatp.Web.Services;
 
-public class ApplicationCacheService(IMemoryCache memoryCache) : IApplicationCacheService
+public class ApplicationCacheService(IDistributedCache distributedCache) : IApplicationCacheService
 {
-    public const int DefaultExpirationMinutes = 30;
+    public static readonly TimeSpan DefaultCacheDuration = TimeSpan.FromHours(4);
 
-    public bool TryGet<T>(string key, out T? value)
+    public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
-        if (memoryCache.TryGetValue(key, out T? cached) && cached is not null)
-        {
-            value = cached;
-            return true;
-        }
-
-        value = default;
-        return false;
+        var json = await distributedCache.GetStringAsync(key, cancellationToken);
+        return string.IsNullOrEmpty(json) ? default : JsonSerializer.Deserialize<T>(json);
     }
 
-    public void Set<T>(string key, T value, TimeSpan? absoluteExpirationRelativeToNow = null)
+    public async Task SetAsync<T>(
+        string key,
+        T value,
+        TimeSpan? cacheDuration = null,
+        CancellationToken cancellationToken = default)
     {
-        memoryCache.Set(
-            key,
-            value,
-            absoluteExpirationRelativeToNow ?? TimeSpan.FromMinutes(DefaultExpirationMinutes));
+        var json = JsonSerializer.Serialize(value);
+        var options = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = cacheDuration ?? DefaultCacheDuration
+        };
+
+        await distributedCache.SetStringAsync(key, json, options, cancellationToken);
     }
 }

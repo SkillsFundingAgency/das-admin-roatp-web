@@ -1,7 +1,7 @@
+using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
-using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
 using SFA.DAS.Admin.Roatp.Web.Models.Session;
@@ -55,7 +55,7 @@ public class UnrestrictedCourseDetailsController(
         CancellationToken cancellationToken)
     {
         var response = await outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
-        if (response.IsNotFound())
+        if (response.StatusCode == HttpStatusCode.NotFound)
         {
             return null;
         }

@@ -22,7 +22,7 @@ public class ChangeProviderRestrictedCourseControllerGetTests
     private static readonly DateTime LastDateStarts = new(2026, 7, 12, 0, 0, 0, DateTimeKind.Unspecified);
 
     [Test, MoqAutoData]
-    public void WhenGettingChange_AndCourseHasLastStartDate_ThenReturnsViewWithDate(
+    public async Task WhenGettingChange_AndCourseHasLastStartDate_ThenReturnsViewWithDate(
         [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
         [Greedy] ChangeProviderRestrictedCourseController sut)
     {
@@ -30,7 +30,7 @@ public class ChangeProviderRestrictedCourseControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
 
-        var result = sut.Index(Ukprn, LarsCode) as ViewResult;
+        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as ViewResult;
         var model = result?.Model as ChangeProviderRestrictedCourseViewModel;
 
         using (new AssertionScope())
@@ -50,7 +50,7 @@ public class ChangeProviderRestrictedCourseControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public void WhenGettingChange_AndCourseHasNoLastStartDate_ThenReturnsViewWithoutDate(
+    public async Task WhenGettingChange_AndCourseHasNoLastStartDate_ThenReturnsViewWithoutDate(
         [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
         [Greedy] ChangeProviderRestrictedCourseController sut)
     {
@@ -58,7 +58,7 @@ public class ChangeProviderRestrictedCourseControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
 
-        var result = sut.Index(Ukprn, LarsCode) as ViewResult;
+        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as ViewResult;
         var model = result?.Model as ChangeProviderRestrictedCourseViewModel;
 
         using (new AssertionScope())
@@ -74,13 +74,13 @@ public class ChangeProviderRestrictedCourseControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public void WhenGettingChange_AndCacheIsMissing_ThenRedirectsToRestrictedCoursesList(
+    public async Task WhenGettingChange_AndCacheIsMissing_ThenRedirectsToRestrictedCoursesList(
         [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
         [Greedy] ChangeProviderRestrictedCourseController sut)
     {
         SetupCacheMiss(applicationCacheMock);
 
-        var result = sut.Index(Ukprn, LarsCode) as RedirectToRouteResult;
+        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -91,13 +91,13 @@ public class ChangeProviderRestrictedCourseControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public void WhenGettingChange_AndCourseIsNotInCache_ThenRedirectsToRestrictedCoursesList(
+    public async Task WhenGettingChange_AndCourseIsNotInCache_ThenRedirectsToRestrictedCoursesList(
         [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
         [Greedy] ChangeProviderRestrictedCourseController sut)
     {
         SetupCachedCourse(applicationCacheMock, LastDateStarts, larsCode: "999");
 
-        var result = sut.Index(Ukprn, LarsCode) as RedirectToRouteResult;
+        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -135,15 +135,18 @@ public class ChangeProviderRestrictedCourseControllerGetTests
         ];
 
         applicationCacheMock
-            .Setup(c => c.TryGet(ApplicationCacheKeys.RestrictedApprenticeships(Ukprn), out courses))
-            .Returns(true);
+            .Setup(c => c.GetAsync<List<RestrictedApprenticeshipModel>>(
+                ApplicationCacheKeys.RestrictedApprenticeships(Ukprn),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(courses);
     }
 
     private static void SetupCacheMiss(Mock<IApplicationCacheService> applicationCacheMock)
     {
-        List<RestrictedApprenticeshipModel>? courses = null;
         applicationCacheMock
-            .Setup(c => c.TryGet(ApplicationCacheKeys.RestrictedApprenticeships(Ukprn), out courses))
-            .Returns(false);
+            .Setup(c => c.GetAsync<List<RestrictedApprenticeshipModel>>(
+                ApplicationCacheKeys.RestrictedApprenticeships(Ukprn),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((List<RestrictedApprenticeshipModel>?)null);
     }
 }

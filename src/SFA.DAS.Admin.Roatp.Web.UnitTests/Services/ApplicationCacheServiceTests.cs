@@ -1,10 +1,10 @@
-using AutoFixture.NUnit4;
 using FluentAssertions;
-using FluentAssertions.Execution;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using Moq;
+using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Services;
-using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Services;
 
@@ -12,94 +12,50 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Services;
 public class ApplicationCacheServiceTests
 {
     [Test]
-    public void WhenSettingValue_ThenTryGetReturnsCachedValue()
+    public async Task WhenGettingValue_AndKeyIsMissing_ThenReturnsDefault()
     {
-        var sut = new ApplicationCacheService(new MemoryCache(new MemoryCacheOptions()));
+        var sut = CreateSut();
 
-        sut.Set("key", "value");
-        var found = sut.TryGet("key", out string? cached);
+        var result = await sut.GetAsync<string>("missing");
 
-        using (new AssertionScope())
-        {
-            found.Should().BeTrue();
-            cached.Should().Be("value");
-        }
+        result.Should().BeNull();
     }
 
     [Test]
-    public void WhenKeyDoesNotExist_ThenTryGetReturnsFalse()
+    public async Task WhenSettingAndGettingValue_ThenReturnsCachedValue()
     {
-        var sut = new ApplicationCacheService(new MemoryCache(new MemoryCacheOptions()));
+        var sut = CreateSut();
+        const string key = ApplicationCacheKeys.CoursesCacheKey;
+        const string value = "Alpha course";
 
-        var found = sut.TryGet("missing", out string? cached);
+        await sut.SetAsync(key, value);
+        var result = await sut.GetAsync<string>(key);
 
-        using (new AssertionScope())
-        {
-            found.Should().BeFalse();
-            cached.Should().BeNull();
-        }
+        result.Should().Be(value);
     }
 
     [Test]
-    public void WhenCachedValueIsNull_ThenTryGetReturnsFalse()
+    public async Task WhenSettingValue_ThenUsesFourHourExpiryByDefault()
     {
-        var memoryCache = new MemoryCache(new MemoryCacheOptions());
-        memoryCache.Set<string?>("key", null);
-        var sut = new ApplicationCacheService(memoryCache);
+        var distributedCacheMock = new Mock<IDistributedCache>();
+        DistributedCacheEntryOptions? capturedOptions = null;
+        distributedCacheMock
+            .Setup(c => c.SetAsync(
+                It.IsAny<string>(),
+                It.IsAny<byte[]>(),
+                It.IsAny<DistributedCacheEntryOptions>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<string, byte[], DistributedCacheEntryOptions, CancellationToken>((_, _, options, _) =>
+                capturedOptions = options)
+            .Returns(Task.CompletedTask);
+        var sut = new ApplicationCacheService(distributedCacheMock.Object);
 
-        var found = sut.TryGet("key", out string? cached);
+        await sut.SetAsync("key", "value");
 
-        using (new AssertionScope())
-        {
-            found.Should().BeFalse();
-            cached.Should().BeNull();
-        }
+        capturedOptions.Should().NotBeNull();
+        capturedOptions!.AbsoluteExpirationRelativeToNow.Should().Be(ApplicationCacheService.DefaultCacheDuration);
     }
 
-    [Test, MoqAutoData]
-    public void WhenSettingValue_WithoutExpiration_ThenDefaultExpirationIsApplied(
-        [Frozen] Mock<IMemoryCache> memoryCacheMock,
-        string key,
-        string value)
-    {
-        var cacheEntry = Mock.Of<ICacheEntry>();
-        memoryCacheMock.Setup(m => m.CreateEntry(key)).Returns(cacheEntry);
-        var sut = new ApplicationCacheService(memoryCacheMock.Object);
-
-        sut.Set(key, value);
-
-        cacheEntry.AbsoluteExpirationRelativeToNow.Should().Be(TimeSpan.FromMinutes(ApplicationCacheService.DefaultExpirationMinutes));
-    }
-
-    [Test, MoqAutoData]
-    public void WhenSettingValue_WithCustomExpiration_ThenCustomExpirationIsApplied(
-        [Frozen] Mock<IMemoryCache> memoryCacheMock,
-        string key,
-        string value,
-        TimeSpan expiration)
-    {
-        var cacheEntry = Mock.Of<ICacheEntry>();
-        memoryCacheMock.Setup(m => m.CreateEntry(key)).Returns(cacheEntry);
-        var sut = new ApplicationCacheService(memoryCacheMock.Object);
-
-        sut.Set(key, value, expiration);
-
-        cacheEntry.AbsoluteExpirationRelativeToNow.Should().Be(expiration);
-    }
-
-    [Test]
-    public void WhenSettingValue_ThatAlreadyExists_ThenValueIsOverwritten()
-    {
-        var sut = new ApplicationCacheService(new MemoryCache(new MemoryCacheOptions()));
-
-        sut.Set("key", "original");
-        sut.Set("key", "updated");
-        var found = sut.TryGet("key", out string? cached);
-
-        using (new AssertionScope())
-        {
-            found.Should().BeTrue();
-            cached.Should().Be("updated");
-        }
-    }
+    private static ApplicationCacheService CreateSut()
+        => new(new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions())));
 }

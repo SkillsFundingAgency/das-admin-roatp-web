@@ -38,7 +38,10 @@ public class RestrictedApprenticeshipsController(
         }
 
         var courses = apiResponse.Content?.Courses ?? [];
-        applicationCacheService.Set(ApplicationCacheKeys.RestrictedApprenticeships(ukprn), courses);
+        await applicationCacheService.SetAsync(
+            ApplicationCacheKeys.RestrictedApprenticeships(ukprn),
+            courses,
+            cancellationToken: cancellationToken);
 
         var viewModel = new RestrictedApprenticeshipsViewModel
         {
