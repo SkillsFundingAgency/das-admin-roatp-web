@@ -18,7 +18,8 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 public class ProviderRestrictedCourseSearchController(
     IOuterApiClient outerApiClient,
     ISessionService sessionService,
-    IValidator<ProviderRestrictedCourseSearchSubmitModel> validator) : Controller
+    IValidator<ProviderRestrictedCourseSearchSubmitModel> validator,
+    IApplicationCacheService applicationCacheService) : Controller
 {
     public const string ViewPath = "~/Views/ManageUnrestrictedProvider/ProviderRestrictedCourseSearch/Index.cshtml";
 
@@ -85,6 +86,18 @@ public class ProviderRestrictedCourseSearchController(
         string larsCode,
         CancellationToken cancellationToken)
     {
+        var courses = await GetCourses(cancellationToken);
+        return courses?.FirstOrDefault(course => course.LarsCode == larsCode);
+    }
+
+    private async Task<List<GetCourseResponse>?> GetCourses(CancellationToken cancellationToken)
+    {
+        var cached = await applicationCacheService.GetAsync<GetCoursesResponse>(ApplicationCacheKeys.CoursesCacheKey, cancellationToken);
+        if (cached is not null)
+        {
+            return cached.Courses;
+        }
+
         var response = await outerApiClient.GetCourses(cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
@@ -92,7 +105,12 @@ public class ProviderRestrictedCourseSearchController(
         }
 
         await response.EnsureSuccessStatusCodeAsync();
-        return response.Content?.Courses?.FirstOrDefault(course => course.LarsCode == larsCode);
+        if (response.Content is not null)
+        {
+            await applicationCacheService.SetAsync(ApplicationCacheKeys.CoursesCacheKey, response.Content, cancellationToken: cancellationToken);
+        }
+
+        return response.Content?.Courses;
     }
 
     private async Task<bool> HasProviderCourse(
@@ -119,6 +137,7 @@ public class ProviderRestrictedCourseSearchController(
         {
             return null;
         }
+
         await response.EnsureSuccessStatusCodeAsync();
         return response.Content;
     }

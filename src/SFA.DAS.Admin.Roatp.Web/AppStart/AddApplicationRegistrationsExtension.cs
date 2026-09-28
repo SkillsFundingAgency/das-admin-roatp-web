@@ -19,6 +19,7 @@ public static class AddApplicationRegistrationsExtension
             .Get<AdminRoatpOuterApiConfiguration>();
 
         services.AddTransient<ISessionService, SessionService>();
+        services.AddSingleton<IApplicationCacheService, ApplicationCacheService>();
         services.AddTransient<IOrganisationsService, OrganisationsService>();
         services.AddTransient<IOrganisationPatchService, OrganisationPatchService>();
         services.AddTransient<IOrganisationTypesService, OrganisationTypesService>();
