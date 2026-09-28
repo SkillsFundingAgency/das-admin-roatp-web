@@ -21,7 +21,7 @@ public class ConfirmProviderRestrictedCourseController(
         $"{displayTitle} has been added to the restricted apprenticeships list";
 
     [HttpGet]
-    public async Task<IActionResult> Index(int ukprn)
+    public IActionResult Index(int ukprn)
     {
         var session = GetRestrictCourseSession(ukprn);
         if (session is null)
@@ -29,13 +29,7 @@ public class ConfirmProviderRestrictedCourseController(
             return RedirectToRoute(RouteNames.ProviderRestrictedCourses, new { ukprn });
         }
 
-        var providerName = await TempData.GetProviderName(outerApiClient, ukprn, CancellationToken.None);
-        if (providerName is null)
-        {
-            return NotFound();
-        }
-
-        return View(ViewPath, BuildViewModel(session, providerName));
+        return View(ViewPath, BuildViewModel(session));
     }
 
     [HttpPost]
@@ -79,11 +73,11 @@ public class ConfirmProviderRestrictedCourseController(
         return session;
     }
 
-    private ConfirmProviderRestrictedCourseViewModel BuildViewModel(ProviderRestrictedCourseSessionModel session, string providerName)
+    private ConfirmProviderRestrictedCourseViewModel BuildViewModel(ProviderRestrictedCourseSessionModel session)
         => new()
         {
             Ukprn = session.Ukprn,
-            ProviderName = providerName,
+            ProviderName = session.ProviderName,
             CourseDisplayTitle = session.CourseDisplayTitle,
             LarsCode = session.LarsCode,
             CancelUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn = session.Ukprn })!

@@ -35,7 +35,7 @@ public class ProviderRestrictedCourseSetLastStartDateController(
         }
 
         var model = await BuildViewModelAsync(session, null, cancellationToken);
-        return model is null ? NotFound() : View(ViewPath, model);
+        return View(ViewPath, model);
     }
 
     [HttpPost]
@@ -51,10 +51,6 @@ public class ProviderRestrictedCourseSetLastStartDateController(
         }
 
         var model = await BuildViewModelAsync(session, submitModel, cancellationToken);
-        if (model is null)
-        {
-            return NotFound();
-        }
 
         submitModel.LarsCode = session.LarsCode;
         submitModel.CourseLastDateStarts = model.CourseLastDateStarts;
@@ -105,21 +101,15 @@ public class ProviderRestrictedCourseSetLastStartDateController(
         return session;
     }
 
-    private async Task<ProviderRestrictedCourseSetLastStartDateViewModel?> BuildViewModelAsync(
+    private async Task<ProviderRestrictedCourseSetLastStartDateViewModel> BuildViewModelAsync(
         ProviderRestrictedCourseSessionModel session,
         SetLastDateStartsSubmitModel? submitModel,
         CancellationToken cancellationToken)
     {
-        var providerName = await TempData.GetProviderName(outerApiClient, session.Ukprn, cancellationToken);
-        if (providerName is null)
-        {
-            return null;
-        }
-
         return new ProviderRestrictedCourseSetLastStartDateViewModel
         {
             Ukprn = session.Ukprn,
-            ProviderName = providerName,
+            ProviderName = session.ProviderName,
             CourseDisplayTitle = session.CourseDisplayTitle,
             LarsCode = session.LarsCode,
             CourseLastDateStarts = await GetCourseLastDateStartsAsync(session.LarsCode, cancellationToken),

@@ -110,7 +110,8 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
                 LarsCode = LarsCode,
                 Title = "Carpentry",
                 Level = 1,
-                CourseDisplayTitle = DisplayTitle
+                CourseDisplayTitle = DisplayTitle,
+                ProviderName = "Denton Business Services Limited"
             });
     }
 
