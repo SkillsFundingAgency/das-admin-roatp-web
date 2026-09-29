@@ -12,7 +12,9 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
 [Route("providers/{ukprn}/restricted-courses", Name = RouteNames.ProviderRestrictedCourses)]
-public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient) : Controller
+public class RestrictedApprenticeshipsController(
+    IOuterApiClient outerApiClient,
+    ISessionService sessionService) : Controller
 {
     public const string ViewPath = "~/Views/ManageUnrestrictedProvider/RestrictedApprenticeships/Index.cshtml";
     public const string SuccessBannerTempDataKey = "SuccessBannerMessage";
@@ -23,7 +25,7 @@ public class RestrictedApprenticeshipsController(IOuterApiClient outerApiClient)
         GetRestrictedApprenticeshipsRequestModel requestModel,
         CancellationToken cancellationToken)
     {
-        var providerName = await TempData.GetProviderName(outerApiClient, ukprn, cancellationToken);
+        var providerName = await sessionService.GetProviderName(outerApiClient, ukprn, cancellationToken);
         if (providerName is null)
         {
             return NotFound();

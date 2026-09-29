@@ -57,8 +57,8 @@ public class ProviderRestrictedCourseSearchController(
             return NotFound();
         }
 
-        var organisation = await GetOrganisation(ukprn, cancellationToken);
-        if (organisation is null)
+        var providerName = await sessionService.GetProviderName(outerApiClient, ukprn, cancellationToken);
+        if (providerName is null)
         {
             return NotFound();
         }
@@ -70,7 +70,7 @@ public class ProviderRestrictedCourseSearchController(
             Title = course.Title,
             Level = course.Level,
             CourseDisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level),
-            ProviderName = organisation.LegalName
+            ProviderName = providerName
         });
 
         var hasProviderCourse = await HasProviderCourse(ukprn, submitModel.SelectedLarsCode!, cancellationToken);
@@ -126,20 +126,6 @@ public class ProviderRestrictedCourseSearchController(
 
         await response.EnsureSuccessStatusCodeAsync();
         return true;
-    }
-
-    private async Task<GetOrganisationResponse?> GetOrganisation(
-        int ukprn,
-        CancellationToken cancellationToken)
-    {
-        var response = await outerApiClient.GetOrganisation(ukprn, cancellationToken);
-        if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            return null;
-        }
-
-        await response.EnsureSuccessStatusCodeAsync();
-        return response.Content;
     }
 
     private async Task<GetNotRestrictedApprenticeshipsResponse?> GetNotRestrictedApprenticeships(
