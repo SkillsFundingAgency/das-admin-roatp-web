@@ -90,8 +90,6 @@ public class ConfirmProviderRestrictedCourseControllerGetTests
             {
                 Ukprn = ukprn,
                 LarsCode = LarsCode,
-                Title = "Carpentry",
-                Level = 1,
                 CourseDisplayTitle = DisplayTitle,
                 ProviderName = ProviderName
             });

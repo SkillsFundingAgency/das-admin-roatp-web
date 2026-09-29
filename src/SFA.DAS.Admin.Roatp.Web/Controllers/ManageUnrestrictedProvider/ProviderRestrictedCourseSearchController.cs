@@ -67,8 +67,6 @@ public class ProviderRestrictedCourseSearchController(
         {
             Ukprn = ukprn,
             LarsCode = submitModel.SelectedLarsCode!,
-            Title = course.Title,
-            Level = course.Level,
             CourseDisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level),
             ProviderName = providerName
         });
@@ -87,10 +85,10 @@ public class ProviderRestrictedCourseSearchController(
         CancellationToken cancellationToken)
     {
         var courses = await GetCourses(cancellationToken);
-        return courses?.FirstOrDefault(course => course.LarsCode == larsCode);
+        return courses.FirstOrDefault(course => course.LarsCode == larsCode);
     }
 
-    private async Task<List<GetCourseResponse>?> GetCourses(CancellationToken cancellationToken)
+    private async Task<List<GetCourseResponse>> GetCourses(CancellationToken cancellationToken)
     {
         var cached = await applicationCacheService.GetAsync<GetCoursesResponse>(ApplicationCacheKeys.CoursesCacheKey, cancellationToken);
         if (cached is not null)
@@ -99,18 +97,13 @@ public class ProviderRestrictedCourseSearchController(
         }
 
         var response = await outerApiClient.GetCourses(cancellationToken);
-        if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            return null;
-        }
-
         await response.EnsureSuccessStatusCodeAsync();
         if (response.Content is not null)
         {
             await applicationCacheService.SetAsync(ApplicationCacheKeys.CoursesCacheKey, response.Content, cancellationToken: cancellationToken);
         }
 
-        return response.Content?.Courses;
+        return response.Content?.Courses ?? [];
     }
 
     private async Task<bool> HasProviderCourse(

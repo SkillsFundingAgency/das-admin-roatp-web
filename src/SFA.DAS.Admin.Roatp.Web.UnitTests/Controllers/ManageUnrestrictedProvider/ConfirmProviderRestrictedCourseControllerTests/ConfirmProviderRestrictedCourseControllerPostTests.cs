@@ -108,8 +108,6 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
             {
                 Ukprn = Ukprn,
                 LarsCode = LarsCode,
-                Title = "Carpentry",
-                Level = 1,
                 CourseDisplayTitle = DisplayTitle,
                 ProviderName = "Denton Business Services Limited"
             });

@@ -4,8 +4,6 @@ public class ProviderRestrictedCourseSessionModel : ISessionModel
 {
     public required int Ukprn { get; set; }
     public required string LarsCode { get; set; }
-    public required string Title { get; set; }
-    public int Level { get; set; }
     public required string CourseDisplayTitle { get; set; }
     public required string ProviderName { get; set; }
 }

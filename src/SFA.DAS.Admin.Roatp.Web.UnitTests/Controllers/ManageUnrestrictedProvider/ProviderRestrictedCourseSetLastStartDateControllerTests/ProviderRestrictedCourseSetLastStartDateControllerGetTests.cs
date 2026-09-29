@@ -157,8 +157,6 @@ public class ProviderRestrictedCourseSetLastStartDateControllerGetTests
             {
                 Ukprn = ukprn,
                 LarsCode = LarsCode,
-                Title = "Electrical",
-                Level = 3,
                 CourseDisplayTitle = DisplayTitle,
                 ProviderName = ProviderName
             });

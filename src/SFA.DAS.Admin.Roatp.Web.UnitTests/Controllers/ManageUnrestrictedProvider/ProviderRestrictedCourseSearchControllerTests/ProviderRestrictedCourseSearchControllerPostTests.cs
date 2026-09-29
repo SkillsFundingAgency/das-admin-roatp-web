@@ -59,8 +59,6 @@ public class ProviderRestrictedCourseSearchControllerPostTests
             It.Is<ProviderRestrictedCourseSessionModel>(m =>
                 m.Ukprn == Ukprn &&
                 m.LarsCode == SelectedLarsCode &&
-                m.Title == SelectedCourseTitle &&
-                m.Level == SelectedCourseLevel &&
                 m.CourseDisplayTitle == "Alpha course (Level 6)" &&
                 m.ProviderName == ProviderName)), Times.Once);
         sessionServiceMock.Verify(s => s.Set(
@@ -132,8 +130,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         sessionServiceMock.Verify(s => s.Set(
             SessionKeys.ProviderRestrictedCourse,
             It.Is<ProviderRestrictedCourseSessionModel>(m =>
-                m.Title == SelectedCourseTitle &&
-                m.Level == SelectedCourseLevel &&
+                m.CourseDisplayTitle == "Alpha course (Level 6)" &&
                 m.ProviderName == ProviderName)), Times.Once);
         outerApiClientMock.Verify(
             c => c.GetCourses(It.IsAny<CancellationToken>()),
@@ -307,7 +304,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenPostingRestrictCourseSearch_AndGetCoursesReturnsNotFound_ThenReturnsNotFound(
+    public async Task WhenPostingRestrictCourseSearch_AndGetCoursesReturnsNotFound_ThenThrows(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
@@ -318,12 +315,12 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
             .Returns(new ValidationResult());
 
-        var actual = await sut.Index(
+        var act = () => sut.Index(
             Ukprn,
             new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
             CancellationToken.None);
 
-        actual.Should().BeOfType<NotFoundResult>();
+        await act.Should().ThrowAsync<ApiException>();
 
         sessionServiceMock.Verify(
             s => s.Set(SessionKeys.ProviderRestrictedCourse, It.IsAny<ProviderRestrictedCourseSessionModel>()),
@@ -509,7 +506,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
 
         var httpResponse = new HttpResponseMessage(statusCode);
         ApiException? apiException = null;
-        if (statusCode != HttpStatusCode.OK && statusCode != HttpStatusCode.NotFound)
+        if (statusCode != HttpStatusCode.OK)
         {
             apiException = ApiException.Create(
                 new HttpRequestMessage(),
