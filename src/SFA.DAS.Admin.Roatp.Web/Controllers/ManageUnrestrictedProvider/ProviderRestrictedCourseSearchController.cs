@@ -67,8 +67,6 @@ public class ProviderRestrictedCourseSearchController(
         {
             Ukprn = ukprn,
             LarsCode = submitModel.SelectedLarsCode!,
-            Title = course.Title,
-            Level = course.Level,
             CourseDisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level),
             ProviderName = providerName
         });

@@ -337,8 +337,6 @@ public class ProviderRestrictedCourseSetLastStartDateControllerPostTests
             {
                 Ukprn = ukprn,
                 LarsCode = LarsCode,
-                Title = "Electrical",
-                Level = 3,
                 CourseDisplayTitle = DisplayTitle,
                 ProviderName = ProviderName
             });
