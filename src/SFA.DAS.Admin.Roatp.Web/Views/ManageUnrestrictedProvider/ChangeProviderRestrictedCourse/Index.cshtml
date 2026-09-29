@@ -3,8 +3,6 @@
 @model ChangeProviderRestrictedCourseViewModel
 @{
     ViewData["Title"] = "What would you like to change?";
-    var optionError = ViewData.ModelState[nameof(Model.SelectedOption)]?.Errors.FirstOrDefault()?.ErrorMessage;
-    var hasOptionError = !string.IsNullOrEmpty(optionError);
 }
 
 <div class="govuk-grid-row">
@@ -23,15 +21,10 @@
               asp-route-larsCode="@Model.LarsCode"
               method="post"
               novalidate>
-            <div class="govuk-form-group @(hasOptionError ? "govuk-form-group--error" : string.Empty)">
-                <fieldset class="govuk-fieldset" aria-describedby="@(hasOptionError ? "selected-option-error" : null)">
+            <div esfa-validation-marker-for="SelectedOption" class="govuk-form-group" id="SelectedOption">
+                <fieldset class="govuk-fieldset">
                     <legend class="govuk-visually-hidden">What would you like to change?</legend>
-                    @if (hasOptionError)
-                    {
-                        <p id="selected-option-error" class="govuk-error-message">
-                            <span class="govuk-visually-hidden">Error:</span> @optionError
-                        </p>
-                    }
+                    <span asp-validation-for="SelectedOption" class="govuk-error-message"></span>
                     <div class="govuk-radios" data-module="govuk-radios">
                         <div class="govuk-radios__item">
                             <input class="govuk-radios__input"
