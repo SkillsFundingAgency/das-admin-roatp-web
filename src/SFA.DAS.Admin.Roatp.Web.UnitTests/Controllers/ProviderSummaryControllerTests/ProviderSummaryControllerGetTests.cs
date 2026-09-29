@@ -10,6 +10,7 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
+using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -38,6 +39,7 @@ public class ProviderSummaryControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingProviderSummary_AndMatchingDetails_ThenSetsModelUrls(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] EditOrganisationSessionModel _editOrganisationSessionModel,
         [Greedy] ProviderSummaryController sut,
         string selectOrganisationLink,
@@ -53,7 +55,7 @@ public class ProviderSummaryControllerGetTests
     {
         getOrganisationResponse.Ukprn = ukprn;
         _editOrganisationSessionModel.Ukprn = ukprn;
-        sut.AddTempData();
+        sessionServiceMock.SetupProviderNameMissing();
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.SelectProvider, selectOrganisationLink)
             .AddUrlForRoute(RouteNames.ProviderStatusUpdate, providerStatusUpdateLink)
@@ -83,8 +85,10 @@ public class ProviderSummaryControllerGetTests
             model.ManageApprovedCoursesUrl.Should().Be(providerSummaryLink);
             model.ChangeHowWeManageThisProviderUrl.Should().Be(providerSummaryLink);
             model.ManageApprovedUnitsUrl.Should().Be(providerSummaryLink);
-            sut.TempData.Peek(TempDataKeys.ProviderLegalName)
-                .Should().Be(getOrganisationResponse.LegalName);
         }
+
+        sessionServiceMock.Verify(s => s.Set(
+            SessionKeys.ProviderName,
+            It.Is<Dictionary<int, string>>(d => d[ukprn] == getOrganisationResponse.LegalName)), Times.Once);
     }
 }

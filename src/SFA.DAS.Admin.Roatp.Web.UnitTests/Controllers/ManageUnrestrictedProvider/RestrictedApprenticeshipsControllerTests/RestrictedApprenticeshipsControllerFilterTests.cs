@@ -11,6 +11,7 @@ using SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.Filters.FilterComponents;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
+using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 using static SFA.DAS.Admin.Roatp.Web.Services.FilterService;
@@ -26,6 +27,7 @@ public class RestrictedApprenticeshipsControllerFilterTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndCourseNameFilterMatches_ThenReturnsMatchingCourses(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] RestrictedApprenticeshipsController sut,
         GetRestrictedApprenticeshipsResponse response,
         string providerName,
@@ -51,7 +53,7 @@ public class RestrictedApprenticeshipsControllerFilterTests
             }
         ];
 
-        SetupController(sut, outerApiClientMock, ukprn, providerName, response);
+        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, response);
 
         var result = await sut.Index(
             ukprn,
@@ -73,6 +75,7 @@ public class RestrictedApprenticeshipsControllerFilterTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndDeliveryStatusFilterMatches_ThenReturnsMatchingCourses(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] RestrictedApprenticeshipsController sut,
         GetRestrictedApprenticeshipsResponse response,
         string providerName,
@@ -98,7 +101,7 @@ public class RestrictedApprenticeshipsControllerFilterTests
             }
         ];
 
-        SetupController(sut, outerApiClientMock, ukprn, providerName, response);
+        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, response);
 
         var result = await sut.Index(
             ukprn,
@@ -121,6 +124,7 @@ public class RestrictedApprenticeshipsControllerFilterTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndFiltersHaveNoMatches_ThenShowsNoFilterResults(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] RestrictedApprenticeshipsController sut,
         GetRestrictedApprenticeshipsResponse response,
         string providerName,
@@ -138,7 +142,7 @@ public class RestrictedApprenticeshipsControllerFilterTests
             }
         ];
 
-        SetupController(sut, outerApiClientMock, ukprn, providerName, response);
+        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, response);
 
         var result = await sut.Index(
             ukprn,
@@ -161,12 +165,13 @@ public class RestrictedApprenticeshipsControllerFilterTests
     private static void SetupController(
         RestrictedApprenticeshipsController sut,
         Mock<IOuterApiClient> outerApiClientMock,
+        Mock<ISessionService> sessionServiceMock,
         int ukprn,
         string providerName,
         GetRestrictedApprenticeshipsResponse response)
     {
+        sessionServiceMock.SetupProviderName(ukprn, providerName);
         sut.AddTempData();
-        sut.TempData[TempDataKeys.ProviderLegalName] = providerName;
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl)
             .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl)

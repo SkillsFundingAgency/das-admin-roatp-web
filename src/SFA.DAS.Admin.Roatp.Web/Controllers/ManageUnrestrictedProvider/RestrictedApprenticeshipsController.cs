@@ -14,6 +14,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 [Route("providers/{ukprn}/restricted-courses", Name = RouteNames.ProviderRestrictedCourses)]
 public class RestrictedApprenticeshipsController(
     IOuterApiClient outerApiClient,
+    ISessionService sessionService,
     IApplicationCacheService applicationCacheService) : Controller
 {
     public const string ViewPath = "~/Views/ManageUnrestrictedProvider/RestrictedApprenticeships/Index.cshtml";
@@ -25,7 +26,7 @@ public class RestrictedApprenticeshipsController(
         GetRestrictedApprenticeshipsRequestModel requestModel,
         CancellationToken cancellationToken)
     {
-        var providerName = await TempData.GetProviderName(outerApiClient, ukprn, cancellationToken);
+        var providerName = await sessionService.GetProviderName(outerApiClient, ukprn, cancellationToken);
         if (providerName is null)
         {
             return NotFound();

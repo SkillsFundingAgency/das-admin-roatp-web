@@ -14,6 +14,7 @@ using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
 using SFA.DAS.Admin.Roatp.Web.Models.Session;
 using SFA.DAS.Admin.Roatp.Web.Services;
+using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Admin.Roatp.Web.Validators;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -36,7 +37,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         [Greedy] ProviderRestrictedCourseSearchController sut)
     {
         SetupGetCourses(outerApiClientMock, applicationCacheMock);
-        SetupOrganisation(outerApiClientMock);
+        SetupOrganisation(outerApiClientMock, sessionServiceMock);
         SetupProviderCourse(outerApiClientMock, HttpStatusCode.NotFound);
         validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
             .Returns(new ValidationResult());
@@ -62,6 +63,9 @@ public class ProviderRestrictedCourseSearchControllerPostTests
                 m.Level == SelectedCourseLevel &&
                 m.CourseDisplayTitle == "Alpha course (Level 6)" &&
                 m.ProviderName == ProviderName)), Times.Once);
+        sessionServiceMock.Verify(s => s.Set(
+            SessionKeys.ProviderName,
+            It.Is<Dictionary<int, string>>(d => d[Ukprn] == ProviderName)), Times.Once);
         outerApiClientMock.Verify(
             c => c.GetCourses(It.IsAny<CancellationToken>()),
             Times.Once);
@@ -91,7 +95,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         [Frozen] Mock<IValidator<ProviderRestrictedCourseSearchSubmitModel>> validator,
         [Greedy] ProviderRestrictedCourseSearchController sut)
     {
-        SetupOrganisation(outerApiClientMock);
+        SetupOrganisation(outerApiClientMock, sessionServiceMock);
         SetupProviderCourse(outerApiClientMock, HttpStatusCode.NotFound);
         applicationCacheMock
             .Setup(c => c.GetAsync<GetCoursesResponse>(
@@ -155,7 +159,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         [Greedy] ProviderRestrictedCourseSearchController sut)
     {
         SetupGetCourses(outerApiClientMock, applicationCacheMock);
-        SetupOrganisation(outerApiClientMock);
+        SetupOrganisation(outerApiClientMock, sessionServiceMock);
         SetupProviderCourse(outerApiClientMock, HttpStatusCode.OK);
         validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
             .Returns(new ValidationResult());
@@ -202,7 +206,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         [Greedy] ProviderRestrictedCourseSearchController sut)
     {
         SetupGetCourses(outerApiClientMock, applicationCacheMock);
-        SetupOrganisation(outerApiClientMock);
+        SetupOrganisation(outerApiClientMock, sessionServiceMock);
         SetupProviderCourse(outerApiClientMock, HttpStatusCode.InternalServerError);
         validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
             .Returns(new ValidationResult());
@@ -234,7 +238,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         [Greedy] ProviderRestrictedCourseSearchController sut)
     {
         SetupGetCourses(outerApiClientMock, applicationCacheMock);
-        SetupOrganisation(outerApiClientMock, statusCode: HttpStatusCode.InternalServerError);
+        SetupOrganisation(outerApiClientMock, sessionServiceMock, statusCode: HttpStatusCode.InternalServerError);
         validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
             .Returns(new ValidationResult());
 
@@ -416,7 +420,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         SetupGetCourses(outerApiClientMock, applicationCacheMock);
         validator.Setup(x => x.Validate(It.IsAny<ProviderRestrictedCourseSearchSubmitModel>()))
             .Returns(new ValidationResult());
-        SetupOrganisation(outerApiClientMock, organisationResponse, HttpStatusCode.NotFound);
+        SetupOrganisation(outerApiClientMock, sessionServiceMock, organisationResponse, HttpStatusCode.NotFound);
 
         var actual = await sut.Index(
             Ukprn,
@@ -577,9 +581,11 @@ public class ProviderRestrictedCourseSearchControllerPostTests
 
     private static void SetupOrganisation(
         Mock<IOuterApiClient> outerApiClientMock,
+        Mock<ISessionService> sessionServiceMock,
         GetOrganisationResponse? organisationResponse = null,
         HttpStatusCode statusCode = HttpStatusCode.OK)
     {
+        sessionServiceMock.SetupProviderNameMissing();
         organisationResponse ??= new GetOrganisationResponse { LegalName = ProviderName };
         var httpResponse = new HttpResponseMessage(statusCode);
         ApiException? apiException = null;

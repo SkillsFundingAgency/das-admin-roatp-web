@@ -26,11 +26,12 @@ public class RestrictedApprenticeshipsControllerPaginationTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndMoreThanTenCourses_ThenReturnsFirstPageOfTen(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] RestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
-        SetupController(sut, outerApiClientMock, ukprn, providerName, CreateCourses(15));
+        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, CreateCourses(15));
 
         var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
@@ -50,11 +51,12 @@ public class RestrictedApprenticeshipsControllerPaginationTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndPageNumberIsTwo_ThenReturnsSecondPage(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] RestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
-        SetupController(sut, outerApiClientMock, ukprn, providerName, CreateCourses(15));
+        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, CreateCourses(15));
 
         var result = await sut.Index(
             ukprn,
@@ -77,11 +79,12 @@ public class RestrictedApprenticeshipsControllerPaginationTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndTenOrFewerCourses_ThenDoesNotShowPagination(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] RestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
-        SetupController(sut, outerApiClientMock, ukprn, providerName, CreateCourses(10));
+        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, CreateCourses(10));
 
         var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
@@ -96,11 +99,12 @@ public class RestrictedApprenticeshipsControllerPaginationTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndPageNumberIsLessThanOne_ThenReturnsFirstPage(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] RestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
-        SetupController(sut, outerApiClientMock, ukprn, providerName, CreateCourses(15));
+        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, CreateCourses(15));
 
         var result = await sut.Index(
             ukprn,
@@ -120,11 +124,12 @@ public class RestrictedApprenticeshipsControllerPaginationTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndPageNumberExceedsTotalPages_ThenReturnsLastPage(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] RestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
-        SetupController(sut, outerApiClientMock, ukprn, providerName, CreateCourses(15));
+        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, CreateCourses(15));
 
         var result = await sut.Index(
             ukprn,
@@ -145,11 +150,12 @@ public class RestrictedApprenticeshipsControllerPaginationTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndFiltersApplied_ThenPaginationLinksPreserveFilters(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] RestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
-        SetupController(sut, outerApiClientMock, ukprn, providerName, CreateCourses(15));
+        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, CreateCourses(15));
 
         var result = await sut.Index(
             ukprn,
@@ -176,11 +182,12 @@ public class RestrictedApprenticeshipsControllerPaginationTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndMoreThanSixPages_ThenShowsAtMostSixPageLinks(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] RestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
-        SetupController(sut, outerApiClientMock, ukprn, providerName, CreateCourses(70));
+        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, CreateCourses(70));
 
         var result = await sut.Index(
             ukprn,
@@ -205,11 +212,12 @@ public class RestrictedApprenticeshipsControllerPaginationTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndOnFirstPageOfMany_ThenCurrentPageIsNotCentred(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] RestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
-        SetupController(sut, outerApiClientMock, ukprn, providerName, CreateCourses(70));
+        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, CreateCourses(70));
 
         var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
@@ -233,11 +241,12 @@ public class RestrictedApprenticeshipsControllerPaginationTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndOnLastPageOfMany_ThenCurrentPageIsNotCentred(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] RestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
-        SetupController(sut, outerApiClientMock, ukprn, providerName, CreateCourses(70));
+        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, CreateCourses(70));
 
         var result = await sut.Index(
             ukprn,
@@ -264,12 +273,13 @@ public class RestrictedApprenticeshipsControllerPaginationTests
     private static void SetupController(
         RestrictedApprenticeshipsController sut,
         Mock<IOuterApiClient> outerApiClientMock,
+        Mock<ISessionService> sessionServiceMock,
         int ukprn,
         string providerName,
         List<RestrictedApprenticeshipModel> courses)
     {
+        sessionServiceMock.SetupProviderName(ukprn, providerName);
         sut.AddTempData();
-        sut.TempData[TempDataKeys.ProviderLegalName] = providerName;
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl)
             .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl)
