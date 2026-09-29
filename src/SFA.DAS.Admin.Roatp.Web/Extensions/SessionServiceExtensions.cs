@@ -1,6 +1,5 @@
 using System.Net;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
-using SFA.DAS.Admin.Roatp.Web.Models.Session;
 using SFA.DAS.Admin.Roatp.Web.Services;
 
 namespace SFA.DAS.Admin.Roatp.Web.Extensions;
@@ -9,12 +8,12 @@ public static class SessionServiceExtensions
 {
     public static string? GetProviderNameSession(this ISessionService sessionService, int ukprn)
     {
-        var providerNameSession = sessionService.Get<ProviderNameSessionModel>(SessionKeys.ProviderName(ukprn));
+        var providerNameSession = sessionService.Get<Dictionary<int, string>>(SessionKeys.ProviderName);
         if (providerNameSession is not null
-            && providerNameSession.Ukprn == ukprn
-            && !string.IsNullOrWhiteSpace(providerNameSession.ProviderName))
+            && providerNameSession.TryGetValue(ukprn, out var providerName)
+            && !string.IsNullOrWhiteSpace(providerName))
         {
-            return providerNameSession.ProviderName;
+            return providerName;
         }
 
         return null;
@@ -22,11 +21,9 @@ public static class SessionServiceExtensions
 
     public static void SetProviderName(this ISessionService sessionService, int ukprn, string providerName)
     {
-        sessionService.Set(SessionKeys.ProviderName(ukprn), new ProviderNameSessionModel
-        {
-            Ukprn = ukprn,
-            ProviderName = providerName
-        });
+        var providerNameSession = sessionService.Get<Dictionary<int, string>>(SessionKeys.ProviderName) ?? [];
+        providerNameSession[ukprn] = providerName;
+        sessionService.Set(SessionKeys.ProviderName, providerNameSession);
     }
 
     public static async Task<string?> GetProviderName(

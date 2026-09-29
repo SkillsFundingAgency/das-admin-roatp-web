@@ -10,7 +10,6 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
-using SFA.DAS.Admin.Roatp.Web.Models.Session;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
@@ -126,7 +125,7 @@ public class RestrictedApprenticeshipsControllerGetTests
         restrictedResponse.Courses = [];
 
         sut.AddTempData();
-        sessionServiceMock.SetupProviderNameMissing(ukprn);
+        sessionServiceMock.SetupProviderNameMissing();
         SetupOrganisation(outerApiClientMock, ukprn, organisationResponse, HttpStatusCode.OK);
         SetupRestrictedApprenticeships(outerApiClientMock, ukprn, restrictedResponse);
         SetupUrlHelper(sut);
@@ -144,10 +143,8 @@ public class RestrictedApprenticeshipsControllerGetTests
         }
 
         sessionServiceMock.Verify(s => s.Set(
-            SessionKeys.ProviderName(ukprn),
-            It.Is<ProviderNameSessionModel>(m =>
-                m.Ukprn == ukprn &&
-                m.ProviderName == organisationResponse.LegalName)), Times.Once);
+            SessionKeys.ProviderName,
+            It.Is<Dictionary<int, string>>(d => d[ukprn] == organisationResponse.LegalName)), Times.Once);
         outerApiClientMock.Verify(c => c.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -160,7 +157,7 @@ public class RestrictedApprenticeshipsControllerGetTests
         int ukprn)
     {
         sut.AddTempData();
-        sessionServiceMock.SetupProviderNameMissing(ukprn);
+        sessionServiceMock.SetupProviderNameMissing();
         SetupOrganisation(outerApiClientMock, ukprn, organisationResponse, HttpStatusCode.NotFound);
 
         var result = await sut.Index(ukprn, new GetRestrictedApprenticeshipsRequestModel(), CancellationToken.None);

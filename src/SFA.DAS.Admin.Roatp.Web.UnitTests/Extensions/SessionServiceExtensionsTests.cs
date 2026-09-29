@@ -7,7 +7,6 @@ using Refit;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
-using SFA.DAS.Admin.Roatp.Web.Models.Session;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
@@ -55,7 +54,7 @@ public class SessionServiceExtensionsTests
         organisationResponse.Ukprn = Ukprn;
         organisationResponse.LegalName = ProviderName;
         var sessionServiceMock = new Mock<ISessionService>();
-        sessionServiceMock.SetupProviderNameMissing(Ukprn);
+        sessionServiceMock.SetupProviderNameMissing();
         SetupOrganisation(outerApiClientMock, organisationResponse, HttpStatusCode.OK);
 
         var result = await sessionServiceMock.Object.GetProviderName(
@@ -69,10 +68,8 @@ public class SessionServiceExtensionsTests
         }
 
         sessionServiceMock.Verify(s => s.Set(
-            SessionKeys.ProviderName(Ukprn),
-            It.Is<ProviderNameSessionModel>(m =>
-                m.Ukprn == Ukprn &&
-                m.ProviderName == ProviderName)), Times.Once);
+            SessionKeys.ProviderName,
+            It.Is<Dictionary<int, string>>(d => d[Ukprn] == ProviderName)), Times.Once);
         outerApiClientMock.Verify(c => c.GetOrganisation(Ukprn, It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -82,7 +79,7 @@ public class SessionServiceExtensionsTests
         GetOrganisationResponse organisationResponse)
     {
         var sessionServiceMock = new Mock<ISessionService>();
-        sessionServiceMock.SetupProviderNameMissing(Ukprn);
+        sessionServiceMock.SetupProviderNameMissing();
         SetupOrganisation(outerApiClientMock, organisationResponse, HttpStatusCode.NotFound);
 
         var result = await sessionServiceMock.Object.GetProviderName(
@@ -92,7 +89,7 @@ public class SessionServiceExtensionsTests
 
         result.Should().BeNull();
         sessionServiceMock.Verify(
-            s => s.Set(SessionKeys.ProviderName(Ukprn), It.IsAny<ProviderNameSessionModel>()),
+            s => s.Set(SessionKeys.ProviderName, It.IsAny<Dictionary<int, string>>()),
             Times.Never);
     }
 

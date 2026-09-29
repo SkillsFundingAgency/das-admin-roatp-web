@@ -10,6 +10,5 @@ public static class SessionKeys
     public const string AddRestrictedCourse = "AddRestrictedCourse";
     public const string AddProviderToRestrictedCourse = "AddProviderToRestrictedCourse";
     public const string ProviderRestrictedCourse = "ProviderRestrictedCourse";
-
-    public static string ProviderName(int ukprn) => $"ProviderName-{ukprn}";
+    public const string ProviderName = "ProviderName";
 }

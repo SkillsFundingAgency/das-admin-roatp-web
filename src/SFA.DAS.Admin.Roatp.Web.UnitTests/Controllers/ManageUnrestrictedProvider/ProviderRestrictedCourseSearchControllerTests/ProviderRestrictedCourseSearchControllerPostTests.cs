@@ -64,10 +64,8 @@ public class ProviderRestrictedCourseSearchControllerPostTests
                 m.CourseDisplayTitle == "Alpha course (Level 6)" &&
                 m.ProviderName == ProviderName)), Times.Once);
         sessionServiceMock.Verify(s => s.Set(
-            SessionKeys.ProviderName(Ukprn),
-            It.Is<ProviderNameSessionModel>(m =>
-                m.Ukprn == Ukprn &&
-                m.ProviderName == ProviderName)), Times.Once);
+            SessionKeys.ProviderName,
+            It.Is<Dictionary<int, string>>(d => d[Ukprn] == ProviderName)), Times.Once);
         outerApiClientMock.Verify(
             c => c.GetCourses(It.IsAny<CancellationToken>()),
             Times.Once);
@@ -587,7 +585,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         GetOrganisationResponse? organisationResponse = null,
         HttpStatusCode statusCode = HttpStatusCode.OK)
     {
-        sessionServiceMock.SetupProviderNameMissing(Ukprn);
+        sessionServiceMock.SetupProviderNameMissing();
         organisationResponse ??= new GetOrganisationResponse { LegalName = ProviderName };
         var httpResponse = new HttpResponseMessage(statusCode);
         ApiException? apiException = null;

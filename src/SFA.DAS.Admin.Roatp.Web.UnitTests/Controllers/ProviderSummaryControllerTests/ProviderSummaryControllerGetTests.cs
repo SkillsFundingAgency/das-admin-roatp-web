@@ -10,7 +10,6 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
-using SFA.DAS.Admin.Roatp.Web.Models.Session;
 using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
@@ -56,7 +55,7 @@ public class ProviderSummaryControllerGetTests
     {
         getOrganisationResponse.Ukprn = ukprn;
         _editOrganisationSessionModel.Ukprn = ukprn;
-        sessionServiceMock.SetupProviderNameMissing(ukprn);
+        sessionServiceMock.SetupProviderNameMissing();
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.SelectProvider, selectOrganisationLink)
             .AddUrlForRoute(RouteNames.ProviderStatusUpdate, providerStatusUpdateLink)
@@ -89,9 +88,7 @@ public class ProviderSummaryControllerGetTests
         }
 
         sessionServiceMock.Verify(s => s.Set(
-            SessionKeys.ProviderName(ukprn),
-            It.Is<ProviderNameSessionModel>(m =>
-                m.Ukprn == ukprn &&
-                m.ProviderName == getOrganisationResponse.LegalName)), Times.Once);
+            SessionKeys.ProviderName,
+            It.Is<Dictionary<int, string>>(d => d[ukprn] == getOrganisationResponse.LegalName)), Times.Once);
     }
 }
