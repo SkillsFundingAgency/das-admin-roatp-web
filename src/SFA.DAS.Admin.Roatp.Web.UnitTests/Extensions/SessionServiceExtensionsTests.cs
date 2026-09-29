@@ -19,17 +19,6 @@ public class SessionServiceExtensionsTests
     private const int Ukprn = 10019900;
     private const string ProviderName = "Denton Business Services Limited";
 
-    [Test]
-    public void WhenGettingProviderName_AndNameIsInSession_ThenReturnsSessionName()
-    {
-        var sessionServiceMock = new Mock<ISessionService>();
-        sessionServiceMock.SetupProviderName(Ukprn, ProviderName);
-
-        var result = sessionServiceMock.Object.GetProviderNameSession(Ukprn);
-
-        result.Should().Be(ProviderName);
-    }
-
     [Test, MoqAutoData]
     public async Task WhenGettingProviderName_AndNameIsInSession_ThenDoesNotCallOrganisation(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock)

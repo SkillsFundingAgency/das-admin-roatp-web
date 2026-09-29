@@ -6,11 +6,11 @@ namespace SFA.DAS.Admin.Roatp.Web.Extensions;
 
 public static class SessionServiceExtensions
 {
-    public static string? GetProviderNameSession(this ISessionService sessionService, int ukprn)
+    private static string? GetProviderNameFromSession(this ISessionService sessionService, int ukprn)
     {
-        var providerNameSession = sessionService.Get<Dictionary<int, string>>(SessionKeys.ProviderName);
-        if (providerNameSession is not null
-            && providerNameSession.TryGetValue(ukprn, out var providerName)
+        var providerNameFromSession = sessionService.Get<Dictionary<int, string>>(SessionKeys.ProviderName);
+        if (providerNameFromSession is not null
+            && providerNameFromSession.TryGetValue(ukprn, out var providerName)
             && !string.IsNullOrWhiteSpace(providerName))
         {
             return providerName;
@@ -32,7 +32,7 @@ public static class SessionServiceExtensions
         int ukprn,
         CancellationToken cancellationToken)
     {
-        var providerNameSession = sessionService.GetProviderNameSession(ukprn);
+        var providerNameSession = sessionService.GetProviderNameFromSession(ukprn);
         if (providerNameSession is not null)
         {
             return providerNameSession;
