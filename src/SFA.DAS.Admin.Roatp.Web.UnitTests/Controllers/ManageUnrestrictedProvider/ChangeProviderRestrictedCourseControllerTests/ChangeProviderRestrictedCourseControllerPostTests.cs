@@ -50,7 +50,7 @@ public class ChangeProviderRestrictedCourseControllerPostTests
             result.Should().NotBeNull();
             result!.ViewName.Should().Be(ChangeProviderRestrictedCourseController.ViewPath);
             model.Should().NotBeNull();
-            model!.DisplayTitle.Should().Be("Electrical (Level 3)");
+            model!.CourseDisplayTitle.Should().Be("Electrical (Level 3)");
             sut.ModelState.IsValid.Should().BeFalse();
         }
     }

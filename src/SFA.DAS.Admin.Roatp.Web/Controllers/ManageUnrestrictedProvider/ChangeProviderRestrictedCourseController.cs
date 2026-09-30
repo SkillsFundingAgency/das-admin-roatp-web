@@ -54,8 +54,8 @@ public class ChangeProviderRestrictedCourseController(
         CancellationToken cancellationToken,
         ChangeProviderRestrictedCourseSubmitModel? submitModel = null)
     {
-        var course = await GetCachedCourse(ukprn, larsCode, cancellationToken);
-        if (course is null)
+        var cachedRestrictedApprenticeship = await GetApplicationCachedRestrictedApprenticeship(ukprn, larsCode, cancellationToken);
+        if (cachedRestrictedApprenticeship is null)
         {
             return null;
         }
@@ -63,15 +63,15 @@ public class ChangeProviderRestrictedCourseController(
         return new ChangeProviderRestrictedCourseViewModel
         {
             Ukprn = ukprn,
-            LarsCode = course.LarsCode,
-            DisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level),
-            LastDateStarts = course.LastDateStarts,
+            LarsCode = cachedRestrictedApprenticeship.LarsCode,
+            CourseDisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(cachedRestrictedApprenticeship.Title, cachedRestrictedApprenticeship.Level),
+            LastDateStarts = cachedRestrictedApprenticeship.LastDateStarts,
             SelectedOption = submitModel?.SelectedOption,
             CancelUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn })!
         };
     }
 
-    private async Task<RestrictedApprenticeshipModel?> GetCachedCourse(
+    private async Task<RestrictedApprenticeshipModel?> GetApplicationCachedRestrictedApprenticeship(
         int ukprn,
         string larsCode,
         CancellationToken cancellationToken)

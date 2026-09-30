@@ -40,7 +40,7 @@ public class ChangeProviderRestrictedCourseControllerGetTests
             model.Should().NotBeNull();
             model!.Ukprn.Should().Be(Ukprn);
             model.LarsCode.Should().Be(LarsCode);
-            model.DisplayTitle.Should().Be("Electrical (Level 3)");
+            model.CourseDisplayTitle.Should().Be("Electrical (Level 3)");
             model.HasLastDateStarts.Should().BeTrue();
             model.LastDateStarts.Should().Be(LastDateStarts);
             model.LastDateStartsText.Should().Be("12 Jul 2026");
@@ -66,7 +66,7 @@ public class ChangeProviderRestrictedCourseControllerGetTests
             result.Should().NotBeNull();
             result!.ViewName.Should().Be(ChangeProviderRestrictedCourseController.ViewPath);
             model.Should().NotBeNull();
-            model!.DisplayTitle.Should().Be("Electrical (Level 3)");
+            model!.CourseDisplayTitle.Should().Be("Electrical (Level 3)");
             model.HasLastDateStarts.Should().BeFalse();
             model.LastDateStarts.Should().BeNull();
             model.CancelUrl.Should().Be(RestrictedCoursesUrl);

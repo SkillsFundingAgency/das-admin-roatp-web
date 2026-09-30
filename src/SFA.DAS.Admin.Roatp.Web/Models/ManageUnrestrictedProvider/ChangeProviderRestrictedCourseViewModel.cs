@@ -6,7 +6,7 @@ public class ChangeProviderRestrictedCourseViewModel : ChangeProviderRestrictedC
 {
     public int Ukprn { get; set; }
     public required string LarsCode { get; set; }
-    public required string DisplayTitle { get; set; }
+    public required string CourseDisplayTitle { get; set; }
     public DateTime? LastDateStarts { get; set; }
     public required string CancelUrl { get; set; }
 

@@ -13,7 +13,7 @@ public class ChangeProviderRestrictedCourseViewModelTests
         var model = new ChangeProviderRestrictedCourseViewModel
         {
             LarsCode = "105",
-            DisplayTitle = "Electrical (Level 3)",
+            CourseDisplayTitle = "Electrical (Level 3)",
             LastDateStarts = new DateTime(2026, 7, 12, 0, 0, 0, DateTimeKind.Unspecified),
             CancelUrl = "/cancel"
         };
@@ -31,7 +31,7 @@ public class ChangeProviderRestrictedCourseViewModelTests
         var model = new ChangeProviderRestrictedCourseViewModel
         {
             LarsCode = "105",
-            DisplayTitle = "Electrical (Level 3)",
+            CourseDisplayTitle = "Electrical (Level 3)",
             LastDateStarts = null,
             CancelUrl = "/cancel"
         };
