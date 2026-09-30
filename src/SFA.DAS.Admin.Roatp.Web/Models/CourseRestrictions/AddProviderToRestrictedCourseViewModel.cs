@@ -8,6 +8,6 @@ public class AddProviderToRestrictedCourseViewModel : AddProviderToRestrictedCou
     public required string LarsCode { get; set; }
     public required string Title { get; set; }
     public int Level { get; set; }
-    public string DisplayTitle => this.GetDisplayTitle();
+    public string CourseDisplayTitle => this.GetDisplayTitle();
     public IEnumerable<SelectListItem> Providers { get; set; } = [];
 }

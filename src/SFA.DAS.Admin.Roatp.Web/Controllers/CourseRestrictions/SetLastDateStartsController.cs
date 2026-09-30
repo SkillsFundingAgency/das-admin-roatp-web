@@ -1,3 +1,4 @@
+using System.Net;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -53,7 +54,9 @@ public class SetLastDateStartsController(
         var isValidDate = submitModel.TryGetEnteredDate(out var lastDateStarts);
         if (!isValidDate)
         {
-            ModelState.AddModelError(string.Empty, SetLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
+            ModelState.AddModelError(
+                SetLastDateStartsSubmitModelValidator.DateFieldName,
+                SetLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
             return View(ViewPath, model);
         }
 
@@ -65,7 +68,7 @@ public class SetLastDateStartsController(
             new PatchProviderAllowedCourseRequest { LastDateStarts = lastDateStarts },
             cancellationToken);
 
-        if (response.IsNotFound())
+        if (response.StatusCode == HttpStatusCode.NotFound)
         {
             return NotFound();
         }
@@ -124,7 +127,7 @@ public class SetLastDateStartsController(
         CancellationToken cancellationToken)
     {
         var response = await outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
-        if (response.IsNotFound())
+        if (response.StatusCode == HttpStatusCode.NotFound)
         {
             return null;
         }

@@ -1,0 +1,85 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
+using SFA.DAS.Admin.Roatp.Web.Infrastructure;
+using SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
+using SFA.DAS.Admin.Roatp.Web.Models.Session;
+using SFA.DAS.Admin.Roatp.Web.Services;
+
+namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
+
+[Authorize(Roles = Roles.RoatpAdminTeam)]
+[Route("providers/{ukprn}/restricted-courses/add/confirm", Name = RouteNames.ConfirmProviderRestrictedCourse)]
+public class ConfirmProviderRestrictedCourseController(
+    ISessionService sessionService,
+    IOuterApiClient outerApiClient) : Controller
+{
+    public const string ViewPath = "~/Views/ManageUnrestrictedProvider/ConfirmProviderRestrictedCourse/Index.cshtml";
+
+    public static string GetSuccessBannerMessage(string displayTitle) =>
+        $"{displayTitle} has been added to the restricted apprenticeships list";
+
+    [HttpGet]
+    public IActionResult Index(int ukprn)
+    {
+        var session = GetRestrictCourseSession(ukprn);
+        if (session is null)
+        {
+            return RedirectToRoute(RouteNames.ProviderRestrictedCourses, new { ukprn });
+        }
+
+        return View(ViewPath, BuildViewModel(session));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
+    {
+        var session = GetRestrictCourseSession(ukprn);
+        if (session is null)
+        {
+            return RedirectToRoute(RouteNames.ProviderRestrictedCourses, new { ukprn });
+        }
+
+        var response = await outerApiClient.UpsertProviderAllowedCourse(
+            ukprn,
+            session.LarsCode,
+            new UpsertProviderAllowedCourseRequest
+            {
+                UserId = User.UserId(),
+                UserDisplayName = User.UserDisplayName(),
+                LastDateStarts = null,
+                IsStartRestricted = true
+            },
+            cancellationToken);
+
+        await response.EnsureSuccessStatusCodeAsync();
+
+        sessionService.Delete(SessionKeys.ProviderRestrictedCourse);
+        TempData[RestrictedApprenticeshipsController.SuccessBannerTempDataKey] =
+            GetSuccessBannerMessage(session.CourseDisplayTitle);
+
+        return RedirectToRoute(RouteNames.ProviderRestrictedCourses, new { ukprn });
+    }
+
+    private ProviderRestrictedCourseSessionModel? GetRestrictCourseSession(int ukprn)
+    {
+        var session = sessionService.Get<ProviderRestrictedCourseSessionModel>(SessionKeys.ProviderRestrictedCourse);
+        if (session is null || session.Ukprn != ukprn)
+        {
+            return null;
+        }
+
+        return session;
+    }
+
+    private ConfirmProviderRestrictedCourseViewModel BuildViewModel(ProviderRestrictedCourseSessionModel session)
+        => new()
+        {
+            Ukprn = session.Ukprn,
+            ProviderName = session.ProviderName,
+            CourseDisplayTitle = session.CourseDisplayTitle,
+            LarsCode = session.LarsCode,
+            CancelUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn = session.Ukprn })!
+        };
+}

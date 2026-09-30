@@ -75,4 +75,19 @@ public interface IOuterApiClient
     Task<ApiResponse<GetRestrictedApprenticeshipsResponse>> GetRestrictedApprenticeships(
         int ukprn,
         CancellationToken cancellationToken);
+
+    [Get("/providers/{ukprn}/not-restricted-apprenticeships")]
+    Task<ApiResponse<GetNotRestrictedApprenticeshipsResponse>> GetNotRestrictedApprenticeships(
+        int ukprn,
+        CancellationToken cancellationToken);
+
+    [Get("/providers/{ukprn}/courses/{larsCode}")]
+    Task<ApiResponse<object>> GetProviderCourse(
+        int ukprn,
+        string larsCode,
+        CancellationToken cancellationToken);
+
+    [Get("/courses")]
+    Task<ApiResponse<GetCoursesResponse>> GetCourses(CancellationToken cancellationToken);
+
 }

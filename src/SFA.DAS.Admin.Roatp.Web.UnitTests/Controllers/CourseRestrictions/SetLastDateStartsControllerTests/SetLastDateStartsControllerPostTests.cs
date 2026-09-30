@@ -179,8 +179,9 @@ public class SetLastDateStartsControllerPostTests
             result.Should().NotBeNull();
             result!.ViewName.Should().Be(SetLastDateStartsController.ViewPath);
             sut.ModelState.IsValid.Should().BeFalse();
-            sut.ModelState[string.Empty]!.Errors.Should().ContainSingle(e =>
-                e.ErrorMessage == SetLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
+            sut.ModelState[SetLastDateStartsSubmitModelValidator.DateFieldName]!
+                .Errors.Should().ContainSingle(e =>
+                    e.ErrorMessage == SetLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
         }
 
         outerApiClientMock.Verify(

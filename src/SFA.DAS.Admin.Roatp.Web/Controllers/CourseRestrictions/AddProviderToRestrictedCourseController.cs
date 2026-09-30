@@ -63,7 +63,7 @@ public class AddProviderToRestrictedCourseController(
         sessionService.Set(SessionKeys.AddProviderToRestrictedCourse, new AddProviderToRestrictedCourseSessionModel
         {
             LarsCode = larsCode,
-            CourseDisplayTitle = viewModel.DisplayTitle,
+            CourseDisplayTitle = viewModel.CourseDisplayTitle,
             Ukprn = provider.Ukprn,
             LegalName = provider.ProviderName
         });
