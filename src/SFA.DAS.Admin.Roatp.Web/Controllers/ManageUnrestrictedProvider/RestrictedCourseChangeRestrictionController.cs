@@ -81,13 +81,13 @@ public class RestrictedCourseChangeRestrictionController(
         string providerName,
         string courseDisplayTitle)
     {
-        sessionService.Set(SessionKeys.ProviderRestrictedCourseChangeRestriction, new ChangeRestrictedCourseRestrictionSessionModel
+        sessionService.Set(SessionKeys.RestrictedCourseChangeRestriction, new ChangeRestrictedCourseRestrictionSessionModel
         {
             Ukprn = ukprn,
             LarsCode = restrictedApprenticeship.LarsCode,
             CourseDisplayTitle = courseDisplayTitle,
             ProviderName = providerName,
-            LastDateStarts = restrictedApprenticeship.LastDateStarts
+            CourseLastDateStarts = restrictedApprenticeship.LastDateStarts
         });
     }
 

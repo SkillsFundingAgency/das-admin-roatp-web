@@ -1,12 +1,12 @@
 using System.Net;
 using FluentValidation;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
-using SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
+using SFA.DAS.Admin.Roatp.Web.Models.Session;
 
 namespace SFA.DAS.Admin.Roatp.Web.Validators;
 
 public class ChangeRestrictedCourseLastStartDateValidator
-    : AbstractValidator<ChangeRestrictedCourseLastStartDateModel>
+    : AbstractValidator<ChangeRestrictedCourseRestrictionSessionModel>
 {
     public const string ProviderMustBeUnrestrictedErrorMessage = "The provider must be unrestricted";
     public const string CourseMustBeRestrictedForProviderErrorMessage =
@@ -20,9 +20,7 @@ public class ChangeRestrictedCourseLastStartDateValidator
                 var response = await outerApiClient.GetRestrictedApprenticeships(model.Ukprn, cancellationToken);
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    context.AddFailure(
-                        nameof(ChangeRestrictedCourseLastStartDateModel.Ukprn),
-                        ProviderMustBeUnrestrictedErrorMessage);
+                    context.AddFailure(nameof(ChangeRestrictedCourseRestrictionSessionModel.Ukprn), ProviderMustBeUnrestrictedErrorMessage);
                     return;
                 }
 

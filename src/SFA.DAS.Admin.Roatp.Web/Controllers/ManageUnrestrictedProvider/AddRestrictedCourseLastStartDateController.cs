@@ -1,4 +1,3 @@
-using System.Net;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -84,6 +83,7 @@ public class AddRestrictedCourseLastStartDateController(
         await response.EnsureSuccessStatusCodeAsync();
 
         sessionService.Delete(SessionKeys.ProviderRestrictedCourse);
+
         TempData[ProviderRestrictedApprenticeshipsController.SuccessBannerTempDataKey] =
             GetSuccessBannerMessage(session.CourseDisplayTitle);
 
@@ -112,23 +112,11 @@ public class AddRestrictedCourseLastStartDateController(
             ProviderName = session.ProviderName,
             CourseDisplayTitle = session.CourseDisplayTitle,
             LarsCode = session.LarsCode,
-            CourseLastDateStarts = await GetCourseLastDateStartsAsync(session.LarsCode, cancellationToken),
+            CourseLastDateStarts = (await outerApiClient.GetCourseDetails(session.LarsCode, cancellationToken))?.LastDateStarts,
             Day = submitModel?.Day,
             Month = submitModel?.Month,
             Year = submitModel?.Year,
             CancelUrl = Url.RouteUrl(RouteNames.ProviderRestrictedApprenticeships, new { ukprn = session.Ukprn })!
         };
-    }
-
-    private async Task<DateTime?> GetCourseLastDateStartsAsync(string larsCode, CancellationToken cancellationToken)
-    {
-        var response = await outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
-        if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            return null;
-        }
-
-        await response.EnsureSuccessStatusCodeAsync();
-        return response.Content?.LastDateStarts;
     }
 }

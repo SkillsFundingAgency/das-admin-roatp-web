@@ -1,4 +1,3 @@
-using System.Net;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +19,7 @@ public class ChangeRestrictedCourseLastStartDateController(
     ISessionService sessionService,
     IOuterApiClient outerApiClient,
     IValidator<SetLastDateStartsSubmitModel> validator,
-    IValidator<ChangeRestrictedCourseLastStartDateModel> validatorForLastStartDateChange) : Controller
+    IValidator<ChangeRestrictedCourseRestrictionSessionModel> validatorForLastStartDateChange) : Controller
 {
     public const string ViewPath = "~/Views/ManageUnrestrictedProvider/ChangeRestrictedCourseLastStartDate/Index.cshtml";
 
@@ -45,18 +44,18 @@ public class ChangeRestrictedCourseLastStartDateController(
         SetLastDateStartsSubmitModel? submitModel,
         CancellationToken cancellationToken)
     {
-        var session = GetSession(ukprn, larsCode);
-        if (session is null)
+        var changeRestrictedCourseSession = GetChangeRestrictedCourseSession(ukprn, larsCode);
+        if (changeRestrictedCourseSession is null)
         {
             return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
         }
 
-        if (submitModel is null && !await IsValidForLastStartDateChange(session, cancellationToken))
+        if (submitModel is null && !await IsValidForLastStartDateChange(changeRestrictedCourseSession, cancellationToken))
         {
             return NotFound();
         }
 
-        var model = await BuildViewModel(session, submitModel, cancellationToken);
+        var model = await BuildViewModel(changeRestrictedCourseSession, submitModel, cancellationToken);
         if (submitModel is null)
         {
             return View(ViewPath, model);
@@ -82,10 +81,10 @@ public class ChangeRestrictedCourseLastStartDateController(
 
         await ChangeRestrictedApprenticeshipLastDateStarts(ukprn, larsCode, lastDateStarts, cancellationToken);
 
-        sessionService.Delete(SessionKeys.ProviderRestrictedCourseChangeRestriction);
+        sessionService.Delete(SessionKeys.RestrictedCourseChangeRestriction);
 
         TempData[ProviderRestrictedApprenticeshipsController.SuccessBannerTempDataKey] =
-            GetSuccessBannerMessage(session.CourseDisplayTitle);
+            GetSuccessBannerMessage(changeRestrictedCourseSession.CourseDisplayTitle);
 
         return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
     }
@@ -114,22 +113,15 @@ public class ChangeRestrictedCourseLastStartDateController(
         ChangeRestrictedCourseRestrictionSessionModel session,
         CancellationToken cancellationToken)
     {
-        var validateResult = await validatorForLastStartDateChange.ValidateAsync(
-            new ChangeRestrictedCourseLastStartDateModel
-            {
-                Ukprn = session.Ukprn,
-                LarsCode = session.LarsCode,
-                LastDateStarts = session.LastDateStarts
-            },
-            cancellationToken);
+        var validateResult = await validatorForLastStartDateChange.ValidateAsync(session, cancellationToken);
 
         return validateResult.IsValid;
     }
 
-    private ChangeRestrictedCourseRestrictionSessionModel? GetSession(int ukprn, string larsCode)
+    private ChangeRestrictedCourseRestrictionSessionModel? GetChangeRestrictedCourseSession(int ukprn, string larsCode)
     {
         var session = sessionService.Get<ChangeRestrictedCourseRestrictionSessionModel>(
-            SessionKeys.ProviderRestrictedCourseChangeRestriction);
+            SessionKeys.RestrictedCourseChangeRestriction);
         if (session is null || session.Ukprn != ukprn || session.LarsCode != larsCode)
         {
             return null;
@@ -147,9 +139,9 @@ public class ChangeRestrictedCourseLastStartDateController(
         var month = submitModel?.Month;
         var year = submitModel?.Year;
 
-        if (submitModel is null && session.LastDateStarts.HasValue)
+        if (submitModel is null && session.CourseLastDateStarts.HasValue)
         {
-            var existingLastDateStarts = session.LastDateStarts.Value;
+            var existingLastDateStarts = session.CourseLastDateStarts.Value;
             day = existingLastDateStarts.Day.ToString("00");
             month = existingLastDateStarts.Month.ToString("00");
             year = existingLastDateStarts.Year.ToString();
@@ -160,23 +152,11 @@ public class ChangeRestrictedCourseLastStartDateController(
             Ukprn = session.Ukprn,
             LarsCode = session.LarsCode,
             CourseDisplayTitle = session.CourseDisplayTitle,
-            CourseLastDateStarts = await GetCourseLastDateStarts(session.LarsCode, cancellationToken),
+            CourseLastDateStarts = (await outerApiClient.GetCourseDetails(session.LarsCode, cancellationToken))?.LastDateStarts,
             Day = day,
             Month = month,
             Year = year,
             CancelUrl = Url.RouteUrl(RouteNames.ProviderRestrictedApprenticeships, new { ukprn = session.Ukprn })!
         };
-    }
-
-    private async Task<DateTime?> GetCourseLastDateStarts(string larsCode, CancellationToken cancellationToken)
-    {
-        var response = await outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
-        if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            return null;
-        }
-
-        await response.EnsureSuccessStatusCodeAsync();
-        return response.Content?.LastDateStarts;
     }
 }

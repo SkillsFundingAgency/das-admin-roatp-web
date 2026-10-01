@@ -33,11 +33,11 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
     public async Task WhenGettingSetLastStartDate_AndLastStartDateExists_ThenPrepopulatesDateFields(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IValidator<ChangeRestrictedCourseLastStartDateModel>> eligibilityValidatorMock,
+        [Frozen] Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>> validatorMock,
         [Greedy] ChangeRestrictedCourseLastStartDateController sut)
     {
         SetupSession(sessionServiceMock, LastDateStarts);
-        SetupEligibility(eligibilityValidatorMock);
+        SetupEligibility(validatorMock);
         SetupCourseLastDateStarts(outerApiClientMock);
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
@@ -60,12 +60,12 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
             model.CancelUrl.Should().Be(RestrictedCoursesUrl);
         }
 
-        eligibilityValidatorMock.Verify(
+        validatorMock.Verify(
             v => v.ValidateAsync(
-                It.Is<ChangeRestrictedCourseLastStartDateModel>(m =>
+                It.Is<ChangeRestrictedCourseRestrictionSessionModel>(m =>
                     m.Ukprn == Ukprn
                     && m.LarsCode == LarsCode
-                    && m.LastDateStarts == LastDateStarts),
+                    && m.CourseLastDateStarts == LastDateStarts),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -74,11 +74,11 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
     public async Task WhenGettingSetLastStartDate_AndLastStartDateDoesNotExist_ThenDateFieldsAreBlank(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IValidator<ChangeRestrictedCourseLastStartDateModel>> eligibilityValidatorMock,
+        [Frozen] Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>> validatorMock,
         [Greedy] ChangeRestrictedCourseLastStartDateController sut)
     {
         SetupSession(sessionServiceMock, lastDateStarts: null);
-        SetupEligibility(eligibilityValidatorMock);
+        SetupEligibility(validatorMock);
         SetupCourseLastDateStarts(outerApiClientMock);
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
@@ -102,11 +102,11 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingSetLastStartDate_AndSessionIsMissing_ThenRedirectsToRestrictedCoursesList(
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IValidator<ChangeRestrictedCourseLastStartDateModel>> eligibilityValidatorMock,
+        [Frozen] Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>> validatorMock,
         [Greedy] ChangeRestrictedCourseLastStartDateController sut)
     {
         sessionServiceMock
-            .Setup(s => s.Get<ChangeRestrictedCourseRestrictionSessionModel>(SessionKeys.ProviderRestrictedCourseChangeRestriction))
+            .Setup(s => s.Get<ChangeRestrictedCourseRestrictionSessionModel>(SessionKeys.RestrictedCourseChangeRestriction))
             .Returns((ChangeRestrictedCourseRestrictionSessionModel?)null);
 
         var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as RedirectToRouteResult;
@@ -118,9 +118,9 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
             result.RouteValues!["ukprn"].Should().Be(Ukprn);
         }
 
-        eligibilityValidatorMock.Verify(
+        validatorMock.Verify(
             v => v.ValidateAsync(
-                It.IsAny<ChangeRestrictedCourseLastStartDateModel>(),
+                It.IsAny<ChangeRestrictedCourseRestrictionSessionModel>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -162,11 +162,11 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingSetLastStartDate_AndEligibilityIsInvalid_ThenReturnsNotFound(
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IValidator<ChangeRestrictedCourseLastStartDateModel>> eligibilityValidatorMock,
+        [Frozen] Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>> validatorMock,
         [Greedy] ChangeRestrictedCourseLastStartDateController sut)
     {
         SetupSession(sessionServiceMock, LastDateStarts);
-        SetupEligibility(eligibilityValidatorMock, isValid: false);
+        SetupEligibility(validatorMock, isValid: false);
 
         var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None);
 
@@ -177,11 +177,11 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
     public async Task WhenGettingSetLastStartDate_AndCourseLastDateStartsApiReturnsNotFound_ThenReturnsViewWithNullCourseLastDateStarts(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IValidator<ChangeRestrictedCourseLastStartDateModel>> eligibilityValidatorMock,
+        [Frozen] Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>> validatorMock,
         [Greedy] ChangeRestrictedCourseLastStartDateController sut)
     {
         SetupSession(sessionServiceMock, lastDateStarts: null);
-        SetupEligibility(eligibilityValidatorMock);
+        SetupEligibility(validatorMock);
         SetupCourseLastDateStarts(outerApiClientMock, HttpStatusCode.NotFound);
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
@@ -202,11 +202,11 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
     public async Task WhenGettingSetLastStartDate_AndCourseLastDateStartsApiReturnsUnexpectedError_ThenThrows(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IValidator<ChangeRestrictedCourseLastStartDateModel>> eligibilityValidatorMock,
+        [Frozen] Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>> validatorMock,
         [Greedy] ChangeRestrictedCourseLastStartDateController sut)
     {
         SetupSession(sessionServiceMock, lastDateStarts: null);
-        SetupEligibility(eligibilityValidatorMock);
+        SetupEligibility(validatorMock);
         SetupCourseLastDateStarts(outerApiClientMock, HttpStatusCode.InternalServerError);
 
         var act = () => sut.Index(Ukprn, LarsCode, CancellationToken.None);
@@ -221,24 +221,24 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
         string larsCode = LarsCode)
     {
         sessionServiceMock
-            .Setup(s => s.Get<ChangeRestrictedCourseRestrictionSessionModel>(SessionKeys.ProviderRestrictedCourseChangeRestriction))
+            .Setup(s => s.Get<ChangeRestrictedCourseRestrictionSessionModel>(SessionKeys.RestrictedCourseChangeRestriction))
             .Returns(new ChangeRestrictedCourseRestrictionSessionModel
             {
                 Ukprn = ukprn,
                 LarsCode = larsCode,
                 CourseDisplayTitle = DisplayTitle,
                 ProviderName = ProviderName,
-                LastDateStarts = lastDateStarts
+                CourseLastDateStarts = lastDateStarts
             });
     }
 
     private static void SetupEligibility(
-        Mock<IValidator<ChangeRestrictedCourseLastStartDateModel>> eligibilityValidatorMock,
+        Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>> validatorMock,
         bool isValid = true)
     {
-        eligibilityValidatorMock
+        validatorMock
             .Setup(v => v.ValidateAsync(
-                It.IsAny<ChangeRestrictedCourseLastStartDateModel>(),
+                It.IsAny<ChangeRestrictedCourseRestrictionSessionModel>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(isValid
                 ? new ValidationResult()

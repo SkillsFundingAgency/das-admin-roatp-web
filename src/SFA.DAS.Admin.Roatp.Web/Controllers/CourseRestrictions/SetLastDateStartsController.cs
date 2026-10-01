@@ -3,7 +3,6 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
-using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
@@ -88,7 +87,7 @@ public class SetLastDateStartsController(
         SetLastDateStartsSubmitModel? submitModel,
         CancellationToken cancellationToken)
     {
-        var courseDetails = await GetCourseDetailsAsync(larsCode, cancellationToken);
+        var courseDetails = await outerApiClient.GetCourseDetails(larsCode, cancellationToken);
         var provider = courseDetails?.Providers.FirstOrDefault(p => p.Ukprn == ukprn);
         if (courseDetails is null || provider is null)
         {
@@ -120,19 +119,5 @@ public class SetLastDateStartsController(
             IsChangingExistingDate = provider.LastDateStarts.HasValue,
             CancelUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!
         };
-    }
-
-    private async Task<GetRestrictedCourseDetailsResponse?> GetCourseDetailsAsync(
-        string larsCode,
-        CancellationToken cancellationToken)
-    {
-        var response = await outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
-        if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            return null;
-        }
-
-        await response.EnsureSuccessStatusCodeAsync();
-        return response.Content;
     }
 }

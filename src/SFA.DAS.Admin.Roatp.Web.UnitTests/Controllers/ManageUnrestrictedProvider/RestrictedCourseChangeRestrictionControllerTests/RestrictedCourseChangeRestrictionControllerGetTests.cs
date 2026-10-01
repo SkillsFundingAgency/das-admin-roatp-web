@@ -57,13 +57,13 @@ public class RestrictedCourseChangeRestrictionControllerGetTests
 
         sessionServiceMock.Verify(
             s => s.Set(
-                SessionKeys.ProviderRestrictedCourseChangeRestriction,
+                SessionKeys.RestrictedCourseChangeRestriction,
                 It.Is<ChangeRestrictedCourseRestrictionSessionModel>(m =>
                     m.Ukprn == Ukprn
                     && m.LarsCode == LarsCode
                     && m.CourseDisplayTitle == "Electrical (Level 3)"
                     && m.ProviderName == ProviderName
-                    && m.LastDateStarts == LastDateStarts)),
+                    && m.CourseLastDateStarts == LastDateStarts)),
             Times.Once);
     }
 
@@ -94,9 +94,9 @@ public class RestrictedCourseChangeRestrictionControllerGetTests
 
         sessionServiceMock.Verify(
             s => s.Set(
-                SessionKeys.ProviderRestrictedCourseChangeRestriction,
+                SessionKeys.RestrictedCourseChangeRestriction,
                 It.Is<ChangeRestrictedCourseRestrictionSessionModel>(m =>
-                    m.LastDateStarts == null
+                    m.CourseLastDateStarts == null
                     && m.ProviderName == ProviderName)),
             Times.Once);
     }
@@ -119,7 +119,7 @@ public class RestrictedCourseChangeRestrictionControllerGetTests
         }
 
         sessionServiceMock.Verify(
-            s => s.Set(SessionKeys.ProviderRestrictedCourseChangeRestriction, It.IsAny<ChangeRestrictedCourseRestrictionSessionModel>()),
+            s => s.Set(SessionKeys.RestrictedCourseChangeRestriction, It.IsAny<ChangeRestrictedCourseRestrictionSessionModel>()),
             Times.Never);
     }
 
@@ -141,7 +141,7 @@ public class RestrictedCourseChangeRestrictionControllerGetTests
         }
 
         sessionServiceMock.Verify(
-            s => s.Set(SessionKeys.ProviderRestrictedCourseChangeRestriction, It.IsAny<ChangeRestrictedCourseRestrictionSessionModel>()),
+            s => s.Set(SessionKeys.RestrictedCourseChangeRestriction, It.IsAny<ChangeRestrictedCourseRestrictionSessionModel>()),
             Times.Never);
     }
 
@@ -165,7 +165,7 @@ public class RestrictedCourseChangeRestrictionControllerGetTests
 
         result.Should().BeOfType<NotFoundResult>();
         sessionServiceMock.Verify(
-            s => s.Set(SessionKeys.ProviderRestrictedCourseChangeRestriction, It.IsAny<ChangeRestrictedCourseRestrictionSessionModel>()),
+            s => s.Set(SessionKeys.RestrictedCourseChangeRestriction, It.IsAny<ChangeRestrictedCourseRestrictionSessionModel>()),
             Times.Never);
     }
 

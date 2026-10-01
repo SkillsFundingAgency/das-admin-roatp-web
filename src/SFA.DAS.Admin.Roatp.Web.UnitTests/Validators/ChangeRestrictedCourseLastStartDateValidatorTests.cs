@@ -7,7 +7,7 @@ using Refit;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
-using SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
+using SFA.DAS.Admin.Roatp.Web.Models.Session;
 using SFA.DAS.Admin.Roatp.Web.Validators;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -70,11 +70,13 @@ public class ChangeRestrictedCourseLastStartDateValidatorTests
             .WithErrorMessage(ChangeRestrictedCourseLastStartDateValidator.ProviderMustBeUnrestrictedErrorMessage);
     }
 
-    private static ChangeRestrictedCourseLastStartDateModel CreateModel()
+    private static ChangeRestrictedCourseRestrictionSessionModel CreateModel()
         => new()
         {
             Ukprn = Ukprn,
-            LarsCode = LarsCode
+            LarsCode = LarsCode,
+            CourseDisplayTitle = "Electrical (Level 3)",
+            ProviderName = "Denton Business Services Limited"
         };
 
     private static ProviderRestrictedApprenticeshipModel CreateCourse(string larsCode)

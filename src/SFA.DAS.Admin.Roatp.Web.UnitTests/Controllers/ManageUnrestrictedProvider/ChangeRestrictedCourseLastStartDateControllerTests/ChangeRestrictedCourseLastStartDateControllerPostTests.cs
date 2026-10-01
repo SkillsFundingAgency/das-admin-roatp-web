@@ -40,8 +40,8 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
     public async Task WhenPostingSetLastStartDate_AndDateIsValid_ThenChangesCourseDeletesSessionSetsBannerAndRedirectsToList(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> validatorMock,
-        [Frozen] Mock<IValidator<ChangeRestrictedCourseLastStartDateModel>> eligibilityValidatorMock,
+        [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> submitValidatorMock,
+        [Frozen] Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>> validatorMock,
         [Greedy] ChangeRestrictedCourseLastStartDateController sut)
     {
         SetupSession(sessionServiceMock);
@@ -49,7 +49,7 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
         SetupAuthenticatedUser(sut);
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
-        validatorMock
+        submitValidatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
         SetupChangeResponse(outerApiClientMock, HttpStatusCode.OK);
@@ -69,13 +69,13 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
                 .Should().Be(ChangeRestrictedCourseLastStartDateController.GetSuccessBannerMessage(DisplayTitle));
         }
 
-        sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourseChangeRestriction), Times.Once);
-        eligibilityValidatorMock.Verify(
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictedCourseChangeRestriction), Times.Once);
+        validatorMock.Verify(
             v => v.ValidateAsync(
-                It.IsAny<ChangeRestrictedCourseLastStartDateModel>(),
+                It.IsAny<ChangeRestrictedCourseRestrictionSessionModel>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
-        validatorMock.Verify(
+        submitValidatorMock.Verify(
             v => v.ValidateAsync(
                 It.Is<SetLastDateStartsSubmitModel>(m =>
                     m.LarsCode == LarsCode
@@ -128,7 +128,7 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
             sut.ModelState.IsValid.Should().BeFalse();
         }
 
-        sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourseChangeRestriction), Times.Never);
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictedCourseChangeRestriction), Times.Never);
         outerApiClientMock.Verify(c => c.ChangeRestrictedApprenticeshipLastDateStarts(
             It.IsAny<int>(),
             It.IsAny<string>(),
@@ -141,14 +141,14 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
     {
         var sessionServiceMock = new Mock<ISessionService>();
         var outerApiClientMock = new Mock<IOuterApiClient>();
-        var eligibilityValidatorMock = new Mock<IValidator<ChangeRestrictedCourseLastStartDateModel>>();
+        var validatorMock = new Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>>();
         SetupSession(sessionServiceMock);
         SetupCourseDetails(outerApiClientMock);
         var sut = new ChangeRestrictedCourseLastStartDateController(
             sessionServiceMock.Object,
             outerApiClientMock.Object,
             new SetLastDateStartsSubmitModelValidator(),
-            eligibilityValidatorMock.Object);
+            validatorMock.Object);
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
 
@@ -168,7 +168,7 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
                     e.ErrorMessage == SetLastDateStartsSubmitModelValidator.DateMustBeAfterMinimumErrorMessage);
         }
 
-        sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourseChangeRestriction), Times.Never);
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictedCourseChangeRestriction), Times.Never);
         outerApiClientMock.Verify(c => c.ChangeRestrictedApprenticeshipLastDateStarts(
             It.IsAny<int>(),
             It.IsAny<string>(),
@@ -181,14 +181,14 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
     {
         var sessionServiceMock = new Mock<ISessionService>();
         var outerApiClientMock = new Mock<IOuterApiClient>();
-        var eligibilityValidatorMock = new Mock<IValidator<ChangeRestrictedCourseLastStartDateModel>>();
+        var validatorMock = new Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>>();
         SetupSession(sessionServiceMock);
         SetupCourseDetails(outerApiClientMock);
         var sut = new ChangeRestrictedCourseLastStartDateController(
             sessionServiceMock.Object,
             outerApiClientMock.Object,
             new SetLastDateStartsSubmitModelValidator(),
-            eligibilityValidatorMock.Object);
+            validatorMock.Object);
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
 
@@ -211,7 +211,7 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
                     $"The latest start date for this course is {CourseLastDateStarts.ToDisplayString()}. It is set by LARS and cannot be changed. Your chosen last date for new starts must come on or before this.");
         }
 
-        sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourseChangeRestriction), Times.Never);
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictedCourseChangeRestriction), Times.Never);
         outerApiClientMock.Verify(c => c.ChangeRestrictedApprenticeshipLastDateStarts(
             It.IsAny<int>(),
             It.IsAny<string>(),
@@ -226,7 +226,7 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
         [Greedy] ChangeRestrictedCourseLastStartDateController sut)
     {
         sessionServiceMock
-            .Setup(s => s.Get<ChangeRestrictedCourseRestrictionSessionModel>(SessionKeys.ProviderRestrictedCourseChangeRestriction))
+            .Setup(s => s.Get<ChangeRestrictedCourseRestrictionSessionModel>(SessionKeys.RestrictedCourseChangeRestriction))
             .Returns((ChangeRestrictedCourseRestrictionSessionModel?)null);
 
         var result = await sut.Index(
@@ -242,7 +242,7 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
             result.RouteValues!["ukprn"].Should().Be(Ukprn);
         }
 
-        sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourseChangeRestriction), Times.Never);
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictedCourseChangeRestriction), Times.Never);
         outerApiClientMock.Verify(c => c.ChangeRestrictedApprenticeshipLastDateStarts(
             It.IsAny<int>(),
             It.IsAny<string>(),
@@ -274,7 +274,7 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
             CancellationToken.None);
 
         await act.Should().ThrowAsync<ApiException>();
-        sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourseChangeRestriction), Times.Never);
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictedCourseChangeRestriction), Times.Never);
     }
 
     [TestCase(HttpStatusCode.BadRequest)]
@@ -283,11 +283,11 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
     {
         var sessionServiceMock = new Mock<ISessionService>();
         var outerApiClientMock = new Mock<IOuterApiClient>();
-        var validatorMock = new Mock<IValidator<SetLastDateStartsSubmitModel>>();
-        var eligibilityValidatorMock = new Mock<IValidator<ChangeRestrictedCourseLastStartDateModel>>();
+        var submitValidatorMock = new Mock<IValidator<SetLastDateStartsSubmitModel>>();
+        var validatorMock = new Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>>();
         SetupSession(sessionServiceMock);
         SetupCourseDetails(outerApiClientMock);
-        validatorMock
+        submitValidatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
         SetupChangeResponse(outerApiClientMock, statusCode);
@@ -295,8 +295,8 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
         var sut = new ChangeRestrictedCourseLastStartDateController(
             sessionServiceMock.Object,
             outerApiClientMock.Object,
-            validatorMock.Object,
-            eligibilityValidatorMock.Object);
+            submitValidatorMock.Object,
+            validatorMock.Object);
         SetupAuthenticatedUser(sut);
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
@@ -308,20 +308,20 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
             CancellationToken.None);
 
         await act.Should().ThrowAsync<ApiException>();
-        sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourseChangeRestriction), Times.Never);
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictedCourseChangeRestriction), Times.Never);
     }
 
     private static void SetupSession(Mock<ISessionService> sessionServiceMock)
     {
         sessionServiceMock
-            .Setup(s => s.Get<ChangeRestrictedCourseRestrictionSessionModel>(SessionKeys.ProviderRestrictedCourseChangeRestriction))
+            .Setup(s => s.Get<ChangeRestrictedCourseRestrictionSessionModel>(SessionKeys.RestrictedCourseChangeRestriction))
             .Returns(new ChangeRestrictedCourseRestrictionSessionModel
             {
                 Ukprn = Ukprn,
                 LarsCode = LarsCode,
                 CourseDisplayTitle = DisplayTitle,
                 ProviderName = ProviderName,
-                LastDateStarts = null
+                CourseLastDateStarts = null
             });
     }
 
