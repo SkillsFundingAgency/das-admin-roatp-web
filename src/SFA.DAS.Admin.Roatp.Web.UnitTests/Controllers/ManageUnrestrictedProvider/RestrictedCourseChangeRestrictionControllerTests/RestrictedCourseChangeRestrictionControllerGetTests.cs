@@ -124,6 +124,52 @@ public class RestrictedCourseChangeRestrictionControllerGetTests
     }
 
     [Test, MoqAutoData]
+    public async Task WhenGettingChange_AndRestrictedApprenticeshipsContentIsMissing_ThenRedirectsToRestrictedCoursesList(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] RestrictedCourseChangeRestrictionController sut)
+    {
+        SetupRestrictedApprenticeshipsResponse(outerApiClientMock, content: null);
+
+        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as RedirectToRouteResult;
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.RouteName.Should().Be(RouteNames.ProviderRestrictedApprenticeships);
+            result.RouteValues!["ukprn"].Should().Be(Ukprn);
+        }
+
+        sessionServiceMock.Verify(
+            s => s.Set(SessionKeys.RestrictedCourseChangeRestriction, It.IsAny<ChangeRestrictedCourseRestrictionSessionModel>()),
+            Times.Never);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingChange_AndRestrictedApprenticeshipsCoursesAreMissing_ThenRedirectsToRestrictedCoursesList(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] RestrictedCourseChangeRestrictionController sut)
+    {
+        SetupRestrictedApprenticeshipsResponse(
+            outerApiClientMock,
+            new GetRestrictedApprenticeshipsResponse { Courses = null! });
+
+        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as RedirectToRouteResult;
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.RouteName.Should().Be(RouteNames.ProviderRestrictedApprenticeships);
+            result.RouteValues!["ukprn"].Should().Be(Ukprn);
+        }
+
+        sessionServiceMock.Verify(
+            s => s.Set(SessionKeys.RestrictedCourseChangeRestriction, It.IsAny<ChangeRestrictedCourseRestrictionSessionModel>()),
+            Times.Never);
+    }
+
+    [Test, MoqAutoData]
     public async Task WhenGettingChange_AndCourseIsNotRestrictedForProvider_ThenRedirectsToRestrictedCoursesList(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
@@ -199,12 +245,22 @@ public class RestrictedCourseChangeRestrictionControllerGetTests
             }
             : [];
 
-        var httpResponse = new HttpResponseMessage(statusCode);
+        SetupRestrictedApprenticeshipsResponse(
+            outerApiClientMock,
+            new GetRestrictedApprenticeshipsResponse { Courses = courses },
+            statusCode);
+    }
+
+    private static void SetupRestrictedApprenticeshipsResponse(
+        Mock<IOuterApiClient> outerApiClientMock,
+        GetRestrictedApprenticeshipsResponse? content,
+        HttpStatusCode statusCode = HttpStatusCode.OK)
+    {
         outerApiClientMock
             .Setup(c => c.GetRestrictedApprenticeships(Ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetRestrictedApprenticeshipsResponse>(
-                httpResponse,
-                new GetRestrictedApprenticeshipsResponse { Courses = courses },
+                new HttpResponseMessage(statusCode),
+                content,
                 new RefitSettings(),
                 null));
     }

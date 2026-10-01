@@ -136,6 +136,47 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
             It.IsAny<CancellationToken>()), Times.Never);
     }
 
+    [Test, MoqAutoData]
+    public async Task WhenPostingSetLastStartDate_AndValidatorPassesButDateIsInvalid_ThenReloadsViewWithError(
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> validatorMock,
+        [Greedy] ChangeRestrictedCourseLastStartDateController sut)
+    {
+        SetupSession(sessionServiceMock);
+        SetupCourseDetails(outerApiClientMock);
+        sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
+        validatorMock
+            .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+
+        var result = await sut.Index(
+            Ukprn,
+            LarsCode,
+            new SetLastDateStartsSubmitModel(),
+            CancellationToken.None) as ViewResult;
+        var model = result?.Model as ChangeRestrictedCourseLastStartDateViewModel;
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.ViewName.Should().Be(ChangeRestrictedCourseLastStartDateController.ViewPath);
+            model.Should().NotBeNull();
+            sut.ModelState.IsValid.Should().BeFalse();
+            sut.ModelState[SetLastDateStartsSubmitModelValidator.DateFieldName]!
+                .Errors.Should().ContainSingle(e =>
+                    e.ErrorMessage == SetLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
+        }
+
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictedCourseChangeRestriction), Times.Never);
+        outerApiClientMock.Verify(c => c.ChangeRestrictedApprenticeshipLastDateStarts(
+            It.IsAny<int>(),
+            It.IsAny<string>(),
+            It.IsAny<ChangeRestrictedApprenticeshipLastDateStartsRequest>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     [Test]
     public async Task WhenPostingSetLastStartDate_AndDateIsBeforeMinimum_ThenReloadsViewWithMinimumDateError()
     {
