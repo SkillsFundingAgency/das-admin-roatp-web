@@ -39,9 +39,9 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result!.RouteName.Should().Be(RouteNames.ProviderRestrictedCourses);
+            result!.RouteName.Should().Be(RouteNames.ProviderRestrictedApprenticeships);
             result.RouteValues!["ukprn"].Should().Be(Ukprn);
-            sut.TempData[RestrictedApprenticeshipsController.SuccessBannerTempDataKey]
+            sut.TempData[ProviderRestrictedApprenticeshipsController.SuccessBannerTempDataKey]
                 .Should().Be(ConfirmProviderRestrictedCourseController.GetSuccessBannerMessage(DisplayTitle));
         }
 
@@ -72,7 +72,7 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result!.RouteName.Should().Be(RouteNames.ProviderRestrictedCourses);
+            result!.RouteName.Should().Be(RouteNames.ProviderRestrictedApprenticeships);
             result.RouteValues!["ukprn"].Should().Be(Ukprn);
         }
 

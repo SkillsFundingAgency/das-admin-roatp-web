@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
@@ -30,7 +30,7 @@ public class ProviderSummaryController(IOuterApiClient _outerApiClient, ISession
         model.OffersApprenticeshipUnitsChangeLink = Url.RouteUrl(RouteNames.ApprenticeshipUnitsUpdate, new { ukprn })!;
         var providerSummaryUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!;
         sessionService.SetProviderName(ukprn, organisationResponse.LegalName);
-        model.ManageRestrictedCoursesUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn })!;
+        model.ManageRestrictedCoursesUrl = Url.RouteUrl(RouteNames.ProviderRestrictedApprenticeships, new { ukprn })!;
         model.ManageApprovedCoursesUrl = providerSummaryUrl;
         model.ChangeHowWeManageThisProviderUrl = providerSummaryUrl;
         model.ManageApprovedUnitsUrl = providerSummaryUrl;

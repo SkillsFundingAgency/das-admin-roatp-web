@@ -19,7 +19,7 @@ public static class RestrictedApprenticeshipsFilterBuilder
     private const string ClosedToNewStartsDescription = "This will be removed once all learners have completed the course";
 
     public static FiltersViewModel CreateFiltersViewModel(
-        GetRestrictedApprenticeshipsRequestModel requestModel,
+        GetProviderRestrictedApprenticeshipsRequestModel requestModel,
         int ukprn,
         IUrlHelper urlHelper)
     {
@@ -35,11 +35,11 @@ public static class RestrictedApprenticeshipsFilterBuilder
             [FilterType.SearchTerm] = CourseNameSectionHeading
         };
 
-        var clearFiltersBaseUrl = urlHelper.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn })!;
+        var clearFiltersBaseUrl = urlHelper.RouteUrl(RouteNames.ProviderRestrictedApprenticeships, new { ukprn })!;
 
         return new FiltersViewModel
         {
-            Route = RouteNames.ProviderRestrictedCourses,
+            Route = RouteNames.ProviderRestrictedApprenticeships,
             Ukprn = ukprn,
             FilterResultsFragment = RestrictedApprenticeshipFilterResultsFragment,
             FilterSections =
@@ -66,9 +66,9 @@ public static class RestrictedApprenticeshipsFilterBuilder
         };
     }
 
-    public static IEnumerable<RestrictedApprenticeshipModel> ApplyFilters(
-        IEnumerable<RestrictedApprenticeshipModel> courses,
-        GetRestrictedApprenticeshipsRequestModel requestModel)
+    public static IEnumerable<ProviderRestrictedApprenticeshipModel> ApplyFilters(
+        IEnumerable<ProviderRestrictedApprenticeshipModel> courses,
+        GetProviderRestrictedApprenticeshipsRequestModel requestModel)
     {
         var filtered = courses;
 
@@ -90,10 +90,10 @@ public static class RestrictedApprenticeshipsFilterBuilder
         return filtered;
     }
 
-    private static DeliveryStatus GetDeliveryStatus(RestrictedApprenticeshipModel course)
+    private static DeliveryStatus GetDeliveryStatus(ProviderRestrictedApprenticeshipModel course)
         => course.LastDateStarts.ToDeliveryStatus(course.IsClosedToNewStarts);
 
-    private static List<FilterItemViewModel> BuildDeliveryStatusItems(GetRestrictedApprenticeshipsRequestModel requestModel)
+    private static List<FilterItemViewModel> BuildDeliveryStatusItems(GetProviderRestrictedApprenticeshipsRequestModel requestModel)
         =>
         [
             CreateDeliveryStatusItem(DeliveryStatus.LastStartDateAdded, requestModel, LastStartDateAddedDescription),
@@ -102,7 +102,7 @@ public static class RestrictedApprenticeshipsFilterBuilder
 
     private static FilterItemViewModel CreateDeliveryStatusItem(
         DeliveryStatus status,
-        GetRestrictedApprenticeshipsRequestModel requestModel,
+        GetProviderRestrictedApprenticeshipsRequestModel requestModel,
         string description)
         => new()
         {

@@ -75,7 +75,7 @@ public class ProviderRestrictedCourseSearchController(
 
         return RedirectToRoute(
             hasProviderCourse
-                ? RouteNames.ProviderRestrictedCourseSetLastStartDate
+                ? RouteNames.AddRestrictedCourseLastStartDate
                 : RouteNames.ConfirmProviderRestrictedCourse,
             new { ukprn });
     }

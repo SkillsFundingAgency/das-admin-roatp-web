@@ -25,7 +25,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
         var courses = CreateCourses();
 
         var byName = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(courses,
-            new GetRestrictedApprenticeshipsRequestModel { SearchTerm = "Cleaning" }).ToList();
+            new GetProviderRestrictedApprenticeshipsRequestModel { SearchTerm = "Cleaning" }).ToList();
 
         byName.Should().ContainSingle(c => c.Title == "Cleaning hygiene operative");
     }
@@ -37,7 +37,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
 
 
         var byLarsCode = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(courses,
-            new GetRestrictedApprenticeshipsRequestModel { SearchTerm = "124" }).ToList();
+            new GetProviderRestrictedApprenticeshipsRequestModel { SearchTerm = "124" }).ToList();
 
         byLarsCode.Should().ContainSingle(c => c.LarsCode == "124");
     }
@@ -48,7 +48,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
         var courses = CreateCourses();
 
         var filtered = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(courses,
-            new GetRestrictedApprenticeshipsRequestModel { SearchTerm = "12" }).ToList();
+            new GetProviderRestrictedApprenticeshipsRequestModel { SearchTerm = "12" }).ToList();
 
         filtered.Should().BeEmpty();
     }
@@ -59,7 +59,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
         var courses = CreateCourses();
 
         var filtered = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(courses,
-            new GetRestrictedApprenticeshipsRequestModel
+            new GetProviderRestrictedApprenticeshipsRequestModel
             {
                 DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
             }).ToList();
@@ -77,7 +77,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
         var courses = CreateCourses();
 
         var filtered = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(courses,
-            new GetRestrictedApprenticeshipsRequestModel
+            new GetProviderRestrictedApprenticeshipsRequestModel
             {
                 SearchTerm = "course",
                 DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
@@ -92,7 +92,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
         var courses = CreateCourses();
 
         var filtered = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(courses,
-            new GetRestrictedApprenticeshipsRequestModel()).ToList();
+            new GetProviderRestrictedApprenticeshipsRequestModel()).ToList();
 
         filtered.Should().HaveCount(courses.Count);
     }
@@ -104,7 +104,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
 
         var filtered = RestrictedApprenticeshipsFilterBuilder.ApplyFilters(
             courses,
-            new GetRestrictedApprenticeshipsRequestModel
+            new GetProviderRestrictedApprenticeshipsRequestModel
             {
                 DeliveryStatus = [DeliveryStatus.ClosedToNewStarts, DeliveryStatus.ClosedToNewStarts]
             }).ToList();
@@ -120,7 +120,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
     public void WhenCreatingFiltersViewModel_AndSearchTermIsNull_ThenSearchTermFilterIsNotSelected()
     {
         var urlHelper = CreateUrlHelper();
-        var requestModel = new GetRestrictedApprenticeshipsRequestModel
+        var requestModel = new GetProviderRestrictedApprenticeshipsRequestModel
         {
             SearchTerm = null!
         };
@@ -164,7 +164,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
     {
         var filters = CreateFiltersViewModelWithSelectedFilters();
 
-        filters.Route.Should().Be(RouteNames.ProviderRestrictedCourses);
+        filters.Route.Should().Be(RouteNames.ProviderRestrictedApprenticeships);
     }
 
     [Test]
@@ -280,7 +280,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
     public void WhenCreatingFiltersViewModel_AndSearchTermHasSurroundingWhitespace_ThenTrimsSearchTermForClearLink()
     {
         var urlHelper = CreateUrlHelper();
-        var requestModel = new GetRestrictedApprenticeshipsRequestModel
+        var requestModel = new GetProviderRestrictedApprenticeshipsRequestModel
         {
             SearchTerm = "  Paint  "
         };
@@ -296,7 +296,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
         var urlHelper = CreateUrlHelper();
 
         var filters = RestrictedApprenticeshipsFilterBuilder.CreateFiltersViewModel(
-            new GetRestrictedApprenticeshipsRequestModel(),
+            new GetProviderRestrictedApprenticeshipsRequestModel(),
             Ukprn,
             urlHelper.Object);
 
@@ -312,7 +312,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
     public void WhenCreatingFiltersViewModel_AndClearingLastFilter_ThenClearLinkIsBaseUrl()
     {
         var urlHelper = CreateUrlHelper();
-        var requestModel = new GetRestrictedApprenticeshipsRequestModel
+        var requestModel = new GetProviderRestrictedApprenticeshipsRequestModel
         {
             SearchTerm = "Paint"
         };
@@ -327,7 +327,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
     public void WhenCreatingFiltersViewModel_AndClearingOneOfMultipleStatuses_ThenKeepsRemainingStatus()
     {
         var urlHelper = CreateUrlHelper();
-        var requestModel = new GetRestrictedApprenticeshipsRequestModel
+        var requestModel = new GetProviderRestrictedApprenticeshipsRequestModel
         {
             DeliveryStatus = [DeliveryStatus.LastStartDateAdded, DeliveryStatus.ClosedToNewStarts]
         };
@@ -345,7 +345,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
 
     private static FiltersViewModel CreateFiltersViewModelWithSelectedFilters()
     {
-        var requestModel = new GetRestrictedApprenticeshipsRequestModel
+        var requestModel = new GetProviderRestrictedApprenticeshipsRequestModel
         {
             SearchTerm = "Paint",
             DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
@@ -357,7 +357,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
             CreateUrlHelper().Object);
     }
 
-    private static List<RestrictedApprenticeshipModel> CreateCourses() =>
+    private static List<ProviderRestrictedApprenticeshipModel> CreateCourses() =>
     [
         new()
         {
@@ -392,7 +392,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
             .Setup(u => u.RouteUrl(It.IsAny<UrlRouteContext>()))
             .Returns((UrlRouteContext context) =>
             {
-                context.RouteName.Should().Be(RouteNames.ProviderRestrictedCourses);
+                context.RouteName.Should().Be(RouteNames.ProviderRestrictedApprenticeships);
                 return RestrictedApprenticeshipsUrl;
             });
         return urlHelper;
