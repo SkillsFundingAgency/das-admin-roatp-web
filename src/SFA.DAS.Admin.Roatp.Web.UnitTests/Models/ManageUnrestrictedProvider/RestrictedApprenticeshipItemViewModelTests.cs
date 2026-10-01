@@ -11,7 +11,7 @@ public class RestrictedApprenticeshipItemViewModelTests
     [Test]
     public void WhenMappingFromCourse_AndIsClosedToNewStartsWithLastDateStarts_ThenMapsClosedToNewStarts()
     {
-        var course = new RestrictedApprenticeshipModel
+        var course = new ProviderRestrictedApprenticeshipModel
         {
             LarsCode = "105",
             Title = "Chartered manager",
@@ -38,7 +38,7 @@ public class RestrictedApprenticeshipItemViewModelTests
     [Test]
     public void WhenMappingFromCourse_AndIsClosedToNewStartsWithNoLastDateStarts_ThenMapsClosedToNewStarts()
     {
-        var course = new RestrictedApprenticeshipModel
+        var course = new ProviderRestrictedApprenticeshipModel
         {
             LarsCode = "105",
             Title = "Chartered manager",
@@ -60,7 +60,7 @@ public class RestrictedApprenticeshipItemViewModelTests
     [Test]
     public void WhenMappingFromCourse_AndIsClosedToNewStartsWithLastDateStartsToday_ThenMapsClosedToNewStarts()
     {
-        var course = new RestrictedApprenticeshipModel
+        var course = new ProviderRestrictedApprenticeshipModel
         {
             LarsCode = "105",
             Title = "Chartered manager",
@@ -81,7 +81,7 @@ public class RestrictedApprenticeshipItemViewModelTests
     [Test]
     public void WhenMappingFromCourse_AndNotClosedToNewStartsWithFutureLastDateStarts_ThenMapsLastStartDateAdded()
     {
-        var course = new RestrictedApprenticeshipModel
+        var course = new ProviderRestrictedApprenticeshipModel
         {
             LarsCode = "105",
             Title = "Chartered manager",
@@ -104,7 +104,7 @@ public class RestrictedApprenticeshipItemViewModelTests
     [Test]
     public void WhenMappingFromCourse_AndNotClosedToNewStartsWithNoLastDateStarts_ThenMapsOpenToNewStarts()
     {
-        var course = new RestrictedApprenticeshipModel
+        var course = new ProviderRestrictedApprenticeshipModel
         {
             LarsCode = "105",
             Title = "Chartered manager",

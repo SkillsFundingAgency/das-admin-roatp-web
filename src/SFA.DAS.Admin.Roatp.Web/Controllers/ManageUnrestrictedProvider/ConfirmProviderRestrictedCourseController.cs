@@ -26,7 +26,7 @@ public class ConfirmProviderRestrictedCourseController(
         var session = GetRestrictCourseSession(ukprn);
         if (session is null)
         {
-            return RedirectToRoute(RouteNames.ProviderRestrictedCourses, new { ukprn });
+            return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
         }
 
         return View(ViewPath, BuildViewModel(session));
@@ -38,7 +38,7 @@ public class ConfirmProviderRestrictedCourseController(
         var session = GetRestrictCourseSession(ukprn);
         if (session is null)
         {
-            return RedirectToRoute(RouteNames.ProviderRestrictedCourses, new { ukprn });
+            return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
         }
 
         var response = await outerApiClient.UpsertProviderAllowedCourse(
@@ -56,10 +56,11 @@ public class ConfirmProviderRestrictedCourseController(
         await response.EnsureSuccessStatusCodeAsync();
 
         sessionService.Delete(SessionKeys.ProviderRestrictedCourse);
-        TempData[RestrictedApprenticeshipsController.SuccessBannerTempDataKey] =
+
+        TempData[ProviderRestrictedApprenticeshipsController.SuccessBannerTempDataKey] =
             GetSuccessBannerMessage(session.CourseDisplayTitle);
 
-        return RedirectToRoute(RouteNames.ProviderRestrictedCourses, new { ukprn });
+        return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
     }
 
     private ProviderRestrictedCourseSessionModel? GetRestrictCourseSession(int ukprn)
@@ -80,6 +81,6 @@ public class ConfirmProviderRestrictedCourseController(
             ProviderName = session.ProviderName,
             CourseDisplayTitle = session.CourseDisplayTitle,
             LarsCode = session.LarsCode,
-            CancelUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourses, new { ukprn = session.Ukprn })!
+            CancelUrl = Url.RouteUrl(RouteNames.ProviderRestrictedApprenticeships, new { ukprn = session.Ukprn })!
         };
 }

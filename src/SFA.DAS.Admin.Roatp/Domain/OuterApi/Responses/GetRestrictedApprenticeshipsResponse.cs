@@ -4,5 +4,5 @@ namespace SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 
 public class GetRestrictedApprenticeshipsResponse
 {
-    public List<RestrictedApprenticeshipModel> Courses { get; set; } = [];
+    public List<ProviderRestrictedApprenticeshipModel> Courses { get; set; } = [];
 }

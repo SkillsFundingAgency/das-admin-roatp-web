@@ -28,7 +28,7 @@ public class ConfirmProviderRestrictedCourseControllerGetTests
     {
         SetupSession(sessionServiceMock);
         sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, RestrictedCoursesUrl);
+            .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
 
         var result = sut.Index(Ukprn) as ViewResult;
         var model = result?.Model as ConfirmProviderRestrictedCourseViewModel;
@@ -60,7 +60,7 @@ public class ConfirmProviderRestrictedCourseControllerGetTests
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result!.RouteName.Should().Be(RouteNames.ProviderRestrictedCourses);
+            result!.RouteName.Should().Be(RouteNames.ProviderRestrictedApprenticeships);
             result.RouteValues!["ukprn"].Should().Be(Ukprn);
         }
     }
@@ -77,7 +77,7 @@ public class ConfirmProviderRestrictedCourseControllerGetTests
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result!.RouteName.Should().Be(RouteNames.ProviderRestrictedCourses);
+            result!.RouteName.Should().Be(RouteNames.ProviderRestrictedApprenticeships);
             result.RouteValues!["ukprn"].Should().Be(Ukprn);
         }
     }

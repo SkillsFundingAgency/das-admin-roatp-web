@@ -169,7 +169,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         using (new AssertionScope())
         {
             actual.Should().NotBeNull();
-            actual!.RouteName.Should().Be(RouteNames.ProviderRestrictedCourseSetLastStartDate);
+            actual!.RouteName.Should().Be(RouteNames.AddRestrictedCourseLastStartDate);
             actual.RouteValues!["ukprn"].Should().Be(Ukprn);
         }
 

@@ -1,7 +1,6 @@
-using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
 using SFA.DAS.Admin.Roatp.Web.Models.Session;
@@ -22,7 +21,7 @@ public class UnrestrictedCourseDetailsController(
     {
         sessionService.Delete(SessionKeys.AddRestrictedCourse);
 
-        var courseDetails = await GetCourseDetailsAsync(larsCode, cancellationToken);
+        var courseDetails = await outerApiClient.GetCourseDetails(larsCode, cancellationToken);
         if (courseDetails is null)
         {
             return NotFound();
@@ -48,19 +47,5 @@ public class UnrestrictedCourseDetailsController(
         });
 
         return RedirectToRoute(RouteNames.RestrictCourseConfirm, new { larsCode });
-    }
-
-    private async Task<GetRestrictedCourseDetailsResponse?> GetCourseDetailsAsync(
-        string larsCode,
-        CancellationToken cancellationToken)
-    {
-        var response = await outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
-        if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            return null;
-        }
-
-        await response.EnsureSuccessStatusCodeAsync();
-        return response.Content;
     }
 }
