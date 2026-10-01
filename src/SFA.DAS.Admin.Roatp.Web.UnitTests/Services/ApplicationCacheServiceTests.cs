@@ -53,7 +53,7 @@ public class ApplicationCacheServiceTests
         await sut.SetAsync("key", "value");
 
         capturedOptions.Should().NotBeNull();
-        capturedOptions!.AbsoluteExpirationRelativeToNow.Should().Be(TimeSpan.FromHours(4));
+        capturedOptions!.AbsoluteExpirationRelativeToNow.Should().Be(ApplicationCacheService.DefaultCacheDuration);
     }
 
     private static ApplicationCacheService CreateSut()

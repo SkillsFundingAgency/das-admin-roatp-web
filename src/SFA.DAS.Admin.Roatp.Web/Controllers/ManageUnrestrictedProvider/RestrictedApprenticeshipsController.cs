@@ -2,6 +2,7 @@ using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.Models;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
@@ -14,7 +15,8 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 [Route("providers/{ukprn}/restricted-courses", Name = RouteNames.ProviderRestrictedCourses)]
 public class RestrictedApprenticeshipsController(
     IOuterApiClient outerApiClient,
-    ISessionService sessionService) : Controller
+    ISessionService sessionService,
+    IApplicationCacheService applicationCacheService) : Controller
 {
     public const string ViewPath = "~/Views/ManageUnrestrictedProvider/RestrictedApprenticeships/Index.cshtml";
     public const string SuccessBannerTempDataKey = "SuccessBannerMessage";
@@ -31,13 +33,18 @@ public class RestrictedApprenticeshipsController(
             return NotFound();
         }
 
-        var apiResponse = await outerApiClient.GetRestrictedApprenticeships(ukprn, cancellationToken);
-        if (apiResponse.StatusCode != HttpStatusCode.OK)
+        var coursesResponse = await GetRestrictedApprenticeships(ukprn, cancellationToken);
+        if (coursesResponse is null)
         {
             return NotFound();
         }
 
-        var courses = apiResponse.Content?.Courses ?? [];
+        var courses = coursesResponse.Courses ?? [];
+        await applicationCacheService.SetAsync(
+            ApplicationCacheKeys.RestrictedApprenticeships(ukprn),
+            courses,
+            cancellationToken: cancellationToken);
+
         var viewModel = new RestrictedApprenticeshipsViewModel
         {
             ProviderName = providerName,
@@ -55,15 +62,30 @@ public class RestrictedApprenticeshipsController(
                 StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        ApplyPagination(viewModel, filteredCourses, requestModel);
+        ApplyPagination(viewModel, filteredCourses, requestModel, ukprn);
 
         return View(ViewPath, viewModel);
+    }
+
+    private async Task<GetRestrictedApprenticeshipsResponse?> GetRestrictedApprenticeships(
+        int ukprn,
+        CancellationToken cancellationToken)
+    {
+        var apiResponse = await outerApiClient.GetRestrictedApprenticeships(ukprn, cancellationToken);
+        if (apiResponse.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        await apiResponse.EnsureSuccessfulAsync();
+        return apiResponse.Content ?? new GetRestrictedApprenticeshipsResponse();
     }
 
     private void ApplyPagination(
         RestrictedApprenticeshipsViewModel viewModel,
         List<RestrictedApprenticeshipModel> filteredCourses,
-        GetRestrictedApprenticeshipsRequestModel requestModel)
+        GetRestrictedApprenticeshipsRequestModel requestModel,
+        int ukprn)
     {
         var (pagedItems, totalCount, pagination) = PaginationHelper.Paginate(
             filteredCourses,
@@ -75,7 +97,14 @@ public class RestrictedApprenticeshipsController(
 
         viewModel.TotalCount = totalCount;
         viewModel.Courses = pagedItems
-            .Select(course => (RestrictedApprenticeshipItemViewModel)course)
+            .Select(course =>
+            {
+                RestrictedApprenticeshipItemViewModel item = course;
+                item.ChangeUrl = Url.RouteUrl(
+                    RouteNames.ChangeProviderRestrictedCourse,
+                    new { ukprn, larsCode = course.LarsCode })!;
+                return item;
+            })
             .ToList();
         viewModel.Pagination = pagination;
     }
