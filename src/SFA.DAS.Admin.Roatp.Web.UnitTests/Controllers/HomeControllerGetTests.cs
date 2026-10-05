@@ -55,6 +55,7 @@ public class HomeControllerGetTests
 
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProvider), Times.Once);
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictedCourseChangeRestriction), Times.Once);
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.SetLastDateStarts), Times.Once);
     }
 
     [Test, MoqAutoData]

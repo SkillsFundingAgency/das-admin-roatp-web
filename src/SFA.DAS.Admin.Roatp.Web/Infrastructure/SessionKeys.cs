@@ -11,5 +11,6 @@ public static class SessionKeys
     public const string AddProviderToRestrictedCourse = "AddProviderToRestrictedCourse";
     public const string ProviderRestrictedCourse = "ProviderRestrictedCourse";
     public const string RestrictedCourseChangeRestriction = "RestrictedCourseChangeRestriction";
+    public const string SetLastDateStarts = "SetLastDateStarts";
     public const string ProviderNames = "ProviderNames";
 }

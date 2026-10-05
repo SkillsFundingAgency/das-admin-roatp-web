@@ -11,7 +11,9 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.CourseRestrictions;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
 [Route("restricted-courses/{larsCode}", Name = RouteNames.RestrictedCourseDetails)]
-public class RestrictedCourseDetailsController(IOuterApiClient outerApiClient) : Controller
+public class RestrictedCourseDetailsController(
+    IOuterApiClient outerApiClient,
+    ISessionService sessionService) : Controller
 {
     public const string ViewPath = "~/Views/CourseRestrictions/RestrictedCourseDetails/Index.cshtml";
     public const string SuccessBannerTempDataKey = "SuccessBannerMessage";
@@ -22,6 +24,8 @@ public class RestrictedCourseDetailsController(IOuterApiClient outerApiClient) :
         GetRestrictedCourseDetailsRequestModel requestModel,
         CancellationToken cancellationToken)
     {
+        sessionService.Delete(SessionKeys.SetLastDateStarts);
+
         var courseDetails = await outerApiClient.GetCourseDetails(larsCode, cancellationToken);
         if (courseDetails is null)
         {

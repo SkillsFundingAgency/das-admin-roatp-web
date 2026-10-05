@@ -12,6 +12,7 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.CourseRestrictions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
+using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -30,6 +31,7 @@ public class RestrictedCourseDetailsControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedCourseDetails_AndLarsCodeIsValid_ThenReturnsViewWithMappedModel(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] RestrictedCourseDetailsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -68,6 +70,8 @@ public class RestrictedCourseDetailsControllerGetTests
             model.AllowedProviders.First().ChangeUrl.Should().Be(SetLastDateStartsUrl);
             model.AllowedProviders.Last().ChangeUrl.Should().Be(ChangeCourseRestrictionUrl);
         }
+
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.SetLastDateStarts), Times.Once);
     }
 
     [Test, MoqAutoData]
@@ -229,7 +233,9 @@ public class RestrictedCourseDetailsControllerGetTests
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
                 httpResponse, null, new RefitSettings(), apiException));
 
-        var sut = new RestrictedCourseDetailsController(outerApiClientMock.Object);
+        var sut = new RestrictedCourseDetailsController(
+            outerApiClientMock.Object,
+            Mock.Of<ISessionService>());
 
         var act = () => sut.Index(LarsCode, new GetRestrictedCourseDetailsRequestModel(), CancellationToken.None);
 
