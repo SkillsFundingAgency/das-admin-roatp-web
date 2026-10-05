@@ -26,6 +26,8 @@ public class ProviderRestrictedApprenticeshipsController(
         GetProviderRestrictedApprenticeshipsRequestModel requestModel,
         CancellationToken cancellationToken)
     {
+        sessionService.Delete(SessionKeys.RestrictedCourseChangeRestriction);
+
         var providerName = await sessionService.GetProviderName(outerApiClient, ukprn, cancellationToken);
         if (providerName is null)
         {

@@ -88,7 +88,7 @@ public class ProviderSummaryControllerGetTests
         }
 
         sessionServiceMock.Verify(s => s.Set(
-            SessionKeys.ProviderName,
+            SessionKeys.ProviderNames,
             It.Is<Dictionary<int, string>>(d => d[ukprn] == getOrganisationResponse.LegalName)), Times.Once);
     }
 }

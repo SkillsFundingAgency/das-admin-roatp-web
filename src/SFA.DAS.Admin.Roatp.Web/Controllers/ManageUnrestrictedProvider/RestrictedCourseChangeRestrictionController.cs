@@ -21,22 +21,7 @@ public class RestrictedCourseChangeRestrictionController(
     public const string ViewPath = "~/Views/ManageUnrestrictedProvider/RestrictedCourseChangeRestriction/Index.cshtml";
 
     [HttpGet]
-    public Task<IActionResult> Index(int ukprn, string larsCode, CancellationToken cancellationToken = default)
-        => HandleChangeRestriction(ukprn, larsCode, submitModel: null, cancellationToken);
-
-    [HttpPost]
-    public Task<IActionResult> Index(
-        int ukprn,
-        string larsCode,
-        RestrictedCourseChangeRestrictionSubmitModel submitModel,
-        CancellationToken cancellationToken = default)
-        => HandleChangeRestriction(ukprn, larsCode, submitModel, cancellationToken);
-
-    private async Task<IActionResult> HandleChangeRestriction(
-        int ukprn,
-        string larsCode,
-        RestrictedCourseChangeRestrictionSubmitModel? submitModel,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(int ukprn, string larsCode, CancellationToken cancellationToken = default)
     {
         var restrictedApprenticeship = await GetRestrictedApprenticeship(ukprn, larsCode, cancellationToken);
         if (restrictedApprenticeship is null)
@@ -52,13 +37,40 @@ public class RestrictedCourseChangeRestrictionController(
 
         var courseDisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(restrictedApprenticeship.Title, restrictedApprenticeship.Level);
 
-        SetChangeSession(ukprn, restrictedApprenticeship, providerName, courseDisplayTitle);
-
-        var model = BuildViewModel(ukprn, restrictedApprenticeship, courseDisplayTitle, submitModel);
-        if (submitModel is null)
+        sessionService.Set(SessionKeys.RestrictedCourseChangeRestriction, new ChangeRestrictedCourseRestrictionSessionModel
         {
-            return View(ViewPath, model);
+            Ukprn = ukprn,
+            LarsCode = restrictedApprenticeship.LarsCode,
+            CourseDisplayTitle = courseDisplayTitle,
+            ProviderName = providerName,
+            CourseLastDateStarts = restrictedApprenticeship.LastDateStarts
+        });
+
+        return View(ViewPath, BuildViewModel(
+            ukprn,
+            restrictedApprenticeship.LarsCode,
+            courseDisplayTitle,
+            restrictedApprenticeship.LastDateStarts));
+    }
+
+    [HttpPost]
+    public IActionResult Index(
+        int ukprn,
+        string larsCode,
+        RestrictedCourseChangeRestrictionSubmitModel submitModel)
+    {
+        var session = GetChangeRestrictedCourseSession(ukprn, larsCode);
+        if (session is null)
+        {
+            return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
         }
+
+        var model = BuildViewModel(
+            ukprn,
+            session.LarsCode,
+            session.CourseDisplayTitle,
+            session.CourseLastDateStarts,
+            submitModel);
 
         var validationResult = validator.Validate(submitModel);
         if (!validationResult.IsValid)
@@ -75,33 +87,30 @@ public class RestrictedCourseChangeRestrictionController(
         return View(ViewPath, model);
     }
 
-    private void SetChangeSession(
-        int ukprn,
-        ProviderRestrictedApprenticeshipModel restrictedApprenticeship,
-        string providerName,
-        string courseDisplayTitle)
+    private ChangeRestrictedCourseRestrictionSessionModel? GetChangeRestrictedCourseSession(int ukprn, string larsCode)
     {
-        sessionService.Set(SessionKeys.RestrictedCourseChangeRestriction, new ChangeRestrictedCourseRestrictionSessionModel
+        var session = sessionService.Get<ChangeRestrictedCourseRestrictionSessionModel>(
+            SessionKeys.RestrictedCourseChangeRestriction);
+        if (session is null || session.Ukprn != ukprn || session.LarsCode != larsCode)
         {
-            Ukprn = ukprn,
-            LarsCode = restrictedApprenticeship.LarsCode,
-            CourseDisplayTitle = courseDisplayTitle,
-            ProviderName = providerName,
-            CourseLastDateStarts = restrictedApprenticeship.LastDateStarts
-        });
+            return null;
+        }
+
+        return session;
     }
 
     private RestrictedCourseChangeRestrictionViewModel BuildViewModel(
         int ukprn,
-        ProviderRestrictedApprenticeshipModel restrictedApprenticeship,
+        string larsCode,
         string courseDisplayTitle,
-        RestrictedCourseChangeRestrictionSubmitModel? submitModel)
+        DateTime? lastDateStarts,
+        RestrictedCourseChangeRestrictionSubmitModel? submitModel = null)
         => new()
         {
             Ukprn = ukprn,
-            LarsCode = restrictedApprenticeship.LarsCode,
+            LarsCode = larsCode,
             CourseDisplayTitle = courseDisplayTitle,
-            LastDateStarts = restrictedApprenticeship.LastDateStarts,
+            LastDateStarts = lastDateStarts,
             SelectedOption = submitModel?.SelectedOption,
             CancelUrl = Url.RouteUrl(RouteNames.ProviderRestrictedApprenticeships, new { ukprn })!
         };

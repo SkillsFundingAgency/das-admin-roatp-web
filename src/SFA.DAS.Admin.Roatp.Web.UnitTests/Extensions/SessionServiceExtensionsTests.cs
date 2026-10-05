@@ -57,7 +57,7 @@ public class SessionServiceExtensionsTests
         }
 
         sessionServiceMock.Verify(s => s.Set(
-            SessionKeys.ProviderName,
+            SessionKeys.ProviderNames,
             It.Is<Dictionary<int, string>>(d => d[Ukprn] == ProviderName)), Times.Once);
         outerApiClientMock.Verify(c => c.GetOrganisation(Ukprn, It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -78,7 +78,7 @@ public class SessionServiceExtensionsTests
 
         result.Should().BeNull();
         sessionServiceMock.Verify(
-            s => s.Set(SessionKeys.ProviderName, It.IsAny<Dictionary<int, string>>()),
+            s => s.Set(SessionKeys.ProviderNames, It.IsAny<Dictionary<int, string>>()),
             Times.Never);
     }
 
@@ -98,7 +98,7 @@ public class SessionServiceExtensionsTests
 
         await act.Should().ThrowAsync<ApiException>();
         sessionServiceMock.Verify(
-            s => s.Set(SessionKeys.ProviderName, It.IsAny<Dictionary<int, string>>()),
+            s => s.Set(SessionKeys.ProviderNames, It.IsAny<Dictionary<int, string>>()),
             Times.Never);
     }
 
@@ -119,7 +119,7 @@ public class SessionServiceExtensionsTests
 
         result.Should().BeNull();
         sessionServiceMock.Verify(
-            s => s.Set(SessionKeys.ProviderName, It.IsAny<Dictionary<int, string>>()),
+            s => s.Set(SessionKeys.ProviderNames, It.IsAny<Dictionary<int, string>>()),
             Times.Never);
     }
 
@@ -143,7 +143,7 @@ public class SessionServiceExtensionsTests
 
         result.Should().Be(ProviderName);
         sessionServiceMock.Verify(s => s.Set(
-            SessionKeys.ProviderName,
+            SessionKeys.ProviderNames,
             It.Is<Dictionary<int, string>>(d =>
                 d[otherUkprn] == otherProviderName && d[Ukprn] == ProviderName)), Times.Once);
         outerApiClientMock.Verify(c => c.GetOrganisation(Ukprn, It.IsAny<CancellationToken>()), Times.Once);

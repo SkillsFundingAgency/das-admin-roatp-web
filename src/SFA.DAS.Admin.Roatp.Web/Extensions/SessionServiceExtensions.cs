@@ -8,7 +8,7 @@ public static class SessionServiceExtensions
 {
     private static string? GetProviderNameFromSession(this ISessionService sessionService, int ukprn)
     {
-        var providerNameFromSession = sessionService.Get<Dictionary<int, string>>(SessionKeys.ProviderName);
+        var providerNameFromSession = sessionService.Get<Dictionary<int, string>>(SessionKeys.ProviderNames);
         if (providerNameFromSession is not null
             && providerNameFromSession.TryGetValue(ukprn, out var providerName)
             && !string.IsNullOrWhiteSpace(providerName))
@@ -21,9 +21,9 @@ public static class SessionServiceExtensions
 
     public static void SetProviderName(this ISessionService sessionService, int ukprn, string providerName)
     {
-        var providerNameSession = sessionService.Get<Dictionary<int, string>>(SessionKeys.ProviderName) ?? [];
+        var providerNameSession = sessionService.Get<Dictionary<int, string>>(SessionKeys.ProviderNames) ?? [];
         providerNameSession[ukprn] = providerName;
-        sessionService.Set(SessionKeys.ProviderName, providerNameSession);
+        sessionService.Set(SessionKeys.ProviderNames, providerNameSession);
     }
 
     public static async Task<string?> GetProviderName(

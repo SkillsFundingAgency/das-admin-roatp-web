@@ -106,13 +106,15 @@ public class AddRestrictedCourseLastStartDateController(
         SetLastDateStartsSubmitModel? submitModel,
         CancellationToken cancellationToken)
     {
+        var courseDetails = await outerApiClient.GetCourseDetails(session.LarsCode, cancellationToken);
+
         return new AddRestrictedCourseLastStartDateViewModel
         {
             Ukprn = session.Ukprn,
             ProviderName = session.ProviderName,
             CourseDisplayTitle = session.CourseDisplayTitle,
             LarsCode = session.LarsCode,
-            CourseLastDateStarts = (await outerApiClient.GetCourseDetails(session.LarsCode, cancellationToken))?.LastDateStarts,
+            CourseLastDateStarts = courseDetails?.LastDateStarts,
             Day = submitModel?.Day,
             Month = submitModel?.Month,
             Year = submitModel?.Year,

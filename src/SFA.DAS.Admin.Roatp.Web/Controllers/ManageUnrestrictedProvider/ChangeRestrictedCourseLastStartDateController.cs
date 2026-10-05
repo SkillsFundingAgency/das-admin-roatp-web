@@ -27,39 +27,37 @@ public class ChangeRestrictedCourseLastStartDateController(
         $"{displayTitle} last start date has been updated";
 
     [HttpGet]
-    public Task<IActionResult> Index(int ukprn, string larsCode, CancellationToken cancellationToken = default)
-        => HandleChangeLastStartDate(ukprn, larsCode, submitModel: null, cancellationToken);
-
-    [HttpPost]
-    public Task<IActionResult> Index(
-        int ukprn,
-        string larsCode,
-        SetLastDateStartsSubmitModel submitModel,
-        CancellationToken cancellationToken = default)
-        => HandleChangeLastStartDate(ukprn, larsCode, submitModel, cancellationToken);
-
-    private async Task<IActionResult> HandleChangeLastStartDate(
-        int ukprn,
-        string larsCode,
-        SetLastDateStartsSubmitModel? submitModel,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(int ukprn, string larsCode, CancellationToken cancellationToken = default)
     {
-        var changeRestrictedCourseSession = GetChangeRestrictedCourseSession(ukprn, larsCode);
-        if (changeRestrictedCourseSession is null)
+        var session = GetChangeRestrictedCourseSession(ukprn, larsCode);
+        if (session is null)
         {
             return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
         }
 
-        if (submitModel is null && !await IsValidForLastStartDateChange(changeRestrictedCourseSession, cancellationToken))
+        if (!await IsValidForLastStartDateChange(session, cancellationToken))
         {
             return NotFound();
         }
 
-        var model = await BuildViewModel(changeRestrictedCourseSession, submitModel, cancellationToken);
-        if (submitModel is null)
+        var model = await BuildViewModel(session, submitModel: null, cancellationToken);
+        return View(ViewPath, model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Index(
+        int ukprn,
+        string larsCode,
+        SetLastDateStartsSubmitModel submitModel,
+        CancellationToken cancellationToken = default)
+    {
+        var session = GetChangeRestrictedCourseSession(ukprn, larsCode);
+        if (session is null)
         {
-            return View(ViewPath, model);
+            return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
         }
+
+        var model = await BuildViewModel(session, submitModel, cancellationToken);
 
         submitModel.LarsCode = larsCode;
         submitModel.CourseLastDateStarts = model.CourseLastDateStarts;
@@ -84,7 +82,7 @@ public class ChangeRestrictedCourseLastStartDateController(
         sessionService.Delete(SessionKeys.RestrictedCourseChangeRestriction);
 
         TempData[ProviderRestrictedApprenticeshipsController.SuccessBannerTempDataKey] =
-            GetSuccessBannerMessage(changeRestrictedCourseSession.CourseDisplayTitle);
+            GetSuccessBannerMessage(session.CourseDisplayTitle);
 
         return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
     }
@@ -135,6 +133,8 @@ public class ChangeRestrictedCourseLastStartDateController(
         SetLastDateStartsSubmitModel? submitModel,
         CancellationToken cancellationToken)
     {
+        var courseDetails = await outerApiClient.GetCourseDetails(session.LarsCode, cancellationToken);
+
         var day = submitModel?.Day;
         var month = submitModel?.Month;
         var year = submitModel?.Year;
@@ -152,7 +152,7 @@ public class ChangeRestrictedCourseLastStartDateController(
             Ukprn = session.Ukprn,
             LarsCode = session.LarsCode,
             CourseDisplayTitle = session.CourseDisplayTitle,
-            CourseLastDateStarts = (await outerApiClient.GetCourseDetails(session.LarsCode, cancellationToken))?.LastDateStarts,
+            CourseLastDateStarts = courseDetails?.LastDateStarts,
             Day = day,
             Month = month,
             Year = year,

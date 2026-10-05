@@ -83,6 +83,7 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
         }
 
         outerApiClientMock.Verify(c => c.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictedCourseChangeRestriction), Times.Once);
     }
 
     [Test, MoqAutoData]
@@ -145,7 +146,7 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
         }
 
         sessionServiceMock.Verify(s => s.Set(
-            SessionKeys.ProviderName,
+            SessionKeys.ProviderNames,
             It.Is<Dictionary<int, string>>(d => d[ukprn] == organisationResponse.LegalName)), Times.Once);
         outerApiClientMock.Verify(c => c.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
     }

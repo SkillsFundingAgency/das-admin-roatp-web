@@ -17,6 +17,7 @@ public class HomeController(IOptions<ApplicationConfiguration> _configuration, I
     public IActionResult Index()
     {
         _sessionService.Delete(SessionKeys.AddProvider);
+        _sessionService.Delete(SessionKeys.RestrictedCourseChangeRestriction);
 
         string searchUrl = Url.RouteUrl(RouteNames.SelectProvider)!;
         string addProviderUrl = Url.RouteUrl(RouteNames.AddProvider)!;
