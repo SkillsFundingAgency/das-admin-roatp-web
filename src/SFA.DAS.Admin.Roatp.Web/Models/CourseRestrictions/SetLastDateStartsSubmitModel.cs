@@ -29,4 +29,14 @@ public class SetLastDateStartsSubmitModel
             return false;
         }
     }
+
+    public DateTime GetEnteredDate()
+    {
+        if (!TryGetEnteredDate(out var date))
+        {
+            throw new InvalidOperationException("Last start date must be valid before it is read.");
+        }
+
+        return date;
+    }
 }

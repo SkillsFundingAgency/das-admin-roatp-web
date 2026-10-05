@@ -68,7 +68,7 @@ public class ChangeRestrictedCourseLastStartDateController(
             return View(ViewPath, model);
         }
 
-        submitModel.TryGetEnteredDate(out var lastDateStarts);
+        var lastDateStarts = submitModel.GetEnteredDate();
 
         await ChangeRestrictedApprenticeshipLastDateStarts(ukprn, larsCode, lastDateStarts, cancellationToken);
 

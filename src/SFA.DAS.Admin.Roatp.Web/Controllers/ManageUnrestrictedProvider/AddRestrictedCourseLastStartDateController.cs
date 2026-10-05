@@ -60,7 +60,7 @@ public class AddRestrictedCourseLastStartDateController(
             return View(ViewPath, model);
         }
 
-        submitModel.TryGetEnteredDate(out var lastDateStarts);
+        var lastDateStarts = submitModel.GetEnteredDate();
 
         var response = await outerApiClient.UpsertProviderAllowedCourse(
             ukprn,

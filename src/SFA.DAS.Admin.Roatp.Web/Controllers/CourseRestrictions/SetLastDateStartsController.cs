@@ -49,7 +49,7 @@ public class SetLastDateStartsController(
             return View(ViewPath, model);
         }
 
-        submitModel.TryGetEnteredDate(out var lastDateStarts);
+        var lastDateStarts = submitModel.GetEnteredDate();
 
         var response = await outerApiClient.PatchProviderAllowedCourse(
              ukprn,
