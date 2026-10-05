@@ -60,12 +60,17 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
             model.CancelUrl.Should().Be(RestrictedCoursesUrl);
         }
 
+        sessionServiceMock.Verify(
+            s => s.Set(
+                SessionKeys.RestrictedCourseChangeRestriction,
+                It.Is<ChangeRestrictedCourseRestrictionSessionModel>(m =>
+                    m.CourseLastDateStarts == CourseLastDateStarts)),
+            Times.Once);
         validatorMock.Verify(
             v => v.ValidateAsync(
                 It.Is<ChangeRestrictedCourseRestrictionSessionModel>(m =>
                     m.Ukprn == Ukprn
-                    && m.LarsCode == LarsCode
-                    && m.CourseLastDateStarts == LastDateStarts),
+                    && m.LarsCode == LarsCode),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -97,6 +102,13 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
             model.Year.Should().BeNull();
             model.CancelUrl.Should().Be(RestrictedCoursesUrl);
         }
+
+        sessionServiceMock.Verify(
+            s => s.Set(
+                SessionKeys.RestrictedCourseChangeRestriction,
+                It.Is<ChangeRestrictedCourseRestrictionSessionModel>(m =>
+                    m.CourseLastDateStarts == CourseLastDateStarts)),
+            Times.Once);
     }
 
     [Test, MoqAutoData]
@@ -171,6 +183,9 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
         var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
+        sessionServiceMock.Verify(
+            s => s.Set(SessionKeys.RestrictedCourseChangeRestriction, It.IsAny<ChangeRestrictedCourseRestrictionSessionModel>()),
+            Times.Never);
     }
 
     [Test, MoqAutoData]
@@ -196,6 +211,12 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
             model.Should().NotBeNull();
             model!.CourseLastDateStarts.Should().BeNull();
         }
+
+        sessionServiceMock.Verify(
+            s => s.Set(
+                SessionKeys.RestrictedCourseChangeRestriction,
+                It.Is<ChangeRestrictedCourseRestrictionSessionModel>(m => m.CourseLastDateStarts == null)),
+            Times.Once);
     }
 
     [Test, MoqAutoData]
@@ -212,6 +233,9 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
         var act = () => sut.Index(Ukprn, LarsCode, CancellationToken.None);
 
         await act.Should().ThrowAsync<ApiException>();
+        sessionServiceMock.Verify(
+            s => s.Set(SessionKeys.RestrictedCourseChangeRestriction, It.IsAny<ChangeRestrictedCourseRestrictionSessionModel>()),
+            Times.Never);
     }
 
     private static void SetupSession(

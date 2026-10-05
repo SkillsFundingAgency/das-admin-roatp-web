@@ -55,6 +55,15 @@ public class AddRestrictedCourseLastStartDateControllerGetTests
             model.Month.Should().BeNull();
             model.Year.Should().BeNull();
         }
+
+        sessionServiceMock.Verify(
+            s => s.Set(
+                SessionKeys.ProviderRestrictedCourse,
+                It.Is<ProviderRestrictedCourseSessionModel>(m =>
+                    m.Ukprn == Ukprn
+                    && m.LarsCode == LarsCode
+                    && m.CourseLastDateStarts == CourseLastDateStarts)),
+            Times.Once);
     }
 
     [Test, MoqAutoData]
@@ -121,6 +130,12 @@ public class AddRestrictedCourseLastStartDateControllerGetTests
             model!.CourseLastDateStarts.Should().BeNull();
             model.ProviderName.Should().Be(ProviderName);
         }
+
+        sessionServiceMock.Verify(
+            s => s.Set(
+                SessionKeys.ProviderRestrictedCourse,
+                It.Is<ProviderRestrictedCourseSessionModel>(m => m.CourseLastDateStarts == null)),
+            Times.Once);
     }
 
     [Test, MoqAutoData]
@@ -147,6 +162,9 @@ public class AddRestrictedCourseLastStartDateControllerGetTests
         var act = () => sut.Index(Ukprn);
 
         await act.Should().ThrowAsync<ApiException>();
+        sessionServiceMock.Verify(
+            s => s.Set(SessionKeys.ProviderRestrictedCourse, It.IsAny<ProviderRestrictedCourseSessionModel>()),
+            Times.Never);
     }
 
     private static void SetupSession(Mock<ISessionService> sessionServiceMock, int ukprn = Ukprn)

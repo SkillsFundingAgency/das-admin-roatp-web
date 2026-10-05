@@ -32,7 +32,11 @@ public class AddRestrictedCourseLastStartDateController(
             return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
         }
 
-        var model = await BuildViewModelAsync(session, null, cancellationToken);
+        var courseDetails = await outerApiClient.GetCourseDetails(session.LarsCode, cancellationToken);
+        session.CourseLastDateStarts = courseDetails?.LastDateStarts;
+        sessionService.Set(SessionKeys.ProviderRestrictedCourse, session);
+
+        var model = BuildViewModel(session);
         return View(ViewPath, model);
     }
 
@@ -48,15 +52,14 @@ public class AddRestrictedCourseLastStartDateController(
             return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
         }
 
-        var model = await BuildViewModelAsync(session, submitModel, cancellationToken);
-
         submitModel.LarsCode = session.LarsCode;
-        submitModel.CourseLastDateStarts = model.CourseLastDateStarts;
+        submitModel.CourseLastDateStarts = session.CourseLastDateStarts;
 
         var validationResult = await validator.ValidateAsync(submitModel, cancellationToken);
         if (!validationResult.IsValid)
         {
             ModelState.AddValidationErrors(validationResult.Errors);
+            var model = BuildViewModel(session, submitModel.Day, submitModel.Month, submitModel.Year);
             return View(ViewPath, model);
         }
 
@@ -94,23 +97,22 @@ public class AddRestrictedCourseLastStartDateController(
         return session;
     }
 
-    private async Task<AddRestrictedCourseLastStartDateViewModel> BuildViewModelAsync(
+    private AddRestrictedCourseLastStartDateViewModel BuildViewModel(
         ProviderRestrictedCourseSessionModel session,
-        SetLastDateStartsSubmitModel? submitModel,
-        CancellationToken cancellationToken)
+        string? day = null,
+        string? month = null,
+        string? year = null)
     {
-        var courseDetails = await outerApiClient.GetCourseDetails(session.LarsCode, cancellationToken);
-
         return new AddRestrictedCourseLastStartDateViewModel
         {
             Ukprn = session.Ukprn,
             ProviderName = session.ProviderName,
             CourseDisplayTitle = session.CourseDisplayTitle,
             LarsCode = session.LarsCode,
-            CourseLastDateStarts = courseDetails?.LastDateStarts,
-            Day = submitModel?.Day,
-            Month = submitModel?.Month,
-            Year = submitModel?.Year,
+            CourseLastDateStarts = session.CourseLastDateStarts,
+            Day = day,
+            Month = month,
+            Year = year,
             CancelUrl = Url.RouteUrl(RouteNames.ProviderRestrictedApprenticeships, new { ukprn = session.Ukprn })!
         };
     }
