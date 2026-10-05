@@ -8,7 +8,6 @@ using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
 using SFA.DAS.Admin.Roatp.Web.Models.Session;
 using SFA.DAS.Admin.Roatp.Web.Services;
-using SFA.DAS.Admin.Roatp.Web.Validators.Common;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 
@@ -61,13 +60,7 @@ public class AddRestrictedCourseLastStartDateController(
             return View(ViewPath, model);
         }
 
-        if (!submitModel.TryGetEnteredDate(out var lastDateStarts))
-        {
-            ModelState.AddModelError(
-                SetLastDateStartsSubmitModelValidator.DateFieldName,
-                SetLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
-            return View(ViewPath, model);
-        }
+        submitModel.TryGetEnteredDate(out var lastDateStarts);
 
         var response = await outerApiClient.UpsertProviderAllowedCourse(
             ukprn,

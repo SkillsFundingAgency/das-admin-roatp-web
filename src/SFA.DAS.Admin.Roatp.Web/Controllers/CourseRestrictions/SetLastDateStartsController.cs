@@ -6,7 +6,6 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
-using SFA.DAS.Admin.Roatp.Web.Validators.Common;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.CourseRestrictions;
 
@@ -50,22 +49,15 @@ public class SetLastDateStartsController(
             return View(ViewPath, model);
         }
 
-        var isValidDate = submitModel.TryGetEnteredDate(out var lastDateStarts);
-        if (!isValidDate)
-        {
-            ModelState.AddModelError(
-                SetLastDateStartsSubmitModelValidator.DateFieldName,
-                SetLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
-            return View(ViewPath, model);
-        }
+        submitModel.TryGetEnteredDate(out var lastDateStarts);
 
         var response = await outerApiClient.PatchProviderAllowedCourse(
-            ukprn,
-            larsCode,
-            User.UserId(),
-            User.UserDisplayName(),
-            new PatchProviderAllowedCourseRequest { LastDateStarts = lastDateStarts },
-            cancellationToken);
+             ukprn,
+             larsCode,
+             User.UserId(),
+             User.UserDisplayName(),
+             new PatchProviderAllowedCourseRequest { LastDateStarts = lastDateStarts },
+             cancellationToken);
 
         if (response.StatusCode == HttpStatusCode.NotFound)
         {

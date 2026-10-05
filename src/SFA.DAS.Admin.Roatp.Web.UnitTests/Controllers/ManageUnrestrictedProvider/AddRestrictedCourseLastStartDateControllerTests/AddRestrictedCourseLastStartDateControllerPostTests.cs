@@ -204,44 +204,6 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenPostingSetLastStartDate_AndValidationPassesButEnteredDateCannotBeParsed_ThenReloadsViewWithError(
-        [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> validatorMock,
-        [Greedy] AddRestrictedCourseLastStartDateController sut)
-    {
-        SetupSession(sessionServiceMock);
-        SetupCourseLastDateStarts(outerApiClientMock);
-        sut.AddTempData();
-        sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
-        validatorMock
-            .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ValidationResult());
-
-        var result = await sut.Index(
-            Ukprn,
-            new SetLastDateStartsSubmitModel { Day = "31", Month = "02", Year = "2027" },
-            CancellationToken.None) as ViewResult;
-
-        using (new AssertionScope())
-        {
-            result.Should().NotBeNull();
-            result!.ViewName.Should().Be(AddRestrictedCourseLastStartDateController.ViewPath);
-            sut.ModelState.IsValid.Should().BeFalse();
-            sut.ModelState[SetLastDateStartsSubmitModelValidator.DateFieldName]!
-                .Errors.Should().ContainSingle(e =>
-                    e.ErrorMessage == SetLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
-        }
-
-        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
-            It.IsAny<int>(),
-            It.IsAny<string>(),
-            It.IsAny<UpsertProviderAllowedCourseRequest>(),
-            It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Test, MoqAutoData]
     public async Task WhenPostingSetLastStartDate_AndSessionIsMissing_ThenRedirectsWithoutCallingApi(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,

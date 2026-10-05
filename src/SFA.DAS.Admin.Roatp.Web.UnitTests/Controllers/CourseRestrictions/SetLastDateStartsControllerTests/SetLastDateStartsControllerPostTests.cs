@@ -142,60 +142,6 @@ public class SetLastDateStartsControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenValidationPassesButEnteredDateCannotBeParsed_ThenReturnsViewWithValidationError(
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> validatorMock,
-        [Greedy] SetLastDateStartsController sut,
-        GetRestrictedCourseDetailsResponse response)
-    {
-        response.LarsCode = LarsCode;
-        response.CourseName = "Academic professional";
-        response.Level = 7;
-        response.Providers =
-        [
-            new ProviderCourseModel
-            {
-                Ukprn = Ukprn,
-                ProviderName = "BP TRAINING",
-                LastDateStarts = null
-            }
-        ];
-
-        SetupCourse(outerApiClientMock, response);
-
-        validatorMock
-            .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ValidationResult());
-
-        sut.AddUrlHelperMock()
-            .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
-
-        var submitModel = new SetLastDateStartsSubmitModel { Day = "31", Month = "02", Year = "2027" };
-
-        var result = await sut.Index(LarsCode, Ukprn, submitModel, CancellationToken.None) as ViewResult;
-
-        using (new AssertionScope())
-        {
-            result.Should().NotBeNull();
-            result!.ViewName.Should().Be(SetLastDateStartsController.ViewPath);
-            sut.ModelState.IsValid.Should().BeFalse();
-            sut.ModelState[SetLastDateStartsSubmitModelValidator.DateFieldName]!
-                .Errors.Should().ContainSingle(e =>
-                    e.ErrorMessage == SetLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
-        }
-
-        outerApiClientMock.Verify(
-            c => c.PatchProviderAllowedCourse(
-                It.IsAny<int>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<PatchProviderAllowedCourseRequest>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Test, MoqAutoData]
     public async Task WhenValidationPasses_ThenSetsCourseLastDateStartsAndRedirectsWithSuccessBanner(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> validatorMock,
