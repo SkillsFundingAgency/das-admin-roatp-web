@@ -36,7 +36,7 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
     private static readonly DateTime EnteredDate = new(2027, 7, 12, 0, 0, 0, DateTimeKind.Unspecified);
 
     [Test, MoqAutoData]
-    public async Task WhenPostingSetLastStartDate_AndDateIsValid_ThenUpsertsCourseSetsBannerAndRedirectsToList(
+    public async Task WhenPostingSetLastStartDate_AndDateIsValid_ThenAddsCourseSetsBannerAndRedirectsToList(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> validatorMock,
@@ -49,7 +49,7 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
-        SetupUpsertResponse(outerApiClientMock, HttpStatusCode.OK);
+        SetupAddResponse(outerApiClientMock, HttpStatusCode.OK);
 
         var result = await sut.Index(
             Ukprn,
@@ -76,14 +76,13 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
                     && m.CourseLastDateStarts == CourseLastDateStarts),
                 It.IsAny<CancellationToken>()),
             Times.Once);
-        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
+        outerApiClientMock.Verify(c => c.AddRestrictedApprenticeship(
             Ukprn,
             LarsCode,
-            It.Is<UpsertProviderAllowedCourseRequest>(r =>
+            It.Is<AddRestrictedApprenticeshipRequest>(r =>
                 r.UserId == "TestUser@education.gov.uk"
                 && r.UserDisplayName == "Test User"
-                && r.LastDateStarts == EnteredDate
-                && r.IsStartRestricted == false),
+                && r.LastDateStarts == EnteredDate),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -126,10 +125,10 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
         outerApiClientMock.Verify(
             c => c.GetAllowedProvidersForCourse(It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
-        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
+        outerApiClientMock.Verify(c => c.AddRestrictedApprenticeship(
             It.IsAny<int>(),
             It.IsAny<string>(),
-            It.IsAny<UpsertProviderAllowedCourseRequest>(),
+            It.IsAny<AddRestrictedApprenticeshipRequest>(),
             It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -171,10 +170,10 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
         outerApiClientMock.Verify(
             c => c.GetAllowedProvidersForCourse(It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
-        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
+        outerApiClientMock.Verify(c => c.AddRestrictedApprenticeship(
             It.IsAny<int>(),
             It.IsAny<string>(),
-            It.IsAny<UpsertProviderAllowedCourseRequest>(),
+            It.IsAny<AddRestrictedApprenticeshipRequest>(),
             It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -230,10 +229,10 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
             result.RouteValues!["ukprn"].Should().Be(Ukprn);
         }
 
-        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
+        outerApiClientMock.Verify(c => c.AddRestrictedApprenticeship(
             It.IsAny<int>(),
             It.IsAny<string>(),
-            It.IsAny<UpsertProviderAllowedCourseRequest>(),
+            It.IsAny<AddRestrictedApprenticeshipRequest>(),
             It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -257,10 +256,10 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
             result.RouteValues!["ukprn"].Should().Be(Ukprn);
         }
 
-        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
+        outerApiClientMock.Verify(c => c.AddRestrictedApprenticeship(
             It.IsAny<int>(),
             It.IsAny<string>(),
-            It.IsAny<UpsertProviderAllowedCourseRequest>(),
+            It.IsAny<AddRestrictedApprenticeshipRequest>(),
             It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -276,7 +275,7 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
-        SetupUpsertResponse(outerApiClientMock, statusCode);
+        SetupAddResponse(outerApiClientMock, statusCode);
 
         var sut = new AddRestrictedCourseLastStartDateController(
             sessionServiceMock.Object,
@@ -326,7 +325,7 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
         sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
     }
 
-    private static void SetupUpsertResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
+    private static void SetupAddResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
     {
         var httpResponse = new HttpResponseMessage(statusCode);
         ApiException? apiException = null;
@@ -340,10 +339,10 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
         }
 
         outerApiClientMock
-            .Setup(c => c.UpsertProviderAllowedCourse(
+            .Setup(c => c.AddRestrictedApprenticeship(
                 Ukprn,
                 LarsCode,
-                It.IsAny<UpsertProviderAllowedCourseRequest>(),
+                It.IsAny<AddRestrictedApprenticeshipRequest>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<object>(
                 httpResponse,
