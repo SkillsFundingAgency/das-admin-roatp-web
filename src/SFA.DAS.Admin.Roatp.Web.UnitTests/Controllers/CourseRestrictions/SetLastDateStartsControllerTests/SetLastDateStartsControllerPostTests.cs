@@ -1,13 +1,10 @@
 using System.Net;
-using System.Security.Claims;
 using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using Refit;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
@@ -135,7 +132,8 @@ public class SetLastDateStartsControllerPostTests
             .ReturnsAsync(new ValidationResult());
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
-        SetupTestUser(sut);
+        sut.SetupAuthenticatedUser();
+        sut.AddTempData();
 
         var result = await sut.Index(
             LarsCode,
@@ -166,8 +164,8 @@ public class SetLastDateStartsControllerPostTests
         outerApiClientMock.Verify(c => c.PatchProviderAllowedCourse(
             Ukprn,
             LarsCode,
-            "test.user@education.gov.uk",
-            "Test User",
+            MockedUser.AuthenticatedUser.UserId(),
+            MockedUser.AuthenticatedUser.UserDisplayName(),
             It.Is<PatchProviderAllowedCourseRequest>(r =>
                 r.LastDateStarts == new DateTime(2027, 3, 15, 0, 0, 0, DateTimeKind.Unspecified)),
             It.IsAny<CancellationToken>()), Times.Once);
@@ -189,7 +187,8 @@ public class SetLastDateStartsControllerPostTests
             .ReturnsAsync(new ValidationResult());
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
-        SetupTestUser(sut);
+        sut.SetupAuthenticatedUser();
+        sut.AddTempData();
 
         var result = await sut.Index(
             LarsCode,
@@ -212,8 +211,8 @@ public class SetLastDateStartsControllerPostTests
         outerApiClientMock.Verify(c => c.PatchProviderAllowedCourse(
             Ukprn,
             LarsCode,
-            "test.user@education.gov.uk",
-            "Test User",
+            MockedUser.AuthenticatedUser.UserId(),
+            MockedUser.AuthenticatedUser.UserDisplayName(),
             It.Is<PatchProviderAllowedCourseRequest>(r =>
                 r.LastDateStarts == new DateTime(2026, 7, 12, 0, 0, 0, DateTimeKind.Unspecified)),
             It.IsAny<CancellationToken>()), Times.Once);
@@ -237,7 +236,8 @@ public class SetLastDateStartsControllerPostTests
             validatorMock.Object);
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
-        SetupTestUser(sut);
+        sut.SetupAuthenticatedUser();
+        sut.AddTempData();
 
         var result = await sut.Index(
             LarsCode,
@@ -268,7 +268,8 @@ public class SetLastDateStartsControllerPostTests
             validatorMock.Object);
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
-        SetupTestUser(sut);
+        sut.SetupAuthenticatedUser();
+        sut.AddTempData();
 
         var act = () => sut.Index(
             LarsCode,
@@ -334,17 +335,6 @@ public class SetLastDateStartsControllerPostTests
 
     private static void SetupPatchResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
     {
-        var httpResponse = new HttpResponseMessage(statusCode);
-        ApiException? apiException = null;
-        if (statusCode != HttpStatusCode.OK && statusCode != HttpStatusCode.NotFound)
-        {
-            apiException = ApiException.Create(
-                new HttpRequestMessage(),
-                HttpMethod.Patch,
-                httpResponse,
-                new RefitSettings()).GetAwaiter().GetResult();
-        }
-
         outerApiClientMock
             .Setup(c => c.PatchProviderAllowedCourse(
                 It.IsAny<int>(),
@@ -353,23 +343,9 @@ public class SetLastDateStartsControllerPostTests
                 It.IsAny<string>(),
                 It.IsAny<PatchProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<object>(httpResponse, null, new RefitSettings(), apiException));
-    }
-
-    private static void SetupTestUser(Controller sut)
-    {
-        sut.ControllerContext = new ControllerContext
-        {
-            HttpContext = new DefaultHttpContext
-            {
-                User = new ClaimsPrincipal(new ClaimsIdentity(
-                [
-                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Test"),
-                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "User"),
-                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn", "test.user@education.gov.uk")
-                ], "test"))
-            }
-        };
-        sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
+            .ReturnsAsync(OuterApiResponse.Create<object>(
+                statusCode,
+                method: HttpMethod.Patch,
+                includeException: statusCode != HttpStatusCode.NotFound));
     }
 }

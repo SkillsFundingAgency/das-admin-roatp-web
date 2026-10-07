@@ -273,21 +273,10 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
         Mock<IOuterApiClient> outerApiClientMock,
         HttpStatusCode statusCode = HttpStatusCode.OK)
     {
-        var httpResponse = new HttpResponseMessage(statusCode);
-        ApiException? apiException = null;
-        if (statusCode != HttpStatusCode.OK && statusCode != HttpStatusCode.NotFound)
-        {
-            apiException = ApiException.Create(
-                new HttpRequestMessage(),
-                HttpMethod.Get,
-                httpResponse,
-                new RefitSettings()).GetAwaiter().GetResult();
-        }
-
         outerApiClientMock
             .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
-                httpResponse,
+            .ReturnsAsync(OuterApiResponse.Create(
+                statusCode,
                 new GetRestrictedCourseDetailsResponse
                 {
                     LarsCode = LarsCode,
@@ -296,7 +285,6 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
                     Route = "Construction",
                     LastDateStarts = CourseLastDateStarts
                 },
-                new RefitSettings(),
-                apiException));
+                includeException: statusCode != HttpStatusCode.NotFound));
     }
 }

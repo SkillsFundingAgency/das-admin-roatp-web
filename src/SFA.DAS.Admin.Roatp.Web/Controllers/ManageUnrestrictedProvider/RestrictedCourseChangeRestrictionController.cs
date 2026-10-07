@@ -65,17 +65,15 @@ public class RestrictedCourseChangeRestrictionController(
             return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
         }
 
-        var model = BuildViewModel(
-            ukprn,
-            session.LarsCode,
-            session.CourseDisplayTitle,
-            session.CourseLastDateStarts,
-            submitModel);
-
         var validationResult = validator.Validate(submitModel);
         if (!validationResult.IsValid)
         {
             ModelState.AddValidationErrors(validationResult.Errors);
+            var model = BuildViewModel(ukprn,
+                session.LarsCode,
+                session.CourseDisplayTitle,
+                session.CourseLastDateStarts,
+                submitModel);
             return View(ViewPath, model);
         }
 
@@ -84,19 +82,19 @@ public class RestrictedCourseChangeRestrictionController(
             return RedirectToRoute(RouteNames.ChangeRestrictedCourseLastStartDate, new { ukprn, larsCode });
         }
 
-        return View(ViewPath, model);
+        return RedirectToRoute(RouteNames.RemoveRestrictedCourseRestriction, new { ukprn, larsCode });
     }
 
     private ChangeRestrictedCourseRestrictionSessionModel? GetChangeRestrictedCourseSession(int ukprn, string larsCode)
     {
-        var session = sessionService.Get<ChangeRestrictedCourseRestrictionSessionModel>(
+        var model = sessionService.Get<ChangeRestrictedCourseRestrictionSessionModel>(
             SessionKeys.RestrictedCourseChangeRestriction);
-        if (session is null || session.Ukprn != ukprn || session.LarsCode != larsCode)
+        if (model is null || model.Ukprn != ukprn || model.LarsCode != larsCode)
         {
             return null;
         }
 
-        return session;
+        return model;
     }
 
     private RestrictedCourseChangeRestrictionViewModel BuildViewModel(

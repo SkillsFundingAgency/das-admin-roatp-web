@@ -40,4 +40,5 @@ public static class RouteNames
     public const string AddRestrictedCourseLastStartDate = nameof(AddRestrictedCourseLastStartDate);
     public const string RestrictedCourseChangeRestriction = nameof(RestrictedCourseChangeRestriction);
     public const string ChangeRestrictedCourseLastStartDate = nameof(ChangeRestrictedCourseLastStartDate);
+    public const string RemoveRestrictedCourseRestriction = nameof(RemoveRestrictedCourseRestriction);
 }
