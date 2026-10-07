@@ -1,5 +1,6 @@
 ﻿using AutoFixture.NUnit4;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -16,8 +17,8 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers;
 public class HomeControllerGetTests
 {
     [Test, MoqAutoData]
-    public void HomeIndex_ContainsExpectedModel(
-        [Frozen] Mock<ISessionService> _sessionServiceMock,
+    public void WhenGettingHome_ThenReturnsExpectedModelAndClearsJourneySessions(
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOptions<ApplicationConfiguration>> mockOptions,
         [Frozen] ApplicationConfiguration configuration,
         [Greedy] HomeController sut)
@@ -37,21 +38,28 @@ public class HomeControllerGetTests
         string allowedListUrl = new UriBuilder(configuration.AdminServicesBaseUrl) { Path = ExternalPaths.AdminServiceAllowedList }.Uri.ToString();
 
         var result = sut.Index() as ViewResult;
-        result.Should().NotBeNull();
-        var model = result.Model as ManageTrainingProviderViewModel;
-        model!.AddANewTrainingProviderUrl.Should().Be(addProviderUrl);
-        model.AddUkprnToAllowListUrl.Should().Be(allowedListUrl);
-        model.SearchForTrainingProviderUrl.Should().Be(selectOrganisationLink);
-        model.ViewRestrictedCoursesUrl.Should().Be(restrictedCoursesUrl);
-        model.BackLinkUrl.Should().Be(dashboardUrl);
-        model.BackLinkText.Should().Be("Return to dashboard");
-        model.Should().BeAssignableTo<ICustomBackLink>();
-        _sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProvider), Times.Once());
+        var model = result?.Model as ManageTrainingProviderViewModel;
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            model.Should().NotBeNull();
+            model!.AddANewTrainingProviderUrl.Should().Be(addProviderUrl);
+            model.AddUkprnToAllowListUrl.Should().Be(allowedListUrl);
+            model.SearchForTrainingProviderUrl.Should().Be(selectOrganisationLink);
+            model.ViewRestrictedCoursesUrl.Should().Be(restrictedCoursesUrl);
+            model.BackLinkUrl.Should().Be(dashboardUrl);
+            model.BackLinkText.Should().Be("Return to dashboard");
+            model.Should().BeAssignableTo<ICustomBackLink>();
+        }
+
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProvider), Times.Once);
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictedCourseChangeRestriction), Times.Once);
+        sessionServiceMock.Verify(s => s.Delete(SessionKeys.SetLastDateStarts), Times.Once);
     }
 
     [Test, MoqAutoData]
-    public void Dashboard_ContainsExpectedConfig(
-        [Frozen] Mock<ISessionService> _sessionServiceMock,
+    public void WhenGettingDashboard_ThenRedirectsToAdminServicesDashboard(
         [Frozen] Mock<IOptions<ApplicationConfiguration>> mockOptions,
         [Frozen] ApplicationConfiguration configuration,
         [Greedy] HomeController sut)
@@ -59,7 +67,11 @@ public class HomeControllerGetTests
         mockOptions.Setup(c => c.Value).Returns(configuration);
 
         var result = sut.Dashboard() as RedirectResult;
-        result.Should().NotBeNull();
-        result.Url.Should().Be(configuration.AdminServicesBaseUrl + "Dashboard");
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.Url.Should().Be(configuration.AdminServicesBaseUrl + "Dashboard");
+        }
     }
 }

@@ -3,11 +3,11 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
-using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
-using SFA.DAS.Admin.Roatp.Web.Validators.Common;
+using SFA.DAS.Admin.Roatp.Web.Models.Session;
+using SFA.DAS.Admin.Roatp.Web.Services;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.CourseRestrictions;
 
@@ -15,6 +15,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.CourseRestrictions;
 [Route("restricted-courses/{larsCode}/providers/{ukprn}/set-last-start-date", Name = RouteNames.SetLastDateStarts)]
 public class SetLastDateStartsController(
     IOuterApiClient outerApiClient,
+    ISessionService sessionService,
     IValidator<SetLastDateStartsSubmitModel> setLastDateStartsValidator) : Controller
 {
     public const string ViewPath = "~/Views/CourseRestrictions/SetLastDateStarts/Index.cshtml";
@@ -25,8 +26,36 @@ public class SetLastDateStartsController(
         [FromRoute] int ukprn,
         CancellationToken cancellationToken)
     {
-        var model = await BuildViewModelAsync(larsCode, ukprn, null, cancellationToken);
-        return model is null ? NotFound() : View(ViewPath, model);
+        var courseDetails = await outerApiClient.GetCourseDetails(larsCode, cancellationToken);
+        var provider = courseDetails?.Providers.FirstOrDefault(p => p.Ukprn == ukprn);
+        if (courseDetails is null || provider is null)
+        {
+            return NotFound();
+        }
+
+        var session = new SetLastDateStartsSessionModel
+        {
+            Ukprn = ukprn,
+            LarsCode = larsCode,
+            ProviderName = provider.ProviderName,
+            CourseDisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(courseDetails.CourseName, courseDetails.Level),
+            CourseLastDateStarts = courseDetails.LastDateStarts,
+            ProviderLastDateStarts = provider.LastDateStarts
+        };
+        sessionService.Set(SessionKeys.SetLastDateStarts, session);
+
+        string? day = null;
+        string? month = null;
+        string? year = null;
+        if (session.ProviderLastDateStarts.HasValue)
+        {
+            var existingLastDateStarts = session.ProviderLastDateStarts.Value;
+            day = existingLastDateStarts.Day.ToString("00");
+            month = existingLastDateStarts.Month.ToString("00");
+            year = existingLastDateStarts.Year.ToString();
+        }
+
+        return View(ViewPath, BuildViewModel(session, day, month, year));
     }
 
     [HttpPost]
@@ -36,37 +65,30 @@ public class SetLastDateStartsController(
         SetLastDateStartsSubmitModel submitModel,
         CancellationToken cancellationToken)
     {
-        submitModel.LarsCode = larsCode;
-        var model = await BuildViewModelAsync(larsCode, ukprn, submitModel, cancellationToken);
-        if (model is null)
+        var session = GetSession(ukprn, larsCode);
+        if (session is null)
         {
             return NotFound();
         }
 
-        submitModel.CourseLastDateStarts = model.CourseLastDateStarts;
+        submitModel.LarsCode = larsCode;
+        submitModel.CourseLastDateStarts = session.CourseLastDateStarts;
         var validationResult = await setLastDateStartsValidator.ValidateAsync(submitModel, cancellationToken);
         if (!validationResult.IsValid)
         {
             ModelState.AddValidationErrors(validationResult.Errors);
-            return View(ViewPath, model);
+            return View(ViewPath, BuildViewModel(session, submitModel.Day, submitModel.Month, submitModel.Year));
         }
 
-        var isValidDate = submitModel.TryGetEnteredDate(out var lastDateStarts);
-        if (!isValidDate)
-        {
-            ModelState.AddModelError(
-                SetLastDateStartsSubmitModelValidator.DateFieldName,
-                SetLastDateStartsSubmitModelValidator.EnterValidDateErrorMessage);
-            return View(ViewPath, model);
-        }
+        var lastDateStarts = submitModel.GetEnteredDate();
 
         var response = await outerApiClient.PatchProviderAllowedCourse(
-            ukprn,
-            larsCode,
-            User.UserId(),
-            User.UserDisplayName(),
-            new PatchProviderAllowedCourseRequest { LastDateStarts = lastDateStarts },
-            cancellationToken);
+             ukprn,
+             larsCode,
+             User.UserId(),
+             User.UserDisplayName(),
+             new PatchProviderAllowedCourseRequest { LastDateStarts = lastDateStarts },
+             cancellationToken);
 
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
@@ -75,64 +97,44 @@ public class SetLastDateStartsController(
 
         await response.EnsureSuccessStatusCodeAsync();
 
-        TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey] = model.IsChangingExistingDate
-            ? $"{model.ProviderName} last start date has been updated"
-            : $"Last start date added for {model.ProviderName}";
+        sessionService.Delete(SessionKeys.SetLastDateStarts);
+
+        TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey] = session.ProviderLastDateStarts.HasValue
+            ? $"{session.ProviderName} last start date has been updated"
+            : $"Last start date added for {session.ProviderName}";
 
         return RedirectToRoute(RouteNames.RestrictedCourseDetails, new { larsCode });
     }
 
-    private async Task<SetLastDateStartsViewModel?> BuildViewModelAsync(
-        string larsCode,
-        int ukprn,
-        SetLastDateStartsSubmitModel? submitModel,
-        CancellationToken cancellationToken)
+    private SetLastDateStartsSessionModel? GetSession(int ukprn, string larsCode)
     {
-        var courseDetails = await GetCourseDetailsAsync(larsCode, cancellationToken);
-        var provider = courseDetails?.Providers.FirstOrDefault(p => p.Ukprn == ukprn);
-        if (courseDetails is null || provider is null)
+        var session = sessionService.Get<SetLastDateStartsSessionModel>(SessionKeys.SetLastDateStarts);
+        if (session is null || session.Ukprn != ukprn || session.LarsCode != larsCode)
         {
             return null;
         }
 
-        var day = submitModel?.Day;
-        var month = submitModel?.Month;
-        var year = submitModel?.Year;
+        return session;
+    }
 
-        if (submitModel is null && provider.LastDateStarts.HasValue)
-        {
-            var existingLastDateStarts = provider.LastDateStarts.Value;
-            day = existingLastDateStarts.Day.ToString("00");
-            month = existingLastDateStarts.Month.ToString("00");
-            year = existingLastDateStarts.Year.ToString();
-        }
-
+    private SetLastDateStartsViewModel BuildViewModel(
+        SetLastDateStartsSessionModel session,
+        string? day,
+        string? month,
+        string? year)
+    {
         return new SetLastDateStartsViewModel
         {
-            LarsCode = larsCode,
-            Ukprn = ukprn,
-            ProviderName = provider.ProviderName,
-            CourseDisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(courseDetails.CourseName, courseDetails.Level),
+            LarsCode = session.LarsCode,
+            Ukprn = session.Ukprn,
+            ProviderName = session.ProviderName,
+            CourseDisplayTitle = session.CourseDisplayTitle,
             Day = day,
             Month = month,
             Year = year,
-            CourseLastDateStarts = courseDetails.LastDateStarts,
-            IsChangingExistingDate = provider.LastDateStarts.HasValue,
-            CancelUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode })!
+            CourseLastDateStarts = session.CourseLastDateStarts,
+            IsChangingExistingDate = session.ProviderLastDateStarts.HasValue,
+            CancelUrl = Url.RouteUrl(RouteNames.RestrictedCourseDetails, new { larsCode = session.LarsCode })!
         };
-    }
-
-    private async Task<GetRestrictedCourseDetailsResponse?> GetCourseDetailsAsync(
-        string larsCode,
-        CancellationToken cancellationToken)
-    {
-        var response = await outerApiClient.GetAllowedProvidersForCourse(larsCode, cancellationToken);
-        if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            return null;
-        }
-
-        await response.EnsureSuccessStatusCodeAsync();
-        return response.Content;
     }
 }

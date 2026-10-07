@@ -10,6 +10,8 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.CourseRestrictions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
+using SFA.DAS.Admin.Roatp.Web.Models.Session;
+using SFA.DAS.Admin.Roatp.Web.Services;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -25,6 +27,7 @@ public class SetLastDateStartsControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenProviderHasLastDateStarts_ThenPrepopulatesDateFieldsAndIsChangeMode(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] SetLastDateStartsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -57,11 +60,21 @@ public class SetLastDateStartsControllerGetTests
             model.Year.Should().Be("2027");
             model.IsChangingExistingDate.Should().BeTrue();
         }
+
+        sessionServiceMock.Verify(
+            s => s.Set(
+                SessionKeys.SetLastDateStarts,
+                It.Is<SetLastDateStartsSessionModel>(m =>
+                    m.Ukprn == Ukprn
+                    && m.LarsCode == LarsCode
+                    && m.ProviderLastDateStarts == lastDateStarts)),
+            Times.Once);
     }
 
     [Test, MoqAutoData]
     public async Task WhenProviderExists_ThenReturnsView(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] SetLastDateStartsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -97,11 +110,22 @@ public class SetLastDateStartsControllerGetTests
             model.IsChangingExistingDate.Should().BeFalse();
             model.CancelUrl.Should().Be(RestrictedCourseDetailsUrl);
         }
+
+        sessionServiceMock.Verify(
+            s => s.Set(
+                SessionKeys.SetLastDateStarts,
+                It.Is<SetLastDateStartsSessionModel>(m =>
+                    m.Ukprn == Ukprn
+                    && m.LarsCode == LarsCode
+                    && m.ProviderName == "BP TRAINING"
+                    && m.ProviderLastDateStarts == null)),
+            Times.Once);
     }
 
     [Test, MoqAutoData]
     public async Task WhenProviderDoesNotExistOnCourse_ThenReturnsNotFound(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] SetLastDateStartsController sut,
         GetRestrictedCourseDetailsResponse response)
     {
@@ -114,6 +138,9 @@ public class SetLastDateStartsControllerGetTests
         var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
 
         result.Should().BeOfType<NotFoundResult>();
+        sessionServiceMock.Verify(
+            s => s.Set(SessionKeys.SetLastDateStarts, It.IsAny<SetLastDateStartsSessionModel>()),
+            Times.Never);
     }
 
     [Test]
@@ -127,6 +154,7 @@ public class SetLastDateStartsControllerGetTests
 
         var sut = new SetLastDateStartsController(
             outerApiClientMock.Object,
+            Mock.Of<ISessionService>(),
             Mock.Of<IValidator<SetLastDateStartsSubmitModel>>());
 
         var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
@@ -137,6 +165,7 @@ public class SetLastDateStartsControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenCourseApiReturnsUnexpectedError_ThenThrows(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] SetLastDateStartsController sut)
     {
         var httpResponse = new HttpResponseMessage(HttpStatusCode.InternalServerError);
@@ -153,6 +182,9 @@ public class SetLastDateStartsControllerGetTests
         var act = () => sut.Index(LarsCode, Ukprn, CancellationToken.None);
 
         await act.Should().ThrowAsync<ApiException>();
+        sessionServiceMock.Verify(
+            s => s.Set(SessionKeys.SetLastDateStarts, It.IsAny<SetLastDateStartsSessionModel>()),
+            Times.Never);
     }
 
     private static void SetupCourse(

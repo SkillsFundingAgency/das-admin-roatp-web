@@ -17,7 +17,7 @@ public class RestrictedApprenticeshipItemViewModel : ICourseDisplayModel
     public string DeliveryStatusDescription => DeliveryStatus.GetDescription();
     public string DeliveryStatusTagClass => DeliveryStatus.GetTagClass();
 
-    public static implicit operator RestrictedApprenticeshipItemViewModel(RestrictedApprenticeshipModel course) => new()
+    public static implicit operator RestrictedApprenticeshipItemViewModel(ProviderRestrictedApprenticeshipModel course) => new()
     {
         LarsCode = course.LarsCode,
         Title = course.Title,

@@ -62,7 +62,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
                 m.CourseDisplayTitle == "Alpha course (Level 6)" &&
                 m.ProviderName == ProviderName)), Times.Once);
         sessionServiceMock.Verify(s => s.Set(
-            SessionKeys.ProviderName,
+            SessionKeys.ProviderNames,
             It.Is<Dictionary<int, string>>(d => d[Ukprn] == ProviderName)), Times.Once);
         outerApiClientMock.Verify(
             c => c.GetCourses(It.IsAny<CancellationToken>()),
@@ -169,7 +169,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         using (new AssertionScope())
         {
             actual.Should().NotBeNull();
-            actual!.RouteName.Should().Be(RouteNames.ProviderRestrictedCourseSetLastStartDate);
+            actual!.RouteName.Should().Be(RouteNames.AddRestrictedCourseLastStartDate);
             actual.RouteValues!["ukprn"].Should().Be(Ukprn);
         }
 

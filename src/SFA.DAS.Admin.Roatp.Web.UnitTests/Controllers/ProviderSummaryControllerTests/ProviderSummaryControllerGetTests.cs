@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -63,7 +63,7 @@ public class ProviderSummaryControllerGetTests
             .AddUrlForRoute(RouteNames.OrganisationTypeUpdate, organisationTypeUpdateLink)
             .AddUrlForRoute(RouteNames.ApprenticeshipUnitsUpdate, apprenticeshipUnitsUpdateLink)
             .AddUrlForRoute(RouteNames.ProviderSummary, providerSummaryLink)
-            .AddUrlForRoute(RouteNames.ProviderRestrictedCourses, providerRestrictedCoursesLink);
+            .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, providerRestrictedCoursesLink);
 
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
@@ -88,7 +88,7 @@ public class ProviderSummaryControllerGetTests
         }
 
         sessionServiceMock.Verify(s => s.Set(
-            SessionKeys.ProviderName,
+            SessionKeys.ProviderNames,
             It.Is<Dictionary<int, string>>(d => d[ukprn] == getOrganisationResponse.LegalName)), Times.Once);
     }
 }
