@@ -65,10 +65,10 @@ public class AddRestrictedCourseLastStartDateController(
 
         var lastDateStarts = submitModel.GetEnteredDate();
 
-        var response = await outerApiClient.UpsertProviderAllowedCourse(
+        var response = await outerApiClient.AddRestrictedApprenticeship(
             ukprn,
             session.LarsCode,
-            new UpsertProviderAllowedCourseRequest
+            new AddRestrictedApprenticeshipRequest
             {
                 UserId = User.UserId(),
                 UserDisplayName = User.UserDisplayName(),
