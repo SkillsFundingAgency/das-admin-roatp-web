@@ -28,6 +28,7 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
     public async Task WhenGettingRestrictedApprenticeships_AndProviderNameIsInSession_ThenReturnsViewWithMappedModel(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         GetRestrictedApprenticeshipsResponse response,
         string providerName,
@@ -55,6 +56,7 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
 
         sut.AddTempData();
         sessionServiceMock.SetupProviderName(ukprn, providerName);
+        ukprnServiceMock.SetupOrganisationRestriction(ukprn, isRestricted: false);
         SetupRestrictedApprenticeships(outerApiClientMock, ukprn, response);
         SetupUrlHelper(sut);
 
@@ -87,9 +89,38 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
     }
 
     [Test, MoqAutoData]
+    public async Task WhenGettingRestrictedApprenticeships_AndProviderIsRestricted_ThenRedirectsToAllowedCourses(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Greedy] ProviderRestrictedApprenticeshipsController sut,
+        string providerName,
+        int ukprn)
+    {
+        sut.AddTempData();
+        sessionServiceMock.SetupProviderName(ukprn, providerName);
+        ukprnServiceMock.SetupOrganisationRestriction(ukprn, isRestricted: true);
+
+        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as RedirectToRouteResult;
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.RouteName.Should().Be(RouteNames.ProviderAllowedCourses);
+            result.RouteValues!["ukprn"].Should().Be(ukprn);
+            result.RouteValues["courseType"].Should().Be(CourseType.Apprenticeship);
+        }
+
+        outerApiClientMock.Verify(
+            c => c.GetRestrictedApprenticeships(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndTempDataContainsSuccessBanner_ThenModelHasSuccessBanner(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         GetRestrictedApprenticeshipsResponse response,
         string providerName,
@@ -100,6 +131,7 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
 
         sut.AddTempData();
         sessionServiceMock.SetupProviderName(ukprn, providerName);
+        ukprnServiceMock.SetupOrganisationRestriction(ukprn, isRestricted: false);
         sut.TempData[ProviderRestrictedApprenticeshipsController.SuccessBannerTempDataKey] = successMessage;
         SetupRestrictedApprenticeships(outerApiClientMock, ukprn, response);
         SetupUrlHelper(sut);
@@ -119,6 +151,7 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
     public async Task WhenGettingRestrictedApprenticeships_AndProviderNameIsNotInSession_ThenLoadsNameFromOrganisation(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         GetOrganisationResponse organisationResponse,
         GetRestrictedApprenticeshipsResponse restrictedResponse,
@@ -129,6 +162,7 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
 
         sut.AddTempData();
         sessionServiceMock.SetupProviderNameMissing();
+        ukprnServiceMock.SetupOrganisationRestriction(ukprn, isRestricted: false);
         SetupOrganisation(outerApiClientMock, ukprn, organisationResponse, HttpStatusCode.OK);
         SetupRestrictedApprenticeships(outerApiClientMock, ukprn, restrictedResponse);
         SetupUrlHelper(sut);
@@ -152,9 +186,36 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
     }
 
     [Test, MoqAutoData]
+    public async Task WhenGettingRestrictedApprenticeships_AndUkprnServiceReturnsNoOrganisation_ThenReturnsNotFound(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Greedy] ProviderRestrictedApprenticeshipsController sut,
+        string providerName,
+        int ukprn)
+    {
+        sut.AddTempData();
+        sessionServiceMock.SetupProviderName(ukprn, providerName);
+        ukprnServiceMock
+            .Setup(s => s.GetOrganisationAsync(ukprn, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetOrganisationResponse?)null);
+
+        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), CancellationToken.None);
+
+        using (new AssertionScope())
+        {
+            result.Should().BeOfType<NotFoundResult>();
+            outerApiClientMock.Verify(
+                c => c.GetRestrictedApprenticeships(It.IsAny<int>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+    }
+
+    [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndOrganisationIsNotFound_ThenRedirectsToNotFoundPage(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         GetOrganisationResponse organisationResponse,
         int ukprn)
@@ -180,12 +241,14 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
     public async Task WhenGettingRestrictedApprenticeships_AndRestrictedApprenticeshipsAreNotFound_ThenRedirectsToNotFoundPage(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
         sut.AddTempData();
         sessionServiceMock.SetupProviderName(ukprn, providerName);
+        ukprnServiceMock.SetupOrganisationRestriction(ukprn, isRestricted: false);
         SetupRestrictedApprenticeships(outerApiClientMock, ukprn, statusCode: HttpStatusCode.NotFound);
 
         var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), CancellationToken.None);
@@ -201,12 +264,14 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
     public async Task WhenGettingRestrictedApprenticeships_AndApiReturnsUnexpectedError_ThenThrows(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
         sut.AddTempData();
         sessionServiceMock.SetupProviderName(ukprn, providerName);
+        ukprnServiceMock.SetupOrganisationRestriction(ukprn, isRestricted: false);
         SetupRestrictedApprenticeships(outerApiClientMock, ukprn, statusCode: HttpStatusCode.InternalServerError);
 
         var act = () => sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), CancellationToken.None);
@@ -222,12 +287,14 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
     public async Task WhenGettingRestrictedApprenticeships_AndResponseContentIsNull_ThenReturnsViewWithNoCourses(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
         sut.AddTempData();
         sessionServiceMock.SetupProviderName(ukprn, providerName);
+        ukprnServiceMock.SetupOrganisationRestriction(ukprn, isRestricted: false);
         SetupRestrictedApprenticeships(outerApiClientMock, ukprn, response: null);
         SetupUrlHelper(sut);
 
@@ -248,12 +315,14 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
     public async Task WhenGettingRestrictedApprenticeships_AndCoursesAreNull_ThenReturnsViewWithNoCourses(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
         sut.AddTempData();
         sessionServiceMock.SetupProviderName(ukprn, providerName);
+        ukprnServiceMock.SetupOrganisationRestriction(ukprn, isRestricted: false);
         SetupRestrictedApprenticeships(
             outerApiClientMock,
             ukprn,

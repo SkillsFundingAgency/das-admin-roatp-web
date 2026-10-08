@@ -60,4 +60,17 @@ public static class EnumExtensions
             ? DeliveryStatus.LastStartDateAdded
             : DeliveryStatus.OpenToNewStarts;
     }
+
+    public static DeliveryStatus ToAllowedCourseDeliveryStatus(
+        this DateTime? lastDateStarts,
+        bool isClosedToNewStarts,
+        DateTime? today = null)
+    {
+        if (isClosedToNewStarts)
+        {
+            return DeliveryStatus.ClosedToNewStarts;
+        }
+
+        return lastDateStarts.ToDeliveryStatus(today);
+    }
 }
