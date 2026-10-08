@@ -172,7 +172,7 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingSetLastStartDate_AndEligibilityIsInvalid_ThenReturnsNotFound(
+    public async Task WhenGettingSetLastStartDate_AndInvalidForLastStartDateChange_ThenReturnsNotFound(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>> validatorMock,
         [Greedy] ChangeRestrictedCourseLastStartDateController sut)
@@ -189,7 +189,7 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingSetLastStartDate_AndCourseIsNotInCachedCourses_ThenReturnsViewWithNullCourseLastDateStarts(
+    public async Task WhenGettingSetLastStartDate_AndCourseIsNotInCoursesList_ThenReturnsViewWithNullCourseLastDateStarts(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Frozen] Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>> validatorMock,
@@ -222,7 +222,7 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingSetLastStartDate_AndGetCourseThrows_ThenThrows(
+    public async Task WhenGettingSetLastStartDate_AndGetCourseThrowsUnexpectedError_ThenThrows(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Frozen] Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>> validatorMock,

@@ -103,7 +103,7 @@ public class AddRestrictedCourseLastStartDateControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingSetLastStartDate_AndCourseIsNotInCachedCourses_ThenReturnsViewWithNullCourseLastDateStarts(
+    public async Task WhenGettingSetLastStartDate_AndCourseIsNotInCoursesList_ThenReturnsViewWithNullCourseLastDateStarts(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Greedy] AddRestrictedCourseLastStartDateController sut)
@@ -135,7 +135,7 @@ public class AddRestrictedCourseLastStartDateControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingSetLastStartDate_AndGetCourseThrows_ThenThrows(
+    public async Task WhenGettingSetLastStartDate_AndGetCourseThrowsUnexpectedError_ThenThrows(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Greedy] AddRestrictedCourseLastStartDateController sut)

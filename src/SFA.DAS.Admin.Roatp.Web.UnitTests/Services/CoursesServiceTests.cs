@@ -47,7 +47,7 @@ public class CoursesServiceTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingCourse_AndCacheIsEmpty_ThenCallsApiCachesAndReturnsCourse(
+    public async Task WhenGettingCourse_AndCoursesAreNotCached_ThenCallsApiCachesAndReturnsCourse(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
         [Greedy] CoursesService sut)
@@ -75,7 +75,7 @@ public class CoursesServiceTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingCourse_AndCourseIsNotInList_ThenReturnsNull(
+    public async Task WhenGettingCourse_AndCourseIsNotInCoursesList_ThenReturnsNull(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
         [Greedy] CoursesService sut)
