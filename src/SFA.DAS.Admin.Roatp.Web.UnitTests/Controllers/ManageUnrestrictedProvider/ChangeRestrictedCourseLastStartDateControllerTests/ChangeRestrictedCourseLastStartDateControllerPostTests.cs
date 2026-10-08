@@ -1,13 +1,10 @@
 using System.Net;
-using System.Security.Claims;
 using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using Refit;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
@@ -44,7 +41,8 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
         [Greedy] ChangeRestrictedCourseLastStartDateController sut)
     {
         SetupSession(sessionServiceMock);
-        SetupAuthenticatedUser(sut);
+        sut.SetupAuthenticatedUser();
+        sut.AddTempData();
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
         submitValidatorMock
@@ -87,8 +85,8 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
             Ukprn,
             LarsCode,
             It.Is<ChangeRestrictedApprenticeshipLastDateStartsRequest>(r =>
-                r.UserId == "TestUser@education.gov.uk"
-                && r.UserDisplayName == "Test User"
+                r.UserId == MockedUser.AuthenticatedUser.UserId()
+                && r.UserDisplayName == MockedUser.AuthenticatedUser.UserDisplayName()
                 && r.LastDateStarts == EnteredDate),
             It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -260,7 +258,7 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
         [Greedy] ChangeRestrictedCourseLastStartDateController sut)
     {
         SetupSession(sessionServiceMock);
-        SetupAuthenticatedUser(sut);
+        sut.SetupAuthenticatedUser();
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
         validatorMock
@@ -297,7 +295,7 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
             outerApiClientMock.Object,
             submitValidatorMock.Object,
             validatorMock.Object);
-        SetupAuthenticatedUser(sut);
+        sut.SetupAuthenticatedUser();
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
 
@@ -325,42 +323,14 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
             });
     }
 
-    private static void SetupAuthenticatedUser(ChangeRestrictedCourseLastStartDateController sut)
-    {
-        sut.ControllerContext = new ControllerContext
-        {
-            HttpContext = new DefaultHttpContext
-            {
-                User = new ClaimsPrincipal(new ClaimsIdentity(
-                [
-                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Test"),
-                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "User"),
-                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn", "TestUser@education.gov.uk")
-                ], "test"))
-            }
-        };
-        sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
-    }
-
     private static void SetupChangeResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
     {
-        var httpResponse = new HttpResponseMessage(statusCode);
-        ApiException? apiException = null;
-        if (statusCode != HttpStatusCode.OK)
-        {
-            apiException = ApiException.Create(
-                new HttpRequestMessage(),
-                HttpMethod.Post,
-                httpResponse,
-                new RefitSettings()).GetAwaiter().GetResult();
-        }
-
         outerApiClientMock
             .Setup(c => c.ChangeRestrictedApprenticeshipLastDateStarts(
                 It.IsAny<int>(),
                 It.IsAny<string>(),
                 It.IsAny<ChangeRestrictedApprenticeshipLastDateStartsRequest>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<object>(httpResponse, null, new RefitSettings(), apiException));
+            .ReturnsAsync(OuterApiResponse.Create<object>(statusCode, method: HttpMethod.Post));
     }
 }

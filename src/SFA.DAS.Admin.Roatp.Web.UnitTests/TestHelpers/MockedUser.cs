@@ -9,6 +9,8 @@ public class MockedUser
     private const string Email = "Test.User@example.com";
     private const string RoleClaimType = "http://service/service";
 
+    public static readonly ClaimsPrincipal AuthenticatedUser = Setup();
+
     public static ClaimsPrincipal Setup(params string[] roles)
     {
         var claims = new List<Claim>

@@ -83,6 +83,13 @@ public interface IOuterApiClient
         [Body] ChangeRestrictedApprenticeshipLastDateStartsRequest request,
         CancellationToken cancellationToken);
 
+    [Post("/providers/{ukprn}/restricted-apprenticeships/{larsCode}/remove")]
+    Task<ApiResponse<object>> RemoveRestrictedApprenticeship(
+        int ukprn,
+        string larsCode,
+        [Body] RemoveRestrictedApprenticeshipRequest request,
+        CancellationToken cancellationToken);
+
     [Post("/providers/{ukprn}/restricted-apprenticeships/{larsCode}/add")]
     Task<ApiResponse<object>> AddRestrictedApprenticeship(
         int ukprn,

@@ -108,13 +108,13 @@ public class SetLastDateStartsController(
 
     private SetLastDateStartsSessionModel? GetSession(int ukprn, string larsCode)
     {
-        var session = sessionService.Get<SetLastDateStartsSessionModel>(SessionKeys.SetLastDateStarts);
-        if (session is null || session.Ukprn != ukprn || session.LarsCode != larsCode)
+        var model = sessionService.Get<SetLastDateStartsSessionModel>(SessionKeys.SetLastDateStarts);
+        if (model is null || model.Ukprn != ukprn || model.LarsCode != larsCode)
         {
             return null;
         }
 
-        return session;
+        return model;
     }
 
     private SetLastDateStartsViewModel BuildViewModel(

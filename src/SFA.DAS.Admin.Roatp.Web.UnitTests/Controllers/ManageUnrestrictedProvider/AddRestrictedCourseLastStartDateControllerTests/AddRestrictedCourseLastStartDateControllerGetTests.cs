@@ -145,19 +145,9 @@ public class AddRestrictedCourseLastStartDateControllerGetTests
         [Greedy] AddRestrictedCourseLastStartDateController sut)
     {
         SetupSession(sessionServiceMock);
-        var httpResponse = new HttpResponseMessage(HttpStatusCode.InternalServerError);
-        var apiException = await ApiException.Create(
-            new HttpRequestMessage(),
-            HttpMethod.Get,
-            httpResponse,
-            new RefitSettings());
         outerApiClientMock
             .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
-                httpResponse,
-                null,
-                new RefitSettings(),
-                apiException));
+            .ReturnsAsync(OuterApiResponse.Create<GetRestrictedCourseDetailsResponse>(HttpStatusCode.InternalServerError));
 
         var act = () => sut.Index(Ukprn);
 
@@ -184,8 +174,8 @@ public class AddRestrictedCourseLastStartDateControllerGetTests
     {
         outerApiClientMock
             .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
-                new HttpResponseMessage(HttpStatusCode.OK),
+            .ReturnsAsync(OuterApiResponse.Create(
+                HttpStatusCode.OK,
                 new GetRestrictedCourseDetailsResponse
                 {
                     LarsCode = LarsCode,
@@ -193,8 +183,6 @@ public class AddRestrictedCourseLastStartDateControllerGetTests
                     CourseName = "Electrical",
                     Route = "Construction",
                     LastDateStarts = CourseLastDateStarts
-                },
-                new RefitSettings(),
-                null));
+                }));
     }
 }

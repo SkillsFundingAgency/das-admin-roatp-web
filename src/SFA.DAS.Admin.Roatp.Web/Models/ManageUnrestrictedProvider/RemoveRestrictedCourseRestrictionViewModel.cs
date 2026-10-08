@@ -1,0 +1,9 @@
+namespace SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider;
+
+public class RemoveRestrictedCourseRestrictionViewModel
+{
+    public required int Ukprn { get; set; }
+    public required string LarsCode { get; set; }
+    public required string CourseDisplayTitle { get; set; }
+    public required string CancelUrl { get; set; }
+}

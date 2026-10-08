@@ -24,12 +24,36 @@ public static class ControllerExtensions
             .Returns(url);
         return urlHelperMock;
     }
-    public static void AddTempData(this Controller sut)
+
+    public static Controller SetupAuthenticatedUser(this Controller sut)
     {
         sut.ControllerContext = new ControllerContext
         {
-            HttpContext = new DefaultHttpContext()
+            HttpContext = new DefaultHttpContext
+            {
+                User = MockedUser.AuthenticatedUser
+            }
         };
+        return sut;
+    }
+
+    public static Controller AddTempData(this Controller sut)
+    {
+        sut.SetupHttpContext();
         sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
+        return sut;
+    }
+
+    public static Controller SetupHttpContext(this Controller sut)
+    {
+        if (sut.ControllerContext.HttpContext is null)
+        {
+            sut.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+        }
+
+        return sut;
     }
 }

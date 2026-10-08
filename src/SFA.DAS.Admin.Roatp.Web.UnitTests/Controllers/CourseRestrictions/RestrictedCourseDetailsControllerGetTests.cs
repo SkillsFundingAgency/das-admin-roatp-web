@@ -2,9 +2,7 @@ using System.Net;
 using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using Refit;
 using SFA.DAS.Admin.Roatp.Domain.Models;
@@ -160,7 +158,7 @@ public class RestrictedCourseDetailsControllerGetTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
-        SetupTempData(sut);
+        sut.AddTempData();
         sut.TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey] = successMessage;
 
         var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequestModel(), CancellationToken.None) as ViewResult;
@@ -186,7 +184,7 @@ public class RestrictedCourseDetailsControllerGetTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
-        SetupTempData(sut);
+        sut.AddTempData();
         sut.TempData[RestrictedCourseDetailsController.SuccessBannerTempDataKey] =
             RestrictCourseConfirmController.SuccessBannerMessage;
 
@@ -304,20 +302,11 @@ public class RestrictedCourseDetailsControllerGetTests
 
     private static void SetupUrlHelper(RestrictedCourseDetailsController sut)
     {
-        SetupTempData(sut);
+        sut.AddTempData();
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourses, RestrictedCoursesUrl)
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.SetLastDateStarts, SetLastDateStartsUrl)
             .AddUrlForRoute(RouteNames.ChangeCourseRestriction, ChangeCourseRestrictionUrl);
-    }
-
-    private static void SetupTempData(RestrictedCourseDetailsController sut)
-    {
-        sut.ControllerContext = new ControllerContext
-        {
-            HttpContext = new DefaultHttpContext()
-        };
-        sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
     }
 }

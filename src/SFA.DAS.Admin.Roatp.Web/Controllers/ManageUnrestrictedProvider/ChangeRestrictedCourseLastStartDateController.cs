@@ -126,14 +126,14 @@ public class ChangeRestrictedCourseLastStartDateController(
 
     private ChangeRestrictedCourseRestrictionSessionModel? GetChangeRestrictedCourseSession(int ukprn, string larsCode)
     {
-        var session = sessionService.Get<ChangeRestrictedCourseRestrictionSessionModel>(
+        var model = sessionService.Get<ChangeRestrictedCourseRestrictionSessionModel>(
             SessionKeys.RestrictedCourseChangeRestriction);
-        if (session is null || session.Ukprn != ukprn || session.LarsCode != larsCode)
+        if (model is null || model.Ukprn != ukprn || model.LarsCode != larsCode)
         {
             return null;
         }
 
-        return session;
+        return model;
     }
 
     private ChangeRestrictedCourseLastStartDateViewModel BuildViewModel(

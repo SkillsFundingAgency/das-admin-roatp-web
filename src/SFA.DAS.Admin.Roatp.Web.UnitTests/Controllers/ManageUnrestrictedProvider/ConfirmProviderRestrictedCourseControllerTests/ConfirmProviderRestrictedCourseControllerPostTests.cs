@@ -1,18 +1,17 @@
 using System.Net;
-using System.Security.Claims;
 using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using Refit;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.Session;
 using SFA.DAS.Admin.Roatp.Web.Services;
+using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ManageUnrestrictedProvider.ConfirmProviderRestrictedCourseControllerTests;
@@ -30,8 +29,8 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
         [Greedy] ConfirmProviderRestrictedCourseController sut)
     {
         SetupSession(sessionServiceMock);
-        SetupAuthenticatedUser(sut);
-        sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
+        sut.SetupAuthenticatedUser();
+        sut.AddTempData();
         SetupUpsertResponse(outerApiClientMock, HttpStatusCode.OK);
 
         var result = await sut.Index(Ukprn, CancellationToken.None) as RedirectToRouteResult;
@@ -50,8 +49,8 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
             Ukprn,
             LarsCode,
             It.Is<UpsertProviderAllowedCourseRequest>(r =>
-                r.UserId == "TestUser@education.gov.uk"
-                && r.UserDisplayName == "Test User"
+                r.UserId == MockedUser.AuthenticatedUser.UserId()
+                && r.UserDisplayName == MockedUser.AuthenticatedUser.UserDisplayName()
                 && r.LastDateStarts == null
                 && r.IsStartRestricted),
             It.IsAny<CancellationToken>()), Times.Once);
@@ -91,7 +90,7 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
         [Greedy] ConfirmProviderRestrictedCourseController sut)
     {
         SetupSession(sessionServiceMock);
-        SetupAuthenticatedUser(sut);
+        sut.SetupAuthenticatedUser();
         SetupUpsertResponse(outerApiClientMock, HttpStatusCode.NotFound);
 
         var act = () => sut.Index(Ukprn, CancellationToken.None);
@@ -113,45 +112,14 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
             });
     }
 
-    private static void SetupAuthenticatedUser(ConfirmProviderRestrictedCourseController sut)
-    {
-        sut.ControllerContext = new ControllerContext
-        {
-            HttpContext = new DefaultHttpContext
-            {
-                User = new ClaimsPrincipal(new ClaimsIdentity(
-                [
-                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Test"),
-                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "User"),
-                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn", "TestUser@education.gov.uk")
-                ], "test"))
-            }
-        };
-    }
-
     private static void SetupUpsertResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
     {
-        var httpResponse = new HttpResponseMessage(statusCode);
-        ApiException? apiException = null;
-        if (statusCode != HttpStatusCode.OK)
-        {
-            apiException = ApiException.Create(
-                new HttpRequestMessage(),
-                HttpMethod.Post,
-                httpResponse,
-                new RefitSettings()).GetAwaiter().GetResult();
-        }
-
         outerApiClientMock
             .Setup(c => c.UpsertProviderAllowedCourse(
                 Ukprn,
                 LarsCode,
                 It.IsAny<UpsertProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<object>(
-                httpResponse,
-                null,
-                new RefitSettings(),
-                apiException));
+            .ReturnsAsync(OuterApiResponse.Create<object>(statusCode, method: HttpMethod.Post));
     }
 }

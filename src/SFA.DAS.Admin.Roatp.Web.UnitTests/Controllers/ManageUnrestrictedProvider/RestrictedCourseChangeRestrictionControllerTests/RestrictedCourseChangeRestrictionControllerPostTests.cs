@@ -94,7 +94,7 @@ public class RestrictedCourseChangeRestrictionControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public void WhenPostingChange_AndRemoveIsSelected_ThenReloadsViewFromSession(
+    public void WhenPostingChange_AndRemoveIsSelected_ThenRedirectsToRemoveRestriction(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IValidator<RestrictedCourseChangeRestrictionSubmitModel>> validatorMock,
@@ -113,18 +113,14 @@ public class RestrictedCourseChangeRestrictionControllerPostTests
             new RestrictedCourseChangeRestrictionSubmitModel
             {
                 SelectedOption = RestrictedCourseChangeRestrictionOptions.Remove
-            }) as ViewResult;
-        var model = result?.Model as RestrictedCourseChangeRestrictionViewModel;
+            }) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result!.ViewName.Should().Be(RestrictedCourseChangeRestrictionController.ViewPath);
-            model.Should().NotBeNull();
-            model!.SelectedOption.Should().Be(RestrictedCourseChangeRestrictionOptions.Remove);
-            model.CourseDisplayTitle.Should().Be(DisplayTitle);
-            model.LastDateStarts.Should().Be(LastDateStarts);
-            sut.ModelState.IsValid.Should().BeTrue();
+            result!.RouteName.Should().Be(RouteNames.RemoveRestrictedCourseRestriction);
+            result.RouteValues!["ukprn"].Should().Be(Ukprn);
+            result.RouteValues["larsCode"].Should().Be(LarsCode);
         }
 
         VerifySessionNotSetAndApiNotCalled(outerApiClientMock, sessionServiceMock);
