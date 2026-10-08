@@ -29,11 +29,11 @@ public class AddRestrictedCourseLastStartDateControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingSetLastStartDate_AndSessionExists_ThenReturnsView(
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Greedy] AddRestrictedCourseLastStartDateController sut)
     {
         SetupSession(sessionServiceMock);
-        SetupCourseLastDateStarts(outerApiClientMock);
+        SetupCourseLastDateStarts(coursesServiceMock);
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
 
@@ -103,21 +103,17 @@ public class AddRestrictedCourseLastStartDateControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingSetLastStartDate_AndCourseLastDateStartsApiReturnsNotFound_ThenReturnsViewWithNullCourseLastDateStarts(
+    public async Task WhenGettingSetLastStartDate_AndCourseIsNotInCachedCourses_ThenReturnsViewWithNullCourseLastDateStarts(
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Greedy] AddRestrictedCourseLastStartDateController sut)
     {
         SetupSession(sessionServiceMock);
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
-        outerApiClientMock
-            .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
-                new HttpResponseMessage(HttpStatusCode.NotFound),
-                null,
-                new RefitSettings(),
-                null));
+        coursesServiceMock
+            .Setup(c => c.GetCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetCourseResponse?)null);
 
         var result = await sut.Index(Ukprn) as ViewResult;
         var model = result?.Model as AddRestrictedCourseLastStartDateViewModel;
@@ -139,15 +135,19 @@ public class AddRestrictedCourseLastStartDateControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingSetLastStartDate_AndCourseLastDateStartsApiReturnsUnexpectedError_ThenThrows(
+    public async Task WhenGettingSetLastStartDate_AndGetCourseThrows_ThenThrows(
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Greedy] AddRestrictedCourseLastStartDateController sut)
     {
         SetupSession(sessionServiceMock);
-        outerApiClientMock
-            .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(OuterApiResponse.Create<GetRestrictedCourseDetailsResponse>(HttpStatusCode.InternalServerError));
+        coursesServiceMock
+            .Setup(c => c.GetCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(await ApiException.Create(
+                new HttpRequestMessage(),
+                HttpMethod.Get,
+                new HttpResponseMessage(HttpStatusCode.InternalServerError),
+                new RefitSettings()));
 
         var act = () => sut.Index(Ukprn);
 
@@ -170,19 +170,16 @@ public class AddRestrictedCourseLastStartDateControllerGetTests
             });
     }
 
-    private static void SetupCourseLastDateStarts(Mock<IOuterApiClient> outerApiClientMock)
+    private static void SetupCourseLastDateStarts(Mock<ICoursesService> coursesServiceMock)
     {
-        outerApiClientMock
-            .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(OuterApiResponse.Create(
-                HttpStatusCode.OK,
-                new GetRestrictedCourseDetailsResponse
-                {
-                    LarsCode = LarsCode,
-                    IfateReferenceNumber = "ST0001",
-                    CourseName = "Electrical",
-                    Route = "Construction",
-                    LastDateStarts = CourseLastDateStarts
-                }));
+        coursesServiceMock
+            .Setup(c => c.GetCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetCourseResponse
+            {
+                LarsCode = LarsCode,
+                Title = "Electrical",
+                Level = 3,
+                LastDateStarts = CourseLastDateStarts
+            });
     }
 }

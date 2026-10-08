@@ -17,6 +17,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 public class ChangeRestrictedCourseLastStartDateController(
     ISessionService sessionService,
     IOuterApiClient outerApiClient,
+    ICoursesService coursesService,
     IValidator<SetLastDateStartsSubmitModel> validator,
     IValidator<ChangeRestrictedCourseRestrictionSessionModel> validatorForLastStartDateChange) : Controller
 {
@@ -40,8 +41,8 @@ public class ChangeRestrictedCourseLastStartDateController(
         }
 
         var providerLastDateStarts = session.CourseLastDateStarts;
-        var courseDetails = await outerApiClient.GetCourseDetails(session.LarsCode, cancellationToken);
-        session.CourseLastDateStarts = courseDetails?.LastDateStarts;
+        var course = await coursesService.GetCourse(session.LarsCode, cancellationToken);
+        session.CourseLastDateStarts = course?.LastDateStarts;
         sessionService.Set(SessionKeys.RestrictedCourseChangeRestriction, session);
 
         string? day = null;
