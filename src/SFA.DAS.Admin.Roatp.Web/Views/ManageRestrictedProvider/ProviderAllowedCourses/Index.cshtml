@@ -1,0 +1,55 @@
+@using SFA.DAS.Admin.Roatp.Web.Models.ManageRestrictedProvider
+@model AllowedCoursesViewModel
+@{
+    ViewData["Title"] = Model.PageContent.PageHeading;
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <span class="govuk-caption-xl">@Model.ProviderName</span>
+        <h1 class="govuk-heading-xl">@Model.PageContent.PageHeading</h1>
+
+        <p class="govuk-body">@Model.PageContent.IntroText</p>
+    </div>
+</div>
+
+<div class="app-action-panel govuk-!-margin-bottom-8 govuk-!-margin-top-2">
+    <h2 class="govuk-heading-l">@Model.PageContent.AddHeading</h2>
+    <p class="govuk-body">@Model.PageContent.AddDescription</p>
+    <p class="govuk-body">@AllowedCoursesPageContentModel.AddSecondaryDescription</p>
+    <a class="govuk-button govuk-!-margin-bottom-0" href="@Model.AddUrl" data-module="govuk-button">@Model.PageContent.AddButtonText</a>
+</div>
+
+<hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-6">
+
+<h2 class="govuk-heading-l">@Model.PageContent.ListHeading</h2>
+
+<p asp-show="Model.HasNoCourses" class="govuk-body">@Model.PageContent.EmptyListText</p>
+<p asp-show="Model.HasCourses" class="govuk-body">@AllowedCoursesPageContentModel.ListIntro</p>
+
+<div asp-show="Model.HasCourses" class="govuk-grid-row govuk-!-margin-top-6">
+    <div class="govuk-grid-column-two-thirds">
+        <div class="app-results-header govuk-!-margin-bottom-3">
+            <p class="govuk-body govuk-!-font-weight-bold govuk-!-margin-bottom-0">@Model.TotalCountDescription</p>
+            <p class="govuk-body govuk-!-margin-bottom-0">
+                Sorted by: <span class="govuk-!-font-weight-bold">Name of course</span>
+            </p>
+        </div>
+
+        <ul class="govuk-list app-results-list app-results-list--bordered">
+            @foreach (var course in Model.Courses)
+            {
+                <li class="app-results-list__item">
+                    <div class="app-results-list__content govuk-!-margin-bottom-2">
+                        <strong class="govuk-tag @course.DeliveryStatusTagClass app-tag">@course.DeliveryStatusDescription</strong>
+                        <div class="app-results-list__actions">
+                            <a class="govuk-link govuk-link--no-visited-state" href="@course.ChangeUrl">Change</a>
+                        </div>
+                    </div>
+                    <h3 class="govuk-heading-s govuk-!-margin-bottom-1">@course.DisplayTitle</h3>
+                    <p class="govuk-body govuk-!-margin-bottom-0">LARS Code: @course.LarsCode</p>
+                </li>
+            }
+        </ul>
+    </div>
+</div>

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.JsonPatch;
 using Refit;
 using SFA.DAS.Admin.Roatp.Application.Constants;
+using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 
@@ -111,4 +112,9 @@ public interface IOuterApiClient
     [Get("/courses")]
     Task<ApiResponse<GetCoursesResponse>> GetCourses(CancellationToken cancellationToken);
 
+    [Get("/providers/{ukprn}/allowed-courses")]
+    Task<ApiResponse<GetAllowedCoursesResponse>> GetAllowedCourses(
+    int ukprn,
+    [Query] CourseType courseType,
+    CancellationToken cancellationToken);
 }
