@@ -148,6 +148,7 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
         var sut = new ChangeRestrictedCourseLastStartDateController(
             sessionServiceMock.Object,
             outerApiClientMock.Object,
+            Mock.Of<ICoursesService>(),
             new SetLastDateStartsSubmitModelValidator(),
             validatorMock.Object);
         sut.AddUrlHelperMock()
@@ -187,6 +188,7 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
         var sut = new ChangeRestrictedCourseLastStartDateController(
             sessionServiceMock.Object,
             outerApiClientMock.Object,
+            Mock.Of<ICoursesService>(),
             new SetLastDateStartsSubmitModelValidator(),
             validatorMock.Object);
         sut.AddUrlHelperMock()
@@ -293,6 +295,7 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
         var sut = new ChangeRestrictedCourseLastStartDateController(
             sessionServiceMock.Object,
             outerApiClientMock.Object,
+            Mock.Of<ICoursesService>(),
             submitValidatorMock.Object,
             validatorMock.Object);
         sut.SetupAuthenticatedUser();
