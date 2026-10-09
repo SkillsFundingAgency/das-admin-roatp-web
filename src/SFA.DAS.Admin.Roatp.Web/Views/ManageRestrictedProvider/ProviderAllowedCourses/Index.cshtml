@@ -16,7 +16,7 @@
 <div class="app-action-panel govuk-!-margin-bottom-8 govuk-!-margin-top-2">
     <h2 class="govuk-heading-l">@Model.PageContent.AddHeading</h2>
     <p class="govuk-body">@Model.PageContent.AddDescription</p>
-    <p class="govuk-body">@Model.PageContent.AddSecondaryDescription</p>
+    <p class="govuk-body">@AllowedCoursesPageContentModel.AddSecondaryDescription</p>
     <a class="govuk-button govuk-!-margin-bottom-0" href="@Model.AddUrl" data-module="govuk-button">@Model.PageContent.AddButtonText</a>
 </div>
 
@@ -25,7 +25,7 @@
 <h2 class="govuk-heading-l">@Model.PageContent.ListHeading</h2>
 
 <p asp-show="Model.HasNoCourses" class="govuk-body">@Model.PageContent.EmptyListText</p>
-<p asp-show="Model.HasCourses" class="govuk-body">@Model.PageContent.ListIntro</p>
+<p asp-show="Model.HasCourses" class="govuk-body">@AllowedCoursesPageContentModel.ListIntro</p>
 
 <div asp-show="Model.HasCourses" class="govuk-grid-row govuk-!-margin-top-6">
     <div class="govuk-grid-column-two-thirds">
