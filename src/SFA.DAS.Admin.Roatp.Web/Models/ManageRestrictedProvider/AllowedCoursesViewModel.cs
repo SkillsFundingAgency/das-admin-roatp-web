@@ -8,7 +8,7 @@ public class AllowedCoursesViewModel : ICustomBackLink
     public const string BackLinkTextValue = "Back to organisation details";
 
     public CourseType CourseType { get; set; }
-    public AllowedCoursesContent PageContent { get; set; } = AllowedCoursesContent.CreateForCourseType(CourseType.Apprenticeship);
+    public AllowedCoursesPageContentModel PageContent { get; set; } = AllowedCoursesPageContentModel.CreateForCourseType(CourseType.Apprenticeship);
     public string ProviderName { get; set; } = string.Empty;
     public string AddUrl { get; set; } = "#";
     public string BackLinkUrl { get; set; } = "#";

@@ -34,7 +34,7 @@ public class ProviderSummaryController(IOuterApiClient _outerApiClient, ISession
         model.ManageRestrictedCoursesUrl = Url.RouteUrl(RouteNames.ProviderRestrictedApprenticeships, new { ukprn })!;
         model.ManageApprovedCoursesUrl = Url.RouteUrl(RouteNames.ProviderAllowedCourses, new { ukprn, courseType = CourseType.Apprenticeship })!;
         model.ChangeHowWeManageThisProviderUrl = providerSummaryUrl;
-        model.ManageApprovedUnitsUrl = providerSummaryUrl;
+        model.ManageApprovedUnitsUrl = Url.RouteUrl(RouteNames.ProviderAllowedCourses, new { ukprn, courseType = CourseType.ShortCourse })!;
         return View(model);
     }
 }

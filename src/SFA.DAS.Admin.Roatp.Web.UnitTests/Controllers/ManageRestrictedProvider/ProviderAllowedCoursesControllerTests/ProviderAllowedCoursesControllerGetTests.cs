@@ -115,6 +115,8 @@ public class ProviderAllowedCoursesControllerGetTests
         {
             model.Should().NotBeNull();
             model!.CourseType.Should().Be(CourseType.ShortCourse);
+            model.PageContent.PageHeading.Should().Be("Manage apprenticeship units this provider is allowed to deliver");
+            model.PageContent.IntroText.Should().Be("This page shows the apprenticeship units the provider is allowed to deliver. You can add or remove apprenticeships units.");
             model.PageContent.AddButtonText.Should().Be("Add an apprenticeship unit");
             model.PageContent.ListHeading.Should().Be("Apprenticeship units this provider can deliver");
         }
@@ -134,7 +136,7 @@ public class ProviderAllowedCoursesControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingAllowedCourses_AndProviderIsUnrestricted_ThenRedirectsToRestrictedCoursesList(
+    public async Task WhenGettingAllowedCourses_AndCourseTypeIsApprenticeshipAndProviderIsUnrestricted_ThenRedirectsToRestrictedCoursesList(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
@@ -155,6 +157,34 @@ public class ProviderAllowedCoursesControllerGetTests
         outerApiClientMock.Verify(
             c => c.GetAllowedCourses(It.IsAny<int>(), It.IsAny<CourseType>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingAllowedCourses_AndCourseTypeIsShortCourseAndProviderIsNotRestricted_ThenReturnsView(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Greedy] ProviderAllowedCoursesController sut)
+    {
+        SetupRestrictedProvider(
+            sessionServiceMock,
+            ukprnServiceMock,
+            outerApiClientMock,
+            new GetAllowedCoursesResponse { AllowedCourses = [] },
+            CourseType.ShortCourse,
+            isRestricted: false);
+        SetupUrlHelper(sut);
+
+        var result = await sut.Index(Ukprn, CourseType.ShortCourse, CancellationToken.None) as ViewResult;
+        var model = result?.Model as AllowedCoursesViewModel;
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.ViewName.Should().Be(ProviderAllowedCoursesController.ViewPath);
+            model.Should().NotBeNull();
+            model!.CourseType.Should().Be(CourseType.ShortCourse);
+        }
     }
 
     [Test, MoqAutoData]
@@ -285,10 +315,11 @@ public class ProviderAllowedCoursesControllerGetTests
         Mock<IOuterApiClient> outerApiClientMock,
         GetAllowedCoursesResponse? response = null,
         CourseType courseType = CourseType.Apprenticeship,
-        HttpStatusCode statusCode = HttpStatusCode.OK)
+        HttpStatusCode statusCode = HttpStatusCode.OK,
+        bool isRestricted = true)
     {
         sessionServiceMock.SetupProviderName(Ukprn, ProviderName);
-        ukprnServiceMock.SetupOrganisationRestriction(Ukprn, isRestricted: true, courseType);
+        ukprnServiceMock.SetupOrganisationRestriction(Ukprn, isRestricted, courseType);
         outerApiClientMock
             .Setup(c => c.GetAllowedCourses(Ukprn, courseType, It.IsAny<CancellationToken>()))
             .ReturnsAsync(OuterApiResponse.Create(statusCode, response));

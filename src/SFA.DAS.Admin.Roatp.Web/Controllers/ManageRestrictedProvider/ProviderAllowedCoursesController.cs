@@ -42,7 +42,7 @@ public class ProviderAllowedCoursesController(
             return NotFound();
         }
 
-        if (!organisation.IsRestrictedForCourseType(courseType))
+        if (courseType == CourseType.Apprenticeship && !organisation.IsRestrictedForCourseType(courseType))
         {
             return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
         }
@@ -70,7 +70,7 @@ public class ProviderAllowedCoursesController(
         var viewModel = new AllowedCoursesViewModel
         {
             CourseType = courseType,
-            PageContent = AllowedCoursesContent.CreateForCourseType(courseType),
+            PageContent = AllowedCoursesPageContentModel.CreateForCourseType(courseType),
             ProviderName = providerName,
             BackLinkUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!,
             AddUrl = pageUrl,

@@ -1,6 +1,5 @@
 using FluentAssertions;
 using FluentAssertions.Execution;
-using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageRestrictedProvider;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models.ManageRestrictedProvider;
@@ -45,38 +44,6 @@ public class AllowedCoursesViewModelTests
         {
             model.HasCourses.Should().BeTrue();
             model.HasNoCourses.Should().BeFalse();
-        }
-    }
-}
-
-[TestFixture]
-public class AllowedCoursesContentTests
-{
-    [Test]
-    public void WhenCourseTypeIsApprenticeship_ThenUsesApprenticeshipCopy()
-    {
-        var content = AllowedCoursesContent.CreateForCourseType(CourseType.Apprenticeship);
-
-        using (new AssertionScope())
-        {
-            content.PageHeading.Should().Be("Manage apprenticeships this provider is allowed to deliver");
-            content.AddButtonText.Should().Be("Add an apprenticeship");
-            content.ListHeading.Should().Be("Apprenticeships this provider can deliver");
-            content.EmptyListText.Should().Be("There are currently no apprenticeships added to this list.");
-        }
-    }
-
-    [Test]
-    public void WhenCourseTypeIsShortCourse_ThenUsesUnitCopy()
-    {
-        var content = AllowedCoursesContent.CreateForCourseType(CourseType.ShortCourse);
-
-        using (new AssertionScope())
-        {
-            content.PageHeading.Should().Be("Manage apprenticeship units this provider is allowed to deliver");
-            content.AddButtonText.Should().Be("Add an apprenticeship unit");
-            content.ListHeading.Should().Be("Apprenticeship units this provider can deliver");
-            content.EmptyListText.Should().Be("There are currently no apprenticeship units added to this list.");
         }
     }
 }
