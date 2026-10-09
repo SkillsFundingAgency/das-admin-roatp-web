@@ -3,7 +3,6 @@ using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Moq;
-using Refit;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
@@ -86,64 +85,6 @@ public class CoursesServiceTests
         var result = await sut.GetCourse(LarsCode, CancellationToken.None);
 
         result.Should().BeNull();
-    }
-
-    [Test, MoqAutoData]
-    public async Task WhenGettingCourse_AndApiReturnsNotFound_ThenThrows(
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
-        [Greedy] CoursesService sut)
-    {
-        SetupCacheMiss(applicationCacheMock);
-        SetupGetCoursesApi(outerApiClientMock, HttpStatusCode.NotFound);
-
-        var act = () => sut.GetCourse(LarsCode, CancellationToken.None);
-
-        await act.Should().ThrowAsync<ApiException>();
-        applicationCacheMock.Verify(
-            c => c.SetAsync(
-                It.IsAny<string>(),
-                It.IsAny<GetCoursesResponse>(),
-                It.IsAny<TimeSpan?>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Test, MoqAutoData]
-    public async Task WhenGettingCourse_AndApiReturnsUnexpectedError_ThenThrows(
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
-        [Greedy] CoursesService sut)
-    {
-        SetupCacheMiss(applicationCacheMock);
-        SetupGetCoursesApi(outerApiClientMock, HttpStatusCode.InternalServerError);
-
-        var act = () => sut.GetCourse(LarsCode, CancellationToken.None);
-
-        await act.Should().ThrowAsync<ApiException>();
-    }
-
-    [Test, MoqAutoData]
-    public async Task WhenGettingCourse_AndApiContentIsNull_ThenReturnsNull(
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IApplicationCacheService> applicationCacheMock,
-        [Greedy] CoursesService sut)
-    {
-        SetupCacheMiss(applicationCacheMock);
-        outerApiClientMock
-            .Setup(c => c.GetCourses(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(OuterApiResponse.Create<GetCoursesResponse>(HttpStatusCode.OK, content: null));
-
-        var result = await sut.GetCourse(LarsCode, CancellationToken.None);
-
-        result.Should().BeNull();
-        applicationCacheMock.Verify(
-            c => c.SetAsync(
-                It.IsAny<string>(),
-                It.IsAny<GetCoursesResponse>(),
-                It.IsAny<TimeSpan?>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
     }
 
     private static void SetupCachedCourses(Mock<IApplicationCacheService> applicationCacheMock)

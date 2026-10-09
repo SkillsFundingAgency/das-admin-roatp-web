@@ -23,12 +23,10 @@ public class CoursesService(
         }
 
         var response = await outerApiClient.GetCourses(cancellationToken);
+
         await response.EnsureSuccessStatusCodeAsync();
-        if (response.Content is not null)
-        {
-            await applicationCacheService.SetAsync(
-                ApplicationCacheKeys.CoursesCacheKey, response.Content, cancellationToken: cancellationToken);
-        }
+
+        await applicationCacheService.SetAsync(ApplicationCacheKeys.CoursesCacheKey, response.Content, cancellationToken: cancellationToken);
 
         return response.Content?.Courses ?? [];
     }
