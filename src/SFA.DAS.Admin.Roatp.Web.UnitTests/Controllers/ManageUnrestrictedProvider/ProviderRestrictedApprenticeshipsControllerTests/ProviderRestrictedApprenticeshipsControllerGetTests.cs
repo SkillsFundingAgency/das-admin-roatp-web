@@ -108,7 +108,7 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
             result.Should().NotBeNull();
             result!.RouteName.Should().Be(RouteNames.ProviderAllowedCourses);
             result.RouteValues!["ukprn"].Should().Be(ukprn);
-            result.RouteValues["courseType"].Should().Be(CourseType.Apprenticeship);
+            result.RouteValues["routeLearningType"].Should().Be(RouteLearningType.Apprenticeship);
         }
 
         outerApiClientMock.Verify(

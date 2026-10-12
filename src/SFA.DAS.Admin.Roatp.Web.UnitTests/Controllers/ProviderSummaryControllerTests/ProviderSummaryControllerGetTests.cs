@@ -66,8 +66,8 @@ public class ProviderSummaryControllerGetTests
             .AddUrlForRoute(RouteNames.ApprenticeshipUnitsUpdate, apprenticeshipUnitsUpdateLink)
             .AddUrlForRoute(RouteNames.ProviderSummary, providerSummaryLink)
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, providerRestrictedCoursesLink)
-            .AddUrlForRoute(RouteNames.ProviderAllowedCourses, providerAllowedCoursesLink, context => context.HasRouteValue("courseType", CourseType.Apprenticeship))
-            .AddUrlForRoute(RouteNames.ProviderAllowedCourses, providerAllowedUnitsLink, context => context.HasRouteValue("courseType", CourseType.ShortCourse));
+            .AddUrlForRoute(RouteNames.ProviderAllowedCourses, providerAllowedCoursesLink, context => context.HasRouteValue("routeLearningType", RouteLearningType.Apprenticeship))
+            .AddUrlForRoute(RouteNames.ProviderAllowedCourses, providerAllowedUnitsLink, context => context.HasRouteValue("routeLearningType", RouteLearningType.ApprenticeshipUnit));
 
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));

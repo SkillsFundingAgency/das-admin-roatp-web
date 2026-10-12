@@ -11,13 +11,15 @@ public static class OrganisationTestHelper
         this Mock<IUkprnService> ukprnServiceMock,
         int ukprn,
         bool isRestricted,
-        CourseType courseType = CourseType.Apprenticeship)
+        CourseType courseType = CourseType.Apprenticeship,
+        string legalName = "")
     {
         ukprnServiceMock
             .Setup(s => s.GetOrganisationAsync(ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetOrganisationResponse
             {
                 Ukprn = ukprn,
+                LegalName = legalName,
                 AllowedCourseTypes =
                 [
                     new AllowedCourseType

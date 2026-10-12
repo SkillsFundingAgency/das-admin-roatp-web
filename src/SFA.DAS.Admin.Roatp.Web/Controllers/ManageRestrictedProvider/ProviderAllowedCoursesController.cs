@@ -11,10 +11,9 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageRestrictedProvider;
 
 [Authorize(Roles = Roles.RoatpAdminTeam)]
-[Route("providers/{ukprn}/{courseType}/allowed-courses", Name = RouteNames.ProviderAllowedCourses)]
+[Route("providers/{ukprn}/{routeLearningType}/allowed-courses", Name = RouteNames.ProviderAllowedCourses)]
 public class ProviderAllowedCoursesController(
     IOuterApiClient outerApiClient,
-    ISessionService sessionService,
     IUkprnService ukprnService) : Controller
 {
     public const string ViewPath = "~/Views/ManageRestrictedProvider/ProviderAllowedCourses/Index.cshtml";
@@ -22,16 +21,10 @@ public class ProviderAllowedCoursesController(
     [HttpGet]
     public async Task<IActionResult> Index(
         int ukprn,
-        CourseType courseType,
+        RouteLearningType routeLearningType,
         CancellationToken cancellationToken)
     {
-        if (!Enum.IsDefined(courseType))
-        {
-            return NotFound();
-        }
-
-        var providerName = await sessionService.GetProviderName(outerApiClient, ukprn, cancellationToken);
-        if (providerName is null)
+        if (!Enum.IsDefined(routeLearningType))
         {
             return NotFound();
         }
@@ -42,7 +35,8 @@ public class ProviderAllowedCoursesController(
             return NotFound();
         }
 
-        if (courseType == CourseType.Apprenticeship && !organisation.IsRestrictedForCourseType(courseType))
+        var courseType = routeLearningType.ToCourseType();
+        if (routeLearningType == RouteLearningType.Apprenticeship && !organisation.IsRestrictedForCourseType(courseType))
         {
             return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
         }
@@ -53,7 +47,7 @@ public class ProviderAllowedCoursesController(
             return NotFound();
         }
 
-        var pageUrl = Url.RouteUrl(RouteNames.ProviderAllowedCourses, new { ukprn, courseType })!;
+        var pageUrl = Url.RouteUrl(RouteNames.ProviderAllowedCourses, new { ukprn, routeLearningType })!;
 
         var courses = (coursesResponse.AllowedCourses ?? [])
             .OrderBy(
@@ -69,9 +63,8 @@ public class ProviderAllowedCoursesController(
 
         var viewModel = new AllowedCoursesViewModel
         {
-            CourseType = courseType,
-            PageContent = AllowedCoursesPageContentModel.CreateForCourseType(courseType),
-            ProviderName = providerName,
+            RouteLearningType = routeLearningType,
+            ProviderName = organisation.LegalName,
             BackLinkUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!,
             AddUrl = pageUrl,
             TotalCount = courses.Count,

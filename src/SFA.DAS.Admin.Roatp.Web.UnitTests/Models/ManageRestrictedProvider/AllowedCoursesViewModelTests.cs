@@ -1,5 +1,6 @@
 using FluentAssertions;
 using FluentAssertions.Execution;
+using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageRestrictedProvider;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models.ManageRestrictedProvider;
@@ -44,6 +45,30 @@ public class AllowedCoursesViewModelTests
         {
             model.HasCourses.Should().BeTrue();
             model.HasNoCourses.Should().BeFalse();
+        }
+    }
+
+    [Test]
+    public void WhenRouteLearningTypeIsApprenticeship_ThenIsApprenticeshipIsTrue()
+    {
+        var model = new AllowedCoursesViewModel { RouteLearningType = RouteLearningType.Apprenticeship };
+
+        using (new AssertionScope())
+        {
+            model.IsApprenticeship.Should().BeTrue();
+            model.IsApprenticeshipUnit.Should().BeFalse();
+        }
+    }
+
+    [Test]
+    public void WhenRouteLearningTypeIsApprenticeshipUnit_ThenIsApprenticeshipUnitIsTrue()
+    {
+        var model = new AllowedCoursesViewModel { RouteLearningType = RouteLearningType.ApprenticeshipUnit };
+
+        using (new AssertionScope())
+        {
+            model.IsApprenticeshipUnit.Should().BeTrue();
+            model.IsApprenticeship.Should().BeFalse();
         }
     }
 }

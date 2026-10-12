@@ -7,8 +7,7 @@ public class AllowedCoursesViewModel : ICustomBackLink
 {
     public const string BackLinkTextValue = "Back to organisation details";
 
-    public CourseType CourseType { get; set; }
-    public AllowedCoursesPageContentModel PageContent { get; set; } = AllowedCoursesPageContentModel.CreateForCourseType(CourseType.Apprenticeship);
+    public RouteLearningType RouteLearningType { get; set; }
     public string ProviderName { get; set; } = string.Empty;
     public string AddUrl { get; set; } = "#";
     public string BackLinkUrl { get; set; } = "#";
@@ -19,4 +18,7 @@ public class AllowedCoursesViewModel : ICustomBackLink
     public bool HasCourses => TotalCount > 0;
     public bool HasNoCourses => !HasCourses;
     public string TotalCountDescription => "course".ToQuantity(TotalCount);
+
+    public bool IsApprenticeship => RouteLearningType == RouteLearningType.Apprenticeship;
+    public bool IsApprenticeshipUnit => RouteLearningType == RouteLearningType.ApprenticeshipUnit;
 }

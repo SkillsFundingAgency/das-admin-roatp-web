@@ -43,7 +43,7 @@ public class ProviderRestrictedApprenticeshipsController(
 
         if (organisation.IsRestrictedForCourseType(CourseType.Apprenticeship))
         {
-            return RedirectToRoute(RouteNames.ProviderAllowedCourses, new { ukprn, courseType = CourseType.Apprenticeship });
+            return RedirectToRoute(RouteNames.ProviderAllowedCourses, new { ukprn, routeLearningType = RouteLearningType.Apprenticeship });
         }
 
         var coursesResponse = await GetRestrictedApprenticeships(ukprn, cancellationToken);

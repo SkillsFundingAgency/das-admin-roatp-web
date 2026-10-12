@@ -1,31 +1,37 @@
+@using Humanizer
+@using SFA.DAS.Admin.Roatp.Web.Extensions
 @using SFA.DAS.Admin.Roatp.Web.Models.ManageRestrictedProvider
 @model AllowedCoursesViewModel
 @{
-    ViewData["Title"] = Model.PageContent.PageHeading;
+    var learningTypeName = Model.RouteLearningType.GetDescription().Transform(To.LowerCase);
+    var learningTypeNamePlural = learningTypeName.Pluralize();
+    var pageHeading = $"Manage {learningTypeNamePlural} this provider is allowed to deliver";
+    ViewData["Title"] = pageHeading;
 }
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
         <span class="govuk-caption-xl">@Model.ProviderName</span>
-        <h1 class="govuk-heading-xl">@Model.PageContent.PageHeading</h1>
+        <h1 class="govuk-heading-xl">@pageHeading</h1>
 
-        <p class="govuk-body">@Model.PageContent.IntroText</p>
+        <p asp-show="Model.IsApprenticeshipUnit" class="govuk-body">This page shows the @learningTypeNamePlural the provider is allowed to deliver. You can add or remove @learningTypeNamePlural.</p>
+        <p asp-show="Model.IsApprenticeship" class="govuk-body">This provider's account permissions mean that they can only offer courses we have added to their account.</p>
     </div>
 </div>
 
 <div class="app-action-panel govuk-!-margin-bottom-8 govuk-!-margin-top-2">
-    <h2 class="govuk-heading-l">@Model.PageContent.AddHeading</h2>
-    <p class="govuk-body">@Model.PageContent.AddDescription</p>
-    <p class="govuk-body">@AllowedCoursesPageContentModel.AddSecondaryDescription</p>
-    <a class="govuk-button govuk-!-margin-bottom-0" href="@Model.AddUrl" data-module="govuk-button">@Model.PageContent.AddButtonText</a>
+    <h2 class="govuk-heading-l">Add an @learningTypeName</h2>
+    <p class="govuk-body">Adding a new @learningTypeName will allow this provider to add it to their account in Course management.</p>
+    <p class="govuk-body">If they add it in Course management, they will be able to offer it to learners on Find apprenticeship training.</p>
+    <a class="govuk-button govuk-!-margin-bottom-0" href="@Model.AddUrl" data-module="govuk-button">Add an @learningTypeName</a>
 </div>
 
 <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-6">
 
-<h2 class="govuk-heading-l">@Model.PageContent.ListHeading</h2>
+<h2 class="govuk-heading-l">@learningTypeNamePlural.ApplyCase(LetterCasing.Sentence) this provider can deliver</h2>
 
-<p asp-show="Model.HasNoCourses" class="govuk-body">@Model.PageContent.EmptyListText</p>
-<p asp-show="Model.HasCourses" class="govuk-body">@AllowedCoursesPageContentModel.ListIntro</p>
+<p asp-show="Model.HasNoCourses" class="govuk-body">There are currently no @learningTypeNamePlural added to this list.</p>
+<p asp-show="Model.HasCourses" class="govuk-body">This is a list of what courses this provider can add to their account in Course management and offer in Find apprenticeship training.</p>
 
 <div asp-show="Model.HasCourses" class="govuk-grid-row govuk-!-margin-top-6">
     <div class="govuk-grid-column-two-thirds">
