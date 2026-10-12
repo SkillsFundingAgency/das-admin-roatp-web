@@ -31,7 +31,7 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
         SetupSession(sessionServiceMock);
         sut.SetupAuthenticatedUser();
         sut.AddTempData();
-        SetupUpsertResponse(outerApiClientMock, HttpStatusCode.OK);
+        SetupAddResponse(outerApiClientMock, HttpStatusCode.OK);
 
         var result = await sut.Index(Ukprn, CancellationToken.None) as RedirectToRouteResult;
 
@@ -45,14 +45,13 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
         }
 
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourse), Times.Once);
-        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
+        outerApiClientMock.Verify(c => c.AddRestrictedApprenticeship(
             Ukprn,
             LarsCode,
-            It.Is<UpsertProviderAllowedCourseRequest>(r =>
+            It.Is<AddRestrictedApprenticeshipRequest>(r =>
                 r.UserId == MockedUser.AuthenticatedUser.UserId()
                 && r.UserDisplayName == MockedUser.AuthenticatedUser.UserDisplayName()
-                && r.LastDateStarts == null
-                && r.IsStartRestricted),
+                && r.LastDateStarts == null),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -75,10 +74,10 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
             result.RouteValues!["ukprn"].Should().Be(Ukprn);
         }
 
-        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
+        outerApiClientMock.Verify(c => c.AddRestrictedApprenticeship(
             It.IsAny<int>(),
             It.IsAny<string>(),
-            It.IsAny<UpsertProviderAllowedCourseRequest>(),
+            It.IsAny<AddRestrictedApprenticeshipRequest>(),
             It.IsAny<CancellationToken>()), Times.Never);
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourse), Times.Never);
     }
@@ -91,7 +90,7 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
     {
         SetupSession(sessionServiceMock);
         sut.SetupAuthenticatedUser();
-        SetupUpsertResponse(outerApiClientMock, HttpStatusCode.NotFound);
+        SetupAddResponse(outerApiClientMock, HttpStatusCode.NotFound);
 
         var act = () => sut.Index(Ukprn, CancellationToken.None);
 
@@ -112,13 +111,13 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
             });
     }
 
-    private static void SetupUpsertResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
+    private static void SetupAddResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
     {
         outerApiClientMock
-            .Setup(c => c.UpsertProviderAllowedCourse(
+            .Setup(c => c.AddRestrictedApprenticeship(
                 Ukprn,
                 LarsCode,
-                It.IsAny<UpsertProviderAllowedCourseRequest>(),
+                It.IsAny<AddRestrictedApprenticeshipRequest>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(OuterApiResponse.Create<object>(statusCode, method: HttpMethod.Post));
     }
