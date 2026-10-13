@@ -9,5 +9,6 @@ public class GetCourseResponse
     public int Level { get; set; }
     public CourseType CourseType { get; set; }
     public LearningType LearningType { get; set; }
+    public DateTime? LastDateStarts { get; set; }
 }
 

@@ -32,13 +32,13 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingSetLastStartDate_AndLastStartDateExists_ThenPrepopulatesDateFields(
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Frozen] Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>> validatorMock,
         [Greedy] ChangeRestrictedCourseLastStartDateController sut)
     {
         SetupSession(sessionServiceMock, LastDateStarts);
         SetupEligibility(validatorMock);
-        SetupCourseLastDateStarts(outerApiClientMock);
+        SetupCourseLastDateStarts(coursesServiceMock);
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
 
@@ -78,13 +78,13 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingSetLastStartDate_AndLastStartDateDoesNotExist_ThenDateFieldsAreBlank(
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Frozen] Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>> validatorMock,
         [Greedy] ChangeRestrictedCourseLastStartDateController sut)
     {
         SetupSession(sessionServiceMock, lastDateStarts: null);
         SetupEligibility(validatorMock);
-        SetupCourseLastDateStarts(outerApiClientMock);
+        SetupCourseLastDateStarts(coursesServiceMock);
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
 
@@ -172,7 +172,7 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingSetLastStartDate_AndEligibilityIsInvalid_ThenReturnsNotFound(
+    public async Task WhenGettingSetLastStartDate_AndInvalidForLastStartDateChange_ThenReturnsNotFound(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>> validatorMock,
         [Greedy] ChangeRestrictedCourseLastStartDateController sut)
@@ -189,15 +189,17 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingSetLastStartDate_AndCourseLastDateStartsApiReturnsNotFound_ThenReturnsViewWithNullCourseLastDateStarts(
+    public async Task WhenGettingSetLastStartDate_AndCourseIsNotInCoursesList_ThenReturnsViewWithNullCourseLastDateStarts(
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Frozen] Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>> validatorMock,
         [Greedy] ChangeRestrictedCourseLastStartDateController sut)
     {
         SetupSession(sessionServiceMock, lastDateStarts: null);
         SetupEligibility(validatorMock);
-        SetupCourseLastDateStarts(outerApiClientMock, HttpStatusCode.NotFound);
+        coursesServiceMock
+            .Setup(c => c.GetCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GetCourseResponse?)null);
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
 
@@ -220,15 +222,21 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingSetLastStartDate_AndCourseLastDateStartsApiReturnsUnexpectedError_ThenThrows(
+    public async Task WhenGettingSetLastStartDate_AndGetCourseThrowsUnexpectedError_ThenThrows(
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Frozen] Mock<IValidator<ChangeRestrictedCourseRestrictionSessionModel>> validatorMock,
         [Greedy] ChangeRestrictedCourseLastStartDateController sut)
     {
         SetupSession(sessionServiceMock, lastDateStarts: null);
         SetupEligibility(validatorMock);
-        SetupCourseLastDateStarts(outerApiClientMock, HttpStatusCode.InternalServerError);
+        coursesServiceMock
+            .Setup(c => c.GetCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(await ApiException.Create(
+                new HttpRequestMessage(),
+                HttpMethod.Get,
+                new HttpResponseMessage(HttpStatusCode.InternalServerError),
+                new RefitSettings()));
 
         var act = () => sut.Index(Ukprn, LarsCode, CancellationToken.None);
 
@@ -269,22 +277,16 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
                 : new ValidationResult([new ValidationFailure("Ukprn", "invalid")]));
     }
 
-    private static void SetupCourseLastDateStarts(
-        Mock<IOuterApiClient> outerApiClientMock,
-        HttpStatusCode statusCode = HttpStatusCode.OK)
+    private static void SetupCourseLastDateStarts(Mock<ICoursesService> coursesServiceMock)
     {
-        outerApiClientMock
-            .Setup(c => c.GetAllowedProvidersForCourse(LarsCode, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(OuterApiResponse.Create(
-                statusCode,
-                new GetRestrictedCourseDetailsResponse
-                {
-                    LarsCode = LarsCode,
-                    IfateReferenceNumber = "ST0001",
-                    CourseName = "Electrical",
-                    Route = "Construction",
-                    LastDateStarts = CourseLastDateStarts
-                },
-                includeException: statusCode != HttpStatusCode.NotFound));
+        coursesServiceMock
+            .Setup(c => c.GetCourse(LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetCourseResponse
+            {
+                LarsCode = LarsCode,
+                Title = "Electrical",
+                Level = 3,
+                LastDateStarts = CourseLastDateStarts
+            });
     }
 }
