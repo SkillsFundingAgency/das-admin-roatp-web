@@ -16,6 +16,7 @@ namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageUnrestrictedProvider;
 public class AddRestrictedCourseLastStartDateController(
     ISessionService sessionService,
     IOuterApiClient outerApiClient,
+    ICoursesService coursesService,
     IValidator<SetLastDateStartsSubmitModel> validator) : Controller
 {
     public const string ViewPath = "~/Views/ManageUnrestrictedProvider/AddRestrictedCourseLastStartDate/Index.cshtml";
@@ -32,8 +33,8 @@ public class AddRestrictedCourseLastStartDateController(
             return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
         }
 
-        var courseDetails = await outerApiClient.GetCourseDetails(session.LarsCode, cancellationToken);
-        session.CourseLastDateStarts = courseDetails?.LastDateStarts;
+        var course = await coursesService.GetCourse(session.LarsCode, cancellationToken);
+        session.CourseLastDateStarts = course?.LastDateStarts;
         sessionService.Set(SessionKeys.ProviderRestrictedCourse, session);
 
         var model = BuildViewModel(session);
