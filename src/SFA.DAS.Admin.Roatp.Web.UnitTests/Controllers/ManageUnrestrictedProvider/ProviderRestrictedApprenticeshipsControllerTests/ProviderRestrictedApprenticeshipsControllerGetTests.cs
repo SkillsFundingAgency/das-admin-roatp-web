@@ -89,7 +89,6 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndProviderIsRestricted_ThenRedirectsToAllowedCourses(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         string providerName,
@@ -116,7 +115,6 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndTempDataContainsSuccessBanner_ThenModelHasSuccessBanner(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         GetRestrictedApprenticeshipsResponse response,
@@ -146,7 +144,6 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndUkprnServiceReturnsNoOrganisation_ThenReturnsNotFound(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         int ukprn)
@@ -170,7 +167,6 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndRestrictedApprenticeshipsAreNotFound_ThenRedirectsToNotFoundPage(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         string providerName,
@@ -192,7 +188,6 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndApiReturnsUnexpectedError_ThenThrows(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         string providerName,
@@ -214,7 +209,6 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndResponseContentIsNull_ThenReturnsViewWithNoCourses(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         string providerName,
@@ -241,7 +235,6 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndCoursesAreNull_ThenReturnsViewWithNoCourses(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         string providerName,
