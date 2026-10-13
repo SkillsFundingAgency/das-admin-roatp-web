@@ -174,8 +174,7 @@ public class ProviderRestrictedApprenticeshipsControllerFilterTests
         string providerName,
         GetRestrictedApprenticeshipsResponse response)
     {
-        sessionServiceMock.SetupProviderName(ukprn, providerName);
-        ukprnServiceMock.SetupOrganisationRestriction(ukprn, isRestricted: false);
+        ukprnServiceMock.SetupOrganisationRestriction(ukprn, isRestricted: false, legalName: providerName);
         sut.AddTempData();
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl)

@@ -29,12 +29,6 @@ public class ProviderRestrictedApprenticeshipsController(
     {
         sessionService.Delete(SessionKeys.RestrictedCourseChangeRestriction);
 
-        var providerName = await sessionService.GetProviderName(outerApiClient, ukprn, cancellationToken);
-        if (providerName is null)
-        {
-            return NotFound();
-        }
-
         var organisation = await ukprnService.GetOrganisationAsync(ukprn, cancellationToken);
         if (organisation is null)
         {
@@ -56,7 +50,7 @@ public class ProviderRestrictedApprenticeshipsController(
 
         var viewModel = new RestrictedApprenticeshipsViewModel
         {
-            ProviderName = providerName,
+            ProviderName = organisation.LegalName,
             BackLinkUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!,
             RestrictACourseUrl = Url.RouteUrl(RouteNames.ProviderRestrictedCourseSearch, new { ukprn })!,
             SuccessBannerMessage = TempData[SuccessBannerTempDataKey] as string,

@@ -288,8 +288,7 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
         string providerName,
         List<ProviderRestrictedApprenticeshipModel> courses)
     {
-        sessionServiceMock.SetupProviderName(ukprn, providerName);
-        ukprnServiceMock.SetupOrganisationRestriction(ukprn, isRestricted: false);
+        ukprnServiceMock.SetupOrganisationRestriction(ukprn, isRestricted: false, legalName: providerName);
         sut.AddTempData();
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl)
