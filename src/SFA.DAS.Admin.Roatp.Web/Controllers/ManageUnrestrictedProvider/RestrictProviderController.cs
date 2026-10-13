@@ -37,7 +37,6 @@ public class RestrictProviderController(
     }
 
     [HttpPost]
-    [ActionName(nameof(Index))]
     public async Task<IActionResult> IndexPost(int ukprn, CancellationToken cancellationToken)
     {
         var providerName = await sessionService.GetProviderName(outerApiClient, ukprn, cancellationToken);
@@ -46,6 +45,6 @@ public class RestrictProviderController(
             return NotFound();
         }
 
-        return RedirectToRoute(RouteNames.RestrictProvider, new { ukprn });
+        return RedirectToRoute(RouteNames.ConfirmRestrictProvider, new { ukprn });
     }
 }

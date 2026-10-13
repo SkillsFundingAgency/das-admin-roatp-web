@@ -17,6 +17,7 @@ public class ProviderAllowedCoursesController(
     IUkprnService ukprnService) : Controller
 {
     public const string ViewPath = "~/Views/ManageRestrictedProvider/ProviderAllowedCourses/Index.cshtml";
+    public const string SuccessBannerTempDataKey = "SuccessBannerMessage";
 
     [HttpGet]
     public async Task<IActionResult> Index(
@@ -68,7 +69,8 @@ public class ProviderAllowedCoursesController(
             BackLinkUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!,
             AddUrl = pageUrl,
             TotalCount = courses.Count,
-            Courses = courses
+            Courses = courses,
+            SuccessBannerMessage = TempData?[SuccessBannerTempDataKey] as string
         };
 
         return View(ViewPath, viewModel);

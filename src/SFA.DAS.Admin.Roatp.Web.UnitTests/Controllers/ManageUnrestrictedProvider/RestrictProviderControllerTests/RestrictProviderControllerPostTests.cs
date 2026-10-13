@@ -20,7 +20,7 @@ public class RestrictProviderControllerPostTests
     private const string ProviderName = "Denton Business Services Limited";
 
     [Test, MoqAutoData]
-    public async Task WhenPostingRestrictProvider_ThenRefreshesPage(
+    public async Task WhenPostingRestrictProvider_ThenRedirectsToConfirm(
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] RestrictProviderController sut)
     {
@@ -31,7 +31,7 @@ public class RestrictProviderControllerPostTests
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result!.RouteName.Should().Be(RouteNames.RestrictProvider);
+            result!.RouteName.Should().Be(RouteNames.ConfirmRestrictProvider);
             result.RouteValues!["ukprn"].Should().Be(Ukprn);
         }
     }

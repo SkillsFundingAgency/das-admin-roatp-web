@@ -58,6 +58,7 @@ public class ProviderAllowedCoursesControllerGetTests
                 DeliveryStatus.ClosedToNewStarts);
             model.Courses.Should().OnlyContain(course => course.ChangeUrl == AllowedCoursesUrl);
             model.TotalCountDescription.Should().Be("2 courses");
+            model.HasSuccessBanner.Should().BeFalse();
         }
 
         outerApiClientMock.Verify(
@@ -118,6 +119,32 @@ public class ProviderAllowedCoursesControllerGetTests
         outerApiClientMock.Verify(
             c => c.GetAllowedCourses(Ukprn, CourseType.ShortCourse, It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingAllowedCourses_AndTempDataContainsSuccessBanner_ThenModelHasSuccessBanner(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Greedy] ProviderAllowedCoursesController sut)
+    {
+        const string successMessage = "This training provider can now only deliver approved courses";
+        SetupRestrictedProvider(
+            ukprnServiceMock,
+            outerApiClientMock,
+            new GetAllowedCoursesResponse { AllowedCourses = [] });
+        SetupUrlHelper(sut);
+        sut.AddTempData();
+        sut.TempData[ProviderAllowedCoursesController.SuccessBannerTempDataKey] = successMessage;
+
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, CancellationToken.None) as ViewResult;
+        var model = result?.Model as AllowedCoursesViewModel;
+
+        using (new AssertionScope())
+        {
+            model.Should().NotBeNull();
+            model!.SuccessBannerMessage.Should().Be(successMessage);
+            model.HasSuccessBanner.Should().BeTrue();
+        }
     }
 
     [Test, MoqAutoData]
