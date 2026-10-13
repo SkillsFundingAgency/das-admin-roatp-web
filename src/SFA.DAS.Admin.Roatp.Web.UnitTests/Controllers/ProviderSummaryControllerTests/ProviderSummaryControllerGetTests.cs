@@ -49,6 +49,7 @@ public class ProviderSummaryControllerGetTests
         string organisationTypeUpdateLink,
         string apprenticeshipUnitsUpdateLink,
         string providerSummaryLink,
+        string restrictProviderLink,
         string providerRestrictedCoursesLink,
         string providerAllowedCoursesLink,
         string providerAllowedUnitsLink,
@@ -66,6 +67,7 @@ public class ProviderSummaryControllerGetTests
             .AddUrlForRoute(RouteNames.OrganisationTypeUpdate, organisationTypeUpdateLink)
             .AddUrlForRoute(RouteNames.ApprenticeshipUnitsUpdate, apprenticeshipUnitsUpdateLink)
             .AddUrlForRoute(RouteNames.ProviderSummary, providerSummaryLink)
+            .AddUrlForRoute(RouteNames.RestrictProvider, restrictProviderLink)
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, providerRestrictedCoursesLink);
 
         urlHelperMock
@@ -95,7 +97,7 @@ public class ProviderSummaryControllerGetTests
             model.OffersApprenticeshipUnitsChangeLink.Should().Be(apprenticeshipUnitsUpdateLink);
             model.ManageRestrictedCoursesUrl.Should().Be(providerRestrictedCoursesLink);
             model.ManageApprovedCoursesUrl.Should().Be(providerAllowedCoursesLink);
-            model.ChangeHowWeManageThisProviderUrl.Should().Be(providerSummaryLink);
+            model.ChangeHowWeManageThisProviderUrl.Should().Be(restrictProviderLink);
             model.ManageApprovedUnitsUrl.Should().Be(providerAllowedUnitsLink);
         }
 
