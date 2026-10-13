@@ -20,20 +20,12 @@ public static class ControllerExtensions
     public static Mock<IUrlHelper> AddUrlForRoute(
         this Mock<IUrlHelper> urlHelperMock,
         string routeName,
-        string url = TestUrl,
-        Func<UrlRouteContext, bool>? match = null)
+        string url = TestUrl)
     {
         urlHelperMock
-            .Setup(m => m.RouteUrl(It.Is<UrlRouteContext>(c =>
-                c.RouteName!.Equals(routeName) && (match == null || match(c)))))
+            .Setup(m => m.RouteUrl(It.Is<UrlRouteContext>(c => c.RouteName!.Equals(routeName))))
             .Returns(url);
         return urlHelperMock;
-    }
-
-    public static bool HasRouteValue(this UrlRouteContext context, string name, object expected)
-    {
-        var value = context.Values?.GetType().GetProperty(name)?.GetValue(context.Values);
-        return Equals(value, expected);
     }
 
     public static Controller SetupAuthenticatedUser(this Controller sut)

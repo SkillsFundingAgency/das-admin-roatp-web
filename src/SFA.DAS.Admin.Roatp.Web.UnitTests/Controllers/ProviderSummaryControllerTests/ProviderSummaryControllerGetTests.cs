@@ -3,6 +3,7 @@ using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using Refit;
 using SFA.DAS.Admin.Roatp.Domain.Models;
@@ -58,16 +59,23 @@ public class ProviderSummaryControllerGetTests
         getOrganisationResponse.Ukprn = ukprn;
         _editOrganisationSessionModel.Ukprn = ukprn;
         sessionServiceMock.SetupProviderNameMissing();
-        sut.AddUrlHelperMock()
+        var urlHelperMock = sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.SelectProvider, selectOrganisationLink)
             .AddUrlForRoute(RouteNames.ProviderStatusUpdate, providerStatusUpdateLink)
             .AddUrlForRoute(RouteNames.ProviderTypeUpdate, providerTypeUpdateLink)
             .AddUrlForRoute(RouteNames.OrganisationTypeUpdate, organisationTypeUpdateLink)
             .AddUrlForRoute(RouteNames.ApprenticeshipUnitsUpdate, apprenticeshipUnitsUpdateLink)
             .AddUrlForRoute(RouteNames.ProviderSummary, providerSummaryLink)
-            .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, providerRestrictedCoursesLink)
-            .AddUrlForRoute(RouteNames.ProviderAllowedCourses, providerAllowedCoursesLink, context => context.HasRouteValue("routeLearningType", RouteLearningType.Apprenticeship))
-            .AddUrlForRoute(RouteNames.ProviderAllowedCourses, providerAllowedUnitsLink, context => context.HasRouteValue("routeLearningType", RouteLearningType.ApprenticeshipUnit));
+            .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, providerRestrictedCoursesLink);
+
+        urlHelperMock
+            .Setup(m => m.RouteUrl(It.Is<UrlRouteContext>(c =>
+                HasRouteLearningType(c, RouteLearningType.Apprenticeship))))
+            .Returns(providerAllowedCoursesLink);
+        urlHelperMock
+            .Setup(m => m.RouteUrl(It.Is<UrlRouteContext>(c =>
+                HasRouteLearningType(c, RouteLearningType.ApprenticeshipUnit))))
+            .Returns(providerAllowedUnitsLink);
 
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
@@ -95,4 +103,10 @@ public class ProviderSummaryControllerGetTests
             SessionKeys.ProviderNames,
             It.Is<Dictionary<int, string>>(d => d[ukprn] == getOrganisationResponse.LegalName)), Times.Once);
     }
+
+    private static bool HasRouteLearningType(UrlRouteContext context, RouteLearningType routeLearningType)
+        => context.RouteName!.Equals(RouteNames.ProviderAllowedCourses)
+           && Equals(
+               context.Values?.GetType().GetProperty("routeLearningType")?.GetValue(context.Values),
+               routeLearningType);
 }
