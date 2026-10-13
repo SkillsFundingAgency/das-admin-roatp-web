@@ -41,15 +41,14 @@ public class ConfirmProviderRestrictedCourseController(
             return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
         }
 
-        var response = await outerApiClient.UpsertProviderAllowedCourse(
+        var response = await outerApiClient.AddRestrictedApprenticeship(
             ukprn,
             session.LarsCode,
-            new UpsertProviderAllowedCourseRequest
+            new AddRestrictedApprenticeshipRequest
             {
                 UserId = User.UserId(),
                 UserDisplayName = User.UserDisplayName(),
-                LastDateStarts = null,
-                IsStartRestricted = true
+                LastDateStarts = null
             },
             cancellationToken);
 
