@@ -19,7 +19,7 @@ public class ProviderRestrictedCourseSearchController(
     IOuterApiClient outerApiClient,
     ISessionService sessionService,
     IValidator<ProviderRestrictedCourseSearchSubmitModel> validator,
-    IApplicationCacheService applicationCacheService) : Controller
+    ICoursesService coursesService) : Controller
 {
     public const string ViewPath = "~/Views/ManageUnrestrictedProvider/ProviderRestrictedCourseSearch/Index.cshtml";
 
@@ -51,7 +51,7 @@ public class ProviderRestrictedCourseSearchController(
             return View(ViewPath, BuildViewModel(ukprn, coursesResponse?.Courses ?? []));
         }
 
-        var course = await GetCourse(submitModel.SelectedLarsCode!, cancellationToken);
+        var course = await coursesService.GetCourse(submitModel.SelectedLarsCode!, cancellationToken);
         if (course is null)
         {
             return NotFound();
@@ -78,32 +78,6 @@ public class ProviderRestrictedCourseSearchController(
                 ? RouteNames.AddRestrictedCourseLastStartDate
                 : RouteNames.ConfirmProviderRestrictedCourse,
             new { ukprn });
-    }
-
-    private async Task<GetCourseResponse?> GetCourse(
-        string larsCode,
-        CancellationToken cancellationToken)
-    {
-        var courses = await GetCourses(cancellationToken);
-        return courses.FirstOrDefault(course => course.LarsCode == larsCode);
-    }
-
-    private async Task<List<GetCourseResponse>> GetCourses(CancellationToken cancellationToken)
-    {
-        var cached = await applicationCacheService.GetAsync<GetCoursesResponse>(ApplicationCacheKeys.CoursesCacheKey, cancellationToken);
-        if (cached is not null)
-        {
-            return cached.Courses;
-        }
-
-        var response = await outerApiClient.GetCourses(cancellationToken);
-        await response.EnsureSuccessStatusCodeAsync();
-        if (response.Content is not null)
-        {
-            await applicationCacheService.SetAsync(ApplicationCacheKeys.CoursesCacheKey, response.Content, cancellationToken: cancellationToken);
-        }
-
-        return response.Content?.Courses ?? [];
     }
 
     private async Task<bool> HasProviderCourse(
