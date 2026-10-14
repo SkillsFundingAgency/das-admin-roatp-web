@@ -28,13 +28,11 @@ public class ConfirmRestrictProviderController(
             return NotFound();
         }
 
-        var organisationDetailsUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!;
         var viewModel = new ConfirmRestrictProviderViewModel
         {
             Ukprn = ukprn,
             ProviderName = providerName,
-            CancelUrl = organisationDetailsUrl,
-            BackLinkUrl = organisationDetailsUrl
+            CancelUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!
         };
 
         return View(ViewPath, viewModel);

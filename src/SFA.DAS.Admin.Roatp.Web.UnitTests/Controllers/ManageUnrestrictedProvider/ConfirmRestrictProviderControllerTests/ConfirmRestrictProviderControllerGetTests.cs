@@ -41,8 +41,6 @@ public class ConfirmRestrictProviderControllerGetTests
             model!.Ukprn.Should().Be(Ukprn);
             model.ProviderName.Should().Be(ProviderName);
             model.CancelUrl.Should().Be(ProviderSummaryUrl);
-            model.BackLinkUrl.Should().Be(ProviderSummaryUrl);
-            model.BackLinkText.Should().Be(ConfirmRestrictProviderViewModel.BackLinkTextValue);
         }
     }
 
