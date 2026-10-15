@@ -36,6 +36,36 @@ public class EnumExtensionsLearningTypeTests
         ((LearningType)999).GetTagClass().Should().BeEmpty();
     }
 
+    [TestCase(LearningType.Apprenticeship, RouteLearningType.Apprenticeship)]
+    [TestCase(LearningType.FoundationApprenticeship, RouteLearningType.Apprenticeship)]
+    [TestCase(LearningType.ApprenticeshipUnit, RouteLearningType.ApprenticeshipUnit)]
+    public void ToRouteLearningType_ReturnsExpectedRouteLearningType(LearningType learningType, RouteLearningType expected)
+    {
+        learningType.ToRouteLearningType().Should().Be(expected);
+    }
+
+    [TestCase(LearningType.Apprenticeship, CourseType.Apprenticeship)]
+    [TestCase(LearningType.FoundationApprenticeship, CourseType.Apprenticeship)]
+    [TestCase(LearningType.ApprenticeshipUnit, CourseType.ShortCourse)]
+    public void ToCourseType_ReturnsExpectedCourseType(LearningType learningType, CourseType expected)
+    {
+        learningType.ToCourseType().Should().Be(expected);
+    }
+
+    [TestCase(RouteLearningType.Apprenticeship, "Apprenticeship")]
+    [TestCase(RouteLearningType.ApprenticeshipUnit, "Apprenticeship unit")]
+    public void GetDescription_ReturnsExpectedDescription_ForRouteLearningType(RouteLearningType routeLearningType, string expected)
+    {
+        routeLearningType.GetDescription().Should().Be(expected);
+    }
+
+    [TestCase(RouteLearningType.Apprenticeship, CourseType.Apprenticeship)]
+    [TestCase(RouteLearningType.ApprenticeshipUnit, CourseType.ShortCourse)]
+    public void ToCourseType_ReturnsExpectedCourseType_ForRouteLearningType(RouteLearningType routeLearningType, CourseType expected)
+    {
+        routeLearningType.ToCourseType().Should().Be(expected);
+    }
+
     private enum TestEnum
     {
         [Description("Described")]

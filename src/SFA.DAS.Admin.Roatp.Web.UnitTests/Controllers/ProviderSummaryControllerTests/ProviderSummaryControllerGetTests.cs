@@ -3,6 +3,7 @@ using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using Refit;
 using SFA.DAS.Admin.Roatp.Domain.Models;
@@ -49,6 +50,8 @@ public class ProviderSummaryControllerGetTests
         string apprenticeshipUnitsUpdateLink,
         string providerSummaryLink,
         string providerRestrictedCoursesLink,
+        string providerAllowedCoursesLink,
+        string providerAllowedUnitsLink,
         GetOrganisationResponse getOrganisationResponse,
         int ukprn,
         CancellationToken cancellationToken)
@@ -56,7 +59,7 @@ public class ProviderSummaryControllerGetTests
         getOrganisationResponse.Ukprn = ukprn;
         _editOrganisationSessionModel.Ukprn = ukprn;
         sessionServiceMock.SetupProviderNameMissing();
-        sut.AddUrlHelperMock()
+        var urlHelperMock = sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.SelectProvider, selectOrganisationLink)
             .AddUrlForRoute(RouteNames.ProviderStatusUpdate, providerStatusUpdateLink)
             .AddUrlForRoute(RouteNames.ProviderTypeUpdate, providerTypeUpdateLink)
@@ -64,6 +67,15 @@ public class ProviderSummaryControllerGetTests
             .AddUrlForRoute(RouteNames.ApprenticeshipUnitsUpdate, apprenticeshipUnitsUpdateLink)
             .AddUrlForRoute(RouteNames.ProviderSummary, providerSummaryLink)
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, providerRestrictedCoursesLink);
+
+        urlHelperMock
+            .Setup(m => m.RouteUrl(It.Is<UrlRouteContext>(c =>
+                HasRouteLearningType(c, RouteLearningType.Apprenticeship))))
+            .Returns(providerAllowedCoursesLink);
+        urlHelperMock
+            .Setup(m => m.RouteUrl(It.Is<UrlRouteContext>(c =>
+                HasRouteLearningType(c, RouteLearningType.ApprenticeshipUnit))))
+            .Returns(providerAllowedUnitsLink);
 
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
@@ -82,13 +94,19 @@ public class ProviderSummaryControllerGetTests
             model.OrganisationTypeChangeLink.Should().Be(organisationTypeUpdateLink);
             model.OffersApprenticeshipUnitsChangeLink.Should().Be(apprenticeshipUnitsUpdateLink);
             model.ManageRestrictedCoursesUrl.Should().Be(providerRestrictedCoursesLink);
-            model.ManageApprovedCoursesUrl.Should().Be(providerSummaryLink);
+            model.ManageApprovedCoursesUrl.Should().Be(providerAllowedCoursesLink);
             model.ChangeHowWeManageThisProviderUrl.Should().Be(providerSummaryLink);
-            model.ManageApprovedUnitsUrl.Should().Be(providerSummaryLink);
+            model.ManageApprovedUnitsUrl.Should().Be(providerAllowedUnitsLink);
         }
 
         sessionServiceMock.Verify(s => s.Set(
             SessionKeys.ProviderNames,
             It.Is<Dictionary<int, string>>(d => d[ukprn] == getOrganisationResponse.LegalName)), Times.Once);
     }
+
+    private static bool HasRouteLearningType(UrlRouteContext context, RouteLearningType routeLearningType)
+        => context.RouteName!.Equals(RouteNames.ProviderAllowedCourses)
+           && Equals(
+               context.Values?.GetType().GetProperty("routeLearningType")?.GetValue(context.Values),
+               routeLearningType);
 }

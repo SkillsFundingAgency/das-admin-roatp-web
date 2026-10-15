@@ -14,6 +14,19 @@ public static class EnumExtensions
                 .Description ?? string.Empty;
     }
 
+    public static RouteLearningType ToRouteLearningType(this LearningType learningType)
+        => learningType == LearningType.ApprenticeshipUnit
+            ? RouteLearningType.ApprenticeshipUnit
+            : RouteLearningType.Apprenticeship;
+
+    public static CourseType ToCourseType(this RouteLearningType routeLearningType)
+        => routeLearningType == RouteLearningType.ApprenticeshipUnit
+            ? CourseType.ShortCourse
+            : CourseType.Apprenticeship;
+
+    public static CourseType ToCourseType(this LearningType learningType)
+        => learningType.ToRouteLearningType().ToCourseType();
+
     public static string GetTagClass(this LearningType learningType)
     {
         return learningType switch
@@ -59,5 +72,18 @@ public static class EnumExtensions
         return lastDateStarts.HasValue
             ? DeliveryStatus.LastStartDateAdded
             : DeliveryStatus.OpenToNewStarts;
+    }
+
+    public static DeliveryStatus ToAllowedCourseDeliveryStatus(
+        this DateTime? lastDateStarts,
+        bool isClosedToNewStarts,
+        DateTime? today = null)
+    {
+        if (isClosedToNewStarts)
+        {
+            return DeliveryStatus.ClosedToNewStarts;
+        }
+
+        return lastDateStarts.ToDeliveryStatus(today);
     }
 }

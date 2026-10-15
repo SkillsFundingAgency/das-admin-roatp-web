@@ -68,4 +68,26 @@ public class EnumExtensionsDeliveryStatusTests
         DateTime? lastDateStarts = new DateTime(2026, 7, 28, 0, 0, 0, DateTimeKind.Unspecified);
         lastDateStarts.ToDeliveryStatus(isClosedToNewStarts: false).Should().Be(DeliveryStatus.LastStartDateAdded);
     }
+
+    [Test]
+    public void WhenConvertingToAllowedCourseDeliveryStatus_AndNotClosedWithNoDate_ThenReturnsOpenToNewStarts()
+    {
+        ((DateTime?)null).ToAllowedCourseDeliveryStatus(isClosedToNewStarts: false).Should().Be(DeliveryStatus.OpenToNewStarts);
+    }
+
+    [Test]
+    public void WhenConvertingToAllowedCourseDeliveryStatus_AndNotClosedWithFutureDate_ThenReturnsLastStartDateAdded()
+    {
+        var today = new DateTime(2026, 7, 27, 0, 0, 0, DateTimeKind.Unspecified);
+        DateTime? futureDate = today.AddDays(1);
+        futureDate.ToAllowedCourseDeliveryStatus(isClosedToNewStarts: false, today).Should().Be(DeliveryStatus.LastStartDateAdded);
+    }
+
+    [Test]
+    public void WhenConvertingToAllowedCourseDeliveryStatus_AndIsClosedToNewStarts_ThenReturnsClosedToNewStarts()
+    {
+        var today = new DateTime(2026, 7, 27, 0, 0, 0, DateTimeKind.Unspecified);
+        DateTime? futureDate = today.AddDays(1);
+        futureDate.ToAllowedCourseDeliveryStatus(isClosedToNewStarts: true, today).Should().Be(DeliveryStatus.ClosedToNewStarts);
+    }
 }

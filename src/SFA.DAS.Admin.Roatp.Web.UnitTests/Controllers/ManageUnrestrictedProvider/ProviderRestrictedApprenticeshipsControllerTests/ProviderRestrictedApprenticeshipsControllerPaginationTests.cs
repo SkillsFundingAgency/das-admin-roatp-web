@@ -26,12 +26,12 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndMoreThanTenCourses_ThenReturnsFirstPageOfTen(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
-        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, CreateCourses(15));
+        SetupController(sut, outerApiClientMock, ukprnServiceMock, ukprn, providerName, CreateCourses(15));
 
         var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
@@ -51,12 +51,12 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndPageNumberIsTwo_ThenReturnsSecondPage(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
-        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, CreateCourses(15));
+        SetupController(sut, outerApiClientMock, ukprnServiceMock, ukprn, providerName, CreateCourses(15));
 
         var result = await sut.Index(
             ukprn,
@@ -79,12 +79,12 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndTenOrFewerCourses_ThenDoesNotShowPagination(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
-        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, CreateCourses(10));
+        SetupController(sut, outerApiClientMock, ukprnServiceMock, ukprn, providerName, CreateCourses(10));
 
         var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
@@ -99,12 +99,12 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndPageNumberIsLessThanOne_ThenReturnsFirstPage(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
-        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, CreateCourses(15));
+        SetupController(sut, outerApiClientMock, ukprnServiceMock, ukprn, providerName, CreateCourses(15));
 
         var result = await sut.Index(
             ukprn,
@@ -124,12 +124,12 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndPageNumberExceedsTotalPages_ThenReturnsLastPage(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
-        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, CreateCourses(15));
+        SetupController(sut, outerApiClientMock, ukprnServiceMock, ukprn, providerName, CreateCourses(15));
 
         var result = await sut.Index(
             ukprn,
@@ -150,12 +150,12 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndFiltersApplied_ThenPaginationLinksPreserveFilters(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
-        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, CreateCourses(15));
+        SetupController(sut, outerApiClientMock, ukprnServiceMock, ukprn, providerName, CreateCourses(15));
 
         var result = await sut.Index(
             ukprn,
@@ -182,12 +182,12 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndMoreThanSixPages_ThenShowsAtMostSixPageLinks(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
-        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, CreateCourses(70));
+        SetupController(sut, outerApiClientMock, ukprnServiceMock, ukprn, providerName, CreateCourses(70));
 
         var result = await sut.Index(
             ukprn,
@@ -212,12 +212,12 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndOnFirstPageOfMany_ThenCurrentPageIsNotCentred(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
-        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, CreateCourses(70));
+        SetupController(sut, outerApiClientMock, ukprnServiceMock, ukprn, providerName, CreateCourses(70));
 
         var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
@@ -241,12 +241,12 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
     [Test, MoqAutoData]
     public async Task WhenGettingRestrictedApprenticeships_AndOnLastPageOfMany_ThenCurrentPageIsNotCentred(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] ProviderRestrictedApprenticeshipsController sut,
         string providerName,
         int ukprn)
     {
-        SetupController(sut, outerApiClientMock, sessionServiceMock, ukprn, providerName, CreateCourses(70));
+        SetupController(sut, outerApiClientMock, ukprnServiceMock, ukprn, providerName, CreateCourses(70));
 
         var result = await sut.Index(
             ukprn,
@@ -273,12 +273,12 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
     private static void SetupController(
         ProviderRestrictedApprenticeshipsController sut,
         Mock<IOuterApiClient> outerApiClientMock,
-        Mock<ISessionService> sessionServiceMock,
+        Mock<IUkprnService> ukprnServiceMock,
         int ukprn,
         string providerName,
         List<ProviderRestrictedApprenticeshipModel> courses)
     {
-        sessionServiceMock.SetupProviderName(ukprn, providerName);
+        ukprnServiceMock.SetupOrganisationRestriction(ukprn, isRestricted: false, legalName: providerName);
         sut.AddTempData();
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl)
