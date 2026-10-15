@@ -71,4 +71,23 @@ public class AllowedCoursesViewModelTests
             model.IsApprenticeship.Should().BeFalse();
         }
     }
+
+    [Test]
+    public void WhenSuccessBannerMessageIsSet_ThenHasSuccessBannerIsTrue()
+    {
+        var model = new AllowedCoursesViewModel
+        {
+            SuccessBannerMessage = "Electrical (Level 3) added to approved list"
+        };
+
+        model.HasSuccessBanner.Should().BeTrue();
+    }
+
+    [Test]
+    public void WhenSuccessBannerMessageIsBlank_ThenHasSuccessBannerIsFalse()
+    {
+        var model = new AllowedCoursesViewModel();
+
+        model.HasSuccessBanner.Should().BeFalse();
+    }
 }

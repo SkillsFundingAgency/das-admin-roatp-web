@@ -18,6 +18,8 @@ public class AllowedCoursesViewModel : ICustomBackLink
     public bool HasCourses => TotalCount > 0;
     public bool HasNoCourses => !HasCourses;
     public string TotalCountDescription => "course".ToQuantity(TotalCount);
+    public string? SuccessBannerMessage { get; set; }
+    public bool HasSuccessBanner => !string.IsNullOrWhiteSpace(SuccessBannerMessage);
 
     public bool IsApprenticeship => RouteLearningType == RouteLearningType.Apprenticeship;
     public bool IsApprenticeshipUnit => RouteLearningType == RouteLearningType.ApprenticeshipUnit;

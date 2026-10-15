@@ -24,6 +24,7 @@ public class ProviderAllowedCoursesControllerGetTests
     private const string ProviderName = "Denton Business Services Limited";
     private const string ProviderSummaryUrl = "/providers/10019900";
     private const string AllowedCoursesUrl = "/providers/10019900/Apprenticeship/allowed-courses";
+    private const string AddAllowedCourseUrl = "/providers/10019900/Apprenticeship/allowed-courses/add";
 
     [Test, MoqAutoData]
     public async Task WhenGettingAllowedCourses_AndProviderIsRestricted_ThenReturnsViewWithMappedModel(
@@ -46,7 +47,7 @@ public class ProviderAllowedCoursesControllerGetTests
             model!.ProviderName.Should().Be(ProviderName);
             model.BackLinkUrl.Should().Be(ProviderSummaryUrl);
             model.BackLinkText.Should().Be(AllowedCoursesViewModel.BackLinkTextValue);
-            model.AddUrl.Should().Be(AllowedCoursesUrl);
+            model.AddUrl.Should().Be(AddAllowedCourseUrl);
             model.RouteLearningType.Should().Be(RouteLearningType.Apprenticeship);
             model.IsApprenticeship.Should().BeTrue();
             model.IsApprenticeshipUnit.Should().BeFalse();
@@ -58,6 +59,7 @@ public class ProviderAllowedCoursesControllerGetTests
                 DeliveryStatus.ClosedToNewStarts);
             model.Courses.Should().OnlyContain(course => course.ChangeUrl == AllowedCoursesUrl);
             model.TotalCountDescription.Should().Be("2 courses");
+            model.HasSuccessBanner.Should().BeFalse();
         }
 
         outerApiClientMock.Verify(
@@ -118,6 +120,32 @@ public class ProviderAllowedCoursesControllerGetTests
         outerApiClientMock.Verify(
             c => c.GetAllowedCourses(Ukprn, CourseType.ShortCourse, It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingAllowedCourses_AndTempDataContainsSuccessBanner_ThenModelHasSuccessBanner(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Greedy] ProviderAllowedCoursesController sut)
+    {
+        const string successMessage = "Electrical (Level 3) added to approved list";
+        SetupRestrictedProvider(
+            ukprnServiceMock,
+            outerApiClientMock,
+            new GetAllowedCoursesResponse { AllowedCourses = [] });
+        SetupUrlHelper(sut);
+        sut.AddTempData();
+        sut.TempData[ProviderAllowedCoursesController.SuccessBannerTempDataKey] = successMessage;
+
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, CancellationToken.None) as ViewResult;
+        var model = result?.Model as AllowedCoursesViewModel;
+
+        using (new AssertionScope())
+        {
+            model.Should().NotBeNull();
+            model!.SuccessBannerMessage.Should().Be(successMessage);
+            model.HasSuccessBanner.Should().BeTrue();
+        }
     }
 
     [Test, MoqAutoData]
@@ -265,7 +293,8 @@ public class ProviderAllowedCoursesControllerGetTests
     {
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl)
-            .AddUrlForRoute(RouteNames.ProviderAllowedCourses, AllowedCoursesUrl);
+            .AddUrlForRoute(RouteNames.ProviderAllowedCourses, AllowedCoursesUrl)
+            .AddUrlForRoute(RouteNames.AddAllowedCourse, AddAllowedCourseUrl);
     }
 
     private static void SetupRestrictedProvider(

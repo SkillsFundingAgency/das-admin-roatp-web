@@ -17,6 +17,7 @@ public class ProviderAllowedCoursesController(
     IUkprnService ukprnService) : Controller
 {
     public const string ViewPath = "~/Views/ManageRestrictedProvider/ProviderAllowedCourses/Index.cshtml";
+    public const string SuccessBannerTempDataKey = "SuccessBannerMessage";
 
     [HttpGet]
     public async Task<IActionResult> Index(
@@ -48,8 +49,7 @@ public class ProviderAllowedCoursesController(
         }
 
         var pageUrl = Url.RouteUrl(RouteNames.ProviderAllowedCourses, new { ukprn, routeLearningType })!;
-
-        var courses = (coursesResponse.AllowedCourses ?? [])
+        var allowedCourses = (coursesResponse.AllowedCourses ?? [])
             .OrderBy(
                 course => CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level),
                 StringComparer.OrdinalIgnoreCase)
@@ -66,9 +66,10 @@ public class ProviderAllowedCoursesController(
             RouteLearningType = routeLearningType,
             ProviderName = organisation.LegalName,
             BackLinkUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!,
-            AddUrl = pageUrl,
-            TotalCount = courses.Count,
-            Courses = courses
+            AddUrl = Url.RouteUrl(RouteNames.AddAllowedCourse, new { ukprn, routeLearningType })!,
+            TotalCount = allowedCourses.Count,
+            Courses = allowedCourses,
+            SuccessBannerMessage = TempData?[SuccessBannerTempDataKey] as string
         };
 
         return View(ViewPath, viewModel);
