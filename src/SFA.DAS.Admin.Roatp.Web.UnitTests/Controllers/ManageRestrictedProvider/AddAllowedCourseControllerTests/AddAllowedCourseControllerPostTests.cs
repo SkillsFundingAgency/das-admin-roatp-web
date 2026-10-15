@@ -76,6 +76,48 @@ public class AddAllowedCourseControllerPostTests
     }
 
     [Test, MoqAutoData]
+    public async Task WhenPostingAddAllowedCourse_AndRouteLearningTypeIsApprenticeshipUnit_ThenRedirectsToAllowedCourses(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ICoursesService> coursesServiceMock,
+        [Frozen] Mock<IValidator<AddAllowedCourseSubmitModel>> validator,
+        [Greedy] AddAllowedCourseController sut)
+    {
+        const string unitTitle = "Permanent modular building assembly - Apprenticeship unit";
+        const int unitLevel = 4;
+        SetupGetCourse(coursesServiceMock, unitTitle, unitLevel);
+        SetupUpsertResponse(outerApiClientMock, HttpStatusCode.OK);
+        validator.Setup(x => x.Validate(It.IsAny<AddAllowedCourseSubmitModel>()))
+            .Returns(new ValidationResult());
+        sut.SetupAuthenticatedUser();
+        sut.AddTempData();
+
+        var result = await sut.Index(
+            Ukprn,
+            RouteLearningType.ApprenticeshipUnit,
+            new AddAllowedCourseSubmitModel { SelectedLarsCode = SelectedLarsCode },
+            CancellationToken.None) as RedirectToRouteResult;
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.RouteName.Should().Be(RouteNames.ProviderAllowedCourses);
+            result.RouteValues!["ukprn"].Should().Be(Ukprn);
+            result.RouteValues["routeLearningType"].Should().Be(RouteLearningType.ApprenticeshipUnit);
+            sut.TempData[ProviderAllowedCoursesController.SuccessBannerTempDataKey]
+                .Should().Be(AddAllowedCourseController.GetSuccessBannerMessage(
+                    CourseDisplayModelExtensions.GetDisplayTitle(unitTitle, unitLevel)));
+        }
+
+        outerApiClientMock.Verify(c => c.UpsertProviderAllowedCourse(
+            Ukprn,
+            SelectedLarsCode,
+            It.Is<UpsertProviderAllowedCourseRequest>(r =>
+                r.LastDateStarts == null
+                && !r.IsStartRestricted),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Test, MoqAutoData]
     public async Task WhenPostingAddAllowedCourse_AndNoCourseSelected_ThenReturnsViewWithValidationError(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
@@ -296,15 +338,18 @@ public class AddAllowedCourseControllerPostTests
             ]));
     }
 
-    private static void SetupGetCourse(Mock<ICoursesService> coursesServiceMock)
+    private static void SetupGetCourse(
+        Mock<ICoursesService> coursesServiceMock,
+        string title = SelectedCourseTitle,
+        int level = SelectedCourseLevel)
     {
         coursesServiceMock
             .Setup(c => c.GetCourse(SelectedLarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetCourseResponse
             {
                 LarsCode = SelectedLarsCode,
-                Title = SelectedCourseTitle,
-                Level = SelectedCourseLevel
+                Title = title,
+                Level = level
             });
     }
 

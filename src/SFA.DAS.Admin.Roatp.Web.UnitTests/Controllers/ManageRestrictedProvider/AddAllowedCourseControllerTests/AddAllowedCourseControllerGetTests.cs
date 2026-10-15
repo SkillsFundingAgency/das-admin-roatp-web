@@ -3,6 +3,7 @@ using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using Refit;
 using SFA.DAS.Admin.Roatp.Domain.Models;
@@ -61,17 +62,19 @@ public class AddAllowedCourseControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingAddAllowedCourse_AndRouteLearningTypeIsApprenticeshipUnit_ThenCallsOuterApiWithShortCourse(
+    public async Task WhenGettingAddAllowedCourse_AndRouteLearningTypeIsApprenticeshipUnit_ThenReturnsViewWithMappedModel(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] AddAllowedCourseController sut)
     {
+        const string allowedUnitsUrl = "/providers/10019900/ApprenticeshipUnit/allowed-courses";
         SetupRestrictedProvider(
             ukprnServiceMock,
             outerApiClientMock,
-            new GetCoursesToBeAllowedResponse { Courses = [] },
+            CreateCoursesResponse(),
             RouteLearningType.ApprenticeshipUnit);
-        SetupUrlHelper(sut);
+        var urlHelperMock = sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.ProviderAllowedCourses, allowedUnitsUrl);
 
         var result = await sut.Index(
             Ukprn,
@@ -81,14 +84,28 @@ public class AddAllowedCourseControllerGetTests
 
         using (new AssertionScope())
         {
+            result.Should().NotBeNull();
+            result!.ViewName.Should().Be(AddAllowedCourseController.ViewPath);
             model.Should().NotBeNull();
-            model!.RouteLearningType.Should().Be(RouteLearningType.ApprenticeshipUnit);
+            model!.Ukprn.Should().Be(Ukprn);
+            model.RouteLearningType.Should().Be(RouteLearningType.ApprenticeshipUnit);
             model.IsApprenticeshipUnit.Should().BeTrue();
             model.IsApprenticeship.Should().BeFalse();
+            model.CancelUrl.Should().Be(allowedUnitsUrl);
+            model.Should().NotBeAssignableTo<IBackLink>();
+            model.Courses.Select(course => course.Text).Should().Equal(
+                "Alpha course (Level 6)",
+                "Zebra course (Level 3)");
         }
 
         outerApiClientMock.Verify(
             c => c.GetCoursesToBeAllowed(Ukprn, CourseType.ShortCourse, It.IsAny<CancellationToken>()),
+            Times.Once);
+        urlHelperMock.Verify(
+            m => m.RouteUrl(It.Is<UrlRouteContext>(c =>
+                c.RouteName == RouteNames.ProviderAllowedCourses
+                && HasRouteValue(c, "ukprn", Ukprn)
+                && HasRouteValue(c, "routeLearningType", RouteLearningType.ApprenticeshipUnit))),
             Times.Once);
     }
 
@@ -276,4 +293,7 @@ public class AddAllowedCourseControllerGetTests
                 }
             ]
         };
+
+    private static bool HasRouteValue(UrlRouteContext context, string propertyName, object expected)
+        => Equals(context.Values?.GetType().GetProperty(propertyName)?.GetValue(context.Values), expected);
 }

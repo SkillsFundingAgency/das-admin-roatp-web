@@ -15,8 +15,11 @@
         <partial name="_validationSummary" />
         <span class="govuk-caption-xl">@pageHeading</span>
         <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">@pageHeading</h1>
-        <p class="govuk-body">
+        <p asp-show="Model.IsApprenticeship" class="govuk-body">
             <strong>@Model.ProviderName</strong> can only deliver the @learningTypeNamePlural you select.
+        </p>
+        <p asp-show="Model.IsApprenticeshipUnit" class="govuk-body">
+            Providers can only deliver the @learningTypeNamePlural you select.
         </p>
         <form asp-route="@RouteNames.AddAllowedCourse"
               asp-route-ukprn="@Model.Ukprn"
