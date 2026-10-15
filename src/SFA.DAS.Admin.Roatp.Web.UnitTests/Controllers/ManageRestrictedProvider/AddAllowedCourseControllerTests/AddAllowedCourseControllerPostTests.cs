@@ -209,6 +209,67 @@ public class AddAllowedCourseControllerPostTests
             Times.Never);
     }
 
+    [Test, MoqAutoData]
+    public async Task WhenPostingAddAllowedCourse_AndNoCourseSelectedAndCoursesToBeAllowedAreNotFound_ThenReturnsViewWithNoCourses(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Frozen] Mock<IValidator<AddAllowedCourseSubmitModel>> validator,
+        [Greedy] AddAllowedCourseController sut)
+    {
+        SetupRestrictedProvider(ukprnServiceMock);
+        SetupInvalidSubmit(validator);
+        SetupCoursesToBeAllowed(outerApiClientMock, HttpStatusCode.NotFound);
+        SetupUrlHelper(sut);
+
+        var result = await sut.Index(
+            Ukprn,
+            RouteLearningType.Apprenticeship,
+            new AddAllowedCourseSubmitModel(),
+            CancellationToken.None) as ViewResult;
+        var model = result?.Model as AddAllowedCourseViewModel;
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.ViewName.Should().Be(AddAllowedCourseController.ViewPath);
+            model.Should().NotBeNull();
+            model!.Courses.Should().BeEmpty();
+            sut.ModelState.IsValid.Should().BeFalse();
+        }
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenPostingAddAllowedCourse_AndNoCourseSelectedAndCoursesAreNull_ThenReturnsViewWithNoCourses(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Frozen] Mock<IValidator<AddAllowedCourseSubmitModel>> validator,
+        [Greedy] AddAllowedCourseController sut)
+    {
+        SetupRestrictedProvider(ukprnServiceMock);
+        SetupInvalidSubmit(validator);
+        SetupCoursesToBeAllowed(
+            outerApiClientMock,
+            HttpStatusCode.OK,
+            new GetCoursesToBeAllowedResponse { Courses = null! });
+        SetupUrlHelper(sut);
+
+        var result = await sut.Index(
+            Ukprn,
+            RouteLearningType.Apprenticeship,
+            new AddAllowedCourseSubmitModel(),
+            CancellationToken.None) as ViewResult;
+        var model = result?.Model as AddAllowedCourseViewModel;
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.ViewName.Should().Be(AddAllowedCourseController.ViewPath);
+            model.Should().NotBeNull();
+            model!.Courses.Should().BeEmpty();
+            sut.ModelState.IsValid.Should().BeFalse();
+        }
+    }
+
     private static void SetupUrlHelper(AddAllowedCourseController sut)
     {
         sut.AddUrlHelperMock()
@@ -224,6 +285,17 @@ public class AddAllowedCourseControllerPostTests
             ProviderName);
     }
 
+    private static void SetupInvalidSubmit(Mock<IValidator<AddAllowedCourseSubmitModel>> validator)
+    {
+        validator.Setup(x => x.Validate(It.IsAny<AddAllowedCourseSubmitModel>()))
+            .Returns(new ValidationResult(
+            [
+                new ValidationFailure(
+                    nameof(AddAllowedCourseSubmitModel.SelectedLarsCode),
+                    AddAllowedCourseSubmitModelValidator.NoCourseSelectedErrorMessage)
+            ]));
+    }
+
     private static void SetupGetCourse(Mock<ICoursesService> coursesServiceMock)
     {
         coursesServiceMock
@@ -236,13 +308,16 @@ public class AddAllowedCourseControllerPostTests
             });
     }
 
-    private static void SetupCoursesToBeAllowed(Mock<IOuterApiClient> outerApiClientMock)
+    private static void SetupCoursesToBeAllowed(
+        Mock<IOuterApiClient> outerApiClientMock,
+        HttpStatusCode statusCode = HttpStatusCode.OK,
+        GetCoursesToBeAllowedResponse? response = null)
     {
         outerApiClientMock
             .Setup(c => c.GetCoursesToBeAllowed(Ukprn, CourseType.Apprenticeship, It.IsAny<CancellationToken>()))
             .ReturnsAsync(OuterApiResponse.Create(
-                HttpStatusCode.OK,
-                new GetCoursesToBeAllowedResponse
+                statusCode,
+                response ?? new GetCoursesToBeAllowedResponse
                 {
                     Courses =
                     [
