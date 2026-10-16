@@ -19,6 +19,8 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.AppenticeshipsUpdateCont
 
 public class ApprenticeshipsUpdateControllerPostTests
 {
+    private const int Ukprn = 10019900;
+
     [Test, MoqAutoData]
     public async Task WhenPostingApprenticeshipsUpdate_AndNoMatchingDetails_ThenRedirectsToHome(
      [Frozen] Mock<IOuterApiClient> outerApiClientMock,
@@ -85,9 +87,7 @@ public class ApprenticeshipsUpdateControllerPostTests
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ApprenticeshipsUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
-        OfferApprenticeshipsSubmitModel submitModel,
-        int ukprn,
-        CancellationToken cancellationToken)
+        OfferApprenticeshipsSubmitModel submitModel)
     {
         var validationResult = new ValidationResult();
         validator.Setup(x => x.Validate(submitModel))
@@ -101,11 +101,11 @@ public class ApprenticeshipsUpdateControllerPostTests
 
         submitModel.IsApprenticeshipsOffered = selectedNoId;
 
-        getOrganisationResponse.Ukprn = ukprn;
-        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
+        getOrganisationResponse.Ukprn = Ukprn;
+        outerApiClientMock.Setup(x => x.GetOrganisation(Ukprn, CancellationToken.None))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), new GetOrganisationResponse(), new RefitSettings(), null));
 
-        var actual = await sut.Index(ukprn, submitModel, cancellationToken);
+        var actual = await sut.Index(Ukprn, submitModel, CancellationToken.None);
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
@@ -124,9 +124,7 @@ public class ApprenticeshipsUpdateControllerPostTests
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ApprenticeshipsUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
-        OfferApprenticeshipsSubmitModel submitModel,
-        int ukprn,
-        CancellationToken cancellationToken)
+        OfferApprenticeshipsSubmitModel submitModel)
     {
         var validationResult = new ValidationResult();
         validator.Setup(x => x.Validate(submitModel))
@@ -139,11 +137,11 @@ public class ApprenticeshipsUpdateControllerPostTests
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
         submitModel.IsApprenticeshipsOffered = selectedNoId;
 
-        getOrganisationResponse.Ukprn = ukprn;
-        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
+        getOrganisationResponse.Ukprn = Ukprn;
+        outerApiClientMock.Setup(x => x.GetOrganisation(Ukprn, CancellationToken.None))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), new GetOrganisationResponse(), new RefitSettings(), null));
 
-        var actual = await sut.Index(ukprn, submitModel, cancellationToken);
+        var actual = await sut.Index(Ukprn, submitModel, CancellationToken.None);
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();

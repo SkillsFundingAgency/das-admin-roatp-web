@@ -16,6 +16,8 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ApprenticeshipUnitsUpdat
 
 public class ApprenticeshipUnitsUpdateControllerGetTests
 {
+    private const int Ukprn = 10019900;
+
     [Test, MoqAutoData]
     public async Task WhenGettingApprenticeshipUnitsUpdate_AndNoMatchingDetails_ThenRedirectsToHome(
        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
@@ -39,16 +41,14 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ApprenticeshipUnitsUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
-        int ukprn,
         bool containsApprenticeshipUnits,
-        bool containsApprenticeships,
-        CancellationToken cancellationToken)
+        bool containsApprenticeships)
     {
         sessionServiceMock.Setup(s =>
                     s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
                 .Returns((UpdateProviderTypeCourseTypesSessionModel)null!);
 
-        getOrganisationResponse.Ukprn = ukprn;
+        getOrganisationResponse.Ukprn = Ukprn;
         var allowedCourseTypes = new List<AllowedCourseType>();
 
         if (containsApprenticeshipUnits)
@@ -64,10 +64,10 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
         getOrganisationResponse.AllowedCourseTypes = allowedCourseTypes;
 
         var expectedApprenticeshipTypesChoices = BuildApprenticeshipTypesChoices(containsApprenticeshipUnits);
-        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(Ukprn, CancellationToken.None))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
-        var actual = await sut.Index(ukprn, cancellationToken) as ViewResult;
+        var actual = await sut.Index(Ukprn, CancellationToken.None) as ViewResult;
         actual.Should().NotBeNull();
         var model = actual.Model as ApprenticeshipUnitsUpdateViewModel;
         model.Should().NotBeNull();
@@ -83,10 +83,8 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ApprenticeshipUnitsUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
-        int ukprn,
         bool containsApprenticeshipUnits,
-        bool containsApprenticeships,
-        CancellationToken cancellationToken)
+        bool containsApprenticeships)
     {
         UpdateProviderTypeCourseTypesSessionModel sessionModel = new UpdateProviderTypeCourseTypesSessionModel
         {
@@ -100,7 +98,7 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
                 s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
             .Returns(sessionModel);
 
-        getOrganisationResponse.Ukprn = ukprn;
+        getOrganisationResponse.Ukprn = Ukprn;
 
         var expectedApprenticeshipTypesChoices =
                  new List<ApprenticeshipUnitsSelectionModel>
@@ -109,10 +107,10 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
                     new() { Description = "No", Id = false, IsSelected = false},
                 };
 
-        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(Ukprn, CancellationToken.None))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
-        var actual = await sut.Index(ukprn, cancellationToken) as ViewResult;
+        var actual = await sut.Index(Ukprn, CancellationToken.None) as ViewResult;
         actual.Should().NotBeNull();
         var model = actual.Model as ApprenticeshipUnitsUpdateViewModel;
         model.Should().NotBeNull();

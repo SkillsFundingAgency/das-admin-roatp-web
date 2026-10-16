@@ -17,6 +17,8 @@ using System.Net;
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.RemovalReasonUpdateControllerTests;
 public class RemovalReasonUpdateControllerPostTests
 {
+    private const int Ukprn = 10019900;
+
     [Test, MoqAutoData]
     public async Task Get_NoMatchingDetails_RedirectToHome(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
@@ -70,21 +72,19 @@ public class RemovalReasonUpdateControllerPostTests
         [Frozen] Mock<IOrganisationPatchService> organisationPatchService,
         [Greedy] RemovalReasonUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
-        RemovalReasonUpdateViewModel viewModel,
-        int ukprn,
-        CancellationToken cancellationToken)
+        RemovalReasonUpdateViewModel viewModel)
     {
 
-        getOrganisationResponse.Ukprn = ukprn;
-        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
+        getOrganisationResponse.Ukprn = Ukprn;
+        outerApiClientMock.Setup(x => x.GetOrganisation(Ukprn, CancellationToken.None))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
         var validationResult = new ValidationResult();
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
-        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, It.IsAny<GetOrganisationResponse>(), It.IsAny<PatchOrganisationModel>(), cancellationToken))!
+        organisationPatchService.Setup(x => x.OrganisationPatched(Ukprn, It.IsAny<GetOrganisationResponse>(), It.IsAny<PatchOrganisationModel>(), CancellationToken.None))!
             .ReturnsAsync(false);
 
-        var actual = await sut.Index(ukprn, viewModel, cancellationToken);
+        var actual = await sut.Index(Ukprn, viewModel, CancellationToken.None);
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
@@ -98,21 +98,19 @@ public class RemovalReasonUpdateControllerPostTests
         [Frozen] Mock<IOrganisationPatchService> organisationPatchService,
         [Greedy] RemovalReasonUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
-        RemovalReasonUpdateViewModel viewModel,
-        int ukprn,
-        CancellationToken cancellationToken)
+        RemovalReasonUpdateViewModel viewModel)
     {
 
-        getOrganisationResponse.Ukprn = ukprn;
-        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
+        getOrganisationResponse.Ukprn = Ukprn;
+        outerApiClientMock.Setup(x => x.GetOrganisation(Ukprn, CancellationToken.None))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
         var validationResult = new ValidationResult();
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
-        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, It.IsAny<GetOrganisationResponse>(), It.IsAny<PatchOrganisationModel>(), cancellationToken))!
+        organisationPatchService.Setup(x => x.OrganisationPatched(Ukprn, It.IsAny<GetOrganisationResponse>(), It.IsAny<PatchOrganisationModel>(), CancellationToken.None))!
             .ReturnsAsync(true);
 
-        var actual = await sut.Index(ukprn, viewModel, cancellationToken);
+        var actual = await sut.Index(Ukprn, viewModel, CancellationToken.None);
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();

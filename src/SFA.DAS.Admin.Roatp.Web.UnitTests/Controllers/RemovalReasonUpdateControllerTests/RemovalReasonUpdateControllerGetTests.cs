@@ -34,6 +34,7 @@ public class RemovalReasonUpdateControllerGetTests
     public async Task Get_MatchingDetails_BuildViewModel(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] RemovalReasonUpdateController sut,
+        string selectOrganisationLink,
         GetOrganisationResponse getOrganisationResponse,
         GetRemovalReasonsResponse getRemovalReasonsResponse,
         int ukprn,

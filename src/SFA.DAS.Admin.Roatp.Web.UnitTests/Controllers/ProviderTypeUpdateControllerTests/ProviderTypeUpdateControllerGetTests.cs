@@ -36,6 +36,7 @@ public class ProviderTypeUpdateControllerGetTests
     public async Task Get_MatchingDetails_BuildViewModel(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] ProviderTypeUpdateController sut,
+        string selectOrganisationLink,
         GetOrganisationResponse getOrganisationResponse,
         int ukprn,
         ProviderType providerType,
