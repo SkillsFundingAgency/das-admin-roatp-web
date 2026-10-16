@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Models.Constants;
 using SFA.DAS.Admin.Roatp.Web.Services;
-using System.Net;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
@@ -57,16 +58,25 @@ public class ProviderTypeUpdateController(IOuterApiClient _outerApiClient, IOrga
         patchModel.ProviderType = (ProviderType)model.ProviderTypeId;
 
         await _organisationPatchService.OrganisationPatched(ukprn, organisationResponse, patchModel, cancellationToken);
+
+        if (organisationResponse.ProviderType == ProviderType.Employer && model.ProviderTypeId == (int)ProviderType.Main)
+        {
+            string userId = User.UserId();
+            string userDisplayName = User.UserDisplayName();
+            var courseTypesPutModel = new UpdateCourseTypesModel(organisationApiResponse.Content!.AllowedCourseTypes.Select(c => (int)c.CourseType).ToList(), userId, userDisplayName);
+            await _outerApiClient.PutCourseTypes(ukprn, courseTypesPutModel, cancellationToken);
+        }
+
         return RedirectToRoute(RouteNames.ProviderSummary, new { ukprn });
     }
 
     private static List<ProviderTypeSelectionModel> BuildProviderTypes(int providerTypeId)
     {
-        return new List<ProviderTypeSelectionModel>
-        {
+        return
+        [
             new() { Description = ProviderTypeDescription.Main, Id = (int)ProviderType.Main, IsSelected = providerTypeId == (int)ProviderType.Main },
             new() { Description = ProviderTypeDescription.Employer, Id = (int)ProviderType.Employer, IsSelected = providerTypeId == (int)ProviderType.Employer },
             new() { Description = ProviderTypeDescription.Supporting, Id = (int)ProviderType.Supporting, IsSelected = providerTypeId == (int)ProviderType.Supporting },
-        };
+        ];
     }
 }

@@ -72,11 +72,12 @@ public class ApprenticeshipUnitsUpdateController(IOuterApiClient _outerApiClient
         }
 
         string userDisplayName = User.UserDisplayName();
+        string userId = User.UserId();
 
         if (!isProviderTypeAndCourseTypesChangeInProgress)
         {
             await UpdateCourseTypes(_outerApiClient, ukprn, organisationResponse.AllowedCourseTypes,
-                selectedApprenticeshipUnits, userDisplayName, cancellationToken);
+                selectedApprenticeshipUnits, userDisplayName, userId, cancellationToken);
         }
         else
         {
@@ -85,8 +86,7 @@ public class ApprenticeshipUnitsUpdateController(IOuterApiClient _outerApiClient
                 sessionModel!.CourseTypeIds.Add((int)CourseType.ShortCourse);
             }
 
-            await UpdateProviderTypeAndCourseTypes(_outerApiClient, _organisationPatchService, ukprn,
-               userDisplayName, sessionModel!, organisationResponse, cancellationToken);
+            await UpdateProviderTypeAndCourseTypes(ukprn, userId, userDisplayName, sessionModel!, organisationResponse, cancellationToken);
             _sessionService.Delete(SessionKeys.UpdateSupportingProviderCourseTypes);
         }
 
@@ -102,28 +102,29 @@ public class ApprenticeshipUnitsUpdateController(IOuterApiClient _outerApiClient
         return selectedApprenticeshipUnits != containsApprenticeshipUnits;
     }
 
-    private static async Task UpdateProviderTypeAndCourseTypes(IOuterApiClient client, IOrganisationPatchService patchService,
+    private async Task UpdateProviderTypeAndCourseTypes(
         int ukprn,
+        string userId,
         string userDisplayName,
         UpdateProviderTypeCourseTypesSessionModel sessionModel,
         GetOrganisationResponse organisationResponse,
         CancellationToken cancellationToken)
     {
-        var courseTypesPutModel = new UpdateCourseTypesModel(sessionModel!.CourseTypeIds, userDisplayName);
-        await client.PutCourseTypes(ukprn, courseTypesPutModel, cancellationToken);
-
         PatchOrganisationModel patchModel = organisationResponse;
-        patchModel.ProviderType = sessionModel!.ProviderType;
-        await patchService.OrganisationPatched(ukprn, organisationResponse, patchModel, cancellationToken);
+        patchModel.ProviderType = sessionModel.ProviderType;
+        await _organisationPatchService.OrganisationPatched(ukprn, organisationResponse, patchModel, cancellationToken);
+
+        var courseTypesPutModel = new UpdateCourseTypesModel(sessionModel.CourseTypeIds, userId, userDisplayName);
+        await _outerApiClient.PutCourseTypes(ukprn, courseTypesPutModel, cancellationToken);
     }
 
     private static async Task UpdateCourseTypes(IOuterApiClient client, int ukprn,
         IEnumerable<AllowedCourseType> allowedCourseTypes, bool? selectedApprenticeshipUnits,
-        string userDisplayName, CancellationToken cancellationToken)
+        string userDisplayName, string userId, CancellationToken cancellationToken)
     {
         var courseTypesModel = selectedApprenticeshipUnits!.Value
-            ? AddShortCoursesToCourseTypes(allowedCourseTypes, userDisplayName)
-            : RemoveShortCoursesFromCourseTypes(allowedCourseTypes, userDisplayName);
+            ? AddShortCoursesToCourseTypes(allowedCourseTypes, userDisplayName, userId)
+            : RemoveShortCoursesFromCourseTypes(allowedCourseTypes, userDisplayName, userId);
 
         await client.PutCourseTypes(ukprn, courseTypesModel, cancellationToken);
     }
@@ -167,19 +168,19 @@ public class ApprenticeshipUnitsUpdateController(IOuterApiClient _outerApiClient
         return model;
     }
 
-    private static UpdateCourseTypesModel RemoveShortCoursesFromCourseTypes(IEnumerable<AllowedCourseType> courseTypes, string userDisplayName)
+    private static UpdateCourseTypesModel RemoveShortCoursesFromCourseTypes(IEnumerable<AllowedCourseType> courseTypes, string userDisplayName, string userId)
     {
         var courseTypeIdsToKeep = courseTypes.Where(x => x.CourseType != CourseType.ShortCourse)
             .Select(a => (int)a.CourseType).ToList();
-        var courseTypesModel = new UpdateCourseTypesModel(courseTypeIdsToKeep, userDisplayName);
+        var courseTypesModel = new UpdateCourseTypesModel(courseTypeIdsToKeep, userId, userDisplayName);
         return courseTypesModel;
     }
 
-    private static UpdateCourseTypesModel AddShortCoursesToCourseTypes(IEnumerable<AllowedCourseType> courseTypes, string userDisplayName)
+    private static UpdateCourseTypesModel AddShortCoursesToCourseTypes(IEnumerable<AllowedCourseType> courseTypes, string userDisplayName, string userId)
     {
         var courseTypeIds = courseTypes.Select(a => (int)a.CourseType).ToList();
         courseTypeIds.Add((int)CourseType.ShortCourse);
-        var courseTypesModel = new UpdateCourseTypesModel(courseTypeIds, userDisplayName);
+        var courseTypesModel = new UpdateCourseTypesModel(courseTypeIds, userId, userDisplayName);
         return courseTypesModel;
     }
 
