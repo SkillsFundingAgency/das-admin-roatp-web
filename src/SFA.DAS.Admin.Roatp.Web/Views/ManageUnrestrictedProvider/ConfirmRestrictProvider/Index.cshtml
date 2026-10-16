@@ -1,0 +1,35 @@
+@using SFA.DAS.Admin.Roatp.Web.Infrastructure
+@model SFA.DAS.Admin.Roatp.Web.Models.ManageUnrestrictedProvider.ConfirmRestrictProviderViewModel
+@{
+    ViewData["Title"] = "Confirm that you want to manage what apprenticeships this provider can deliver";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <span class="govuk-caption-xl">Change how we manage this provider</span>
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">Confirm that you want to manage what apprenticeships this provider can deliver</h1>
+    </div>
+    <div class="govuk-grid-column-two-thirds">
+        <div class="app-action-panel govuk-!-margin-bottom-6">
+            <p class="govuk-body govuk-!-font-weight-bold govuk-!-margin-bottom-1">@Model.ProviderName</p>
+            <p class="govuk-body govuk-!-margin-bottom-0">UKPRN: @Model.Ukprn</p>
+        </div>
+
+        <div class="govuk-warning-text">
+            <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+            <strong class="govuk-warning-text__text">
+                <span class="govuk-visually-hidden">Warning</span>
+                This action cannot be reversed. If you choose to control what this provider delivers, you will need to add courses to their account moving forward.
+            </strong>
+        </div>
+
+        <form asp-route="@RouteNames.ConfirmRestrictProvider" asp-route-ukprn="@Model.Ukprn" method="post">
+            <div class="govuk-button-group">
+                <button type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button" data-disable-on-submit="true">
+                    Control provider delivery
+                </button>
+                <a class="govuk-link" href="@Model.CancelUrl">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

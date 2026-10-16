@@ -117,4 +117,11 @@ public interface IOuterApiClient
     int ukprn,
     [Query] CourseType courseType,
     CancellationToken cancellationToken);
+
+    [Post("/providers/{ukprn}/course-types/{courseType}/restrict")]
+    Task<ApiResponse<object>> RestrictProvider(
+        int ukprn,
+        CourseType courseType,
+        [Body] RestrictProviderRequest request,
+        CancellationToken cancellationToken);
 }
