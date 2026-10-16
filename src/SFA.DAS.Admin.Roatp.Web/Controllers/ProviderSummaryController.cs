@@ -29,11 +29,10 @@ public class ProviderSummaryController(IOuterApiClient _outerApiClient, ISession
         model.ProviderTypeChangeLink = Url.RouteUrl(RouteNames.ProviderTypeUpdate, new { ukprn })!;
         model.OrganisationTypeChangeLink = Url.RouteUrl(RouteNames.OrganisationTypeUpdate, new { ukprn })!;
         model.OffersApprenticeshipUnitsChangeLink = Url.RouteUrl(RouteNames.ApprenticeshipUnitsUpdate, new { ukprn })!;
-        var providerSummaryUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!;
         sessionService.SetProviderName(ukprn, organisationResponse.LegalName);
         model.ManageRestrictedCoursesUrl = Url.RouteUrl(RouteNames.ProviderRestrictedApprenticeships, new { ukprn })!;
         model.ManageApprovedCoursesUrl = Url.RouteUrl(RouteNames.ProviderAllowedCourses, new { ukprn, routeLearningType = RouteLearningType.Apprenticeship })!;
-        model.ChangeHowWeManageThisProviderUrl = providerSummaryUrl;
+        model.ChangeHowWeManageThisProviderUrl = Url.RouteUrl(RouteNames.RestrictProvider, new { ukprn })!;
         model.ManageApprovedUnitsUrl = Url.RouteUrl(RouteNames.ProviderAllowedCourses, new { ukprn, routeLearningType = RouteLearningType.ApprenticeshipUnit })!;
         return View(model);
     }

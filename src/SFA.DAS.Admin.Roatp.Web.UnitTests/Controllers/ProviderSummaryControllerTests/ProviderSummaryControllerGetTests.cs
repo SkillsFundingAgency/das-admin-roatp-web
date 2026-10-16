@@ -25,7 +25,7 @@ public class ProviderSummaryControllerGetTests
     private const string ProviderTypeUpdateUrl = "/providers/10019900/provider-type";
     private const string OrganisationTypeUpdateUrl = "/providers/10019900/organisation-type";
     private const string ApprenticeshipUnitsUpdateUrl = "/providers/10019900/apprenticeship-units";
-    private const string ProviderSummaryUrl = "/providers/10019900";
+    private const string RestrictProviderUrl = "/providers/10019900/restrict";
     private const string ProviderRestrictedCoursesUrl = "/providers/10019900/restricted-courses";
     private const string ProviderAllowedCoursesUrl = "/providers/10019900/Apprenticeship/allowed-courses";
     private const string ProviderAllowedUnitsUrl = "/providers/10019900/ApprenticeshipUnit/allowed-courses";
@@ -63,7 +63,7 @@ public class ProviderSummaryControllerGetTests
             .AddUrlForRoute(RouteNames.ProviderTypeUpdate, ProviderTypeUpdateUrl)
             .AddUrlForRoute(RouteNames.OrganisationTypeUpdate, OrganisationTypeUpdateUrl)
             .AddUrlForRoute(RouteNames.ApprenticeshipUnitsUpdate, ApprenticeshipUnitsUpdateUrl)
-            .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl)
+            .AddUrlForRoute(RouteNames.RestrictProvider, RestrictProviderUrl)
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, ProviderRestrictedCoursesUrl);
 
         urlHelperMock
@@ -93,7 +93,7 @@ public class ProviderSummaryControllerGetTests
             model.OffersApprenticeshipUnitsChangeLink.Should().Be(ApprenticeshipUnitsUpdateUrl);
             model.ManageRestrictedCoursesUrl.Should().Be(ProviderRestrictedCoursesUrl);
             model.ManageApprovedCoursesUrl.Should().Be(ProviderAllowedCoursesUrl);
-            model.ChangeHowWeManageThisProviderUrl.Should().Be(ProviderSummaryUrl);
+            model.ChangeHowWeManageThisProviderUrl.Should().Be(RestrictProviderUrl);
             model.ManageApprovedUnitsUrl.Should().Be(ProviderAllowedUnitsUrl);
         }
 
