@@ -3,7 +3,6 @@ using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Refit;
@@ -55,10 +54,7 @@ public class ApprenticeshipsUpdateControllerPostTests
             .Returns(validationResult);
 
         var selectedNoId = false;
-        sut.ControllerContext = new ControllerContext()
-        {
-            HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
-        };
+        sut.SetupAuthenticatedUser();
         var courseTypes = new List<AllowedCourseType> { new() { CourseType = CourseType.ShortCourse } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
@@ -98,10 +94,7 @@ public class ApprenticeshipsUpdateControllerPostTests
             .Returns(validationResult);
 
         var selectedNoId = false;
-        sut.ControllerContext = new ControllerContext()
-        {
-            HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
-        };
+        sut.SetupAuthenticatedUser();
         var courseTypes = new List<AllowedCourseType> { new() { CourseType = CourseType.ShortCourse } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
@@ -140,10 +133,7 @@ public class ApprenticeshipsUpdateControllerPostTests
             .Returns(validationResult);
 
         var selectedNoId = true;
-        sut.ControllerContext = new ControllerContext()
-        {
-            HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
-        };
+        sut.SetupAuthenticatedUser();
         var courseTypes = new List<AllowedCourseType> { new() { CourseType = CourseType.ShortCourse } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;

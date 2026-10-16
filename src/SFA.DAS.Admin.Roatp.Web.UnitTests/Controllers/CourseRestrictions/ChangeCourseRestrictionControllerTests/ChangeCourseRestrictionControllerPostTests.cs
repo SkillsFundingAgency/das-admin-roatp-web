@@ -139,8 +139,8 @@ public class ChangeCourseRestrictionControllerPostTests
         outerApiClientMock.Verify(c => c.PatchProviderAllowedCourse(
             Ukprn,
             LarsCode,
-            MockedUser.AuthenticatedUser.UserId(),
-            MockedUser.AuthenticatedUser.UserDisplayName(),
+            sut.User.UserId(),
+            sut.User.UserDisplayName(),
             It.Is<PatchProviderAllowedCourseRequest>(r => r.LastDateStarts == null),
             It.IsAny<CancellationToken>()), Times.Once);
     }

@@ -33,7 +33,7 @@ public class RemoveRestrictedCourseRestrictionControllerGetTests
     {
         SetupSession(sessionServiceMock);
         SetupEligibility(validatorMock);
-        sut.SetupHttpContext();
+        sut.SetupAuthenticatedUser();
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
 
@@ -129,7 +129,7 @@ public class RemoveRestrictedCourseRestrictionControllerGetTests
     {
         SetupSession(sessionServiceMock);
         SetupEligibility(validatorMock, isValid: false);
-        sut.SetupHttpContext();
+        sut.SetupAuthenticatedUser();
 
         var result = await sut.Index(Ukprn, LarsCode);
 

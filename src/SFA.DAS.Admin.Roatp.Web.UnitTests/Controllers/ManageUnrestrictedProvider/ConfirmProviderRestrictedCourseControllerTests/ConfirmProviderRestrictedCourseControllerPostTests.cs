@@ -49,8 +49,8 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
             Ukprn,
             LarsCode,
             It.Is<AddRestrictedApprenticeshipRequest>(r =>
-                r.UserId == MockedUser.AuthenticatedUser.UserId()
-                && r.UserDisplayName == MockedUser.AuthenticatedUser.UserDisplayName()
+                r.UserId == sut.User.UserId()
+                && r.UserDisplayName == sut.User.UserDisplayName()
                 && r.LastDateStarts == null),
             It.IsAny<CancellationToken>()), Times.Once);
     }

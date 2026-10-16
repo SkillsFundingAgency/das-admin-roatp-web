@@ -3,7 +3,6 @@ using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Refit;
@@ -107,10 +106,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
         validator.Setup(x => x.Validate(viewModel))
             .Returns(validationResult);
 
-        sut.ControllerContext = new ControllerContext()
-        {
-            HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
-        };
+        sut.SetupAuthenticatedUser();
         var courseTypes = new List<AllowedCourseType>();
         if (isStandardCourseTypePresent) courseTypes.Add(new AllowedCourseType { CourseType = CourseType.Apprenticeship });
         if (isShortCourseTypePresent) courseTypes.Add(new AllowedCourseType { CourseType = CourseType.ShortCourse });
@@ -178,10 +174,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
             .Returns(validationResult);
 
         var selectionChoice = false;
-        sut.ControllerContext = new ControllerContext()
-        {
-            HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
-        };
+        sut.SetupAuthenticatedUser();
         var courseTypes = new List<AllowedCourseType> { new() { CourseType = CourseType.ShortCourse } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
@@ -232,10 +225,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
 
         var apprenticeshipUnitsSelected = false;
 
-        sut.ControllerContext = new ControllerContext()
-        {
-            HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
-        };
+        sut.SetupAuthenticatedUser();
 
         viewModel.ApprenticeshipUnitsSelectionId = apprenticeshipUnitsSelected;
 
@@ -291,10 +281,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
 
         var apprenticeshipUnitsSelected = true;
 
-        sut.ControllerContext = new ControllerContext()
-        {
-            HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
-        };
+        sut.SetupAuthenticatedUser();
 
         viewModel.ApprenticeshipUnitsSelectionId = apprenticeshipUnitsSelected;
 
@@ -351,10 +338,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
 
         var apprenticeshipUnitsSelected = true;
 
-        sut.ControllerContext = new ControllerContext()
-        {
-            HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
-        };
+        sut.SetupAuthenticatedUser();
 
         viewModel.ApprenticeshipUnitsSelectionId = apprenticeshipUnitsSelected;
 

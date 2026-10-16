@@ -59,8 +59,8 @@ public class RemoveRestrictedCourseRestrictionControllerPostTests
             Ukprn,
             LarsCode,
             It.Is<RemoveRestrictedApprenticeshipRequest>(r =>
-                r.UserId == MockedUser.AuthenticatedUser.UserId()
-                && r.UserDisplayName == MockedUser.AuthenticatedUser.UserDisplayName()),
+                r.UserId == sut.User.UserId()
+                && r.UserDisplayName == sut.User.UserDisplayName()),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 

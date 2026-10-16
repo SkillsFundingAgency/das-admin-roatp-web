@@ -120,8 +120,8 @@ public class ConfirmAddProviderToRestrictedCourseControllerTests
                 Ukprn,
                 LarsCode,
                 It.Is<UpsertProviderAllowedCourseRequest>(r =>
-                    r.UserId == MockedUser.AuthenticatedUser.UserId()
-                    && r.UserDisplayName == MockedUser.AuthenticatedUser.UserDisplayName()
+                    r.UserId == sut.User.UserId()
+                    && r.UserDisplayName == sut.User.UserDisplayName()
                     && r.LastDateStarts == null),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(OuterApiResponse.Create<object>(HttpStatusCode.OK, method: HttpMethod.Post));

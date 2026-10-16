@@ -65,8 +65,8 @@ public class AddAllowedCourseControllerPostTests
             Ukprn,
             SelectedLarsCode,
             It.Is<UpsertProviderAllowedCourseRequest>(r =>
-                r.UserId == MockedUser.AuthenticatedUser.UserId()
-                && r.UserDisplayName == MockedUser.AuthenticatedUser.UserDisplayName()
+                r.UserId == sut.User.UserId()
+                && r.UserDisplayName == sut.User.UserDisplayName()
                 && r.LastDateStarts == null
                 && !r.IsStartRestricted),
             It.IsAny<CancellationToken>()), Times.Once);
