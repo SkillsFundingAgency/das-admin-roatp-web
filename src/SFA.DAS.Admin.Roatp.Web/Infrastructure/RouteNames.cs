@@ -44,4 +44,5 @@ public static class RouteNames
     public const string ProviderAllowedCourses = nameof(ProviderAllowedCourses);
     public const string RestrictProvider = nameof(RestrictProvider);
     public const string ConfirmRestrictProvider = nameof(ConfirmRestrictProvider);
+    public const string AddAllowedCourse = nameof(AddAllowedCourse);
 }

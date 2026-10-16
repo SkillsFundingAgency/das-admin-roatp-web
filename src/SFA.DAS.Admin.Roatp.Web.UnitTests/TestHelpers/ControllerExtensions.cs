@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -28,26 +29,7 @@ public static class ControllerExtensions
         return urlHelperMock;
     }
 
-    public static Controller SetupAuthenticatedUser(this Controller sut)
-    {
-        sut.ControllerContext = new ControllerContext
-        {
-            HttpContext = new DefaultHttpContext
-            {
-                User = MockedUser.AuthenticatedUser
-            }
-        };
-        return sut;
-    }
-
     public static Controller AddTempData(this Controller sut)
-    {
-        sut.SetupHttpContext();
-        sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
-        return sut;
-    }
-
-    public static Controller SetupHttpContext(this Controller sut)
     {
         if (sut.ControllerContext.HttpContext is null)
         {
@@ -55,6 +37,27 @@ public static class ControllerExtensions
             {
                 HttpContext = new DefaultHttpContext()
             };
+        }
+
+        sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
+        return sut;
+    }
+
+    public static Controller SetupAuthenticatedUser(this Controller sut)
+    {
+        var httpContext = sut.ControllerContext.HttpContext ?? new DefaultHttpContext();
+        httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.GivenName, "Test"),
+            new Claim(ClaimTypes.Surname, "User"),
+            new Claim(ClaimTypes.Name, "Test User"),
+            new Claim(ClaimTypes.Email, "Test.User@example.com"),
+            new Claim(ClaimTypes.Upn, "Test.User@example.com")
+        ], "mock"));
+
+        if (sut.ControllerContext.HttpContext is null)
+        {
+            sut.ControllerContext = new ControllerContext { HttpContext = httpContext };
         }
 
         return sut;

@@ -16,6 +16,8 @@ using System.Net;
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ProviderStatusUpdateControllerTests;
 public class ProviderStatusUpdateControllerPostTests
 {
+    private const int Ukprn = 10019900;
+
     [Test, MoqAutoData]
     public async Task Get_NoMatchingDetails_RedirectToHome(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
@@ -44,20 +46,19 @@ public class ProviderStatusUpdateControllerPostTests
         [Frozen] Mock<IOrganisationPatchService> organisationPatchService,
         [Greedy] ProviderStatusUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
-        OrganisationStatusUpdateViewModel viewModel,
-        int ukprn,
-        CancellationToken cancellationToken)
+        OrganisationStatusUpdateViewModel viewModel)
     {
         getOrganisationResponse.Status = status;
-        viewModel.OrganisationStatus = getOrganisationResponse.Status; getOrganisationResponse.Ukprn = ukprn;
+        viewModel.OrganisationStatus = getOrganisationResponse.Status;
+        getOrganisationResponse.Ukprn = Ukprn;
 
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
-        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, It.IsAny<GetOrganisationResponse>(), It.IsAny<PatchOrganisationModel>(), cancellationToken))!
+        organisationPatchService.Setup(x => x.OrganisationPatched(Ukprn, It.IsAny<GetOrganisationResponse>(), It.IsAny<PatchOrganisationModel>(), CancellationToken.None))!
             .ReturnsAsync(false);
 
-        var actual = await sut.Index(ukprn, viewModel, cancellationToken);
+        var actual = await sut.Index(Ukprn, viewModel, CancellationToken.None);
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
@@ -74,20 +75,18 @@ public class ProviderStatusUpdateControllerPostTests
         [Frozen] Mock<IOrganisationPatchService> organisationPatchService,
         [Greedy] ProviderStatusUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
-        OrganisationStatusUpdateViewModel viewModel,
-        int ukprn,
-        CancellationToken cancellationToken)
+        OrganisationStatusUpdateViewModel viewModel)
     {
         getOrganisationResponse.Status = status;
         viewModel.OrganisationStatus = getOrganisationResponse.Status;
-        getOrganisationResponse.Ukprn = ukprn;
+        getOrganisationResponse.Ukprn = Ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
-        organisationPatchService.Setup(x => x.OrganisationPatched(ukprn, getOrganisationResponse, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
+        organisationPatchService.Setup(x => x.OrganisationPatched(Ukprn, getOrganisationResponse, It.IsAny<PatchOrganisationModel>(), CancellationToken.None))!
             .ReturnsAsync(true);
 
-        var actual = await sut.Index(ukprn, viewModel, cancellationToken);
+        var actual = await sut.Index(Ukprn, viewModel, CancellationToken.None);
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();

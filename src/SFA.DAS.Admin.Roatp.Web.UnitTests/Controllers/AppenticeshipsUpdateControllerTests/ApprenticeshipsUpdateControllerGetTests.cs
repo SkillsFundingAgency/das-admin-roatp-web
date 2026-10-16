@@ -39,11 +39,8 @@ public class ApprenticeshipsUpdateControllerGetTests
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ApprenticeshipsUpdateController sut,
-        string selectOrganisationLink,
         GetOrganisationResponse getOrganisationResponse,
         int ukprn,
-        bool containsApprenticeshipUnits,
-        bool containsApprenticeships,
         CancellationToken cancellationToken)
     {
         sessionServiceMock.Setup(s =>
@@ -70,7 +67,6 @@ public class ApprenticeshipsUpdateControllerGetTests
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ApprenticeshipsUpdateController sut,
-        string selectOrganisationLink,
         GetOrganisationResponse getOrganisationResponse,
         int ukprn,
         CancellationToken cancellationToken)

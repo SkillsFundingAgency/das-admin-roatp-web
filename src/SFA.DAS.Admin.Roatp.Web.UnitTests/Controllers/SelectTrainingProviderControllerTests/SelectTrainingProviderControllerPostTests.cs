@@ -16,8 +16,7 @@ public class SelectTrainingProviderControllerPostTests
     public void And_SubmitViewModel_Is_Valid_Reroutes_To_Expected_Action(
         SelectTrainingProviderViewModel viewModel,
         [Frozen] Mock<IValidator<SelectTrainingProviderViewModel>> validator,
-        [Greedy] SelectTrainingProviderController controller,
-        CancellationToken cancellationToken)
+        [Greedy] SelectTrainingProviderController controller)
     {
         validator.Setup(x => x.Validate(viewModel)).Returns(new ValidationResult());
 
@@ -33,8 +32,7 @@ public class SelectTrainingProviderControllerPostTests
     public void And_SubmitViewModel_Is_Invalid_Reloads_View(
         SelectTrainingProviderViewModel viewModel,
         [Frozen] Mock<IValidator<SelectTrainingProviderViewModel>> validator,
-        [Greedy] SelectTrainingProviderController controller,
-        CancellationToken cancellationToken)
+        [Greedy] SelectTrainingProviderController controller)
     {
         var validationResult = new ValidationResult();
         validationResult.Errors.Add(new ValidationFailure("Field", "Error"));

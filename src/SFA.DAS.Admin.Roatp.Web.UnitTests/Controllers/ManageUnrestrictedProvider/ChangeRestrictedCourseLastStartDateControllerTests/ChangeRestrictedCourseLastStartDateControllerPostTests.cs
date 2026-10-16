@@ -85,8 +85,8 @@ public class ChangeRestrictedCourseLastStartDateControllerPostTests
             Ukprn,
             LarsCode,
             It.Is<ChangeRestrictedApprenticeshipLastDateStartsRequest>(r =>
-                r.UserId == MockedUser.AuthenticatedUser.UserId()
-                && r.UserDisplayName == MockedUser.AuthenticatedUser.UserDisplayName()
+                r.UserId == sut.User.UserId()
+                && r.UserDisplayName == sut.User.UserDisplayName()
                 && r.LastDateStarts == EnteredDate),
             It.IsAny<CancellationToken>()), Times.Once);
     }

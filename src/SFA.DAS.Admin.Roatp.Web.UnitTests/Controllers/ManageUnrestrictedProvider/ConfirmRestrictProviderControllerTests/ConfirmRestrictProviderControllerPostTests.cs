@@ -51,8 +51,8 @@ public class ConfirmRestrictProviderControllerPostTests
             Ukprn,
             CourseType.Apprenticeship,
             It.Is<RestrictProviderRequest>(r =>
-                r.UserId == MockedUser.AuthenticatedUser.UserId()
-                && r.UserDisplayName == MockedUser.AuthenticatedUser.UserDisplayName()),
+                r.UserId == sut.User.UserId()
+                && r.UserDisplayName == sut.User.UserDisplayName()),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 

@@ -78,8 +78,8 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
             Ukprn,
             LarsCode,
             It.Is<AddRestrictedApprenticeshipRequest>(r =>
-                r.UserId == MockedUser.AuthenticatedUser.UserId()
-                && r.UserDisplayName == MockedUser.AuthenticatedUser.UserDisplayName()
+                r.UserId == sut.User.UserId()
+                && r.UserDisplayName == sut.User.UserDisplayName()
                 && r.LastDateStarts == EnteredDate),
             It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -92,6 +92,7 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
         [Greedy] AddRestrictedCourseLastStartDateController sut)
     {
         SetupSession(sessionServiceMock);
+        sut.SetupAuthenticatedUser();
         sut.AddTempData();
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
@@ -141,6 +142,7 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
             outerApiClientMock.Object,
             Mock.Of<ICoursesService>(),
             new SetLastDateStartsSubmitModelValidator());
+        sut.SetupAuthenticatedUser();
         sut.AddTempData();
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
@@ -187,6 +189,7 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
             outerApiClientMock.Object,
             Mock.Of<ICoursesService>(),
             new SetLastDateStartsSubmitModelValidator());
+        sut.SetupAuthenticatedUser();
         sut.AddTempData();
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);

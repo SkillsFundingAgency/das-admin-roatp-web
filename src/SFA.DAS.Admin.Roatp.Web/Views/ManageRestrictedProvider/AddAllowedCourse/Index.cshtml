@@ -1,0 +1,52 @@
+@using Humanizer
+@using SFA.DAS.Admin.Roatp.Web.Extensions
+@using SFA.DAS.Admin.Roatp.Web.Infrastructure
+@using SFA.DAS.Admin.Roatp.Web.Models.ManageRestrictedProvider
+@model AddAllowedCourseViewModel
+@{
+    var learningTypeName = Model.RouteLearningType.GetDescription().Transform(To.LowerCase);
+    var learningTypeNamePlural = learningTypeName.Pluralize();
+    var pageHeading = $"Add an {learningTypeName}";
+    ViewData["Title"] = pageHeading;
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <partial name="_validationSummary" />
+        <span class="govuk-caption-xl">@pageHeading</span>
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-5">@pageHeading</h1>
+        <p asp-show="Model.IsApprenticeship" class="govuk-body">
+            <strong>@Model.ProviderName</strong> can only deliver the @learningTypeNamePlural you select.
+        </p>
+        <p asp-show="Model.IsApprenticeshipUnit" class="govuk-body">
+            Providers can only deliver the @learningTypeNamePlural you select.
+        </p>
+        <form asp-route="@RouteNames.AddAllowedCourse"
+              asp-route-ukprn="@Model.Ukprn"
+              asp-route-routeLearningType="@Model.RouteLearningType"
+              method="POST"
+              novalidate>
+            <div esfa-validation-marker-for="SelectedLarsCode" class="govuk-form-group">
+                <label class="govuk-visually-hidden" asp-for="SelectedLarsCode">
+                    Start typing in the box and its name will appear
+                </label>
+                <div class="govuk-hint">
+                    Start typing in the box and its name will appear.
+                </div>
+                <span asp-validation-for="SelectedLarsCode" class="govuk-error-message"></span>
+                <select asp-for="SelectedLarsCode"
+                        asp-items="@Model.Courses"
+                        class="govuk-select app-autocomplete"
+                        data-min-length="1">
+                    <option value="" disabled selected></option>
+                </select>
+            </div>
+            <div class="govuk-button-group">
+                <button type="submit" class="govuk-button" data-module="govuk-button" data-disable-on-submit="true">
+                    Confirm
+                </button>
+                <a class="govuk-link" href="@Model.CancelUrl">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

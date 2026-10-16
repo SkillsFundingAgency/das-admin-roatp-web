@@ -164,8 +164,8 @@ public class SetLastDateStartsControllerPostTests
         outerApiClientMock.Verify(c => c.PatchProviderAllowedCourse(
             Ukprn,
             LarsCode,
-            MockedUser.AuthenticatedUser.UserId(),
-            MockedUser.AuthenticatedUser.UserDisplayName(),
+            sut.User.UserId(),
+            sut.User.UserDisplayName(),
             It.Is<PatchProviderAllowedCourseRequest>(r =>
                 r.LastDateStarts == new DateTime(2027, 3, 15, 0, 0, 0, DateTimeKind.Unspecified)),
             It.IsAny<CancellationToken>()), Times.Once);
@@ -211,8 +211,8 @@ public class SetLastDateStartsControllerPostTests
         outerApiClientMock.Verify(c => c.PatchProviderAllowedCourse(
             Ukprn,
             LarsCode,
-            MockedUser.AuthenticatedUser.UserId(),
-            MockedUser.AuthenticatedUser.UserDisplayName(),
+            sut.User.UserId(),
+            sut.User.UserDisplayName(),
             It.Is<PatchProviderAllowedCourseRequest>(r =>
                 r.LastDateStarts == new DateTime(2026, 7, 12, 0, 0, 0, DateTimeKind.Unspecified)),
             It.IsAny<CancellationToken>()), Times.Once);
