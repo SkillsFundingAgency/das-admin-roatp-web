@@ -76,7 +76,7 @@ public class AddAllowedCourseController(
                 BuildViewModel(
                     ukprn,
                     routeLearningType,
-                    organisation.LegalName,
+                    organisation?.LegalName,
                     coursesToBeAllowedResponse?.Courses ?? [],
                     submitModel.SelectedLarsCode));
         }
