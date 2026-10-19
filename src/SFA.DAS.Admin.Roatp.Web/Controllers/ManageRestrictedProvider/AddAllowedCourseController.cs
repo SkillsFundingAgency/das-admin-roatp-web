@@ -48,10 +48,6 @@ public class AddAllowedCourseController(
         }
 
         GetCoursesToBeAllowedResponse coursesToBeAllowedResponse = await outerApiClient.GetCoursesToBeAllowed(ukprn, routeLearningType.ToCourseType(), cancellationToken);
-        if (coursesToBeAllowedResponse.Courses.Count == 0)
-        {
-            return NotFound();
-        }
 
         return View(ViewPath, BuildViewModel(ukprn, routeLearningType, organisation.LegalName, coursesToBeAllowedResponse.Courses ?? []));
     }

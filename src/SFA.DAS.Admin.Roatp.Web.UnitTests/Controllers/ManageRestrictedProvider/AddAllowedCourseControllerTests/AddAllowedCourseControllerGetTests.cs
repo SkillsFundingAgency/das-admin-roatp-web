@@ -182,7 +182,7 @@ public class AddAllowedCourseControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingAddAllowedCourse_AndCoursesAreEmpty_ThenReturnsNotFound(
+    public async Task WhenGettingAddAllowedCourse_AndCoursesAreEmpty_ThenReturnsViewWithNoCourses(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] AddAllowedCourseController sut)
@@ -191,10 +191,42 @@ public class AddAllowedCourseControllerGetTests
             ukprnServiceMock,
             outerApiClientMock,
             new GetCoursesToBeAllowedResponse { Courses = [] });
+        SetupUrlHelper(sut);
 
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken());
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken()) as ViewResult;
+        var model = result?.Model as AddAllowedCourseViewModel;
 
-        result.Should().BeOfType<NotFoundResult>();
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.ViewName.Should().Be(AddAllowedCourseController.ViewPath);
+            model.Should().NotBeNull();
+            model!.Courses.Should().BeEmpty();
+        }
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingAddAllowedCourse_AndCoursesAreNull_ThenReturnsViewWithNoCourses(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Greedy] AddAllowedCourseController sut)
+    {
+        SetupRestrictedProvider(
+            ukprnServiceMock,
+            outerApiClientMock,
+            new GetCoursesToBeAllowedResponse { Courses = null! });
+        SetupUrlHelper(sut);
+
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken()) as ViewResult;
+        var model = result?.Model as AddAllowedCourseViewModel;
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.ViewName.Should().Be(AddAllowedCourseController.ViewPath);
+            model.Should().NotBeNull();
+            model!.Courses.Should().BeEmpty();
+        }
     }
 
     private static void SetupUrlHelper(AddAllowedCourseController sut)
