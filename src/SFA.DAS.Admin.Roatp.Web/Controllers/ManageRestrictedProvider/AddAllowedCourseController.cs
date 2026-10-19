@@ -113,7 +113,7 @@ public class AddAllowedCourseController(
         => routeLearningType == RouteLearningType.Apprenticeship
            && !organisation.IsRestrictedForCourseType(routeLearningType.ToCourseType());
 
-    private async Task<GetCoursesToBeAllowedResponse?> GetCoursesToBeAllowed(
+    private async Task<GetCoursesToBeAllowedResponse> GetCoursesToBeAllowed(
         int ukprn,
         CourseType courseType,
         CancellationToken cancellationToken)
