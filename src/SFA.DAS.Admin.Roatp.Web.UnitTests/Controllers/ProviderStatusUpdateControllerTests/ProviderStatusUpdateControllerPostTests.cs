@@ -23,13 +23,12 @@ public class ProviderStatusUpdateControllerPostTests
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] ProviderStatusUpdateController sut,
         OrganisationStatusUpdateViewModel viewModel,
-        int ukprn,
-        CancellationToken cancellationToken)
+        int ukprn)
     {
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null));
 
-        var actual = await sut.Index(ukprn, viewModel, cancellationToken);
+        var actual = await sut.Index(ukprn, viewModel, new CancellationToken());
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
@@ -48,6 +47,7 @@ public class ProviderStatusUpdateControllerPostTests
         GetOrganisationResponse getOrganisationResponse,
         OrganisationStatusUpdateViewModel viewModel)
     {
+        var cancellationToken = new CancellationToken();
         getOrganisationResponse.Status = status;
         viewModel.OrganisationStatus = getOrganisationResponse.Status;
         getOrganisationResponse.Ukprn = Ukprn;
@@ -55,10 +55,10 @@ public class ProviderStatusUpdateControllerPostTests
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
-        organisationPatchService.Setup(x => x.OrganisationPatched(Ukprn, It.IsAny<GetOrganisationResponse>(), It.IsAny<PatchOrganisationModel>(), CancellationToken.None))!
+        organisationPatchService.Setup(x => x.OrganisationPatched(Ukprn, It.IsAny<GetOrganisationResponse>(), It.IsAny<PatchOrganisationModel>(), cancellationToken))!
             .ReturnsAsync(false);
 
-        var actual = await sut.Index(Ukprn, viewModel, CancellationToken.None);
+        var actual = await sut.Index(Ukprn, viewModel, cancellationToken);
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
@@ -77,16 +77,17 @@ public class ProviderStatusUpdateControllerPostTests
         GetOrganisationResponse getOrganisationResponse,
         OrganisationStatusUpdateViewModel viewModel)
     {
+        var cancellationToken = new CancellationToken();
         getOrganisationResponse.Status = status;
         viewModel.OrganisationStatus = getOrganisationResponse.Status;
         getOrganisationResponse.Ukprn = Ukprn;
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
-        organisationPatchService.Setup(x => x.OrganisationPatched(Ukprn, getOrganisationResponse, It.IsAny<PatchOrganisationModel>(), CancellationToken.None))!
+        organisationPatchService.Setup(x => x.OrganisationPatched(Ukprn, getOrganisationResponse, It.IsAny<PatchOrganisationModel>(), cancellationToken))!
             .ReturnsAsync(true);
 
-        var actual = await sut.Index(Ukprn, viewModel, CancellationToken.None);
+        var actual = await sut.Index(Ukprn, viewModel, cancellationToken);
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
@@ -99,8 +100,7 @@ public class ProviderStatusUpdateControllerPostTests
         [Greedy] ProviderStatusUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
         OrganisationStatusUpdateViewModel viewModel,
-        int ukprn,
-        CancellationToken cancellationToken)
+        int ukprn)
     {
         OrganisationStatus responseStatus = OrganisationStatus.Active;
 
@@ -113,7 +113,7 @@ public class ProviderStatusUpdateControllerPostTests
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
-        var actual = await sut.Index(ukprn, viewModel, cancellationToken);
+        var actual = await sut.Index(ukprn, viewModel, new CancellationToken());
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();

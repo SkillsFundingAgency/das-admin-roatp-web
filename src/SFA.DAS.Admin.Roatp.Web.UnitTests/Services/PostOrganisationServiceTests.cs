@@ -16,9 +16,9 @@ public class PostOrganisationServiceTests
     public async Task Test(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IHttpContextAccessor> context,
-        AddProviderSessionModel addProviderSession,
-        CancellationToken cancellationToken)
+        AddProviderSessionModel addProviderSession)
     {
+        var cancellationToken = new CancellationToken();
         string userId = "test";
         string userGivenName = "user";
         string userSurname = "name";

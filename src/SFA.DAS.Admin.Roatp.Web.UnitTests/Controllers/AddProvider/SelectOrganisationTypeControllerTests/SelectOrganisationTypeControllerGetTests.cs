@@ -27,7 +27,7 @@ public class SelectOrganisationTypeControllerGetTests
             .ReturnsAsync(organisationTypes);
 
         // Act
-        var result = await sut.Index(CancellationToken.None) as ViewResult;
+        var result = await sut.Index(new CancellationToken()) as ViewResult;
 
         // Assert
         result.Should().NotBeNull();

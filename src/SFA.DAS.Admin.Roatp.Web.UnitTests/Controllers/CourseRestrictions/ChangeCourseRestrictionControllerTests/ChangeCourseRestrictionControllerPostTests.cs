@@ -51,7 +51,7 @@ public class ChangeCourseRestrictionControllerPostTests
             LarsCode,
             Ukprn,
             new ChangeCourseRestrictionSubmitModel(),
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
 
         var model = result!.Model as ChangeCourseRestrictionViewModel;
         using (new AssertionScope())
@@ -82,7 +82,7 @@ public class ChangeCourseRestrictionControllerPostTests
             LarsCode,
             Ukprn,
             new ChangeCourseRestrictionSubmitModel { SelectedOption = ChangeCourseRestrictionOptions.Change },
-            CancellationToken.None) as RedirectToRouteResult;
+            new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -125,7 +125,7 @@ public class ChangeCourseRestrictionControllerPostTests
             LarsCode,
             Ukprn,
             new ChangeCourseRestrictionSubmitModel { SelectedOption = ChangeCourseRestrictionOptions.Remove },
-            CancellationToken.None) as RedirectToRouteResult;
+            new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -177,7 +177,7 @@ public class ChangeCourseRestrictionControllerPostTests
             LarsCode,
             Ukprn,
             new ChangeCourseRestrictionSubmitModel { SelectedOption = ChangeCourseRestrictionOptions.Remove },
-            CancellationToken.None);
+            new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -215,7 +215,7 @@ public class ChangeCourseRestrictionControllerPostTests
             LarsCode,
             Ukprn,
             new ChangeCourseRestrictionSubmitModel { SelectedOption = ChangeCourseRestrictionOptions.Remove },
-            CancellationToken.None);
+            new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
     }
@@ -247,7 +247,7 @@ public class ChangeCourseRestrictionControllerPostTests
             LarsCode,
             Ukprn,
             new ChangeCourseRestrictionSubmitModel { SelectedOption = ChangeCourseRestrictionOptions.Remove },
-            CancellationToken.None);
+            new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
     }

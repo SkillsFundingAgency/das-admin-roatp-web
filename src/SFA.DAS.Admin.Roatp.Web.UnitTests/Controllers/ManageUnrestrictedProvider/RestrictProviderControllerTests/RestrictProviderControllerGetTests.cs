@@ -30,7 +30,7 @@ public class RestrictProviderControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl);
 
-        var result = await sut.Index(Ukprn, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(Ukprn, new CancellationToken()) as ViewResult;
         var model = result?.Model as RestrictProviderViewModel;
 
         using (new AssertionScope())
@@ -57,7 +57,7 @@ public class RestrictProviderControllerGetTests
             .Setup(c => c.GetOrganisation(Ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync(OuterApiResponse.Create<GetOrganisationResponse>(HttpStatusCode.NotFound, includeException: false));
 
-        var result = await sut.Index(Ukprn, CancellationToken.None);
+        var result = await sut.Index(Ukprn, new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
     }

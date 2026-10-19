@@ -35,7 +35,7 @@ public class AddAllowedCourseControllerGetTests
         SetupRestrictedProvider(ukprnServiceMock, outerApiClientMock, CreateCoursesResponse());
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken()) as ViewResult;
         var model = result?.Model as AddAllowedCourseViewModel;
 
         using (new AssertionScope())
@@ -79,7 +79,7 @@ public class AddAllowedCourseControllerGetTests
         var result = await sut.Index(
             Ukprn,
             RouteLearningType.ApprenticeshipUnit,
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = result?.Model as AddAllowedCourseViewModel;
 
         using (new AssertionScope())
@@ -113,7 +113,7 @@ public class AddAllowedCourseControllerGetTests
     public async Task WhenGettingAddAllowedCourse_AndRouteLearningTypeIsInvalid_ThenReturnsNotFound(
         [Greedy] AddAllowedCourseController sut)
     {
-        var result = await sut.Index(Ukprn, (RouteLearningType)0, CancellationToken.None);
+        var result = await sut.Index(Ukprn, (RouteLearningType)0, new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -126,7 +126,7 @@ public class AddAllowedCourseControllerGetTests
     {
         ukprnServiceMock.SetupOrganisationRestriction(Ukprn, isRestricted: false);
 
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -157,7 +157,7 @@ public class AddAllowedCourseControllerGetTests
         var result = await sut.Index(
             Ukprn,
             RouteLearningType.ApprenticeshipUnit,
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = result?.Model as AddAllowedCourseViewModel;
 
         using (new AssertionScope())
@@ -178,7 +178,7 @@ public class AddAllowedCourseControllerGetTests
             .Setup(s => s.GetOrganisationAsync(Ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetOrganisationResponse?)null);
 
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, CancellationToken.None);
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -191,7 +191,7 @@ public class AddAllowedCourseControllerGetTests
     {
         SetupRestrictedProvider(ukprnServiceMock, outerApiClientMock, statusCode: HttpStatusCode.NotFound);
 
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, CancellationToken.None);
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -207,7 +207,7 @@ public class AddAllowedCourseControllerGetTests
             outerApiClientMock,
             statusCode: HttpStatusCode.InternalServerError);
 
-        var act = () => sut.Index(Ukprn, RouteLearningType.Apprenticeship, CancellationToken.None);
+        var act = () => sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
     }
@@ -224,7 +224,7 @@ public class AddAllowedCourseControllerGetTests
             new GetCoursesToBeAllowedResponse { Courses = null! });
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken()) as ViewResult;
         var model = result?.Model as AddAllowedCourseViewModel;
 
         using (new AssertionScope())
@@ -243,7 +243,7 @@ public class AddAllowedCourseControllerGetTests
         SetupRestrictedProvider(ukprnServiceMock, outerApiClientMock, response: null);
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken()) as ViewResult;
         var model = result?.Model as AddAllowedCourseViewModel;
 
         using (new AssertionScope())

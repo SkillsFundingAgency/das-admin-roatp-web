@@ -21,9 +21,9 @@ public class ApprenticeshipsUpdateControllerGetTests
     public async Task WhenGettingApprenticeshipsUpdate_AndNoMatchingDetails_ThenRedirectsToHome(
        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
        [Greedy] ApprenticeshipsUpdateController sut,
-       int ukprn,
-       CancellationToken cancellationToken)
+       int ukprn)
     {
+        var cancellationToken = new CancellationToken();
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null));
 
@@ -40,9 +40,9 @@ public class ApprenticeshipsUpdateControllerGetTests
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ApprenticeshipsUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
-        int ukprn,
-        CancellationToken cancellationToken)
+        int ukprn)
     {
+        var cancellationToken = new CancellationToken();
         sessionServiceMock.Setup(s =>
                     s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
                 .Returns((UpdateProviderTypeCourseTypesSessionModel)null!);
@@ -68,9 +68,9 @@ public class ApprenticeshipsUpdateControllerGetTests
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ApprenticeshipsUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
-        int ukprn,
-        CancellationToken cancellationToken)
+        int ukprn)
     {
+        var cancellationToken = new CancellationToken();
         UpdateProviderTypeCourseTypesSessionModel sessionModel = new UpdateProviderTypeCourseTypesSessionModel
         {
             CourseTypeIds = new List<int>()

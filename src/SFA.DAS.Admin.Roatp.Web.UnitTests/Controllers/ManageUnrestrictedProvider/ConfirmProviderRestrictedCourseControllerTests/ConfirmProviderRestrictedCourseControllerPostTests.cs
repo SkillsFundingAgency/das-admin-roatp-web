@@ -33,7 +33,7 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
         sut.AddTempData();
         SetupAddResponse(outerApiClientMock, HttpStatusCode.OK);
 
-        var result = await sut.Index(Ukprn, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(Ukprn, new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -65,7 +65,7 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
             .Setup(s => s.Get<ProviderRestrictedCourseSessionModel>(SessionKeys.ProviderRestrictedCourse))
             .Returns((ProviderRestrictedCourseSessionModel?)null);
 
-        var result = await sut.Index(Ukprn, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(Ukprn, new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -92,7 +92,7 @@ public class ConfirmProviderRestrictedCourseControllerPostTests
         sut.SetupAuthenticatedUser();
         SetupAddResponse(outerApiClientMock, HttpStatusCode.NotFound);
 
-        var act = () => sut.Index(Ukprn, CancellationToken.None);
+        var act = () => sut.Index(Ukprn, new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourse), Times.Never);

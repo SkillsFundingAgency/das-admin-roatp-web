@@ -50,7 +50,7 @@ public class UnrestrictedCourseDetailsControllerTests
 
         SetupCourseResponse(outerApiClientMock, response);
 
-        var result = await sut.Index(LarsCode, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new CancellationToken()) as ViewResult;
 
         result.Should().NotBeNull();
         result!.ViewName.Should().Be(UnrestrictedCourseDetailsController.ViewPath);
@@ -78,7 +78,7 @@ public class UnrestrictedCourseDetailsControllerTests
 
         SetupCourseResponse(outerApiClientMock, response);
 
-        var result = await sut.Index(LarsCode, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new CancellationToken()) as ViewResult;
 
         var model = result!.Model as UnrestrictedCourseDetailsViewModel;
         model!.HasNoProviders.Should().BeTrue();
@@ -97,7 +97,7 @@ public class UnrestrictedCourseDetailsControllerTests
 
         SetupCourseResponse(outerApiClientMock, response);
 
-        var result = await sut.Index(LarsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(LarsCode, new CancellationToken()) as RedirectToRouteResult;
 
         result.Should().NotBeNull();
         result!.RouteName.Should().Be(RouteNames.RestrictedCourseDetails);
@@ -116,7 +116,7 @@ public class UnrestrictedCourseDetailsControllerTests
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
                 new HttpResponseMessage(HttpStatusCode.NotFound), null, new RefitSettings(), null));
 
-        var result = await sut.Index(LarsCode, CancellationToken.None);
+        var result = await sut.Index(LarsCode, new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddRestrictedCourse), Times.Once);
@@ -142,7 +142,7 @@ public class UnrestrictedCourseDetailsControllerTests
 
         var sut = new UnrestrictedCourseDetailsController(outerApiClientMock.Object, sessionServiceMock.Object);
 
-        var act = () => sut.Index(LarsCode, CancellationToken.None);
+        var act = () => sut.Index(LarsCode, new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
     }

@@ -101,7 +101,7 @@ public class RestrictCourseConfirmControllerTests
         sut.SetupAuthenticatedUser();
         sut.AddTempData();
 
-        var result = await sut.Index(LarsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(LarsCode, new CancellationToken()) as RedirectToRouteResult;
 
         result.Should().NotBeNull();
         result!.RouteName.Should().Be(RouteNames.RestrictedCourseDetails);
@@ -128,7 +128,7 @@ public class RestrictCourseConfirmControllerTests
             .Setup(s => s.Get<AddRestrictedCourseSessionModel>(SessionKeys.AddRestrictedCourse))
             .Returns((AddRestrictedCourseSessionModel?)null);
 
-        var result = await sut.Index(LarsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(LarsCode, new CancellationToken()) as RedirectToRouteResult;
 
         result.Should().NotBeNull();
         result!.RouteName.Should().Be(RouteNames.UnrestrictedCourseDetails);

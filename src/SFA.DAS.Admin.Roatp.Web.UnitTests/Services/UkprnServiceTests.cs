@@ -27,7 +27,7 @@ public class UkprnServiceTests
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(
                 new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
 
-        var result = await sut.GetOrganisationAsync(ukprn, CancellationToken.None);
+        var result = await sut.GetOrganisationAsync(ukprn, new CancellationToken());
 
         result.Should().Be(response);
     }
@@ -44,7 +44,7 @@ public class UkprnServiceTests
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(
                 new HttpResponseMessage(HttpStatusCode.NotFound), null, new RefitSettings(), null));
 
-        var result = await sut.GetOrganisationAsync(ukprn, CancellationToken.None);
+        var result = await sut.GetOrganisationAsync(ukprn, new CancellationToken());
 
         result.Should().BeNull();
     }
@@ -67,7 +67,7 @@ public class UkprnServiceTests
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(
                 httpResponse, null, new RefitSettings(), apiException));
 
-        var act = () => sut.GetOrganisationAsync(ukprn, CancellationToken.None);
+        var act = () => sut.GetOrganisationAsync(ukprn, new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
     }
@@ -79,14 +79,15 @@ public class UkprnServiceTests
         int ukprn,
         GetOrganisationResponse response)
     {
+        var cancellationToken = new CancellationToken();
         var sut = CreateSut(outerApiClientMock, httpContextAccessorMock);
         outerApiClientMock
             .Setup(c => c.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(
                 new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
 
-        var first = await sut.GetOrganisationAsync(ukprn, CancellationToken.None);
-        var second = await sut.GetOrganisationAsync(ukprn, CancellationToken.None);
+        var first = await sut.GetOrganisationAsync(ukprn, cancellationToken);
+        var second = await sut.GetOrganisationAsync(ukprn, cancellationToken);
 
         first.Should().Be(response);
         second.Should().Be(response);
@@ -102,7 +103,7 @@ public class UkprnServiceTests
         httpContextAccessorMock.Setup(a => a.HttpContext).Returns((HttpContext?)null);
         var sut = new UkprnService(outerApiClientMock.Object, new ScopedCacheService(httpContextAccessorMock.Object));
 
-        var act = () => sut.GetOrganisationAsync(ukprn, CancellationToken.None);
+        var act = () => sut.GetOrganisationAsync(ukprn, new CancellationToken());
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("HttpContext is not available.");

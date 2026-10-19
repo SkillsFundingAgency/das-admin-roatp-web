@@ -38,7 +38,7 @@ public class RemoveRestrictedCourseRestrictionControllerPostTests
         sut.AddTempData();
         SetupRemoveResponse(outerApiClientMock, HttpStatusCode.OK);
 
-        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(Ukprn, LarsCode, new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -74,7 +74,7 @@ public class RemoveRestrictedCourseRestrictionControllerPostTests
             .Setup(s => s.Get<ChangeRestrictedCourseRestrictionSessionModel>(SessionKeys.RestrictedCourseChangeRestriction))
             .Returns((ChangeRestrictedCourseRestrictionSessionModel?)null);
 
-        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(Ukprn, LarsCode, new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -99,7 +99,7 @@ public class RemoveRestrictedCourseRestrictionControllerPostTests
     {
         SetupSession(sessionServiceMock, ukprn: 99999999);
 
-        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(Ukprn, LarsCode, new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -123,7 +123,7 @@ public class RemoveRestrictedCourseRestrictionControllerPostTests
     {
         SetupSession(sessionServiceMock, larsCode: "999");
 
-        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(Ukprn, LarsCode, new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -149,7 +149,7 @@ public class RemoveRestrictedCourseRestrictionControllerPostTests
         sut.SetupAuthenticatedUser();
         SetupRemoveResponse(outerApiClientMock, HttpStatusCode.NotFound);
 
-        var act = () => sut.Index(Ukprn, LarsCode, CancellationToken.None);
+        var act = () => sut.Index(Ukprn, LarsCode, new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictedCourseChangeRestriction), Times.Never);
@@ -171,7 +171,7 @@ public class RemoveRestrictedCourseRestrictionControllerPostTests
             validatorMock.Object);
         sut.SetupAuthenticatedUser();
 
-        var act = () => sut.Index(Ukprn, LarsCode, CancellationToken.None);
+        var act = () => sut.Index(Ukprn, LarsCode, new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.RestrictedCourseChangeRestriction), Times.Never);

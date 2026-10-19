@@ -31,7 +31,7 @@ public class RestrictedCoursesControllerPaginationTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourses, RestrictedCoursesUrl);
 
-        var result = await sut.Index(new GetRestrictedCoursesRequestModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(new GetRestrictedCoursesRequestModel(), new CancellationToken()) as ViewResult;
 
         var model = result!.Model as RestrictedCoursesViewModel;
         model!.TotalCount.Should().Be(15);
@@ -57,7 +57,7 @@ public class RestrictedCoursesControllerPaginationTests
 
         var result = await sut.Index(
             new GetRestrictedCoursesRequestModel { PageNumber = 2 },
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
 
         var model = result!.Model as RestrictedCoursesViewModel;
         model!.TotalCount.Should().Be(15);
@@ -78,7 +78,7 @@ public class RestrictedCoursesControllerPaginationTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourses, RestrictedCoursesUrl);
 
-        var result = await sut.Index(new GetRestrictedCoursesRequestModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(new GetRestrictedCoursesRequestModel(), new CancellationToken()) as ViewResult;
 
         var model = result!.Model as RestrictedCoursesViewModel;
         model!.Courses.Should().HaveCount(10);
@@ -99,7 +99,7 @@ public class RestrictedCoursesControllerPaginationTests
 
         var result = await sut.Index(
             new GetRestrictedCoursesRequestModel { PageNumber = 0 },
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
 
         var model = result!.Model as RestrictedCoursesViewModel;
         model!.TotalCount.Should().Be(15);
@@ -122,7 +122,7 @@ public class RestrictedCoursesControllerPaginationTests
 
         var result = await sut.Index(
             new GetRestrictedCoursesRequestModel { PageNumber = 99 },
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
 
         var model = result!.Model as RestrictedCoursesViewModel;
         model!.TotalCount.Should().Be(15);

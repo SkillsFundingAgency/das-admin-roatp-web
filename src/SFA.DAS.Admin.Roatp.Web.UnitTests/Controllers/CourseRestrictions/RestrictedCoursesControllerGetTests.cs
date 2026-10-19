@@ -43,7 +43,7 @@ public class RestrictedCoursesControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourses, RestrictedCoursesUrl);
 
-        var result = await sut.Index(new GetRestrictedCoursesRequestModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(new GetRestrictedCoursesRequestModel(), new CancellationToken()) as ViewResult;
 
         result.Should().NotBeNull();
         result!.ViewName.Should().Be(RestrictedCoursesController.ViewPath);
@@ -107,7 +107,7 @@ public class RestrictedCoursesControllerGetTests
 
         var result = await sut.Index(
             new GetRestrictedCoursesRequestModel { SearchTerm = "course" },
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
 
         var model = result!.Model as RestrictedCoursesViewModel;
         model!.HasActiveFilters.Should().BeTrue();
@@ -147,7 +147,7 @@ public class RestrictedCoursesControllerGetTests
 
         var result = await sut.Index(
             new GetRestrictedCoursesRequestModel { SearchTerm = "nomatch" },
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
 
         var model = result!.Model as RestrictedCoursesViewModel;
         model!.HasActiveFilters.Should().BeTrue();

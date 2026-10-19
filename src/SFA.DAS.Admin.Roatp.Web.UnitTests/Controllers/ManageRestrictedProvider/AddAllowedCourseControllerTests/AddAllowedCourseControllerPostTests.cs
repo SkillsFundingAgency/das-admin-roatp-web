@@ -49,7 +49,7 @@ public class AddAllowedCourseControllerPostTests
             Ukprn,
             RouteLearningType.Apprenticeship,
             new AddAllowedCourseSubmitModel { SelectedLarsCode = SelectedLarsCode },
-            CancellationToken.None) as RedirectToRouteResult;
+            new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -95,7 +95,7 @@ public class AddAllowedCourseControllerPostTests
             Ukprn,
             RouteLearningType.ApprenticeshipUnit,
             new AddAllowedCourseSubmitModel { SelectedLarsCode = SelectedLarsCode },
-            CancellationToken.None) as RedirectToRouteResult;
+            new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -140,7 +140,7 @@ public class AddAllowedCourseControllerPostTests
             Ukprn,
             RouteLearningType.Apprenticeship,
             new AddAllowedCourseSubmitModel(),
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = result?.Model as AddAllowedCourseViewModel;
 
         using (new AssertionScope())
@@ -183,7 +183,7 @@ public class AddAllowedCourseControllerPostTests
             Ukprn,
             RouteLearningType.Apprenticeship,
             new AddAllowedCourseSubmitModel { SelectedLarsCode = SelectedLarsCode },
-            CancellationToken.None);
+            new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
         outerApiClientMock.Verify(
@@ -212,7 +212,7 @@ public class AddAllowedCourseControllerPostTests
             Ukprn,
             RouteLearningType.Apprenticeship,
             new AddAllowedCourseSubmitModel { SelectedLarsCode = SelectedLarsCode },
-            CancellationToken.None);
+            new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
     }
@@ -239,7 +239,7 @@ public class AddAllowedCourseControllerPostTests
             Ukprn,
             RouteLearningType.Apprenticeship,
             new AddAllowedCourseSubmitModel(),
-            CancellationToken.None);
+            new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
         outerApiClientMock.Verify(
@@ -267,7 +267,7 @@ public class AddAllowedCourseControllerPostTests
             Ukprn,
             RouteLearningType.Apprenticeship,
             new AddAllowedCourseSubmitModel(),
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = result?.Model as AddAllowedCourseViewModel;
 
         using (new AssertionScope())
@@ -299,7 +299,7 @@ public class AddAllowedCourseControllerPostTests
             Ukprn,
             RouteLearningType.Apprenticeship,
             new AddAllowedCourseSubmitModel(),
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = result?.Model as AddAllowedCourseViewModel;
 
         using (new AssertionScope())

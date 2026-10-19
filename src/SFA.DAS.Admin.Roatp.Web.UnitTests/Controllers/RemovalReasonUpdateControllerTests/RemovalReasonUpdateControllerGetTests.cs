@@ -17,13 +17,12 @@ public class RemovalReasonUpdateControllerGetTests
     public async Task Get_NoMatchingDetails_RedirectToHome(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] RemovalReasonUpdateController sut,
-        int ukprn,
-        CancellationToken cancellationToken)
+        int ukprn)
     {
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null));
 
-        var actual = await sut.Index(ukprn, cancellationToken);
+        var actual = await sut.Index(ukprn, new CancellationToken());
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
@@ -37,9 +36,9 @@ public class RemovalReasonUpdateControllerGetTests
         string selectOrganisationLink,
         GetOrganisationResponse getOrganisationResponse,
         GetRemovalReasonsResponse getRemovalReasonsResponse,
-        int ukprn,
-        CancellationToken cancellationToken)
+        int ukprn)
     {
+        var cancellationToken = new CancellationToken();
         var removedReasonId = getRemovalReasonsResponse.ReasonsForRemoval[0].Id;
         getOrganisationResponse.RemovedReasonId = removedReasonId;
         getOrganisationResponse.Ukprn = ukprn;

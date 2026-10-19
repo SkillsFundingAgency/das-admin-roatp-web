@@ -40,7 +40,7 @@ public class SelectOrganisationTypeControllerPostTests
             .ReturnsAsync(organisationTypes);
 
         // Act
-        var result = await sut.Index(submitModel, CancellationToken.None);
+        var result = await sut.Index(submitModel, new CancellationToken());
 
         // Assert
         result.Should().NotBeNull();
@@ -73,7 +73,7 @@ public class SelectOrganisationTypeControllerPostTests
             .ReturnsAsync(organisationTypes);
 
         // Act
-        await sut.Index(submitModel, CancellationToken.None);
+        await sut.Index(submitModel, new CancellationToken());
 
         // Assert
         sessionModel.OrganisationType.Should().BeNull();
@@ -101,7 +101,7 @@ public class SelectOrganisationTypeControllerPostTests
             .ReturnsAsync(organisationTypes);
 
         // Act
-        var result = await sut.Index(submitModel, CancellationToken.None);
+        var result = await sut.Index(submitModel, new CancellationToken());
 
         // Assert
         result.Should().NotBeNull();

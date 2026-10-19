@@ -44,7 +44,7 @@ public class RestrictedCourseDetailsControllerFilterTests
 
         var requestModel = new GetRestrictedCourseDetailsRequestModel { SearchTerm = "Beacon" };
 
-        var result = await sut.Index(LarsCode, requestModel, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, requestModel, new CancellationToken()) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.HasActiveFilters.Should().BeTrue();
@@ -81,7 +81,7 @@ public class RestrictedCourseDetailsControllerFilterTests
             DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
         };
 
-        var result = await sut.Index(LarsCode, requestModel, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, requestModel, new CancellationToken()) as ViewResult;
 
         var viewModel = result!.Model as RestrictedCourseDetailsViewModel;
         viewModel!.AllowedProviders.Should().ContainSingle(p => p.ProviderName == "Last Start Provider");
@@ -111,7 +111,7 @@ public class RestrictedCourseDetailsControllerFilterTests
 
         var requestModel = new GetRestrictedCourseDetailsRequestModel { SearchTerm = "Beacon" };
 
-        var result = await sut.Index(LarsCode, requestModel, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, requestModel, new CancellationToken()) as ViewResult;
 
         var viewModel = result!.Model as RestrictedCourseDetailsViewModel;
         viewModel!.HasNoFilteredResults.Should().BeTrue();

@@ -42,7 +42,7 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
 
-        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(Ukprn, LarsCode, new CancellationToken()) as ViewResult;
         var model = result?.Model as ChangeRestrictedCourseLastStartDateViewModel;
 
         using (new AssertionScope())
@@ -88,7 +88,7 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
 
-        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(Ukprn, LarsCode, new CancellationToken()) as ViewResult;
         var model = result?.Model as ChangeRestrictedCourseLastStartDateViewModel;
 
         using (new AssertionScope())
@@ -121,7 +121,7 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
             .Setup(s => s.Get<ChangeRestrictedCourseRestrictionSessionModel>(SessionKeys.RestrictedCourseChangeRestriction))
             .Returns((ChangeRestrictedCourseRestrictionSessionModel?)null);
 
-        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(Ukprn, LarsCode, new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -144,7 +144,7 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
     {
         SetupSession(sessionServiceMock, LastDateStarts, ukprn: 99999999);
 
-        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(Ukprn, LarsCode, new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -161,7 +161,7 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
     {
         SetupSession(sessionServiceMock, LastDateStarts, larsCode: "999");
 
-        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(Ukprn, LarsCode, new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -180,7 +180,7 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
         SetupSession(sessionServiceMock, LastDateStarts);
         SetupEligibility(validatorMock, isValid: false);
 
-        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None);
+        var result = await sut.Index(Ukprn, LarsCode, new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
         sessionServiceMock.Verify(
@@ -203,7 +203,7 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
 
-        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(Ukprn, LarsCode, new CancellationToken()) as ViewResult;
         var model = result?.Model as ChangeRestrictedCourseLastStartDateViewModel;
 
         using (new AssertionScope())
@@ -238,7 +238,7 @@ public class ChangeRestrictedCourseLastStartDateControllerGetTests
                 new HttpResponseMessage(HttpStatusCode.InternalServerError),
                 new RefitSettings()));
 
-        var act = () => sut.Index(Ukprn, LarsCode, CancellationToken.None);
+        var act = () => sut.Index(Ukprn, LarsCode, new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
         sessionServiceMock.Verify(

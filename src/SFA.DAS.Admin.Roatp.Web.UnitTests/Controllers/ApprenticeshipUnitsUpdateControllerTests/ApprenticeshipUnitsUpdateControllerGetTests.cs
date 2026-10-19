@@ -22,9 +22,9 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
     public async Task WhenGettingApprenticeshipUnitsUpdate_AndNoMatchingDetails_ThenRedirectsToHome(
        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
        [Greedy] ApprenticeshipUnitsUpdateController sut,
-       int ukprn,
-       CancellationToken cancellationToken)
+       int ukprn)
     {
+        var cancellationToken = new CancellationToken();
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null));
 
@@ -44,6 +44,7 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
         bool containsApprenticeshipUnits,
         bool containsApprenticeships)
     {
+        var cancellationToken = new CancellationToken();
         sessionServiceMock.Setup(s =>
                     s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
                 .Returns((UpdateProviderTypeCourseTypesSessionModel)null!);
@@ -64,10 +65,10 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
         getOrganisationResponse.AllowedCourseTypes = allowedCourseTypes;
 
         var expectedApprenticeshipTypesChoices = BuildApprenticeshipTypesChoices(containsApprenticeshipUnits);
-        outerApiClientMock.Setup(x => x.GetOrganisation(Ukprn, CancellationToken.None))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(Ukprn, cancellationToken))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
-        var actual = await sut.Index(Ukprn, CancellationToken.None) as ViewResult;
+        var actual = await sut.Index(Ukprn, cancellationToken) as ViewResult;
         actual.Should().NotBeNull();
         var model = actual.Model as ApprenticeshipUnitsUpdateViewModel;
         model.Should().NotBeNull();
@@ -86,6 +87,7 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
         bool containsApprenticeshipUnits,
         bool containsApprenticeships)
     {
+        var cancellationToken = new CancellationToken();
         UpdateProviderTypeCourseTypesSessionModel sessionModel = new UpdateProviderTypeCourseTypesSessionModel
         {
             CourseTypeIds = new List<int>()
@@ -107,10 +109,10 @@ public class ApprenticeshipUnitsUpdateControllerGetTests
                     new() { Description = "No", Id = false, IsSelected = false},
                 };
 
-        outerApiClientMock.Setup(x => x.GetOrganisation(Ukprn, CancellationToken.None))!
+        outerApiClientMock.Setup(x => x.GetOrganisation(Ukprn, cancellationToken))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
-        var actual = await sut.Index(Ukprn, CancellationToken.None) as ViewResult;
+        var actual = await sut.Index(Ukprn, cancellationToken) as ViewResult;
         actual.Should().NotBeNull();
         var model = actual.Model as ApprenticeshipUnitsUpdateViewModel;
         model.Should().NotBeNull();

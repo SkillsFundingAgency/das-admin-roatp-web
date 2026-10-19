@@ -37,7 +37,7 @@ public class RestrictedCourseChangeRestrictionControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
 
-        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(Ukprn, LarsCode, new CancellationToken()) as ViewResult;
         var model = result?.Model as RestrictedCourseChangeRestrictionViewModel;
 
         using (new AssertionScope())
@@ -78,7 +78,7 @@ public class RestrictedCourseChangeRestrictionControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
 
-        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(Ukprn, LarsCode, new CancellationToken()) as ViewResult;
         var model = result?.Model as RestrictedCourseChangeRestrictionViewModel;
 
         using (new AssertionScope())
@@ -109,7 +109,7 @@ public class RestrictedCourseChangeRestrictionControllerGetTests
     {
         SetupRestrictedApprenticeship(outerApiClientMock, statusCode: HttpStatusCode.NotFound);
 
-        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(Ukprn, LarsCode, new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -131,7 +131,7 @@ public class RestrictedCourseChangeRestrictionControllerGetTests
     {
         SetupRestrictedApprenticeshipsResponse(outerApiClientMock, content: null);
 
-        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(Ukprn, LarsCode, new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -155,7 +155,7 @@ public class RestrictedCourseChangeRestrictionControllerGetTests
             outerApiClientMock,
             new GetRestrictedApprenticeshipsResponse { Courses = null! });
 
-        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(Ukprn, LarsCode, new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -177,7 +177,7 @@ public class RestrictedCourseChangeRestrictionControllerGetTests
     {
         SetupRestrictedApprenticeship(outerApiClientMock, LastDateStarts, larsCode: "999");
 
-        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(Ukprn, LarsCode, new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -207,7 +207,7 @@ public class RestrictedCourseChangeRestrictionControllerGetTests
                 new RefitSettings(),
                 null));
 
-        var result = await sut.Index(Ukprn, LarsCode, CancellationToken.None);
+        var result = await sut.Index(Ukprn, LarsCode, new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
         sessionServiceMock.Verify(

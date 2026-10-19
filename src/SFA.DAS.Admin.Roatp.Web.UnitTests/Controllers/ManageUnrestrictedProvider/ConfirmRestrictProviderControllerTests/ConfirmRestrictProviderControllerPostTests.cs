@@ -35,7 +35,7 @@ public class ConfirmRestrictProviderControllerPostTests
         sut.AddTempData();
         SetupRestrictResponse(outerApiClientMock, HttpStatusCode.OK);
 
-        var result = await sut.IndexPost(Ukprn, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.IndexPost(Ukprn, new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -67,7 +67,7 @@ public class ConfirmRestrictProviderControllerPostTests
             .Setup(c => c.GetOrganisation(Ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync(OuterApiResponse.Create<GetOrganisationResponse>(HttpStatusCode.NotFound, includeException: false));
 
-        var result = await sut.IndexPost(Ukprn, CancellationToken.None);
+        var result = await sut.IndexPost(Ukprn, new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
         outerApiClientMock.Verify(c => c.RestrictProvider(
@@ -87,7 +87,7 @@ public class ConfirmRestrictProviderControllerPostTests
         sut.SetupAuthenticatedUser();
         SetupRestrictResponse(outerApiClientMock, HttpStatusCode.NotFound);
 
-        var act = () => sut.IndexPost(Ukprn, CancellationToken.None);
+        var act = () => sut.IndexPost(Ukprn, new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
         outerApiClientMock.Verify(c => c.RestrictProvider(

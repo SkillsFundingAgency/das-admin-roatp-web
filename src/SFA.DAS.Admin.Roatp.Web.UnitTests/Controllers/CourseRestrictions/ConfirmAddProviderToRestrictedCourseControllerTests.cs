@@ -126,7 +126,7 @@ public class ConfirmAddProviderToRestrictedCourseControllerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(OuterApiResponse.Create<object>(HttpStatusCode.OK, method: HttpMethod.Post));
 
-        var result = await sut.Index(LarsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(LarsCode, new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -160,7 +160,7 @@ public class ConfirmAddProviderToRestrictedCourseControllerTests
         sut.SetupAuthenticatedUser();
         SetupUpsertProviderAllowedCourseResponse(outerApiClientMock, HttpStatusCode.NotFound);
 
-        var act = () => sut.Index(LarsCode, CancellationToken.None);
+        var act = () => sut.Index(LarsCode, new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProviderToRestrictedCourse), Times.Never);
@@ -174,7 +174,7 @@ public class ConfirmAddProviderToRestrictedCourseControllerTests
     {
         SetupSession(sessionServiceMock, null);
 
-        var result = await sut.Index(LarsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(LarsCode, new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {

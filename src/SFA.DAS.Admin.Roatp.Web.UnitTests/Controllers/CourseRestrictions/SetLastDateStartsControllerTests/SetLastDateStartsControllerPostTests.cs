@@ -51,7 +51,7 @@ public class SetLastDateStartsControllerPostTests
             LarsCode,
             Ukprn,
             new SetLastDateStartsSubmitModel { Day = "", Month = "", Year = "" },
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = result!.Model as SetLastDateStartsViewModel;
 
         using (new AssertionScope())
@@ -90,7 +90,7 @@ public class SetLastDateStartsControllerPostTests
             LarsCode,
             Ukprn,
             new SetLastDateStartsSubmitModel { Day = "02", Month = "06", Year = "2027" },
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
 
         using (new AssertionScope())
         {
@@ -139,7 +139,7 @@ public class SetLastDateStartsControllerPostTests
             LarsCode,
             Ukprn,
             new SetLastDateStartsSubmitModel { Day = "15", Month = "03", Year = "2027" },
-            CancellationToken.None) as RedirectToRouteResult;
+            new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -194,7 +194,7 @@ public class SetLastDateStartsControllerPostTests
             LarsCode,
             Ukprn,
             new SetLastDateStartsSubmitModel { Day = "12", Month = "07", Year = "2026" },
-            CancellationToken.None) as RedirectToRouteResult;
+            new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -243,7 +243,7 @@ public class SetLastDateStartsControllerPostTests
             LarsCode,
             Ukprn,
             new SetLastDateStartsSubmitModel { Day = "15", Month = "03", Year = "2027" },
-            CancellationToken.None);
+            new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.SetLastDateStarts), Times.Never);
@@ -275,7 +275,7 @@ public class SetLastDateStartsControllerPostTests
             LarsCode,
             Ukprn,
             new SetLastDateStartsSubmitModel { Day = "15", Month = "03", Year = "2027" },
-            CancellationToken.None);
+            new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.SetLastDateStarts), Times.Never);
@@ -295,7 +295,7 @@ public class SetLastDateStartsControllerPostTests
             LarsCode,
             Ukprn,
             new SetLastDateStartsSubmitModel { Day = "15", Month = "03", Year = "2027" },
-            CancellationToken.None);
+            new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
         outerApiClientMock.Verify(
