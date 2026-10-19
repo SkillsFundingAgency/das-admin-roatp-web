@@ -218,40 +218,6 @@ public class AddAllowedCourseControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenPostingAddAllowedCourse_AndNoCourseSelectedAndOrganisationIsNotFound_ThenReturnsNotFound(
-        [Frozen] Mock<IUkprnService> ukprnServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IValidator<AddAllowedCourseSubmitModel>> validator,
-        [Greedy] AddAllowedCourseController sut)
-    {
-        ukprnServiceMock
-            .Setup(s => s.GetOrganisationAsync(Ukprn, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetOrganisationResponse?)null);
-        validator.Setup(x => x.Validate(It.IsAny<AddAllowedCourseSubmitModel>()))
-            .Returns(new ValidationResult(
-            [
-                new ValidationFailure(
-                    nameof(AddAllowedCourseSubmitModel.SelectedLarsCode),
-                    AddAllowedCourseSubmitModelValidator.NoCourseSelectedErrorMessage)
-            ]));
-
-        var result = await sut.Index(
-            Ukprn,
-            RouteLearningType.Apprenticeship,
-            new AddAllowedCourseSubmitModel(),
-            new CancellationToken());
-
-        result.Should().BeOfType<NotFoundResult>();
-        outerApiClientMock.Verify(
-            c => c.UpsertProviderAllowedCourse(
-                It.IsAny<int>(),
-                It.IsAny<string>(),
-                It.IsAny<UpsertProviderAllowedCourseRequest>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Test, MoqAutoData]
     public async Task WhenPostingAddAllowedCourse_AndNoCourseSelectedAndCoursesToBeAllowedAreNotFound_ThenReturnsViewWithNoCourses(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,

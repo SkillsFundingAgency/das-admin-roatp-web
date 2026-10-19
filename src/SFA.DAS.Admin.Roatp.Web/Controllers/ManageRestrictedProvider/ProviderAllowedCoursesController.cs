@@ -30,7 +30,7 @@ public class ProviderAllowedCoursesController(
             return NotFound();
         }
 
-        var organisation = await ukprnService.GetOrganisationAsync(ukprn, cancellationToken);
+        GetOrganisationResponse? organisation = await ukprnService.GetOrganisationAsync(ukprn, cancellationToken);
         if (organisation is null)
         {
             return NotFound();

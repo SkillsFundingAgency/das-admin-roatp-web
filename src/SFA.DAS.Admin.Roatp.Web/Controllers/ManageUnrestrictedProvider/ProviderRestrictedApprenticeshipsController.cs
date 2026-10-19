@@ -29,7 +29,7 @@ public class ProviderRestrictedApprenticeshipsController(
     {
         sessionService.Delete(SessionKeys.RestrictedCourseChangeRestriction);
 
-        var organisation = await ukprnService.GetOrganisationAsync(ukprn, cancellationToken);
+        GetOrganisationResponse? organisation = await ukprnService.GetOrganisationAsync(ukprn, cancellationToken);
         if (organisation is null)
         {
             return NotFound();

@@ -149,7 +149,7 @@ public class AddAllowedCourseControllerGetTests
         SetupRestrictedProvider(
             ukprnServiceMock,
             outerApiClientMock,
-            new GetCoursesToBeAllowedResponse { Courses = [] },
+            CreateCoursesResponse(),
             RouteLearningType.ApprenticeshipUnit,
             isRestricted: false);
         SetupUrlHelper(sut);
@@ -213,7 +213,7 @@ public class AddAllowedCourseControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingAddAllowedCourse_AndCoursesAreNull_ThenReturnsViewWithNoCourses(
+    public async Task WhenGettingAddAllowedCourse_AndCoursesAreEmpty_ThenReturnsNotFound(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] AddAllowedCourseController sut)
@@ -221,36 +221,24 @@ public class AddAllowedCourseControllerGetTests
         SetupRestrictedProvider(
             ukprnServiceMock,
             outerApiClientMock,
-            new GetCoursesToBeAllowedResponse { Courses = null! });
-        SetupUrlHelper(sut);
+            new GetCoursesToBeAllowedResponse { Courses = [] });
 
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken()) as ViewResult;
-        var model = result?.Model as AddAllowedCourseViewModel;
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken());
 
-        using (new AssertionScope())
-        {
-            model.Should().NotBeNull();
-            model!.Courses.Should().BeEmpty();
-        }
+        result.Should().BeOfType<NotFoundResult>();
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingAddAllowedCourse_AndResponseContentIsNull_ThenReturnsViewWithNoCourses(
+    public async Task WhenGettingAddAllowedCourse_AndResponseContentIsNull_ThenReturnsNotFound(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Greedy] AddAllowedCourseController sut)
     {
         SetupRestrictedProvider(ukprnServiceMock, outerApiClientMock, response: null);
-        SetupUrlHelper(sut);
 
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken()) as ViewResult;
-        var model = result?.Model as AddAllowedCourseViewModel;
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken());
 
-        using (new AssertionScope())
-        {
-            model.Should().NotBeNull();
-            model!.Courses.Should().BeEmpty();
-        }
+        result.Should().BeOfType<NotFoundResult>();
     }
 
     private static void SetupUrlHelper(AddAllowedCourseController sut)

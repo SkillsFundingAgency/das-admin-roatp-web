@@ -37,19 +37,19 @@ public class AddAllowedCourseController(
             return NotFound();
         }
 
-        var organisation = await ukprnService.GetOrganisationAsync(ukprn, cancellationToken);
+        GetOrganisationResponse? organisation = await ukprnService.GetOrganisationAsync(ukprn, cancellationToken);
         if (organisation is null)
         {
             return NotFound();
         }
 
-        if (IsUnrestrictedApprenticeship(routeLearningType, organisation))
+        if (IsUnrestrictedProvider(routeLearningType, organisation))
         {
             return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
         }
 
         var coursesToBeAllowedResponse = await GetCoursesToBeAllowed(ukprn, routeLearningType.ToCourseType(), cancellationToken);
-        if (coursesToBeAllowedResponse is null)
+        if (coursesToBeAllowedResponse.Courses.Count == 0)
         {
             return NotFound();
         }
@@ -68,11 +68,7 @@ public class AddAllowedCourseController(
         if (!validationResult.IsValid)
         {
             ModelState.AddValidationErrors(validationResult.Errors);
-            var organisation = await ukprnService.GetOrganisationAsync(ukprn, cancellationToken);
-            if (organisation is null)
-            {
-                return NotFound();
-            }
+            GetOrganisationResponse? organisation = await ukprnService.GetOrganisationAsync(ukprn, cancellationToken);
 
             var coursesToBeAllowedResponse = await GetCoursesToBeAllowed(ukprn, routeLearningType.ToCourseType(), cancellationToken);
             return View(
@@ -111,7 +107,7 @@ public class AddAllowedCourseController(
         return RedirectToRoute(RouteNames.ProviderAllowedCourses, new { ukprn, routeLearningType });
     }
 
-    private static bool IsUnrestrictedApprenticeship(
+    private static bool IsUnrestrictedProvider(
         RouteLearningType routeLearningType,
         GetOrganisationResponse organisation)
         => routeLearningType == RouteLearningType.Apprenticeship
@@ -125,7 +121,7 @@ public class AddAllowedCourseController(
         var apiResponse = await outerApiClient.GetCoursesToBeAllowed(ukprn, courseType, cancellationToken);
         if (apiResponse.StatusCode == HttpStatusCode.NotFound)
         {
-            return null;
+            return new GetCoursesToBeAllowedResponse();
         }
 
         await apiResponse.EnsureSuccessStatusCodeAsync();
