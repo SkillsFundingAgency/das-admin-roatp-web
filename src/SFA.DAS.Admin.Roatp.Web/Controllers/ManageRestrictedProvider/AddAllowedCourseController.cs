@@ -1,4 +1,3 @@
-using System.Net;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -48,7 +47,7 @@ public class AddAllowedCourseController(
             return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
         }
 
-        var coursesToBeAllowedResponse = await GetCoursesToBeAllowed(ukprn, routeLearningType.ToCourseType(), cancellationToken);
+        GetCoursesToBeAllowedResponse coursesToBeAllowedResponse = await outerApiClient.GetCoursesToBeAllowed(ukprn, routeLearningType.ToCourseType(), cancellationToken);
         if (coursesToBeAllowedResponse.Courses.Count == 0)
         {
             return NotFound();
@@ -70,7 +69,7 @@ public class AddAllowedCourseController(
             ModelState.AddValidationErrors(validationResult.Errors);
             GetOrganisationResponse? organisation = await ukprnService.GetOrganisationAsync(ukprn, cancellationToken);
 
-            var coursesToBeAllowedResponse = await GetCoursesToBeAllowed(ukprn, routeLearningType.ToCourseType(), cancellationToken);
+            GetCoursesToBeAllowedResponse coursesToBeAllowedResponse = await outerApiClient.GetCoursesToBeAllowed(ukprn, routeLearningType.ToCourseType(), cancellationToken);
             return View(
                 ViewPath,
                 BuildViewModel(
@@ -112,21 +111,6 @@ public class AddAllowedCourseController(
         GetOrganisationResponse organisation)
         => routeLearningType == RouteLearningType.Apprenticeship
            && !organisation.IsRestrictedForCourseType(routeLearningType.ToCourseType());
-
-    private async Task<GetCoursesToBeAllowedResponse> GetCoursesToBeAllowed(
-        int ukprn,
-        CourseType courseType,
-        CancellationToken cancellationToken)
-    {
-        var apiResponse = await outerApiClient.GetCoursesToBeAllowed(ukprn, courseType, cancellationToken);
-        if (apiResponse.StatusCode == HttpStatusCode.NotFound)
-        {
-            return new GetCoursesToBeAllowedResponse();
-        }
-
-        await apiResponse.EnsureSuccessStatusCodeAsync();
-        return apiResponse.Content ?? new GetCoursesToBeAllowedResponse();
-    }
 
     private AddAllowedCourseViewModel BuildViewModel(
         int ukprn,

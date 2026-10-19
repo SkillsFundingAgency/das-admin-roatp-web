@@ -218,7 +218,7 @@ public class AddAllowedCourseControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenPostingAddAllowedCourse_AndNoCourseSelectedAndCoursesToBeAllowedAreNotFound_ThenReturnsViewWithNoCourses(
+    public async Task WhenPostingAddAllowedCourse_AndNoCourseSelectedAndCoursesToBeAllowedAreEmpty_ThenReturnsViewWithNoCourses(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Frozen] Mock<IValidator<AddAllowedCourseSubmitModel>> validator,
@@ -226,7 +226,7 @@ public class AddAllowedCourseControllerPostTests
     {
         SetupRestrictedProvider(ukprnServiceMock);
         SetupInvalidSubmit(validator);
-        SetupCoursesToBeAllowed(outerApiClientMock, HttpStatusCode.NotFound);
+        SetupCoursesToBeAllowed(outerApiClientMock, new GetCoursesToBeAllowedResponse { Courses = [] });
         SetupUrlHelper(sut);
 
         var result = await sut.Index(
@@ -257,7 +257,6 @@ public class AddAllowedCourseControllerPostTests
         SetupInvalidSubmit(validator);
         SetupCoursesToBeAllowed(
             outerApiClientMock,
-            HttpStatusCode.OK,
             new GetCoursesToBeAllowedResponse { Courses = null! });
         SetupUrlHelper(sut);
 
@@ -321,25 +320,22 @@ public class AddAllowedCourseControllerPostTests
 
     private static void SetupCoursesToBeAllowed(
         Mock<IOuterApiClient> outerApiClientMock,
-        HttpStatusCode statusCode = HttpStatusCode.OK,
         GetCoursesToBeAllowedResponse? response = null)
     {
         outerApiClientMock
             .Setup(c => c.GetCoursesToBeAllowed(Ukprn, CourseType.Apprenticeship, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(OuterApiResponse.Create(
-                statusCode,
-                response ?? new GetCoursesToBeAllowedResponse
-                {
-                    Courses =
-                    [
-                        new CourseToBeAllowedModel
-                        {
-                            LarsCode = SelectedLarsCode,
-                            Title = SelectedCourseTitle,
-                            Level = SelectedCourseLevel
-                        }
-                    ]
-                }));
+            .ReturnsAsync(response ?? new GetCoursesToBeAllowedResponse
+            {
+                Courses =
+                [
+                    new CourseToBeAllowedModel
+                    {
+                        LarsCode = SelectedLarsCode,
+                        Title = SelectedCourseTitle,
+                        Level = SelectedCourseLevel
+                    }
+                ]
+            });
     }
 
     private static void SetupUpsertResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)

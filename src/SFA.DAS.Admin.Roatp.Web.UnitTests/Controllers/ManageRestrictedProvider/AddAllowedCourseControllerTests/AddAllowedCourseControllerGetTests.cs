@@ -1,11 +1,9 @@
-using System.Net;
 using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
-using Refit;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.ManageRestrictedProvider;
@@ -184,35 +182,6 @@ public class AddAllowedCourseControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingAddAllowedCourse_AndCoursesToBeAllowedAreNotFound_ThenReturnsNotFound(
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IUkprnService> ukprnServiceMock,
-        [Greedy] AddAllowedCourseController sut)
-    {
-        SetupRestrictedProvider(ukprnServiceMock, outerApiClientMock, statusCode: HttpStatusCode.NotFound);
-
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken());
-
-        result.Should().BeOfType<NotFoundResult>();
-    }
-
-    [Test, MoqAutoData]
-    public async Task WhenGettingAddAllowedCourse_AndApiReturnsUnexpectedError_ThenThrows(
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IUkprnService> ukprnServiceMock,
-        [Greedy] AddAllowedCourseController sut)
-    {
-        SetupRestrictedProvider(
-            ukprnServiceMock,
-            outerApiClientMock,
-            statusCode: HttpStatusCode.InternalServerError);
-
-        var act = () => sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken());
-
-        await act.Should().ThrowAsync<ApiException>();
-    }
-
-    [Test, MoqAutoData]
     public async Task WhenGettingAddAllowedCourse_AndCoursesAreEmpty_ThenReturnsNotFound(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
@@ -222,19 +191,6 @@ public class AddAllowedCourseControllerGetTests
             ukprnServiceMock,
             outerApiClientMock,
             new GetCoursesToBeAllowedResponse { Courses = [] });
-
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken());
-
-        result.Should().BeOfType<NotFoundResult>();
-    }
-
-    [Test, MoqAutoData]
-    public async Task WhenGettingAddAllowedCourse_AndResponseContentIsNull_ThenReturnsNotFound(
-        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
-        [Frozen] Mock<IUkprnService> ukprnServiceMock,
-        [Greedy] AddAllowedCourseController sut)
-    {
-        SetupRestrictedProvider(ukprnServiceMock, outerApiClientMock, response: null);
 
         var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken());
 
@@ -252,14 +208,13 @@ public class AddAllowedCourseControllerGetTests
         Mock<IOuterApiClient> outerApiClientMock,
         GetCoursesToBeAllowedResponse? response = null,
         RouteLearningType routeLearningType = RouteLearningType.Apprenticeship,
-        HttpStatusCode statusCode = HttpStatusCode.OK,
         bool isRestricted = true)
     {
         var courseType = routeLearningType.ToCourseType();
         ukprnServiceMock.SetupOrganisationRestriction(Ukprn, isRestricted, courseType, ProviderName);
         outerApiClientMock
             .Setup(c => c.GetCoursesToBeAllowed(Ukprn, courseType, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(OuterApiResponse.Create(statusCode, response));
+            .ReturnsAsync(response ?? new GetCoursesToBeAllowedResponse());
     }
 
     private static GetCoursesToBeAllowedResponse CreateCoursesResponse()
