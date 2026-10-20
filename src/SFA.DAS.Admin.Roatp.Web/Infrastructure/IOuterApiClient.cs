@@ -118,6 +118,12 @@ public interface IOuterApiClient
     [Query] CourseType courseType,
     CancellationToken cancellationToken);
 
+    [Get("/providers/{ukprn}/allowed-courses/{larsCode}")]
+    Task<ApiResponse<ProviderAllowedCourseModel>> GetProviderAllowedCourse(
+        int ukprn,
+        string larsCode,
+        CancellationToken cancellationToken);
+
     [Post("/providers/{ukprn}/course-types/{courseType}/restrict")]
     Task<ApiResponse<object>> RestrictProvider(
         int ukprn,

@@ -36,11 +36,12 @@ public class ProviderAllowedCoursesController(
             return NotFound();
         }
 
-        var courseType = routeLearningType.ToCourseType();
-        if (routeLearningType == RouteLearningType.Apprenticeship && !organisation.IsRestrictedForCourseType(courseType))
+        if (organisation.IsUnrestrictedProvider(routeLearningType))
         {
             return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
         }
+
+        var courseType = routeLearningType.ToCourseType();
 
         var coursesResponse = await GetAllowedCourses(ukprn, courseType, cancellationToken);
         if (coursesResponse is null)
@@ -56,7 +57,11 @@ public class ProviderAllowedCoursesController(
             .Select(course =>
             {
                 AllowedCourseItemViewModel item = course;
-                item.ChangeUrl = pageUrl;
+                item.ChangeUrl = course.LastDateStarts.HasValue
+                    ? pageUrl
+                    : Url.RouteUrl(
+                        RouteNames.AddAllowedCourseLastStartDate,
+                        new { ukprn, routeLearningType, larsCode = course.LarsCode })!;
                 return item;
             })
             .ToList();

@@ -15,6 +15,8 @@ public class AllowedCourseItemViewModel : ICourseDisplayModel
     public string ChangeUrl { get; set; } = string.Empty;
 
     public string DisplayTitle => this.GetDisplayTitle();
+    public bool HasLastDateStarts => LastDateStarts.HasValue;
+    public string LastDateStartsText => LastDateStarts.HasValue ? LastDateStarts.Value.ToDisplayString() : string.Empty;
     public string DeliveryStatusDescription => DeliveryStatus.GetDescription();
     public string DeliveryStatusTagClass => DeliveryStatus.GetTagClass();
 

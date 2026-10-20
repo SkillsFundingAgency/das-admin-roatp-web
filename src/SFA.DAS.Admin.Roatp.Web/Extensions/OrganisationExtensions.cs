@@ -7,4 +7,8 @@ public static class OrganisationExtensions
 {
     public static bool IsRestrictedForCourseType(this GetOrganisationResponse organisation, CourseType courseType)
         => organisation.AllowedCourseTypes.FirstOrDefault(x => x.CourseType == courseType)?.IsRestricted == true;
+
+    public static bool IsUnrestrictedProvider(this GetOrganisationResponse organisation, RouteLearningType routeLearningType)
+        => routeLearningType == RouteLearningType.Apprenticeship
+           && !organisation.IsRestrictedForCourseType(routeLearningType.ToCourseType());
 }
