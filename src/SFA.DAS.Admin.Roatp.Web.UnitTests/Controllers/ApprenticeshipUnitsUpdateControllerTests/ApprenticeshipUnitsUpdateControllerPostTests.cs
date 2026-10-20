@@ -30,6 +30,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
       ApprenticeshipUnitsUpdateViewModel viewModel,
       int ukprn)
     {
+        CancellationToken cancellationToken = new();
         outerApiClientMock
             .Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null));
@@ -97,8 +98,7 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
        [Frozen] Mock<ISessionService> sessionServiceMock,
        [Frozen] Mock<IValidator<ApprenticeshipUnitsUpdateViewModel>> validator,
-       [Greedy] ApprenticeshipUnitsUpdateController sut,
-       GetOrganisationResponse getOrganisationResponse)
+       [Greedy] ApprenticeshipUnitsUpdateController sut)
     {
         CancellationToken cancellationToken = new();
         ApprenticeshipUnitsUpdateViewModel viewModel = new() { ApprenticeshipUnitsSelectionId = !isShortCourseTypePresent, OffersApprenticeships = false };
@@ -234,11 +234,6 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
 
         sut.SetupAuthenticatedUser();
 
-        sut.ControllerContext = new ControllerContext()
-        {
-            HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
-        };
-
         viewModel.ApprenticeshipUnitsSelectionId = apprenticeshipUnitsSelected;
 
         outerApiClientMock.Setup(x => x.GetOrganisation(getOrganisationResponse.Ukprn, cancellationToken))!
@@ -297,11 +292,6 @@ public class ApprenticeshipUnitsUpdateControllerPostTests
             .Returns(sessionModel);
 
         sut.SetupAuthenticatedUser();
-
-        sut.ControllerContext = new ControllerContext()
-        {
-            HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
-        };
 
         viewModel.ApprenticeshipUnitsSelectionId = apprenticeshipUnitsSelected;
 

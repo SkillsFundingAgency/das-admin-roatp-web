@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
-using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
 using SFA.DAS.Admin.Roatp.Web.Models.Constants;
@@ -58,14 +57,6 @@ public class ProviderTypeUpdateController(IOuterApiClient _outerApiClient, IOrga
         patchModel.ProviderType = (ProviderType)model.ProviderTypeId;
 
         await _organisationPatchService.OrganisationPatched(ukprn, organisationResponse, patchModel, cancellationToken);
-
-        if (organisationResponse.ProviderType == ProviderType.Employer && model.ProviderTypeId == (int)ProviderType.Main)
-        {
-            string userId = User.UserId();
-            string userDisplayName = User.UserDisplayName();
-            var courseTypesPutModel = new UpdateCourseTypesModel(organisationApiResponse.Content!.AllowedCourseTypes.Select(c => (int)c.CourseType).ToList(), userId, userDisplayName);
-            await _outerApiClient.PutCourseTypes(ukprn, courseTypesPutModel, cancellationToken);
-        }
 
         return RedirectToRoute(RouteNames.ProviderSummary, new { ukprn });
     }
