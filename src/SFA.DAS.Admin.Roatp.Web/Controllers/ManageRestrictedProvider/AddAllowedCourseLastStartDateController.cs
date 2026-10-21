@@ -49,10 +49,20 @@ public class AddAllowedCourseLastStartDateController(
             return NotFound();
         }
 
+        ProviderAllowedCourseModel? allowedCourse = await GetAllowedCourse(ukprn, larsCode, cancellationToken);
+        if (allowedCourse is null)
+        {
+            return NotFound();
+        }
+
         var course = await coursesService.GetCourse(larsCode, cancellationToken);
         if (course is null || course.CourseType != routeLearningType.ToCourseType())
         {
             return NotFound();
+        }
+        if (allowedCourse.LastDateStarts.HasValue)
+        {
+            return RedirectToRoute(RouteNames.ProviderAllowedCourses, new { ukprn, routeLearningType });
         }
 
         return View(ViewPath, BuildViewModel(ukprn, routeLearningType, course));
@@ -103,23 +113,38 @@ public class AddAllowedCourseLastStartDateController(
         return RedirectToRoute(RouteNames.ProviderAllowedCourses, new { ukprn, routeLearningType });
     }
 
-    private AddAllowedCourseLastStartDateViewModel BuildViewModel(
+    private async Task<ProviderAllowedCourseModel?> GetAllowedCourse(
         int ukprn,
-        RouteLearningType routeLearningType,
-        GetCourseResponse course,
-        string? day = null,
-        string? month = null,
-        string? year = null)
-        => new()
+        string larsCode,
+        CancellationToken cancellationToken)
+    {
+        var apiResponse = await outerApiClient.GetProviderAllowedCourse(ukprn, larsCode, cancellationToken);
+        if (apiResponse.StatusCode == HttpStatusCode.NotFound)
         {
-            Ukprn = ukprn,
-            RouteLearningType = routeLearningType,
-            CourseDisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level),
-            LarsCode = course.LarsCode,
-            CourseLastDateStarts = course.LastDateStarts,
-            Day = day,
-            Month = month,
-            Year = year,
-            CancelUrl = Url.RouteUrl(RouteNames.ProviderAllowedCourses, new { ukprn, routeLearningType })!
-        };
+            return null;
+        }
+
+        await apiResponse.EnsureSuccessStatusCodeAsync();
+        return apiResponse.Content;
+    }
+
+    private AddAllowedCourseLastStartDateViewModel BuildViewModel(
+       int ukprn,
+       RouteLearningType routeLearningType,
+       GetCourseResponse course,
+       string? day = null,
+       string? month = null,
+       string? year = null)
+       => new()
+       {
+           Ukprn = ukprn,
+           RouteLearningType = routeLearningType,
+           CourseDisplayTitle = CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level),
+           LarsCode = course.LarsCode,
+           CourseLastDateStarts = course.LastDateStarts,
+           Day = day,
+           Month = month,
+           Year = year,
+           CancelUrl = Url.RouteUrl(RouteNames.ProviderAllowedCourses, new { ukprn, routeLearningType })!
+       };
 }

@@ -1,9 +1,11 @@
+using System.Net;
 using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
+using Refit;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.ManageRestrictedProvider;
@@ -30,11 +32,12 @@ public class AddAllowedCourseLastStartDateControllerGetTests
 
     [Test, MoqAutoData]
     public async Task WhenGettingAddLastStartDate_AndProviderIsRestricted_ThenReturnsViewWithMappedModel(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Greedy] AddAllowedCourseLastStartDateController sut)
     {
-        SetupRestrictedProvider(ukprnServiceMock, coursesServiceMock);
+        SetupRestrictedProvider(ukprnServiceMock, outerApiClientMock, coursesServiceMock);
         SetupUrlHelper(sut);
 
         var result = await sut.Index(
@@ -63,11 +66,44 @@ public class AddAllowedCourseLastStartDateControllerGetTests
             model.Should().NotBeAssignableTo<IBackLink>();
         }
 
+        outerApiClientMock.Verify(
+            c => c.GetProviderAllowedCourse(Ukprn, LarsCode, It.IsAny<CancellationToken>()),
+            Times.Once);
         coursesServiceMock.Verify(c => c.GetCourse(LarsCode, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test, MoqAutoData]
+    public async Task WhenGettingAddLastStartDate_AndAllowedCourseHasLastDateStarts_ThenRedirectsToAllowedCourses(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Frozen] Mock<ICoursesService> coursesServiceMock,
+        [Greedy] AddAllowedCourseLastStartDateController sut)
+    {
+        var lastDateStarts = new DateTime(2026, 8, 2, 0, 0, 0, DateTimeKind.Unspecified);
+        SetupRestrictedProvider(
+            ukprnServiceMock,
+            outerApiClientMock,
+            coursesServiceMock,
+            allowedCourseLastDateStarts: lastDateStarts);
+
+        var result = await sut.Index(
+            Ukprn,
+            RouteLearningType.Apprenticeship,
+            LarsCode,
+            new CancellationToken()) as RedirectToRouteResult;
+
+        using (new AssertionScope())
+        {
+            result.Should().NotBeNull();
+            result!.RouteName.Should().Be(RouteNames.ProviderAllowedCourses);
+            result.RouteValues!["ukprn"].Should().Be(Ukprn);
+            result.RouteValues["routeLearningType"].Should().Be(RouteLearningType.Apprenticeship);
+        }
+    }
+
+    [Test, MoqAutoData]
     public async Task WhenGettingAddLastStartDate_AndRouteLearningTypeIsApprenticeshipUnit_ThenReturnsViewWithMappedModel(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Greedy] AddAllowedCourseLastStartDateController sut)
@@ -75,6 +111,7 @@ public class AddAllowedCourseLastStartDateControllerGetTests
         const string allowedUnitsUrl = "/providers/10019900/ApprenticeshipUnit/allowed-courses";
         SetupRestrictedProvider(
             ukprnServiceMock,
+            outerApiClientMock,
             coursesServiceMock,
             RouteLearningType.ApprenticeshipUnit);
         var urlHelperMock = sut.AddUrlHelperMock()
@@ -98,6 +135,9 @@ public class AddAllowedCourseLastStartDateControllerGetTests
             model.CancelUrl.Should().Be(allowedUnitsUrl);
         }
 
+        outerApiClientMock.Verify(
+            c => c.GetProviderAllowedCourse(Ukprn, LarsCode, It.IsAny<CancellationToken>()),
+            Times.Once);
         urlHelperMock.Verify(
             m => m.RouteUrl(It.Is<UrlRouteContext>(c =>
                 c.RouteName == RouteNames.ProviderAllowedCourses
@@ -117,8 +157,8 @@ public class AddAllowedCourseLastStartDateControllerGetTests
 
     [Test, MoqAutoData]
     public async Task WhenGettingAddLastStartDate_AndRouteLearningTypeIsApprenticeshipAndProviderIsUnrestricted_ThenReturnsNotFound(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
-        [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Greedy] AddAllowedCourseLastStartDateController sut)
     {
         ukprnServiceMock.SetupOrganisationRestriction(Ukprn, isRestricted: false);
@@ -130,19 +170,21 @@ public class AddAllowedCourseLastStartDateControllerGetTests
             new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
-        coursesServiceMock.Verify(
-            c => c.GetCourse(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+        outerApiClientMock.Verify(
+            c => c.GetProviderAllowedCourse(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
     [Test, MoqAutoData]
     public async Task WhenGettingAddLastStartDate_AndRouteLearningTypeIsApprenticeshipUnitAndProviderIsNotRestricted_ThenReturnsView(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Greedy] AddAllowedCourseLastStartDateController sut)
     {
         SetupRestrictedProvider(
             ukprnServiceMock,
+            outerApiClientMock,
             coursesServiceMock,
             RouteLearningType.ApprenticeshipUnit,
             isRestricted: false);
@@ -179,12 +221,68 @@ public class AddAllowedCourseLastStartDateControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingAddLastStartDate_AndCourseIsNotFound_ThenReturnsNotFound(
+    public async Task WhenGettingAddLastStartDate_AndAllowedCourseIsNotFound_ThenReturnsNotFound(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Greedy] AddAllowedCourseLastStartDateController sut)
     {
-        SetupRestrictedProvider(ukprnServiceMock, coursesServiceMock);
+        SetupRestrictedProvider(
+            ukprnServiceMock,
+            outerApiClientMock,
+            coursesServiceMock,
+            statusCode: HttpStatusCode.NotFound);
+
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, LarsCode, new CancellationToken());
+
+        result.Should().BeOfType<NotFoundResult>();
+        coursesServiceMock.Verify(c => c.GetCourse(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingAddLastStartDate_AndAllowedCourseContentIsNull_ThenReturnsNotFound(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Frozen] Mock<ICoursesService> coursesServiceMock,
+        [Greedy] AddAllowedCourseLastStartDateController sut)
+    {
+        SetupRestrictedProvider(
+            ukprnServiceMock,
+            outerApiClientMock,
+            coursesServiceMock,
+            includeAllowedCourse: false);
+
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, LarsCode, new CancellationToken());
+
+        result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingAddLastStartDate_AndApiReturnsUnexpectedError_ThenThrows(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Frozen] Mock<ICoursesService> coursesServiceMock,
+        [Greedy] AddAllowedCourseLastStartDateController sut)
+    {
+        SetupRestrictedProvider(
+            ukprnServiceMock,
+            outerApiClientMock,
+            coursesServiceMock,
+            statusCode: HttpStatusCode.InternalServerError);
+
+        var act = () => sut.Index(Ukprn, RouteLearningType.Apprenticeship, LarsCode, new CancellationToken());
+
+        await act.Should().ThrowAsync<ApiException>();
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingAddLastStartDate_AndCourseIsNotFound_ThenReturnsNotFound(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Frozen] Mock<ICoursesService> coursesServiceMock,
+        [Greedy] AddAllowedCourseLastStartDateController sut)
+    {
+        SetupRestrictedProvider(ukprnServiceMock, outerApiClientMock, coursesServiceMock);
         coursesServiceMock
             .Setup(c => c.GetCourse(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetCourseResponse?)null);
@@ -196,11 +294,12 @@ public class AddAllowedCourseLastStartDateControllerGetTests
 
     [Test, MoqAutoData]
     public async Task WhenGettingAddLastStartDate_AndCourseIsNotOfLearningType_ThenReturnsNotFound(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Greedy] AddAllowedCourseLastStartDateController sut)
     {
-        SetupRestrictedProvider(ukprnServiceMock, coursesServiceMock);
+        SetupRestrictedProvider(ukprnServiceMock, outerApiClientMock, coursesServiceMock);
         coursesServiceMock
             .Setup(c => c.GetCourse(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(CreateCourse(CourseType.ShortCourse));
@@ -218,16 +317,37 @@ public class AddAllowedCourseLastStartDateControllerGetTests
 
     private static void SetupRestrictedProvider(
         Mock<IUkprnService> ukprnServiceMock,
+        Mock<IOuterApiClient> outerApiClientMock,
         Mock<ICoursesService> coursesServiceMock,
         RouteLearningType routeLearningType = RouteLearningType.Apprenticeship,
-        bool isRestricted = true)
+        HttpStatusCode statusCode = HttpStatusCode.OK,
+        bool isRestricted = true,
+        bool includeAllowedCourse = true,
+        DateTime? allowedCourseLastDateStarts = null)
     {
         var courseType = routeLearningType.ToCourseType();
         ukprnServiceMock.SetupOrganisationRestriction(Ukprn, isRestricted, courseType, ProviderName);
+        outerApiClientMock
+            .Setup(c => c.GetProviderAllowedCourse(Ukprn, LarsCode, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OuterApiResponse.Create(
+                statusCode,
+                includeAllowedCourse && statusCode == HttpStatusCode.OK
+                    ? CreateAllowedCourse(allowedCourseLastDateStarts)
+                    : null));
         coursesServiceMock
             .Setup(c => c.GetCourse(LarsCode, It.IsAny<CancellationToken>()))
             .ReturnsAsync(CreateCourse(courseType));
     }
+
+    private static ProviderAllowedCourseModel CreateAllowedCourse(DateTime? lastDateStarts = null)
+        => new()
+        {
+            LarsCode = LarsCode,
+            Title = CourseTitle,
+            Level = CourseLevel,
+            LastDateStarts = lastDateStarts,
+            IsClosedToNewStarts = false
+        };
 
     private static GetCourseResponse CreateCourse(CourseType courseType)
         => new()
