@@ -49,12 +49,6 @@ public class AddAllowedCourseLastStartDateController(
             return NotFound();
         }
 
-        var allowedCourse = await GetAllowedCourse(ukprn, larsCode, cancellationToken);
-        if (allowedCourse is null)
-        {
-            return NotFound();
-        }
-
         var course = await coursesService.GetCourse(larsCode, cancellationToken);
         if (course is null || course.CourseType != routeLearningType.ToCourseType())
         {
@@ -85,9 +79,7 @@ public class AddAllowedCourseLastStartDateController(
         if (!validationResult.IsValid)
         {
             ModelState.AddValidationErrors(validationResult.Errors);
-            return View(
-                ViewPath,
-                BuildViewModel(ukprn, routeLearningType, course, submitModel.Day, submitModel.Month, submitModel.Year));
+            return View(ViewPath, BuildViewModel(ukprn, routeLearningType, course, submitModel.Day, submitModel.Month, submitModel.Year));
         }
 
         var response = await outerApiClient.PatchProviderAllowedCourse(
@@ -109,21 +101,6 @@ public class AddAllowedCourseLastStartDateController(
             GetSuccessBannerMessage(CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level));
 
         return RedirectToRoute(RouteNames.ProviderAllowedCourses, new { ukprn, routeLearningType });
-    }
-
-    private async Task<ProviderAllowedCourseModel?> GetAllowedCourse(
-        int ukprn,
-        string larsCode,
-        CancellationToken cancellationToken)
-    {
-        var apiResponse = await outerApiClient.GetProviderAllowedCourse(ukprn, larsCode, cancellationToken);
-        if (apiResponse.StatusCode == HttpStatusCode.NotFound)
-        {
-            return null;
-        }
-
-        await apiResponse.EnsureSuccessStatusCodeAsync();
-        return apiResponse.Content;
     }
 
     private AddAllowedCourseLastStartDateViewModel BuildViewModel(
