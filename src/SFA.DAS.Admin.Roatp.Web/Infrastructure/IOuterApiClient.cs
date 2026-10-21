@@ -124,4 +124,10 @@ public interface IOuterApiClient
         CourseType courseType,
         [Body] RestrictProviderRequest request,
         CancellationToken cancellationToken);
+
+    [Get("/providers/{ukprn}/courses-tobe-allowed")]
+    Task<GetCoursesToBeAllowedResponse> GetCoursesToBeAllowed(
+        int ukprn,
+        [Query] CourseType courseType,
+        CancellationToken cancellationToken);
 }

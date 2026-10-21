@@ -32,7 +32,7 @@ public class UnrestrictedCourseSearchControllerPostTests
 
         var actual = await controller.Index(
             new UnrestrictedCourseSearchSubmitModel { SelectedLarsCode = LarsCode },
-            CancellationToken.None);
+            new CancellationToken());
 
         using (new AssertionScope())
         {
@@ -61,7 +61,7 @@ public class UnrestrictedCourseSearchControllerPostTests
 
         var actual = await controller.Index(
             new UnrestrictedCourseSearchSubmitModel(),
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
 
         using (new AssertionScope())
         {

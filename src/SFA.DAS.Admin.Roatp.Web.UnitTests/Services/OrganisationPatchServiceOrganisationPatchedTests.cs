@@ -19,10 +19,10 @@ public class OrganisationPatchServiceOrganisationPatchedTests
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] OrganisationPatchService sut,
         GetOrganisationResponse getOrganisationResponse,
-        int ukprn,
-        CancellationToken cancellationToken
+        int ukprn
     )
     {
+        var cancellationToken = new CancellationToken();
         getOrganisationResponse.Ukprn = ukprn;
 
         PatchOrganisationModel patchModel = getOrganisationResponse;

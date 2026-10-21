@@ -3,7 +3,6 @@ using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Refit;
@@ -20,18 +19,19 @@ namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.AppenticeshipsUpdateCont
 
 public class ApprenticeshipsUpdateControllerPostTests
 {
+    private const int Ukprn = 10019900;
+
     [Test, MoqAutoData]
     public async Task WhenPostingApprenticeshipsUpdate_AndNoMatchingDetails_ThenRedirectsToHome(
      [Frozen] Mock<IOuterApiClient> outerApiClientMock,
      [Greedy] ApprenticeshipsUpdateController sut,
      OfferApprenticeshipsSubmitModel submitModel,
-     int ukprn,
-     CancellationToken cancellationToken)
+     int ukprn)
     {
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null));
 
-        var actual = await sut.Index(ukprn, submitModel, cancellationToken);
+        var actual = await sut.Index(ukprn, submitModel, new CancellationToken());
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
@@ -46,19 +46,16 @@ public class ApprenticeshipsUpdateControllerPostTests
         [Greedy] ApprenticeshipsUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
         OfferApprenticeshipsSubmitModel submitModel,
-        int ukprn,
-        CancellationToken cancellationToken)
+        int ukprn)
     {
+        var cancellationToken = new CancellationToken();
         var validationResult = new ValidationResult();
         validationResult.Errors.Add(new ValidationFailure("Field", "Error"));
         validator.Setup(x => x.Validate(submitModel))
             .Returns(validationResult);
 
         var selectedNoId = false;
-        sut.ControllerContext = new ControllerContext()
-        {
-            HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
-        };
+        sut.SetupAuthenticatedUser();
         var courseTypes = new List<AllowedCourseType> { new() { CourseType = CourseType.ShortCourse } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
@@ -89,30 +86,26 @@ public class ApprenticeshipsUpdateControllerPostTests
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ApprenticeshipsUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
-        OfferApprenticeshipsSubmitModel submitModel,
-        int ukprn,
-        CancellationToken cancellationToken)
+        OfferApprenticeshipsSubmitModel submitModel)
     {
+        var cancellationToken = new CancellationToken();
         var validationResult = new ValidationResult();
         validator.Setup(x => x.Validate(submitModel))
             .Returns(validationResult);
 
         var selectedNoId = false;
-        sut.ControllerContext = new ControllerContext()
-        {
-            HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
-        };
+        sut.SetupAuthenticatedUser();
         var courseTypes = new List<AllowedCourseType> { new() { CourseType = CourseType.ShortCourse } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
 
         submitModel.IsApprenticeshipsOffered = selectedNoId;
 
-        getOrganisationResponse.Ukprn = ukprn;
-        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
+        getOrganisationResponse.Ukprn = Ukprn;
+        outerApiClientMock.Setup(x => x.GetOrganisation(Ukprn, cancellationToken))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), new GetOrganisationResponse(), new RefitSettings(), null));
 
-        var actual = await sut.Index(ukprn, submitModel, cancellationToken);
+        var actual = await sut.Index(Ukprn, submitModel, cancellationToken);
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
@@ -131,29 +124,25 @@ public class ApprenticeshipsUpdateControllerPostTests
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] ApprenticeshipsUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
-        OfferApprenticeshipsSubmitModel submitModel,
-        int ukprn,
-        CancellationToken cancellationToken)
+        OfferApprenticeshipsSubmitModel submitModel)
     {
+        var cancellationToken = new CancellationToken();
         var validationResult = new ValidationResult();
         validator.Setup(x => x.Validate(submitModel))
             .Returns(validationResult);
 
         var selectedNoId = true;
-        sut.ControllerContext = new ControllerContext()
-        {
-            HttpContext = new DefaultHttpContext() { User = MockedUser.Setup() }
-        };
+        sut.SetupAuthenticatedUser();
         var courseTypes = new List<AllowedCourseType> { new() { CourseType = CourseType.ShortCourse } };
 
         getOrganisationResponse.AllowedCourseTypes = courseTypes;
         submitModel.IsApprenticeshipsOffered = selectedNoId;
 
-        getOrganisationResponse.Ukprn = ukprn;
-        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
+        getOrganisationResponse.Ukprn = Ukprn;
+        outerApiClientMock.Setup(x => x.GetOrganisation(Ukprn, cancellationToken))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), new GetOrganisationResponse(), new RefitSettings(), null));
 
-        var actual = await sut.Index(ukprn, submitModel, cancellationToken);
+        var actual = await sut.Index(Ukprn, submitModel, cancellationToken);
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();

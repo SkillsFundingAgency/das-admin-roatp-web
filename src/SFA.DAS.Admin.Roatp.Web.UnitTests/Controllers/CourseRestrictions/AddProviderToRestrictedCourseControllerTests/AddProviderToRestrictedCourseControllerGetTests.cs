@@ -28,7 +28,7 @@ public class AddProviderToRestrictedCourseControllerGetTests
     {
         SetupRestrictedCourse(response, outerApiClientMock);
 
-        var result = await sut.Index(LarsCode, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new CancellationToken()) as ViewResult;
 
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddProviderToRestrictedCourse), Times.Once);
         using (new AssertionScope())
@@ -57,7 +57,7 @@ public class AddProviderToRestrictedCourseControllerGetTests
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
                 new HttpResponseMessage(HttpStatusCode.NotFound), null, new RefitSettings(), null));
 
-        var result = await sut.Index(LarsCode, CancellationToken.None);
+        var result = await sut.Index(LarsCode, new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -75,7 +75,7 @@ public class AddProviderToRestrictedCourseControllerGetTests
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
                 new HttpResponseMessage(HttpStatusCode.OK), response, new RefitSettings(), null));
 
-        var result = await sut.Index(LarsCode, CancellationToken.None);
+        var result = await sut.Index(LarsCode, new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
     }

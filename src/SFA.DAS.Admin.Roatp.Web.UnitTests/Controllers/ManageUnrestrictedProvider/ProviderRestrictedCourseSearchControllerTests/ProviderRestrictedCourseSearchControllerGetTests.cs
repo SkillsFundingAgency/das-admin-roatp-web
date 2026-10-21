@@ -33,7 +33,7 @@ public class ProviderRestrictedCourseSearchControllerGetTests
     {
         SetupSearchableCourses(outerApiClientMock);
 
-        var actual = await sut.Index(Ukprn, CancellationToken.None) as ViewResult;
+        var actual = await sut.Index(Ukprn, new CancellationToken()) as ViewResult;
         var model = actual?.Model as ProviderRestrictedCourseSearchViewModel;
 
         using (new AssertionScope())
@@ -60,7 +60,7 @@ public class ProviderRestrictedCourseSearchControllerGetTests
     {
         SetupNotRestrictedApprenticeships(outerApiClientMock, HttpStatusCode.NotFound);
 
-        var actual = await sut.Index(Ukprn, CancellationToken.None);
+        var actual = await sut.Index(Ukprn, new CancellationToken());
 
         actual.Should().BeOfType<NotFoundResult>();
     }
@@ -72,7 +72,7 @@ public class ProviderRestrictedCourseSearchControllerGetTests
     {
         SetupNotRestrictedApprenticeships(outerApiClientMock, HttpStatusCode.OK, null);
 
-        var actual = await sut.Index(Ukprn, CancellationToken.None) as ViewResult;
+        var actual = await sut.Index(Ukprn, new CancellationToken()) as ViewResult;
         var model = actual?.Model as ProviderRestrictedCourseSearchViewModel;
 
         using (new AssertionScope())
@@ -95,7 +95,7 @@ public class ProviderRestrictedCourseSearchControllerGetTests
             HttpStatusCode.OK,
             new GetNotRestrictedApprenticeshipsResponse { Courses = null! });
 
-        var actual = await sut.Index(Ukprn, CancellationToken.None) as ViewResult;
+        var actual = await sut.Index(Ukprn, new CancellationToken()) as ViewResult;
         var model = actual?.Model as ProviderRestrictedCourseSearchViewModel;
 
         using (new AssertionScope())

@@ -26,7 +26,7 @@ public class CoursesServiceTests
     {
         SetupCachedCourses(applicationCacheMock);
 
-        var result = await sut.GetCourse(LarsCode, CancellationToken.None);
+        var result = await sut.GetCourse(LarsCode, new CancellationToken());
 
         using (new AssertionScope())
         {
@@ -54,7 +54,7 @@ public class CoursesServiceTests
         SetupCacheMiss(applicationCacheMock);
         SetupGetCoursesApi(outerApiClientMock);
 
-        var result = await sut.GetCourse(LarsCode, CancellationToken.None);
+        var result = await sut.GetCourse(LarsCode, new CancellationToken());
 
         using (new AssertionScope())
         {
@@ -82,7 +82,7 @@ public class CoursesServiceTests
         SetupCacheMiss(applicationCacheMock);
         SetupGetCoursesApi(outerApiClientMock, includeRequestedCourse: false);
 
-        var result = await sut.GetCourse(LarsCode, CancellationToken.None);
+        var result = await sut.GetCourse(LarsCode, new CancellationToken());
 
         result.Should().BeNull();
     }

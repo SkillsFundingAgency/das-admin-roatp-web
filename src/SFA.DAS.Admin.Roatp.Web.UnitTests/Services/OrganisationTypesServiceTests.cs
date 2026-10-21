@@ -15,13 +15,12 @@ public class OrganisationTypesServiceTests
         [Frozen] Mock<IOuterApiClient> clientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] OrganisationTypesService sut,
-        List<OrganisationTypeModel> organisationTypes,
-        CancellationToken cancellationToken
+        List<OrganisationTypeModel> organisationTypes
     )
     {
         sessionServiceMock.Setup(x => x.Get<List<OrganisationTypeModel>>(SessionKeys.GetOrganisationTypes)).Returns(organisationTypes);
 
-        var returnedOrganisationTypes = await sut.GetOrganisationTypes(cancellationToken);
+        var returnedOrganisationTypes = await sut.GetOrganisationTypes(new CancellationToken());
 
         returnedOrganisationTypes.Should().BeEquivalentTo(organisationTypes);
         sessionServiceMock.Verify(x => x.Get<List<OrganisationTypeModel>>(SessionKeys.GetOrganisationTypes), Times.Once);
@@ -34,10 +33,10 @@ public class OrganisationTypesServiceTests
         [Frozen] Mock<IOuterApiClient> clientMock,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Greedy] OrganisationTypesService sut,
-        List<OrganisationTypeModel> organisationTypes,
-        CancellationToken cancellationToken
+        List<OrganisationTypeModel> organisationTypes
     )
     {
+        var cancellationToken = new CancellationToken();
         sessionServiceMock.Setup(x => x.Get<List<OrganisationTypeModel>>(SessionKeys.GetOrganisationTypes)).Returns((List<OrganisationTypeModel>)null!);
         clientMock.Setup(x => x.GetOrganisationTypes(cancellationToken)).ReturnsAsync(new GetOrganisationTypesResponse { OrganisationTypes = organisationTypes });
 

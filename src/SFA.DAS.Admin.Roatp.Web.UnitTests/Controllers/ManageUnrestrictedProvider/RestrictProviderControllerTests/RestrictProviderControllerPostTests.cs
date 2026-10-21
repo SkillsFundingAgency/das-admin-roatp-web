@@ -26,7 +26,7 @@ public class RestrictProviderControllerPostTests
     {
         sessionServiceMock.SetupProviderName(Ukprn, ProviderName);
 
-        var result = await sut.IndexPost(Ukprn, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.IndexPost(Ukprn, new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -47,7 +47,7 @@ public class RestrictProviderControllerPostTests
             .Setup(c => c.GetOrganisation(Ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync(OuterApiResponse.Create<GetOrganisationResponse>(HttpStatusCode.NotFound, includeException: false));
 
-        var result = await sut.IndexPost(Ukprn, CancellationToken.None);
+        var result = await sut.IndexPost(Ukprn, new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
     }

@@ -33,7 +33,7 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
     {
         SetupController(sut, outerApiClientMock, ukprnServiceMock, ukprn, providerName, CreateCourses(15));
 
-        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), new CancellationToken()) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())
@@ -61,7 +61,7 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
         var result = await sut.Index(
             ukprn,
             new GetProviderRestrictedApprenticeshipsRequestModel { PageNumber = 2 },
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())
@@ -86,7 +86,7 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
     {
         SetupController(sut, outerApiClientMock, ukprnServiceMock, ukprn, providerName, CreateCourses(10));
 
-        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), new CancellationToken()) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())
@@ -109,7 +109,7 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
         var result = await sut.Index(
             ukprn,
             new GetProviderRestrictedApprenticeshipsRequestModel { PageNumber = 0 },
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())
@@ -134,7 +134,7 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
         var result = await sut.Index(
             ukprn,
             new GetProviderRestrictedApprenticeshipsRequestModel { PageNumber = 99 },
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())
@@ -164,7 +164,7 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
                 SearchTerm = "Course",
                 DeliveryStatus = [DeliveryStatus.ClosedToNewStarts]
             },
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())
@@ -192,7 +192,7 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
         var result = await sut.Index(
             ukprn,
             new GetProviderRestrictedApprenticeshipsRequestModel { PageNumber = 4 },
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
         var numberedPages = model!.Pagination.Pages
             .Where(p => p.Title != PaginationViewModel.PreviousPageTitle
@@ -219,7 +219,7 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
     {
         SetupController(sut, outerApiClientMock, ukprnServiceMock, ukprn, providerName, CreateCourses(70));
 
-        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), new CancellationToken()) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
         var numberedPages = model!.Pagination.Pages
             .Where(p => p.Title != PaginationViewModel.PreviousPageTitle
@@ -251,7 +251,7 @@ public class ProviderRestrictedApprenticeshipsControllerPaginationTests
         var result = await sut.Index(
             ukprn,
             new GetProviderRestrictedApprenticeshipsRequestModel { PageNumber = 7 },
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
         var numberedPages = model!.Pagination.Pages
             .Where(p => p.Title != PaginationViewModel.PreviousPageTitle

@@ -45,7 +45,7 @@ public class AddProviderToRestrictedCourseControllerPostTests
         var result = await sut.Index(
             LarsCode,
             new AddProviderToRestrictedCourseSubmitModel(),
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
 
         sessionServiceMock.Verify(
             s => s.Set(It.IsAny<string>(), It.IsAny<AddProviderToRestrictedCourseSessionModel>()),
@@ -79,7 +79,7 @@ public class AddProviderToRestrictedCourseControllerPostTests
             SelectedUkprn = Ukprn.ToString()
         };
 
-        var result = await sut.Index(LarsCode, submitModel, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(LarsCode, submitModel, new CancellationToken()) as RedirectToRouteResult;
 
         sessionServiceMock.Verify(
             s => s.Set(
@@ -114,7 +114,7 @@ public class AddProviderToRestrictedCourseControllerPostTests
         var result = await sut.Index(
             LarsCode,
             new AddProviderToRestrictedCourseSubmitModel { SelectedUkprn = "not-a-provider" },
-            CancellationToken.None);
+            new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
         sessionServiceMock.Verify(
@@ -139,7 +139,7 @@ public class AddProviderToRestrictedCourseControllerPostTests
         var result = await sut.Index(
             LarsCode,
             new AddProviderToRestrictedCourseSubmitModel { SelectedUkprn = Ukprn.ToString() },
-            CancellationToken.None);
+            new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
         sessionServiceMock.Verify(

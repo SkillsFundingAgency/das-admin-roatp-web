@@ -25,13 +25,7 @@ public class ErrorControllerTests
         [Greedy] ErrorController sut)
     {
         mockOptions.Setup(c => c.Value).Returns(configuration);
-        sut.ControllerContext = new ControllerContext
-        {
-            HttpContext = new DefaultHttpContext
-            {
-                User = MockedUser.Setup(Roles.RoatpAdminTeam)
-            }
-        };
+        sut.SetupAuthenticatedUser();
 
         var result = sut.Index(StatusCodes.Status403Forbidden, string.Empty) as ViewResult;
 
@@ -49,13 +43,7 @@ public class ErrorControllerTests
         [Greedy] ErrorController sut)
     {
         mockOptions.Setup(c => c.Value).Returns(configuration);
-        sut.ControllerContext = new ControllerContext
-        {
-            HttpContext = new DefaultHttpContext
-            {
-                User = MockedUser.Setup(Roles.RoatpAdminTeam)
-            }
-        };
+        sut.SetupAuthenticatedUser();
 
         sut.Index(StatusCodes.Status403Forbidden, string.Empty);
 

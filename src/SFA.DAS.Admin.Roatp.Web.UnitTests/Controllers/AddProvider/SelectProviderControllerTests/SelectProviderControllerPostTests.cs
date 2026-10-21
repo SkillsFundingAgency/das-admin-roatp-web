@@ -22,10 +22,10 @@ public class SelectProviderControllerPostTests
         [Frozen] Mock<IValidator<SelectProviderSubmitModel>> validator,
         [Frozen] Mock<ISessionService> sessionServiceMock,
         [Frozen] Mock<IOuterApiClient> outerApiClient,
-        GetUkrlpResponse ukrlpResponse,
-        CancellationToken cancellationToken)
+        GetUkrlpResponse ukrlpResponse)
     {
         // Arrange
+        var cancellationToken = new CancellationToken();
         SelectProviderSubmitModel submitModel = new() { Ukprn = "12345678" };
         validator.Setup(x => x.Validate(It.Is<SelectProviderSubmitModel>(m => m.Ukprn == submitModel.Ukprn))).Returns(new ValidationResult());
 
@@ -66,10 +66,10 @@ public class SelectProviderControllerPostTests
     public async Task Post_Index_SubmitModelIsInvalid_ReturnsViewWithErrors(
     [Frozen] Mock<IValidator<SelectProviderSubmitModel>> validator,
     [Frozen] Mock<ISessionService> sessionServiceMock,
-    [Frozen] Mock<IOuterApiClient> outerApiClient,
-    CancellationToken cancellationToken)
+    [Frozen] Mock<IOuterApiClient> outerApiClient)
     {
         // Arrange
+        var cancellationToken = new CancellationToken();
         SelectProviderSubmitModel viewModel = new() { Ukprn = "12345678" };
         var validationResult = new ValidationResult();
         validationResult.Errors.Add(new ValidationFailure("Field", "Error"));
@@ -94,10 +94,10 @@ public class SelectProviderControllerPostTests
     public async Task Post_Index_ExistingOrganisation_ReturnsViewWithErrors(
     [Frozen] Mock<IValidator<SelectProviderSubmitModel>> validator,
     [Frozen] Mock<ISessionService> sessionServiceMock,
-    [Frozen] Mock<IOuterApiClient> outerApiClient,
-    CancellationToken cancellationToken)
+    [Frozen] Mock<IOuterApiClient> outerApiClient)
     {
         // Arrange
+        var cancellationToken = new CancellationToken();
         SelectProviderSubmitModel viewModel = new() { Ukprn = "12345678" };
         validator.Setup(x => x.Validate(It.Is<SelectProviderSubmitModel>(m => m.Ukprn == viewModel.Ukprn))).Returns(new ValidationResult());
 
@@ -122,10 +122,10 @@ public class SelectProviderControllerPostTests
     public async Task Post_Index_UkrlpNotFound_RedirectsToCorrectAction(
         [Frozen] Mock<IValidator<SelectProviderSubmitModel>> validator,
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClient,
-        CancellationToken cancellationToken)
+        [Frozen] Mock<IOuterApiClient> outerApiClient)
     {
         // Arrange
+        var cancellationToken = new CancellationToken();
         SelectProviderSubmitModel viewModel = new() { Ukprn = "12345678" };
         validator.Setup(x => x.Validate(It.Is<SelectProviderSubmitModel>(m => m.Ukprn == viewModel.Ukprn))).Returns(new ValidationResult());
 
@@ -152,10 +152,10 @@ public class SelectProviderControllerPostTests
     public async Task Post_Index_GetOrganisationReturnsInvalidStatusCode_ThrowsException(
         [Frozen] Mock<IValidator<SelectProviderSubmitModel>> validator,
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClient,
-        CancellationToken cancellationToken)
+        [Frozen] Mock<IOuterApiClient> outerApiClient)
     {
         // Arrange
+        var cancellationToken = new CancellationToken();
         SelectProviderSubmitModel viewModel = new() { Ukprn = "12345678" };
         validator.Setup(x => x.Validate(It.Is<SelectProviderSubmitModel>(m => m.Ukprn == viewModel.Ukprn))).Returns(new ValidationResult());
 
@@ -177,10 +177,10 @@ public class SelectProviderControllerPostTests
     public async Task Post_Index_GetUkrlpReturnsInvalidStatusCode_ThrowsException(
         [Frozen] Mock<IValidator<SelectProviderSubmitModel>> validator,
         [Frozen] Mock<ISessionService> sessionServiceMock,
-        [Frozen] Mock<IOuterApiClient> outerApiClient,
-        CancellationToken cancellationToken)
+        [Frozen] Mock<IOuterApiClient> outerApiClient)
     {
         // Arrange
+        var cancellationToken = new CancellationToken();
         SelectProviderSubmitModel viewModel = new() { Ukprn = "12345678" };
         validator.Setup(x => x.Validate(It.Is<SelectProviderSubmitModel>(m => m.Ukprn == viewModel.Ukprn))).Returns(new ValidationResult());
 

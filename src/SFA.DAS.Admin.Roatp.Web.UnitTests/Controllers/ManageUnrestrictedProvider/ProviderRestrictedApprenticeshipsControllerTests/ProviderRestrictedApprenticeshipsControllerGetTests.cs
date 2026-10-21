@@ -59,7 +59,7 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
         SetupRestrictedApprenticeships(outerApiClientMock, ukprn, response);
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), new CancellationToken()) as ViewResult;
         var model = result?.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())
@@ -97,7 +97,7 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
         sut.AddTempData();
         ukprnServiceMock.SetupOrganisationRestriction(ukprn, isRestricted: true, legalName: providerName);
 
-        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -130,7 +130,7 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
         SetupRestrictedApprenticeships(outerApiClientMock, ukprn, response);
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), new CancellationToken()) as ViewResult;
         var model = result?.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())
@@ -153,7 +153,7 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
             .Setup(s => s.GetOrganisationAsync(ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetOrganisationResponse?)null);
 
-        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), CancellationToken.None);
+        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), new CancellationToken());
 
         using (new AssertionScope())
         {
@@ -176,7 +176,7 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
         ukprnServiceMock.SetupOrganisationRestriction(ukprn, isRestricted: false, legalName: providerName);
         SetupRestrictedApprenticeships(outerApiClientMock, ukprn, statusCode: HttpStatusCode.NotFound);
 
-        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), CancellationToken.None);
+        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), new CancellationToken());
 
         using (new AssertionScope())
         {
@@ -197,7 +197,7 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
         ukprnServiceMock.SetupOrganisationRestriction(ukprn, isRestricted: false, legalName: providerName);
         SetupRestrictedApprenticeships(outerApiClientMock, ukprn, statusCode: HttpStatusCode.InternalServerError);
 
-        var act = () => sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), CancellationToken.None);
+        var act = () => sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
 
@@ -219,7 +219,7 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
         SetupRestrictedApprenticeships(outerApiClientMock, ukprn, response: null);
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), new CancellationToken()) as ViewResult;
         var model = result?.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())
@@ -248,7 +248,7 @@ public class ProviderRestrictedApprenticeshipsControllerGetTests
             new GetRestrictedApprenticeshipsResponse { Courses = null! });
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(ukprn, new GetProviderRestrictedApprenticeshipsRequestModel(), new CancellationToken()) as ViewResult;
         var model = result?.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())

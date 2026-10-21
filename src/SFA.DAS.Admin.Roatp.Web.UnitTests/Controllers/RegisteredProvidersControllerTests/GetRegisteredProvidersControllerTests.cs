@@ -19,8 +19,7 @@ public class GetRegisteredProvidersControllerTests
     public async Task GetOrganisations_MatchedByName(
         [Frozen] Mock<IOrganisationsService> organisationServiceMock,
         [Greedy] RegisteredProvidersController controller,
-        List<OrganisationModel> organisations,
-        CancellationToken cancellationToken
+        List<OrganisationModel> organisations
     )
     {
         foreach (var organisation in organisations)
@@ -30,7 +29,7 @@ public class GetRegisteredProvidersControllerTests
 
         organisationServiceMock.Setup(x => x.GetOrganisations(It.IsAny<CancellationToken>())).ReturnsAsync(organisations);
 
-        var actual = await controller.Index(SearchTerm, cancellationToken);
+        var actual = await controller.Index(SearchTerm, new CancellationToken());
         var actualResult = actual as OkObjectResult;
         var returnedOrganisations = new List<OrganisationModel>((IEnumerable<OrganisationModel>)actualResult!.Value!);
 
@@ -43,8 +42,7 @@ public class GetRegisteredProvidersControllerTests
     [Test, MoqAutoData]
     public async Task GetOrganisations_MatchedByUkprn(
         [Frozen] Mock<IOrganisationsService> organisationServiceMock,
-        [Greedy] RegisteredProvidersController controller,
-        CancellationToken cancellationToken
+        [Greedy] RegisteredProvidersController controller
     )
     {
         int numberOfMockedRegisteredProviders = 10;
@@ -58,7 +56,7 @@ public class GetRegisteredProvidersControllerTests
 
         organisationServiceMock.Setup(x => x.GetOrganisations(It.IsAny<CancellationToken>())).ReturnsAsync(registeredProviders);
 
-        var actual = await controller.Index(UkprnSearchString, cancellationToken);
+        var actual = await controller.Index(UkprnSearchString, new CancellationToken());
         var actualResult = actual as OkObjectResult;
         var returnedOrganisations = new List<OrganisationModel>((IEnumerable<OrganisationModel>)actualResult!.Value!);
 
@@ -72,8 +70,7 @@ public class GetRegisteredProvidersControllerTests
     [Test, MoqAutoData]
     public async Task GetOrganisations_ReturnedTop100MatchesSortedAlphabetically(
         [Frozen] Mock<IOrganisationsService> organisationServiceMock,
-        [Greedy] RegisteredProvidersController controller,
-        CancellationToken cancellationToken
+        [Greedy] RegisteredProvidersController controller
     )
     {
         int numberOfMockedRegisteredProviders = 200;
@@ -88,7 +85,7 @@ public class GetRegisteredProvidersControllerTests
         organisationServiceMock.Setup(x => x.GetOrganisations(It.IsAny<CancellationToken>())).ReturnsAsync(mockedRegisteredProviders);
 
 
-        var actual = await controller.Index(UkprnSearchString, cancellationToken);
+        var actual = await controller.Index(UkprnSearchString, new CancellationToken());
         var actualResult = actual as OkObjectResult;
         var returnedProviders = new List<OrganisationModel>((IEnumerable<OrganisationModel>)actualResult!.Value!);
 

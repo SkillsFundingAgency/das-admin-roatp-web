@@ -15,17 +15,18 @@ using System.Net;
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Controllers.ProviderStatusUpdateControllerTests;
 public class ProviderStatusUpdateControllerConfirmationGetTests
 {
+    private const int Ukprn = 10019900;
+
     [Test, MoqAutoData]
     public async Task Get_NoMatchingDetails_RedirectToHome(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] ProviderStatusUpdateController sut,
-        int ukprn,
-        CancellationToken cancellationToken)
+        int ukprn)
     {
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null));
 
-        var actual = await sut.ProviderStatusUpdateConfirmed(ukprn, cancellationToken);
+        var actual = await sut.ProviderStatusUpdateConfirmed(ukprn, new CancellationToken());
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
@@ -42,13 +43,11 @@ public class ProviderStatusUpdateControllerConfirmationGetTests
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] ProviderStatusUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
-        int ukprn,
         string providerSummaryLink,
         string selectTrainingProviderLink,
-        string addProviderLink,
-        CancellationToken cancellationToken)
+        string addProviderLink)
     {
-        getOrganisationResponse.Ukprn = ukprn;
+        getOrganisationResponse.Ukprn = Ukprn;
         getOrganisationResponse.Status = status;
 
         sut.AddUrlHelperMock()
@@ -60,7 +59,7 @@ public class ProviderStatusUpdateControllerConfirmationGetTests
         {
             LegalName = getOrganisationResponse.LegalName,
             OrganisationStatus = getOrganisationResponse.Status,
-            Ukprn = ukprn,
+            Ukprn = Ukprn,
             StatusText = MatchingStatusText(getOrganisationResponse.Status),
             ProviderSummaryLink = providerSummaryLink,
             SelectTrainingProviderLink = selectTrainingProviderLink,
@@ -70,7 +69,7 @@ public class ProviderStatusUpdateControllerConfirmationGetTests
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
-        var actual = await sut.ProviderStatusUpdateConfirmed(ukprn, cancellationToken) as ViewResult;
+        var actual = await sut.ProviderStatusUpdateConfirmed(Ukprn, new CancellationToken()) as ViewResult;
 
         actual.Should().NotBeNull();
         var model = actual!.Model as ProviderStatusConfirmationViewModel;

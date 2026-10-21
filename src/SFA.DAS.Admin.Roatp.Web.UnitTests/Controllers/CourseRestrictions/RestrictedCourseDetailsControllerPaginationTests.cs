@@ -37,7 +37,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
-        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequestModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequestModel(), new CancellationToken()) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.ProviderCount.Should().Be(15);
@@ -64,7 +64,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
 
         var requestModel = new GetRestrictedCourseDetailsRequestModel { PageNumber = 2 };
 
-        var result = await sut.Index(LarsCode, requestModel, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, requestModel, new CancellationToken()) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.ProviderCount.Should().Be(15);
@@ -89,7 +89,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl)
             .AddUrlForRoute(RouteNames.AddProviderToRestrictedCourse, AddProviderToRestrictedCourseUrl);
 
-        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequestModel(), CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, new GetRestrictedCourseDetailsRequestModel(), new CancellationToken()) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.AllowedProviders.Should().HaveCount(10);
@@ -114,7 +114,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
 
         var requestModel = new GetRestrictedCourseDetailsRequestModel { PageNumber = 0 };
 
-        var result = await sut.Index(LarsCode, requestModel, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, requestModel, new CancellationToken()) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.ProviderCount.Should().Be(15);
@@ -141,7 +141,7 @@ public class RestrictedCourseDetailsControllerPaginationTests
 
         var requestModel = new GetRestrictedCourseDetailsRequestModel { PageNumber = 99 };
 
-        var result = await sut.Index(LarsCode, requestModel, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, requestModel, new CancellationToken()) as ViewResult;
 
         var model = result!.Model as RestrictedCourseDetailsViewModel;
         model!.ProviderCount.Should().Be(15);

@@ -45,7 +45,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         var actual = await sut.Index(
             Ukprn,
             new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
-            CancellationToken.None) as RedirectToRouteResult;
+            new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -95,7 +95,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         var actual = await sut.Index(
             Ukprn,
             new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
-            CancellationToken.None) as RedirectToRouteResult;
+            new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -142,7 +142,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         var act = () => sut.Index(
             Ukprn,
             new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
-            CancellationToken.None);
+            new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
 
@@ -173,7 +173,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         var act = () => sut.Index(
             Ukprn,
             new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
-            CancellationToken.None);
+            new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
 
@@ -208,7 +208,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         var actual = await sut.Index(
             Ukprn,
             new ProviderRestrictedCourseSearchSubmitModel(),
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = actual?.Model as ProviderRestrictedCourseSearchViewModel;
 
         using (new AssertionScope())
@@ -250,7 +250,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         var act = () => sut.Index(
             Ukprn,
             new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
-            CancellationToken.None);
+            new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
 
@@ -286,7 +286,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         var actual = await sut.Index(
             Ukprn,
             new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
-            CancellationToken.None);
+            new CancellationToken());
 
         actual.Should().BeOfType<NotFoundResult>();
 
@@ -319,7 +319,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         var act = () => sut.Index(
             Ukprn,
             new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
-            CancellationToken.None);
+            new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
 
@@ -354,7 +354,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         var actual = await sut.Index(
             Ukprn,
             new ProviderRestrictedCourseSearchSubmitModel { SelectedLarsCode = SelectedLarsCode },
-            CancellationToken.None);
+            new CancellationToken());
 
         actual.Should().BeOfType<NotFoundResult>();
 
@@ -392,7 +392,7 @@ public class ProviderRestrictedCourseSearchControllerPostTests
         var actual = await sut.Index(
             Ukprn,
             new ProviderRestrictedCourseSearchSubmitModel(),
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = actual?.Model as ProviderRestrictedCourseSearchViewModel;
 
         using (new AssertionScope())

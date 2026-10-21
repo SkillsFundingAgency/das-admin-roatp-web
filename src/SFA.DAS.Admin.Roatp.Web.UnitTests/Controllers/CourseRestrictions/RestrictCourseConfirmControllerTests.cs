@@ -1,12 +1,10 @@
-using System.Security.Claims;
 using AutoFixture.NUnit4;
 using FluentAssertions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Web.Controllers.CourseRestrictions;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
 using SFA.DAS.Admin.Roatp.Web.Models.Session;
@@ -100,21 +98,10 @@ public class RestrictCourseConfirmControllerTests
                 DisplayName = "Academic professional (Level 7)"
             });
 
-        sut.ControllerContext = new ControllerContext
-        {
-            HttpContext = new DefaultHttpContext
-            {
-                User = new ClaimsPrincipal(new ClaimsIdentity(
-                [
-                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Jane"),
-                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "Denver"),
-                    new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn", "jane@education.gov.uk")
-                ], "test"))
-            }
-        };
-        sut.TempData = new TempDataDictionary(sut.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
+        sut.SetupAuthenticatedUser();
+        sut.AddTempData();
 
-        var result = await sut.Index(LarsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(LarsCode, new CancellationToken()) as RedirectToRouteResult;
 
         result.Should().NotBeNull();
         result!.RouteName.Should().Be(RouteNames.RestrictedCourseDetails);
@@ -125,8 +112,8 @@ public class RestrictCourseConfirmControllerTests
         outerApiClientMock.Verify(c => c.AddRestrictedCourse(
             It.Is<AddRestrictedCourseRequest>(r =>
                 r.LarsCode == LarsCode
-                && r.UserId == "jane@education.gov.uk"
-                && r.UserDisplayName == "Jane Denver"),
+                && r.UserId == sut.User.UserId()
+                && r.UserDisplayName == sut.User.UserDisplayName()),
             It.IsAny<CancellationToken>()), Times.Once);
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.AddRestrictedCourse), Times.Once);
     }
@@ -141,7 +128,7 @@ public class RestrictCourseConfirmControllerTests
             .Setup(s => s.Get<AddRestrictedCourseSessionModel>(SessionKeys.AddRestrictedCourse))
             .Returns((AddRestrictedCourseSessionModel?)null);
 
-        var result = await sut.Index(LarsCode, CancellationToken.None) as RedirectToRouteResult;
+        var result = await sut.Index(LarsCode, new CancellationToken()) as RedirectToRouteResult;
 
         result.Should().NotBeNull();
         result!.RouteName.Should().Be(RouteNames.UnrestrictedCourseDetails);

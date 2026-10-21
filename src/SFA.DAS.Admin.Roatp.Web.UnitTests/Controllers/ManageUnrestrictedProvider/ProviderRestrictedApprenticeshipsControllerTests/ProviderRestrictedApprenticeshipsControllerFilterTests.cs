@@ -58,7 +58,7 @@ public class ProviderRestrictedApprenticeshipsControllerFilterTests
         var result = await sut.Index(
             ukprn,
             new GetProviderRestrictedApprenticeshipsRequestModel { SearchTerm = "Alpha" },
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())
@@ -109,7 +109,7 @@ public class ProviderRestrictedApprenticeshipsControllerFilterTests
             {
                 DeliveryStatus = [DeliveryStatus.LastStartDateAdded]
             },
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())
@@ -147,7 +147,7 @@ public class ProviderRestrictedApprenticeshipsControllerFilterTests
         var result = await sut.Index(
             ukprn,
             new GetProviderRestrictedApprenticeshipsRequestModel { SearchTerm = "nomatch" },
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = result!.Model as RestrictedApprenticeshipsViewModel;
 
         using (new AssertionScope())

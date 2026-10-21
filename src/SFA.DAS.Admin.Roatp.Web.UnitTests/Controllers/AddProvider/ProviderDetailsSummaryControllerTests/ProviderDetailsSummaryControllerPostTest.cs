@@ -20,9 +20,10 @@ public class ProviderDetailsSummaryControllerPostTest
         [Frozen] Mock<IValidator<ProviderDetailsSummaryViewModel>> validator,
         [Frozen] Mock<IPostOrganisationService> postOrganisationService,
         [Greedy] ProviderDetailsSummaryController sut,
-        AddProviderSessionModel sessionModel,
-        CancellationToken cancellationToken)
+        AddProviderSessionModel sessionModel)
     {
+        // Arrange
+        var cancellationToken = new CancellationToken();
         var viewModel = new ProviderDetailsSummaryViewModel() { Ukprn = 12345, IsSupportingProvider = false, OffersApprenticeshipsText = "Yes", OffersApprenticeshipUnitsText = "No" };
 
         validator.Setup(x => x.Validate(It.Is<ProviderDetailsSummaryViewModel>(m => m.IsSupportingProvider == viewModel.IsSupportingProvider))).Returns(new ValidationResult());
@@ -52,9 +53,10 @@ public class ProviderDetailsSummaryControllerPostTest
         [Frozen] Mock<IValidator<ProviderDetailsSummaryViewModel>> validator,
         [Frozen] Mock<IPostOrganisationService> postOrganisationService,
         [Greedy] ProviderDetailsSummaryController sut,
-        AddProviderSessionModel sessionModel,
-        CancellationToken cancellationToken)
+        AddProviderSessionModel sessionModel)
     {
+        // Arrange
+        var cancellationToken = new CancellationToken();
         var viewModel = new ProviderDetailsSummaryViewModel() { Ukprn = 12345 };
 
         var validationResult = new ValidationResult();

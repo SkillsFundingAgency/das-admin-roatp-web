@@ -52,7 +52,7 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
         var result = await sut.Index(
             Ukprn,
             new SetLastDateStartsSubmitModel { Day = "12", Month = "07", Year = "2027" },
-            CancellationToken.None) as RedirectToRouteResult;
+            new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -78,8 +78,8 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
             Ukprn,
             LarsCode,
             It.Is<AddRestrictedApprenticeshipRequest>(r =>
-                r.UserId == MockedUser.AuthenticatedUser.UserId()
-                && r.UserDisplayName == MockedUser.AuthenticatedUser.UserDisplayName()
+                r.UserId == sut.User.UserId()
+                && r.UserDisplayName == sut.User.UserDisplayName()
                 && r.LastDateStarts == EnteredDate),
             It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -92,6 +92,7 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
         [Greedy] AddRestrictedCourseLastStartDateController sut)
     {
         SetupSession(sessionServiceMock);
+        sut.SetupAuthenticatedUser();
         sut.AddTempData();
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
@@ -107,7 +108,7 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
         var result = await sut.Index(
             Ukprn,
             new SetLastDateStartsSubmitModel(),
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = result?.Model as AddRestrictedCourseLastStartDateViewModel;
 
         using (new AssertionScope())
@@ -141,6 +142,7 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
             outerApiClientMock.Object,
             Mock.Of<ICoursesService>(),
             new SetLastDateStartsSubmitModelValidator());
+        sut.SetupAuthenticatedUser();
         sut.AddTempData();
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
@@ -148,7 +150,7 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
         var result = await sut.Index(
             Ukprn,
             new SetLastDateStartsSubmitModel { Day = "02", Month = "06", Year = "2028" },
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
         var model = result?.Model as AddRestrictedCourseLastStartDateViewModel;
 
         using (new AssertionScope())
@@ -187,6 +189,7 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
             outerApiClientMock.Object,
             Mock.Of<ICoursesService>(),
             new SetLastDateStartsSubmitModelValidator());
+        sut.SetupAuthenticatedUser();
         sut.AddTempData();
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, RestrictedCoursesUrl);
@@ -194,7 +197,7 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
         var result = await sut.Index(
             Ukprn,
             new SetLastDateStartsSubmitModel { Day = "31", Month = "08", Year = "2014" },
-            CancellationToken.None) as ViewResult;
+            new CancellationToken()) as ViewResult;
 
         using (new AssertionScope())
         {
@@ -220,7 +223,7 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
         var result = await sut.Index(
             Ukprn,
             new SetLastDateStartsSubmitModel { Day = "12", Month = "07", Year = "2027" },
-            CancellationToken.None) as RedirectToRouteResult;
+            new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -247,7 +250,7 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
         var result = await sut.Index(
             Ukprn,
             new SetLastDateStartsSubmitModel { Day = "12", Month = "07", Year = "2027" },
-            CancellationToken.None) as RedirectToRouteResult;
+            new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -289,7 +292,7 @@ public class AddRestrictedCourseLastStartDateControllerPostTests
         var act = () => sut.Index(
             Ukprn,
             new SetLastDateStartsSubmitModel { Day = "12", Month = "07", Year = "2027" },
-            CancellationToken.None);
+            new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.ProviderRestrictedCourse), Times.Never);

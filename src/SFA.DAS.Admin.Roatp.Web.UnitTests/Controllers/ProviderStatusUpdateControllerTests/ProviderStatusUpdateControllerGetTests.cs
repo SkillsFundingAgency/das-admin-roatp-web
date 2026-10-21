@@ -18,13 +18,12 @@ public class ProviderStatusUpdateControllerGetTests
     public async Task Get_NoMatchingDetails_RedirectToHome(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Greedy] ProviderStatusUpdateController sut,
-        int ukprn,
-        CancellationToken cancellationToken)
+        int ukprn)
     {
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null));
 
-        var actual = await sut.Index(ukprn, cancellationToken);
+        var actual = await sut.Index(ukprn, new CancellationToken());
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
@@ -37,15 +36,14 @@ public class ProviderStatusUpdateControllerGetTests
         [Greedy] ProviderStatusUpdateController sut,
         string selectOrganisationLink,
         GetOrganisationResponse getOrganisationResponse,
-        int ukprn,
-        CancellationToken cancellationToken)
+        int ukprn)
     {
         getOrganisationResponse.Ukprn = ukprn;
         var expectedOrganisationStatuses = BuildOrganisationStatuses(getOrganisationResponse.Status);
         outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
-        var actual = await sut.Index(ukprn, cancellationToken) as ViewResult;
+        var actual = await sut.Index(ukprn, new CancellationToken()) as ViewResult;
         actual.Should().NotBeNull();
         var model = actual.Model as OrganisationStatusUpdateViewModel;
         model.Should().NotBeNull();

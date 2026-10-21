@@ -34,7 +34,7 @@ public class ChangeCourseRestrictionControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None) as ViewResult;
+        var result = await sut.Index(LarsCode, Ukprn, new CancellationToken()) as ViewResult;
 
         var model = result!.Model as ChangeCourseRestrictionViewModel;
         using (new AssertionScope())
@@ -74,7 +74,7 @@ public class ChangeCourseRestrictionControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
+        var result = await sut.Index(LarsCode, Ukprn, new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -91,7 +91,7 @@ public class ChangeCourseRestrictionControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.RestrictedCourseDetails, RestrictedCourseDetailsUrl);
 
-        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
+        var result = await sut.Index(LarsCode, Ukprn, new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -109,7 +109,7 @@ public class ChangeCourseRestrictionControllerGetTests
             outerApiClientMock.Object,
             Mock.Of<IValidator<ChangeCourseRestrictionSubmitModel>>());
 
-        var result = await sut.Index(LarsCode, Ukprn, CancellationToken.None);
+        var result = await sut.Index(LarsCode, Ukprn, new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -130,7 +130,7 @@ public class ChangeCourseRestrictionControllerGetTests
             .ReturnsAsync(new ApiResponse<GetRestrictedCourseDetailsResponse>(
                 httpResponse, null, new RefitSettings(), apiException));
 
-        var act = () => sut.Index(LarsCode, Ukprn, CancellationToken.None);
+        var act = () => sut.Index(LarsCode, Ukprn, new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
     }

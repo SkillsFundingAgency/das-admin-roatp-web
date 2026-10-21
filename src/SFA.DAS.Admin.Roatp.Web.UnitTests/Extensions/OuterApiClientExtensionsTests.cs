@@ -22,7 +22,7 @@ public class OuterApiClientExtensionsTests
     {
         SetupAllowedProvidersForCourse(outerApiClientMock, courseDetails, HttpStatusCode.OK);
 
-        var result = await outerApiClientMock.Object.GetCourseDetails(LarsCode, CancellationToken.None);
+        var result = await outerApiClientMock.Object.GetCourseDetails(LarsCode, new CancellationToken());
 
         result.Should().Be(courseDetails);
     }
@@ -34,7 +34,7 @@ public class OuterApiClientExtensionsTests
     {
         SetupAllowedProvidersForCourse(outerApiClientMock, courseDetails, HttpStatusCode.NotFound);
 
-        var result = await outerApiClientMock.Object.GetCourseDetails(LarsCode, CancellationToken.None);
+        var result = await outerApiClientMock.Object.GetCourseDetails(LarsCode, new CancellationToken());
 
         result.Should().BeNull();
     }
@@ -46,7 +46,7 @@ public class OuterApiClientExtensionsTests
     {
         SetupAllowedProvidersForCourse(outerApiClientMock, courseDetails, HttpStatusCode.InternalServerError);
 
-        var act = () => outerApiClientMock.Object.GetCourseDetails(LarsCode, CancellationToken.None);
+        var act = () => outerApiClientMock.Object.GetCourseDetails(LarsCode, new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
     }

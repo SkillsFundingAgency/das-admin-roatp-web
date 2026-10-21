@@ -29,7 +29,7 @@ public class SessionServiceExtensionsTests
         var result = await sessionServiceMock.Object.GetProviderName(
             outerApiClientMock.Object,
             Ukprn,
-            CancellationToken.None);
+            new CancellationToken());
 
         result.Should().Be(ProviderName);
         outerApiClientMock.Verify(c => c.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -49,7 +49,7 @@ public class SessionServiceExtensionsTests
         var result = await sessionServiceMock.Object.GetProviderName(
             outerApiClientMock.Object,
             Ukprn,
-            CancellationToken.None);
+            new CancellationToken());
 
         using (new AssertionScope())
         {
@@ -74,7 +74,7 @@ public class SessionServiceExtensionsTests
         var result = await sessionServiceMock.Object.GetProviderName(
             outerApiClientMock.Object,
             Ukprn,
-            CancellationToken.None);
+            new CancellationToken());
 
         result.Should().BeNull();
         sessionServiceMock.Verify(
@@ -94,7 +94,7 @@ public class SessionServiceExtensionsTests
         var act = () => sessionServiceMock.Object.GetProviderName(
             outerApiClientMock.Object,
             Ukprn,
-            CancellationToken.None);
+            new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
         sessionServiceMock.Verify(
@@ -115,7 +115,7 @@ public class SessionServiceExtensionsTests
         var result = await sessionServiceMock.Object.GetProviderName(
             outerApiClientMock.Object,
             Ukprn,
-            CancellationToken.None);
+            new CancellationToken());
 
         result.Should().BeNull();
         sessionServiceMock.Verify(
@@ -139,7 +139,7 @@ public class SessionServiceExtensionsTests
         var result = await sessionServiceMock.Object.GetProviderName(
             outerApiClientMock.Object,
             Ukprn,
-            CancellationToken.None);
+            new CancellationToken());
 
         result.Should().Be(ProviderName);
         sessionServiceMock.Verify(s => s.Set(

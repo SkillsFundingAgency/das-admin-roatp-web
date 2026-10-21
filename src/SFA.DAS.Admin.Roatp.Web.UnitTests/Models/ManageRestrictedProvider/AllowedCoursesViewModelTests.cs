@@ -77,7 +77,7 @@ public class AllowedCoursesViewModelTests
     {
         var model = new AllowedCoursesViewModel
         {
-            SuccessBannerMessage = "This training provider can now only deliver approved courses"
+            SuccessBannerMessage = "Electrical (Level 3) added to approved list"
         };
 
         model.HasSuccessBanner.Should().BeTrue();

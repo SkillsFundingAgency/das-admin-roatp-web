@@ -18,13 +18,12 @@ public class OrganisationTypeUpdateControllerGetTests
     public async Task Get_NoMatchingDetails_RedirectToHome(
        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
        [Greedy] OrganisationTypeUpdateController sut,
-       int ukprn,
-       CancellationToken cancellationToken)
+       int ukprn)
     {
         outerApiClientMock.Setup(x => x.GetOrganisation(It.IsAny<int>(), It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null));
 
-        var actual = await sut.Index(ukprn, cancellationToken);
+        var actual = await sut.Index(ukprn, new CancellationToken());
         actual.Should().NotBeNull();
         var result = actual! as RedirectToRouteResult;
         result.Should().NotBeNull();
@@ -37,8 +36,7 @@ public class OrganisationTypeUpdateControllerGetTests
         [Greedy] OrganisationTypeUpdateController sut,
         GetOrganisationResponse getOrganisationResponse,
         int ukprn,
-        List<OrganisationTypeModel> organisationTypes,
-        CancellationToken cancellationToken)
+        List<OrganisationTypeModel> organisationTypes)
     {
         getOrganisationResponse.Ukprn = ukprn;
         getOrganisationResponse.OrganisationType = organisationTypes.First().Description;
@@ -54,7 +52,7 @@ public class OrganisationTypeUpdateControllerGetTests
         outerApiClientMock.Setup(x => x.GetOrganisationTypes(It.IsAny<CancellationToken>()))!
             .ReturnsAsync(new GetOrganisationTypesResponse { OrganisationTypes = organisationTypes });
 
-        var actual = await sut.Index(ukprn, cancellationToken) as ViewResult;
+        var actual = await sut.Index(ukprn, new CancellationToken()) as ViewResult;
         actual.Should().NotBeNull();
         var model = actual.Model as OrganisationTypeUpdateViewModel;
         model.Should().NotBeNull();

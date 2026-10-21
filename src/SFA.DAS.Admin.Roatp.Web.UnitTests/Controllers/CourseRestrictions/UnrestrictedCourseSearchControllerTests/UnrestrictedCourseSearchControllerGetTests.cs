@@ -26,7 +26,7 @@ public class UnrestrictedCourseSearchControllerGetTests
             .Setup(c => c.GetRestrictedCourses(false, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetRestrictedCoursesResponse { Courses = courses });
 
-        var actual = await controller.Index(CancellationToken.None) as ViewResult;
+        var actual = await controller.Index(new CancellationToken()) as ViewResult;
 
         using (new AssertionScope())
         {
