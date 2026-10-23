@@ -73,7 +73,7 @@ public class AddAllowedCourseLastStartDateControllerGetTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenGettingAddLastStartDate_AndAllowedCourseHasLastDateStarts_ThenRedirectsToAllowedCourses(
+    public async Task WhenGettingAddLastStartDate_AndAllowedCourseHasLastDateStarts_ThenRedirectsToChangeLastStartDate(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IUkprnService> ukprnServiceMock,
         [Frozen] Mock<ICoursesService> coursesServiceMock,
@@ -92,9 +92,10 @@ public class AddAllowedCourseLastStartDateControllerGetTests
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result!.RouteName.Should().Be(RouteNames.ProviderAllowedCourses);
+            result!.RouteName.Should().Be(RouteNames.ChangeAllowedCourseLastStartDate);
             result.RouteValues!["ukprn"].Should().Be(Ukprn);
             result.RouteValues["routeLearningType"].Should().Be(RouteLearningType.Apprenticeship);
+            result.RouteValues["larsCode"].Should().Be(LarsCode);
         }
     }
 
