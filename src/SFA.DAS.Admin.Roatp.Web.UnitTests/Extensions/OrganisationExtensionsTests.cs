@@ -32,6 +32,30 @@ public class OrganisationExtensionsTests
         organisation.IsRestrictedForCourseType(CourseType.Apprenticeship).Should().BeFalse();
     }
 
+    [Test]
+    public void WhenCheckingIfUnrestricted_AndRouteIsApprenticeshipAndProviderIsNotRestricted_ThenReturnsTrue()
+    {
+        var organisation = CreateOrganisation(CourseType.Apprenticeship, isRestricted: false);
+
+        organisation.IsUnrestrictedProvider(RouteLearningType.Apprenticeship).Should().BeTrue();
+    }
+
+    [Test]
+    public void WhenCheckingIfUnrestricted_AndRouteIsApprenticeshipAndProviderIsRestricted_ThenReturnsFalse()
+    {
+        var organisation = CreateOrganisation(CourseType.Apprenticeship, isRestricted: true);
+
+        organisation.IsUnrestrictedProvider(RouteLearningType.Apprenticeship).Should().BeFalse();
+    }
+
+    [Test]
+    public void WhenCheckingIfUnrestricted_AndRouteIsApprenticeshipUnit_ThenReturnsFalse()
+    {
+        var organisation = CreateOrganisation(CourseType.ShortCourse, isRestricted: false);
+
+        organisation.IsUnrestrictedProvider(RouteLearningType.ApprenticeshipUnit).Should().BeFalse();
+    }
+
     private static GetOrganisationResponse CreateOrganisation(CourseType courseType, bool isRestricted)
         => new()
         {

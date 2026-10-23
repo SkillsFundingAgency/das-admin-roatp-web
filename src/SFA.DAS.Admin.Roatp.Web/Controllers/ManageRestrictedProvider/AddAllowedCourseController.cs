@@ -42,7 +42,7 @@ public class AddAllowedCourseController(
             return NotFound();
         }
 
-        if (IsUnrestrictedProvider(routeLearningType, organisation))
+        if (organisation.IsUnrestrictedProvider(routeLearningType))
         {
             return RedirectToRoute(RouteNames.ProviderRestrictedApprenticeships, new { ukprn });
         }
@@ -71,7 +71,7 @@ public class AddAllowedCourseController(
                 BuildViewModel(
                     ukprn,
                     routeLearningType,
-                    organisation?.LegalName,
+                    organisation!.LegalName,
                     coursesToBeAllowedResponse?.Courses ?? [],
                     submitModel.SelectedLarsCode));
         }
@@ -101,12 +101,6 @@ public class AddAllowedCourseController(
 
         return RedirectToRoute(RouteNames.ProviderAllowedCourses, new { ukprn, routeLearningType });
     }
-
-    private static bool IsUnrestrictedProvider(
-        RouteLearningType routeLearningType,
-        GetOrganisationResponse organisation)
-        => routeLearningType == RouteLearningType.Apprenticeship
-           && !organisation.IsRestrictedForCourseType(routeLearningType.ToCourseType());
 
     private AddAllowedCourseViewModel BuildViewModel(
         int ukprn,

@@ -70,6 +70,7 @@
                     </div>
                     <h3 class="govuk-heading-s govuk-!-margin-bottom-1">@course.DisplayTitle</h3>
                     <p class="govuk-body govuk-!-margin-bottom-0">LARS Code: @course.LarsCode</p>
+                    <p asp-show="course.HasLastDateStarts" class="govuk-body govuk-!-margin-bottom-0 govuk-!-margin-top-1">Last start date: @course.LastDateStartsText</p>
                 </li>
             }
         </ul>

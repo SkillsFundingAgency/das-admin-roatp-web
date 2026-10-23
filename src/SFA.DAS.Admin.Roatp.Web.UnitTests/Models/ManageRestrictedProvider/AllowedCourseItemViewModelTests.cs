@@ -1,6 +1,7 @@
 using FluentAssertions;
 using FluentAssertions.Execution;
 using SFA.DAS.Admin.Roatp.Domain.Models;
+using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageRestrictedProvider;
 
 namespace SFA.DAS.Admin.Roatp.Web.UnitTests.Models.ManageRestrictedProvider;
@@ -21,13 +22,16 @@ public class AllowedCourseItemViewModelTests
             model.DeliveryStatus.Should().Be(DeliveryStatus.OpenToNewStarts);
             model.DeliveryStatusDescription.Should().Be("Open to new starts");
             model.DeliveryStatusTagClass.Should().Be("govuk-tag--green");
+            model.HasLastDateStarts.Should().BeFalse();
+            model.LastDateStartsText.Should().BeEmpty();
         }
     }
 
     [Test]
     public void WhenMappingFromCourse_AndNotClosedWithFutureLastDateStarts_ThenMapsLastStartDateAdded()
     {
-        var course = CreateCourse(DateTime.UtcNow.Date.AddDays(10), isClosedToNewStarts: false);
+        var lastDateStarts = DateTime.UtcNow.Date.AddDays(10);
+        var course = CreateCourse(lastDateStarts, isClosedToNewStarts: false);
 
         AllowedCourseItemViewModel model = course;
 
@@ -35,6 +39,8 @@ public class AllowedCourseItemViewModelTests
         {
             model.DeliveryStatus.Should().Be(DeliveryStatus.LastStartDateAdded);
             model.DeliveryStatusTagClass.Should().Be("govuk-tag--orange");
+            model.HasLastDateStarts.Should().BeTrue();
+            model.LastDateStartsText.Should().Be(lastDateStarts.ToDisplayString());
         }
     }
 
