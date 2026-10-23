@@ -62,7 +62,7 @@ public class AddAllowedCourseLastStartDateController(
         }
         if (allowedCourse.LastDateStarts.HasValue)
         {
-            return RedirectToRoute(RouteNames.ProviderAllowedCourses, new { ukprn, routeLearningType });
+            return RedirectToRoute(RouteNames.ChangeAllowedCourseLastStartDate, new { ukprn, routeLearningType, larsCode });
         }
 
         return View(ViewPath, BuildViewModel(ukprn, routeLearningType, course));
