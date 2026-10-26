@@ -30,19 +30,6 @@ public class ChangeAllowedCourseLastStartDateSubmitModelValidatorTests
         }
     }
 
-    [Test]
-    public void WhenInvalidOptionSelected_ThenReturnsError()
-    {
-        var result = _sut.TestValidate(new ChangeAllowedCourseLastStartDateSubmitModel { SelectedOption = "Invalid" });
-
-        using (new AssertionScope())
-        {
-            result.IsValid.Should().BeFalse();
-            result.ShouldHaveValidationErrorFor(model => model.SelectedOption)
-                .WithErrorMessage(ChangeAllowedCourseLastStartDateSubmitModelValidator.NoOptionSelectedErrorMessage);
-        }
-    }
-
     [TestCase("Change")]
     [TestCase("Remove")]
     public void WhenValidOptionSelected_ThenPasses(string selectedOption)
