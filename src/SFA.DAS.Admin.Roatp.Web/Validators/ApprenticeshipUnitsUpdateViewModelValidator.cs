@@ -14,7 +14,6 @@ public class ApprenticeshipUnitsUpdateViewModelValidator : AbstractValidator<App
             .NotNull()
             .WithMessage(NoValueSelectedErrorMessage);
 
-
         RuleFor(s => s.ApprenticeshipUnitsSelectionId)
             .Equal(true)
             .When(s => !s.OffersApprenticeships && s.ApprenticeshipUnitsSelectionId != null)
