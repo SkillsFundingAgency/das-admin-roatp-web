@@ -25,6 +25,7 @@ public class ProviderAllowedCoursesControllerGetTests
     private const string ProviderSummaryUrl = "/providers/10019900";
     private const string AllowedCoursesUrl = "/providers/10019900/Apprenticeship/allowed-courses";
     private const string AddAllowedCourseUrl = "/providers/10019900/Apprenticeship/allowed-courses/add";
+    private const string AddLastStartDateUrl = "/providers/10019900/Apprenticeship/allowed-courses/150/set-last-date-start";
 
     [Test, MoqAutoData]
     public async Task WhenGettingAllowedCourses_AndProviderIsRestricted_ThenReturnsViewWithMappedModel(
@@ -53,12 +54,17 @@ public class ProviderAllowedCoursesControllerGetTests
             model.IsApprenticeshipUnit.Should().BeFalse();
             model.HasCourses.Should().BeTrue();
             model.HasNoCourses.Should().BeFalse();
-            model.Courses.Select(course => course.LarsCode).Should().Equal("105", "200");
+            model.Courses.Select(course => course.LarsCode).Should().Equal("105", "150", "200");
             model.Courses.Select(course => course.DeliveryStatus).Should().Equal(
                 DeliveryStatus.LastStartDateAdded,
+                DeliveryStatus.OpenToNewStarts,
                 DeliveryStatus.ClosedToNewStarts);
-            model.Courses.Should().OnlyContain(course => course.ChangeUrl == AllowedCoursesUrl);
-            model.TotalCountDescription.Should().Be("2 courses");
+            model.Courses.Select(course => course.ChangeUrl).Should().Equal(
+                AllowedCoursesUrl,
+                AddLastStartDateUrl,
+                AllowedCoursesUrl);
+            model.Courses.Select(course => course.HasLastDateStarts).Should().Equal(true, false, true);
+            model.TotalCountDescription.Should().Be("3 courses");
             model.HasSuccessBanner.Should().BeFalse();
         }
 
@@ -294,7 +300,8 @@ public class ProviderAllowedCoursesControllerGetTests
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl)
             .AddUrlForRoute(RouteNames.ProviderAllowedCourses, AllowedCoursesUrl)
-            .AddUrlForRoute(RouteNames.AddAllowedCourse, AddAllowedCourseUrl);
+            .AddUrlForRoute(RouteNames.AddAllowedCourse, AddAllowedCourseUrl)
+            .AddUrlForRoute(RouteNames.AddAllowedCourseLastStartDate, AddLastStartDateUrl);
     }
 
     private static void SetupRestrictedProvider(
@@ -331,6 +338,14 @@ public class ProviderAllowedCoursesControllerGetTests
                     Title = "Alpha course",
                     Level = 6,
                     LastDateStarts = DateTime.UtcNow.Date.AddDays(5),
+                    IsClosedToNewStarts = false
+                },
+                new ProviderAllowedCourseModel
+                {
+                    LarsCode = "150",
+                    Title = "Bravo course",
+                    Level = 2,
+                    LastDateStarts = null,
                     IsClosedToNewStarts = false
                 }
             ]
