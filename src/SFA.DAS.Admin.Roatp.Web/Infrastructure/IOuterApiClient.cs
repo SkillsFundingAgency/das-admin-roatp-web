@@ -46,13 +46,11 @@ public interface IOuterApiClient
         string larsCode,
         CancellationToken cancellationToken);
 
-    [Patch("/providers/{ukprn}/allowed-courses/{larsCode}")]
-    Task<ApiResponse<object>> PatchProviderAllowedCourse(
+    [Put("/providers/{ukprn}/allowed-courses/{larsCode}")]
+    Task<ApiResponse<object>> PutProviderAllowedCourse(
         int ukprn,
         string larsCode,
-        [Header(RequestHeaders.RequestingUserIdHeader)] string userId,
-        [Header(RequestHeaders.RequestingUserNameHeader)] string userName,
-        [Body] PatchProviderAllowedCourseRequest request,
+        [Body] PutProviderAllowedCourseRequest request,
         CancellationToken cancellationToken);
 
     [Post("/providers/{ukprn}/allowed-courses/{larsCode}")]

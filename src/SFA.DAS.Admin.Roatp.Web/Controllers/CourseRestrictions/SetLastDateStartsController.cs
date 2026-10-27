@@ -82,12 +82,10 @@ public class SetLastDateStartsController(
 
         var lastDateStarts = submitModel.GetEnteredDate();
 
-        var response = await outerApiClient.PatchProviderAllowedCourse(
+        var response = await outerApiClient.PutProviderAllowedCourse(
              ukprn,
              larsCode,
-             User.UserId(),
-             User.UserDisplayName(),
-             new PatchProviderAllowedCourseRequest { LastDateStarts = lastDateStarts },
+             new PutProviderAllowedCourseRequest(lastDateStarts, User.UserId(), User.UserDisplayName()),
              cancellationToken);
 
         if (response.StatusCode == HttpStatusCode.NotFound)
