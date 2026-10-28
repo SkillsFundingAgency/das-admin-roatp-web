@@ -3,6 +3,7 @@ using AutoFixture.NUnit4;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using Refit;
 using SFA.DAS.Admin.Roatp.Domain.Models;
@@ -23,9 +24,9 @@ public class ProviderAllowedCoursesControllerGetTests
     private const int Ukprn = 10019900;
     private const string ProviderName = "Denton Business Services Limited";
     private const string ProviderSummaryUrl = "/providers/10019900";
-    private const string AllowedCoursesUrl = "/providers/10019900/Apprenticeship/allowed-courses";
     private const string AddAllowedCourseUrl = "/providers/10019900/Apprenticeship/allowed-courses/add";
     private const string AddLastStartDateUrl = "/providers/10019900/Apprenticeship/allowed-courses/150/set-last-date-start";
+    private const string ChangeLastStartDateUrl = "/providers/10019900/Apprenticeship/allowed-courses/105/change";
 
     [Test, MoqAutoData]
     public async Task WhenGettingAllowedCourses_AndProviderIsRestricted_ThenReturnsViewWithMappedModel(
@@ -60,9 +61,9 @@ public class ProviderAllowedCoursesControllerGetTests
                 DeliveryStatus.OpenToNewStarts,
                 DeliveryStatus.ClosedToNewStarts);
             model.Courses.Select(course => course.ChangeUrl).Should().Equal(
-                AllowedCoursesUrl,
+                ChangeLastStartDateUrl,
                 AddLastStartDateUrl,
-                AllowedCoursesUrl);
+                ChangeLastStartDateUrl);
             model.Courses.Select(course => course.HasLastDateStarts).Should().Equal(true, false, true);
             model.TotalCountDescription.Should().Be("3 courses");
             model.HasSuccessBanner.Should().BeFalse();
@@ -125,6 +126,59 @@ public class ProviderAllowedCoursesControllerGetTests
 
         outerApiClientMock.Verify(
             c => c.GetAllowedCourses(Ukprn, CourseType.ShortCourse, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingAllowedCourses_AndRouteLearningTypeIsApprenticeshipUnitAndCourseHasLastDateStarts_ThenChangeUrlIsChangeLastStartDate(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<IUkprnService> ukprnServiceMock,
+        [Greedy] ProviderAllowedCoursesController sut)
+    {
+        SetupRestrictedProvider(
+            ukprnServiceMock,
+            outerApiClientMock,
+            new GetAllowedCoursesResponse
+            {
+                AllowedCourses =
+                [
+                    new ProviderAllowedCourseModel
+                    {
+                        LarsCode = "105",
+                        Title = "Permanent modular building assembly - Apprenticeship unit",
+                        Level = 4,
+                        LastDateStarts = new DateTime(2026, 7, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                        IsClosedToNewStarts = false
+                    }
+                ]
+            },
+            RouteLearningType.ApprenticeshipUnit);
+        var urlHelperMock = sut.AddUrlHelperMock()
+            .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl)
+            .AddUrlForRoute(RouteNames.AddAllowedCourse, AddAllowedCourseUrl)
+            .AddUrlForRoute(RouteNames.ChangeAllowedCourseLastStartDate, ChangeLastStartDateUrl);
+
+        var result = await sut.Index(
+            Ukprn,
+            RouteLearningType.ApprenticeshipUnit,
+            new CancellationToken()) as ViewResult;
+        var model = result?.Model as AllowedCoursesViewModel;
+
+        using (new AssertionScope())
+        {
+            model.Should().NotBeNull();
+            model!.Courses.Should().ContainSingle();
+            model.Courses.Single().ChangeUrl.Should().Be(ChangeLastStartDateUrl);
+            model.Courses.Single().DisplayTitle.Should().Be(
+                "Permanent modular building assembly - Apprenticeship unit (Level 4)");
+        }
+
+        urlHelperMock.Verify(
+            m => m.RouteUrl(It.Is<UrlRouteContext>(c =>
+                c.RouteName == RouteNames.ChangeAllowedCourseLastStartDate
+                && HasRouteValue(c, "ukprn", Ukprn)
+                && HasRouteValue(c, "routeLearningType", RouteLearningType.ApprenticeshipUnit)
+                && HasRouteValue(c, "larsCode", "105"))),
             Times.Once);
     }
 
@@ -299,9 +353,9 @@ public class ProviderAllowedCoursesControllerGetTests
     {
         sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl)
-            .AddUrlForRoute(RouteNames.ProviderAllowedCourses, AllowedCoursesUrl)
             .AddUrlForRoute(RouteNames.AddAllowedCourse, AddAllowedCourseUrl)
-            .AddUrlForRoute(RouteNames.AddAllowedCourseLastStartDate, AddLastStartDateUrl);
+            .AddUrlForRoute(RouteNames.AddAllowedCourseLastStartDate, AddLastStartDateUrl)
+            .AddUrlForRoute(RouteNames.ChangeAllowedCourseLastStartDate, ChangeLastStartDateUrl);
     }
 
     private static void SetupRestrictedProvider(
@@ -350,4 +404,7 @@ public class ProviderAllowedCoursesControllerGetTests
                 }
             ]
         };
+
+    private static bool HasRouteValue(UrlRouteContext context, string propertyName, object expected)
+        => Equals(context.Values?.GetType().GetProperty(propertyName)?.GetValue(context.Values), expected);
 }

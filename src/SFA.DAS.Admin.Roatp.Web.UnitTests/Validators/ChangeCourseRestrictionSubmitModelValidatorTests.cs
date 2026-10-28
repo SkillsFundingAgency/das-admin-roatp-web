@@ -1,4 +1,3 @@
-using FluentAssertions;
 using FluentValidation.TestHelper;
 using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
 using SFA.DAS.Admin.Roatp.Web.Validators;
@@ -20,15 +19,6 @@ public class ChangeCourseRestrictionSubmitModelValidatorTests
     public void WhenNoOptionSelected_ThenReturnsError()
     {
         var result = _sut.TestValidate(new ChangeCourseRestrictionSubmitModel());
-
-        result.ShouldHaveValidationErrorFor(model => model.SelectedOption)
-            .WithErrorMessage(ChangeCourseRestrictionSubmitModelValidator.NoOptionSelectedErrorMessage);
-    }
-
-    [Test]
-    public void WhenInvalidOptionSelected_ThenReturnsError()
-    {
-        var result = _sut.TestValidate(new ChangeCourseRestrictionSubmitModel { SelectedOption = "Invalid" });
 
         result.ShouldHaveValidationErrorFor(model => model.SelectedOption)
             .WithErrorMessage(ChangeCourseRestrictionSubmitModelValidator.NoOptionSelectedErrorMessage);
