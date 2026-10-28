@@ -49,7 +49,6 @@ public class ProviderAllowedCoursesController(
             return NotFound();
         }
 
-        var pageUrl = Url.RouteUrl(RouteNames.ProviderAllowedCourses, new { ukprn, routeLearningType })!;
         var allowedCourses = (coursesResponse.AllowedCourses ?? [])
             .OrderBy(
                 course => CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level),
@@ -58,7 +57,9 @@ public class ProviderAllowedCoursesController(
             {
                 AllowedCourseItemViewModel item = course;
                 item.ChangeUrl = course.LastDateStarts.HasValue
-                    ? pageUrl
+                    ? Url.RouteUrl(
+                        RouteNames.ChangeAllowedCourseLastStartDate,
+                        new { ukprn, routeLearningType, larsCode = course.LarsCode })!
                     : Url.RouteUrl(
                         RouteNames.AddAllowedCourseLastStartDate,
                         new { ukprn, routeLearningType, larsCode = course.LarsCode })!;

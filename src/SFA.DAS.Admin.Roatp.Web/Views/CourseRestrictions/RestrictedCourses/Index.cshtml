@@ -58,7 +58,10 @@
                                    asp-route-larsCode="@course.LarsCode">Manage providers</a>
                             </div>
                         </div>
-                        <p class="govuk-body govuk-!-margin-bottom-0">LARS Code: @course.LarsCode</p>
+                        <dl class="das-definition-list das-definition-list--meta govuk-!-margin-bottom-0">
+                            <dt class="das-definition-list__title">LARS Code</dt>
+                            <dd class="das-definition-list__definition">@course.LarsCode</dd>
+                        </dl>
                     </li>
                 }
             </ul>

@@ -69,8 +69,14 @@
                         </div>
                     </div>
                     <h3 class="govuk-heading-s govuk-!-margin-bottom-1">@course.DisplayTitle</h3>
-                    <p class="govuk-body govuk-!-margin-bottom-0">LARS Code: @course.LarsCode</p>
-                    <p asp-show="course.HasLastDateStarts" class="govuk-body govuk-!-margin-bottom-0 govuk-!-margin-top-1">Last start date: @course.LastDateStartsText</p>
+                    <dl class="das-definition-list das-definition-list--meta govuk-!-margin-bottom-1">
+                        <dt class="das-definition-list__title">LARS Code</dt>
+                        <dd class="das-definition-list__definition">@course.LarsCode</dd>
+                    </dl>
+                    <dl asp-show="course.HasLastDateStarts" class="das-definition-list das-definition-list--meta govuk-!-margin-bottom-0">
+                        <dt class="das-definition-list__title">Last start date</dt>
+                        <dd class="das-definition-list__definition">@course.LastDateStartsText</dd>
+                    </dl>
                 </li>
             }
         </ul>

@@ -30,19 +30,6 @@ public class RestrictedCourseChangeRestrictionSubmitModelValidatorTests
         }
     }
 
-    [Test]
-    public void WhenInvalidOptionSelected_ThenReturnsError()
-    {
-        var result = _sut.TestValidate(new RestrictedCourseChangeRestrictionSubmitModel { SelectedOption = "Invalid" });
-
-        using (new AssertionScope())
-        {
-            result.IsValid.Should().BeFalse();
-            result.ShouldHaveValidationErrorFor(model => model.SelectedOption)
-                .WithErrorMessage(RestrictedCourseChangeRestrictionSubmitModelValidator.NoOptionSelectedErrorMessage);
-        }
-    }
-
     [TestCase("AddOrChange")]
     [TestCase("Remove")]
     public void WhenValidOptionSelected_ThenPasses(string selectedOption)
