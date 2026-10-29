@@ -34,7 +34,7 @@ public class AddAllowedCourseLastStartDateControllerPostTests
     private static readonly DateTime EnteredDate = new(2027, 7, 12, 0, 0, 0, DateTimeKind.Unspecified);
 
     [Test, MoqAutoData]
-    public async Task WhenPostingAddLastStartDate_AndDateIsValid_ThenPatchesCourseSetsBannerAndRedirectsToList(
+    public async Task WhenPostingAddLastStartDate_AndDateIsValid_ThenPutCourseSetsBannerAndRedirectsToList(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> validatorMock,
@@ -264,7 +264,7 @@ public class AddAllowedCourseLastStartDateControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenPostingAddLastStartDate_AndPatchReturnsNotFound_ThenThrows(
+    public async Task WhenPostingAddLastStartDate_AndPutReturnsNotFound_ThenThrows(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> validatorMock,
@@ -288,7 +288,7 @@ public class AddAllowedCourseLastStartDateControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenPostingAddLastStartDate_AndPatchReturnsUnexpectedError_ThenThrows(
+    public async Task WhenPostingAddLastStartDate_AndPutReturnsUnexpectedError_ThenThrows(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Frozen] Mock<IValidator<SetLastDateStartsSubmitModel>> validatorMock,
