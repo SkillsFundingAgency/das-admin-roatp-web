@@ -10,7 +10,6 @@ using Refit;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
 using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Controllers.CourseRestrictions;
-using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.CourseRestrictions;
 using SFA.DAS.Admin.Roatp.Web.UnitTests.TestHelpers;
@@ -92,12 +91,10 @@ public class ChangeCourseRestrictionControllerPostTests
             result.RouteValues["ukprn"].Should().Be(Ukprn);
         }
         outerApiClientMock.Verify(
-            c => c.PatchProviderAllowedCourse(
+            c => c.PutProviderAllowedCourse(
                 It.IsAny<int>(),
                 It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<PatchProviderAllowedCourseRequest>(),
+                It.IsAny<PutProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -136,12 +133,10 @@ public class ChangeCourseRestrictionControllerPostTests
                 .Should().Be("BP TRAINING last start date has been removed");
         }
 
-        outerApiClientMock.Verify(c => c.PatchProviderAllowedCourse(
+        outerApiClientMock.Verify(c => c.PutProviderAllowedCourse(
             Ukprn,
             LarsCode,
-            sut.User.UserId(),
-            sut.User.UserDisplayName(),
-            It.Is<PatchProviderAllowedCourseRequest>(r => r.LastDateStarts == null),
+            It.Is<PutProviderAllowedCourseRequest>(r => r.LastDateStarts == null),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -288,16 +283,14 @@ public class ChangeCourseRestrictionControllerPostTests
     private static void SetupPatchResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
     {
         outerApiClientMock
-            .Setup(c => c.PatchProviderAllowedCourse(
+            .Setup(c => c.PutProviderAllowedCourse(
                 It.IsAny<int>(),
                 It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<PatchProviderAllowedCourseRequest>(),
+                It.IsAny<PutProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(OuterApiResponse.Create<object>(
                 statusCode,
-                method: HttpMethod.Patch,
+                method: HttpMethod.Put,
                 includeException: statusCode != HttpStatusCode.NotFound));
     }
 }

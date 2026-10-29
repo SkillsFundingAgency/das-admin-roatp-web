@@ -52,12 +52,10 @@ public class ChangeCourseRestrictionController(
             return RedirectToRoute(RouteNames.SetLastDateStarts, new { larsCode, ukprn });
         }
 
-        var response = await outerApiClient.PatchProviderAllowedCourse(
+        var response = await outerApiClient.PutProviderAllowedCourse(
             ukprn,
             larsCode,
-            User.UserId(),
-            User.UserDisplayName(),
-            new PatchProviderAllowedCourseRequest { LastDateStarts = null },
+            new PutProviderAllowedCourseRequest(null, User.UserId(), User.UserDisplayName()),
             cancellationToken);
 
         if (response.StatusCode == HttpStatusCode.NotFound)

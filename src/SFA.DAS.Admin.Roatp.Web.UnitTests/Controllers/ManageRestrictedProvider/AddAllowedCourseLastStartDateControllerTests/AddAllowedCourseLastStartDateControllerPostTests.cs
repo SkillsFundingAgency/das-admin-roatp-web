@@ -41,7 +41,7 @@ public class AddAllowedCourseLastStartDateControllerPostTests
         [Greedy] AddAllowedCourseLastStartDateController sut)
     {
         SetupGetCourse(coursesServiceMock);
-        SetupPatchResponse(outerApiClientMock, HttpStatusCode.OK);
+        SetupPutResponse(outerApiClientMock, HttpStatusCode.OK);
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -75,12 +75,10 @@ public class AddAllowedCourseLastStartDateControllerPostTests
         outerApiClientMock.Verify(
             c => c.GetProviderAllowedCourse(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
-        outerApiClientMock.Verify(c => c.PatchProviderAllowedCourse(
+        outerApiClientMock.Verify(c => c.PutProviderAllowedCourse(
             Ukprn,
             LarsCode,
-            sut.User.UserId(),
-            sut.User.UserDisplayName(),
-            It.Is<PatchProviderAllowedCourseRequest>(r => r.LastDateStarts == EnteredDate),
+            It.Is<PutProviderAllowedCourseRequest>(r => r.LastDateStarts == EnteredDate && r.UserId == sut.User.UserId() && r.UserDisplayName == sut.User.UserDisplayName()),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -92,7 +90,7 @@ public class AddAllowedCourseLastStartDateControllerPostTests
         [Greedy] AddAllowedCourseLastStartDateController sut)
     {
         SetupGetCourse(coursesServiceMock, CourseType.ShortCourse);
-        SetupPatchResponse(outerApiClientMock, HttpStatusCode.OK);
+        SetupPutResponse(outerApiClientMock, HttpStatusCode.OK);
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -154,12 +152,10 @@ public class AddAllowedCourseLastStartDateControllerPostTests
         }
 
         outerApiClientMock.Verify(
-            c => c.PatchProviderAllowedCourse(
+            c => c.PutProviderAllowedCourse(
                 It.IsAny<int>(),
                 It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<PatchProviderAllowedCourseRequest>(),
+                It.IsAny<PutProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -201,12 +197,10 @@ public class AddAllowedCourseLastStartDateControllerPostTests
         }
 
         outerApiClientMock.Verify(
-            c => c.PatchProviderAllowedCourse(
+            c => c.PutProviderAllowedCourse(
                 It.IsAny<int>(),
                 It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<PatchProviderAllowedCourseRequest>(),
+                It.IsAny<PutProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -261,12 +255,10 @@ public class AddAllowedCourseLastStartDateControllerPostTests
 
         result.Should().BeOfType<NotFoundResult>();
         outerApiClientMock.Verify(
-            c => c.PatchProviderAllowedCourse(
+            c => c.PutProviderAllowedCourse(
                 It.IsAny<int>(),
                 It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<PatchProviderAllowedCourseRequest>(),
+                It.IsAny<PutProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -279,7 +271,7 @@ public class AddAllowedCourseLastStartDateControllerPostTests
         [Greedy] AddAllowedCourseLastStartDateController sut)
     {
         SetupGetCourse(coursesServiceMock);
-        SetupPatchResponse(outerApiClientMock, HttpStatusCode.NotFound);
+        SetupPutResponse(outerApiClientMock, HttpStatusCode.NotFound);
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -303,7 +295,7 @@ public class AddAllowedCourseLastStartDateControllerPostTests
         [Greedy] AddAllowedCourseLastStartDateController sut)
     {
         SetupGetCourse(coursesServiceMock);
-        SetupPatchResponse(outerApiClientMock, HttpStatusCode.InternalServerError);
+        SetupPutResponse(outerApiClientMock, HttpStatusCode.InternalServerError);
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -341,19 +333,17 @@ public class AddAllowedCourseLastStartDateControllerPostTests
             });
     }
 
-    private static void SetupPatchResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
+    private static void SetupPutResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
     {
         outerApiClientMock
-            .Setup(c => c.PatchProviderAllowedCourse(
+            .Setup(c => c.PutProviderAllowedCourse(
                 It.IsAny<int>(),
                 It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<PatchProviderAllowedCourseRequest>(),
+                It.IsAny<PutProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(OuterApiResponse.Create<object>(
                 statusCode,
-                method: HttpMethod.Patch,
+                method: HttpMethod.Put,
                 includeException: statusCode != HttpStatusCode.NotFound));
     }
 }

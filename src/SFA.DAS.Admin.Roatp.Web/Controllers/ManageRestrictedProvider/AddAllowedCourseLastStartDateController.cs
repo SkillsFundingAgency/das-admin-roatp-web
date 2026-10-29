@@ -92,12 +92,10 @@ public class AddAllowedCourseLastStartDateController(
             return View(ViewPath, BuildViewModel(ukprn, routeLearningType, course, submitModel.Day, submitModel.Month, submitModel.Year));
         }
 
-        var response = await outerApiClient.PatchProviderAllowedCourse(
+        var response = await outerApiClient.PutProviderAllowedCourse(
             ukprn,
             larsCode,
-            User.UserId(),
-            User.UserDisplayName(),
-            new PatchProviderAllowedCourseRequest { LastDateStarts = submitModel.GetEnteredDate() },
+            new PutProviderAllowedCourseRequest(submitModel.GetEnteredDate(), User.UserId(), User.UserDisplayName()),
             cancellationToken);
 
         if (response.StatusCode == HttpStatusCode.NotFound)

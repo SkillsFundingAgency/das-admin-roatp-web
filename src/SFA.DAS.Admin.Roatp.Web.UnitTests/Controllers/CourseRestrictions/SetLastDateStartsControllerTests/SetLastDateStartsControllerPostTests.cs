@@ -107,12 +107,10 @@ public class SetLastDateStartsControllerPostTests
             c => c.GetAllowedProvidersForCourse(It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
         outerApiClientMock.Verify(
-            c => c.PatchProviderAllowedCourse(
+            c => c.PutProviderAllowedCourse(
                 It.IsAny<int>(),
                 It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<PatchProviderAllowedCourseRequest>(),
+                It.IsAny<PutProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -161,12 +159,10 @@ public class SetLastDateStartsControllerPostTests
         outerApiClientMock.Verify(
             c => c.GetAllowedProvidersForCourse(It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
-        outerApiClientMock.Verify(c => c.PatchProviderAllowedCourse(
+        outerApiClientMock.Verify(c => c.PutProviderAllowedCourse(
             Ukprn,
             LarsCode,
-            sut.User.UserId(),
-            sut.User.UserDisplayName(),
-            It.Is<PatchProviderAllowedCourseRequest>(r =>
+            It.Is<PutProviderAllowedCourseRequest>(r =>
                 r.LastDateStarts == new DateTime(2027, 3, 15, 0, 0, 0, DateTimeKind.Unspecified)),
             It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -208,12 +204,10 @@ public class SetLastDateStartsControllerPostTests
         outerApiClientMock.Verify(
             c => c.GetAllowedProvidersForCourse(It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
-        outerApiClientMock.Verify(c => c.PatchProviderAllowedCourse(
+        outerApiClientMock.Verify(c => c.PutProviderAllowedCourse(
             Ukprn,
             LarsCode,
-            sut.User.UserId(),
-            sut.User.UserDisplayName(),
-            It.Is<PatchProviderAllowedCourseRequest>(r =>
+            It.Is<PutProviderAllowedCourseRequest>(r =>
                 r.LastDateStarts == new DateTime(2026, 7, 12, 0, 0, 0, DateTimeKind.Unspecified)),
             It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -302,12 +296,10 @@ public class SetLastDateStartsControllerPostTests
             c => c.GetAllowedProvidersForCourse(It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
         outerApiClientMock.Verify(
-            c => c.PatchProviderAllowedCourse(
+            c => c.PutProviderAllowedCourse(
                 It.IsAny<int>(),
                 It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<PatchProviderAllowedCourseRequest>(),
+                It.IsAny<PutProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -336,16 +328,14 @@ public class SetLastDateStartsControllerPostTests
     private static void SetupPatchResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
     {
         outerApiClientMock
-            .Setup(c => c.PatchProviderAllowedCourse(
+            .Setup(c => c.PutProviderAllowedCourse(
                 It.IsAny<int>(),
                 It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<PatchProviderAllowedCourseRequest>(),
+                It.IsAny<PutProviderAllowedCourseRequest>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(OuterApiResponse.Create<object>(
                 statusCode,
-                method: HttpMethod.Patch,
+                method: HttpMethod.Put,
                 includeException: statusCode != HttpStatusCode.NotFound));
     }
 }
