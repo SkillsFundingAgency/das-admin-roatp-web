@@ -213,13 +213,13 @@ public class SetLastDateStartsControllerPostTests
     }
 
     [Test]
-    public async Task WhenApiReturnsNotFound_ThenReturnsNotFound()
+    public async Task WhenApiReturnsNotFound_ThenThrows()
     {
         var outerApiClientMock = new Mock<IOuterApiClient>();
         var sessionServiceMock = new Mock<ISessionService>();
         var validatorMock = new Mock<IValidator<SetLastDateStartsSubmitModel>>();
         SetupSession(sessionServiceMock);
-        SetupPatchResponse(outerApiClientMock, HttpStatusCode.NotFound);
+        SetupPutResponse(outerApiClientMock, HttpStatusCode.NotFound);
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -233,13 +233,13 @@ public class SetLastDateStartsControllerPostTests
         sut.SetupAuthenticatedUser();
         sut.AddTempData();
 
-        var result = await sut.Index(
+        var act = () => sut.Index(
             LarsCode,
             Ukprn,
             new SetLastDateStartsSubmitModel { Day = "15", Month = "03", Year = "2027" },
             new CancellationToken());
 
-        result.Should().BeOfType<NotFoundResult>();
+        await act.Should().ThrowAsync<ApiException>();
         sessionServiceMock.Verify(s => s.Delete(SessionKeys.SetLastDateStarts), Times.Never);
     }
 
@@ -251,7 +251,7 @@ public class SetLastDateStartsControllerPostTests
         var sessionServiceMock = new Mock<ISessionService>();
         var validatorMock = new Mock<IValidator<SetLastDateStartsSubmitModel>>();
         SetupSession(sessionServiceMock);
-        SetupPatchResponse(outerApiClientMock, statusCode);
+        SetupPutResponse(outerApiClientMock, statusCode);
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<SetLastDateStartsSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -323,9 +323,9 @@ public class SetLastDateStartsControllerPostTests
     }
 
     private static void SetupSuccessfulPatch(Mock<IOuterApiClient> outerApiClientMock)
-        => SetupPatchResponse(outerApiClientMock, HttpStatusCode.OK);
+        => SetupPutResponse(outerApiClientMock, HttpStatusCode.OK);
 
-    private static void SetupPatchResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
+    private static void SetupPutResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
     {
         outerApiClientMock
             .Setup(c => c.PutProviderAllowedCourse(
@@ -335,7 +335,6 @@ public class SetLastDateStartsControllerPostTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(OuterApiResponse.Create<object>(
                 statusCode,
-                method: HttpMethod.Put,
-                includeException: statusCode != HttpStatusCode.NotFound));
+                method: HttpMethod.Put));
     }
 }

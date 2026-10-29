@@ -141,7 +141,7 @@ public class ChangeCourseRestrictionControllerPostTests
     }
 
     [Test]
-    public async Task WhenRemoveSelected_AndApiReturnsNotFound_ThenReturnsNotFound()
+    public async Task WhenRemoveSelected_AndApiReturnsNotFound_ThenThrows()
     {
         var outerApiClientMock = new Mock<IOuterApiClient>();
         var validatorMock = new Mock<IValidator<ChangeCourseRestrictionSubmitModel>>();
@@ -155,7 +155,7 @@ public class ChangeCourseRestrictionControllerPostTests
         };
 
         SetupCourseWithLastDateStarts(outerApiClientMock, response);
-        SetupPatchResponse(outerApiClientMock, HttpStatusCode.NotFound);
+        SetupPutResponse(outerApiClientMock, HttpStatusCode.NotFound);
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<ChangeCourseRestrictionSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -168,13 +168,13 @@ public class ChangeCourseRestrictionControllerPostTests
         sut.SetupAuthenticatedUser();
         sut.AddTempData();
 
-        var result = await sut.Index(
+        var act = () => sut.Index(
             LarsCode,
             Ukprn,
             new ChangeCourseRestrictionSubmitModel { SelectedOption = ChangeCourseRestrictionOptions.Remove },
             new CancellationToken());
 
-        result.Should().BeOfType<NotFoundResult>();
+        await act.Should().ThrowAsync<ApiException>();
     }
 
     [TestCase(HttpStatusCode.BadRequest)]
@@ -193,7 +193,7 @@ public class ChangeCourseRestrictionControllerPostTests
         };
 
         SetupCourseWithLastDateStarts(outerApiClientMock, response);
-        SetupPatchResponse(outerApiClientMock, statusCode);
+        SetupPutResponse(outerApiClientMock, statusCode);
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<ChangeCourseRestrictionSubmitModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -278,9 +278,9 @@ public class ChangeCourseRestrictionControllerPostTests
     }
 
     private static void SetupSuccessfulPatch(Mock<IOuterApiClient> outerApiClientMock)
-        => SetupPatchResponse(outerApiClientMock, HttpStatusCode.OK);
+        => SetupPutResponse(outerApiClientMock, HttpStatusCode.OK);
 
-    private static void SetupPatchResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
+    private static void SetupPutResponse(Mock<IOuterApiClient> outerApiClientMock, HttpStatusCode statusCode)
     {
         outerApiClientMock
             .Setup(c => c.PutProviderAllowedCourse(
@@ -290,7 +290,6 @@ public class ChangeCourseRestrictionControllerPostTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(OuterApiResponse.Create<object>(
                 statusCode,
-                method: HttpMethod.Put,
-                includeException: statusCode != HttpStatusCode.NotFound));
+                method: HttpMethod.Put));
     }
 }
