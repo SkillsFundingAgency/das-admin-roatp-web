@@ -72,7 +72,7 @@ public class ChangeAllowedCourseLastStartDateControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenPostingChangeLastStartDate_AndChangeIsSelected_ThenRedirectsToChangeLastStartDate(
+    public async Task WhenPostingChangeLastStartDate_AndChangeIsSelected_ThenRedirectsToEditLastStartDate(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Frozen] Mock<IValidator<ChangeAllowedCourseLastStartDateSubmitModel>> validatorMock,
@@ -97,7 +97,7 @@ public class ChangeAllowedCourseLastStartDateControllerPostTests
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result!.RouteName.Should().Be(RouteNames.ChangeAllowedCourseLastStartDate);
+            result!.RouteName.Should().Be(RouteNames.EditAllowedCourseLastStartDate);
             result.RouteValues!["ukprn"].Should().Be(Ukprn);
             result.RouteValues["routeLearningType"].Should().Be(RouteLearningType.Apprenticeship);
             result.RouteValues["larsCode"].Should().Be(LarsCode);
@@ -179,7 +179,7 @@ public class ChangeAllowedCourseLastStartDateControllerPostTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenPostingChangeLastStartDate_AndChangeIsSelectedForApprenticeshipUnit_ThenRedirectsToChangeLastStartDate(
+    public async Task WhenPostingChangeLastStartDate_AndChangeIsSelectedForApprenticeshipUnit_ThenRedirectsToEditLastStartDate(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<ICoursesService> coursesServiceMock,
         [Frozen] Mock<IValidator<ChangeAllowedCourseLastStartDateSubmitModel>> validatorMock,
@@ -204,7 +204,7 @@ public class ChangeAllowedCourseLastStartDateControllerPostTests
         using (new AssertionScope())
         {
             result.Should().NotBeNull();
-            result!.RouteName.Should().Be(RouteNames.ChangeAllowedCourseLastStartDate);
+            result!.RouteName.Should().Be(RouteNames.EditAllowedCourseLastStartDate);
             result.RouteValues!["ukprn"].Should().Be(Ukprn);
             result.RouteValues["routeLearningType"].Should().Be(RouteLearningType.ApprenticeshipUnit);
             result.RouteValues["larsCode"].Should().Be(LarsCode);
