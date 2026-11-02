@@ -1,4 +1,3 @@
-using System.Net;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -44,7 +43,7 @@ public class ChangeAllowedCourseLastStartDateController(
             return NotFound();
         }
 
-        ProviderAllowedCourseModel? allowedCourse = await GetAllowedCourse(ukprn, larsCode, cancellationToken);
+        ProviderAllowedCourseModel? allowedCourse = await outerApiClient.GetAllowedCourse(ukprn, larsCode, cancellationToken);
         if (allowedCourse is null)
         {
             return NotFound();
@@ -71,7 +70,7 @@ public class ChangeAllowedCourseLastStartDateController(
         ChangeAllowedCourseLastStartDateSubmitModel submitModel,
         CancellationToken cancellationToken)
     {
-        ProviderAllowedCourseModel? allowedCourse = await GetAllowedCourse(ukprn, larsCode, cancellationToken);
+        ProviderAllowedCourseModel? allowedCourse = await outerApiClient.GetAllowedCourse(ukprn, larsCode, cancellationToken);
         if (allowedCourse is null)
         {
             return NotFound();
@@ -92,22 +91,12 @@ public class ChangeAllowedCourseLastStartDateController(
                 BuildViewModel(ukprn, routeLearningType, course, allowedCourse.LastDateStarts!.Value, submitModel));
         }
 
-        return RedirectToRoute(RouteNames.ChangeAllowedCourseLastStartDate, new { ukprn, routeLearningType, larsCode });
-    }
-
-    private async Task<ProviderAllowedCourseModel?> GetAllowedCourse(
-        int ukprn,
-        string larsCode,
-        CancellationToken cancellationToken)
-    {
-        var apiResponse = await outerApiClient.GetProviderAllowedCourse(ukprn, larsCode, cancellationToken);
-        if (apiResponse.StatusCode == HttpStatusCode.NotFound)
+        if (submitModel.SelectedOption == ChangeAllowedCourseLastStartDateOptions.Change)
         {
-            return null;
+            return RedirectToRoute(RouteNames.EditAllowedCourseLastStartDate, new { ukprn, routeLearningType, larsCode });
         }
 
-        await apiResponse.EnsureSuccessStatusCodeAsync();
-        return apiResponse.Content;
+        return RedirectToRoute(RouteNames.ChangeAllowedCourseLastStartDate, new { ukprn, routeLearningType, larsCode });
     }
 
     private ChangeAllowedCourseLastStartDateViewModel BuildViewModel(

@@ -1,4 +1,3 @@
-using System.Net;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -49,7 +48,7 @@ public class AddAllowedCourseLastStartDateController(
             return NotFound();
         }
 
-        ProviderAllowedCourseModel? allowedCourse = await GetAllowedCourse(ukprn, larsCode, cancellationToken);
+        ProviderAllowedCourseModel? allowedCourse = await outerApiClient.GetAllowedCourse(ukprn, larsCode, cancellationToken);
         if (allowedCourse is null)
         {
             return NotFound();
@@ -98,32 +97,12 @@ public class AddAllowedCourseLastStartDateController(
             new PutProviderAllowedCourseRequest(submitModel.GetEnteredDate(), User.UserId(), User.UserDisplayName()),
             cancellationToken);
 
-        if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            return NotFound();
-        }
-
         await response.EnsureSuccessStatusCodeAsync();
 
         TempData[ProviderAllowedCoursesController.SuccessBannerTempDataKey] =
             GetSuccessBannerMessage(CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level));
 
         return RedirectToRoute(RouteNames.ProviderAllowedCourses, new { ukprn, routeLearningType });
-    }
-
-    private async Task<ProviderAllowedCourseModel?> GetAllowedCourse(
-        int ukprn,
-        string larsCode,
-        CancellationToken cancellationToken)
-    {
-        var apiResponse = await outerApiClient.GetProviderAllowedCourse(ukprn, larsCode, cancellationToken);
-        if (apiResponse.StatusCode == HttpStatusCode.NotFound)
-        {
-            return null;
-        }
-
-        await apiResponse.EnsureSuccessStatusCodeAsync();
-        return apiResponse.Content;
     }
 
     private AddAllowedCourseLastStartDateViewModel BuildViewModel(
