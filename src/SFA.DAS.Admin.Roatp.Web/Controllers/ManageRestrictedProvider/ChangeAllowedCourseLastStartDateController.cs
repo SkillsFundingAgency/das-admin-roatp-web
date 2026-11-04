@@ -96,7 +96,7 @@ public class ChangeAllowedCourseLastStartDateController(
             return RedirectToRoute(RouteNames.EditAllowedCourseLastStartDate, new { ukprn, routeLearningType, larsCode });
         }
 
-        return RedirectToRoute(RouteNames.ChangeAllowedCourseLastStartDate, new { ukprn, routeLearningType, larsCode });
+        return RedirectToRoute(RouteNames.RemoveAllowedCourseLastStartDate, new { ukprn, routeLearningType, larsCode });
     }
 
     private ChangeAllowedCourseLastStartDateViewModel BuildViewModel(
