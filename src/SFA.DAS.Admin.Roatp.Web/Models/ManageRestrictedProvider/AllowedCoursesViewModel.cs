@@ -1,6 +1,7 @@
 using Humanizer;
 using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Web.Models.Filters;
+using SFA.DAS.Admin.Roatp.Web.Models.Shared;
 
 namespace SFA.DAS.Admin.Roatp.Web.Models.ManageRestrictedProvider;
 
@@ -16,6 +17,7 @@ public class AllowedCoursesViewModel : ICustomBackLink
     public IReadOnlyList<AllowedCourseItemViewModel> Courses { get; set; } = [];
     public bool HasActiveFilters { get; set; }
     public FiltersViewModel Filters { get; set; } = new() { Route = string.Empty };
+    public PaginationViewModel Pagination { get; set; } = null!;
 
     public int TotalCount { get; set; }
     public bool HasCourses => TotalCount > 0;

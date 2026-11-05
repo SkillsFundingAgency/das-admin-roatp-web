@@ -82,4 +82,41 @@ public class GetProviderAllowedCoursesRequestModelTests
             requestModel.HasFilters.Should().BeTrue();
         }
     }
+
+    [Test]
+    public void WhenPageNumberIsNotSet_ThenDefaultsToOne()
+    {
+        var requestModel = new GetProviderAllowedCoursesRequestModel();
+
+        requestModel.PageNumber.Should().Be(1);
+    }
+
+    [Test]
+    public void WhenFiltersApplied_ThenToQueryStringIncludesSearchTermAndDeliveryStatus()
+    {
+        var requestModel = new GetProviderAllowedCoursesRequestModel
+        {
+            SearchTerm = " Beacon ",
+            DeliveryStatus = [DeliveryStatus.LastStartDateAdded, DeliveryStatus.ClosedToNewStarts],
+            PageNumber = 2
+        };
+
+        var queryString = requestModel.ToQueryString();
+
+        using (new AssertionScope())
+        {
+            queryString.Should().Contain((nameof(GetProviderAllowedCoursesRequestModel.SearchTerm), "Beacon"));
+            queryString.Should().Contain((nameof(GetProviderAllowedCoursesRequestModel.DeliveryStatus), nameof(DeliveryStatus.LastStartDateAdded)));
+            queryString.Should().Contain((nameof(GetProviderAllowedCoursesRequestModel.DeliveryStatus), nameof(DeliveryStatus.ClosedToNewStarts)));
+            queryString.Should().NotContain(q => q.Item1 == nameof(GetProviderAllowedCoursesRequestModel.PageNumber));
+        }
+    }
+
+    [Test]
+    public void WhenNoFilters_ThenToQueryStringReturnsEmpty()
+    {
+        var requestModel = new GetProviderAllowedCoursesRequestModel();
+
+        requestModel.ToQueryString().Should().BeEmpty();
+    }
 }
