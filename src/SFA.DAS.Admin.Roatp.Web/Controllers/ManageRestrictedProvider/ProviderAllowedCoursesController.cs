@@ -23,6 +23,7 @@ public class ProviderAllowedCoursesController(
     public async Task<IActionResult> Index(
         int ukprn,
         RouteLearningType routeLearningType,
+        GetProviderAllowedCoursesRequestModel requestModel,
         CancellationToken cancellationToken)
     {
         if (!Enum.IsDefined(routeLearningType))
@@ -49,22 +50,11 @@ public class ProviderAllowedCoursesController(
             return NotFound();
         }
 
-        var allowedCourses = (coursesResponse.AllowedCourses ?? [])
+        var filteredCourses = AllowedCoursesFilterBuilder
+            .ApplyFilters(coursesResponse.AllowedCourses ?? [], requestModel)
             .OrderBy(
                 course => CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level),
                 StringComparer.OrdinalIgnoreCase)
-            .Select(course =>
-            {
-                AllowedCourseItemViewModel item = course;
-                item.ChangeUrl = course.LastDateStarts.HasValue
-                    ? Url.RouteUrl(
-                        RouteNames.ChangeAllowedCourseLastStartDate,
-                        new { ukprn, routeLearningType, larsCode = course.LarsCode })!
-                    : Url.RouteUrl(
-                        RouteNames.AddAllowedCourseLastStartDate,
-                        new { ukprn, routeLearningType, larsCode = course.LarsCode })!;
-                return item;
-            })
             .ToList();
 
         var viewModel = new AllowedCoursesViewModel
@@ -73,8 +63,27 @@ public class ProviderAllowedCoursesController(
             ProviderName = organisation.LegalName,
             BackLinkUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!,
             AddUrl = Url.RouteUrl(RouteNames.AddAllowedCourse, new { ukprn, routeLearningType })!,
-            TotalCount = allowedCourses.Count,
-            Courses = allowedCourses,
+            HasActiveFilters = requestModel.HasFilters,
+            Filters = AllowedCoursesFilterBuilder.CreateFiltersViewModel(
+                requestModel,
+                ukprn,
+                routeLearningType,
+                Url),
+            TotalCount = filteredCourses.Count,
+            Courses = filteredCourses
+                .Select(course =>
+                {
+                    AllowedCourseItemViewModel item = course;
+                    item.ChangeUrl = course.LastDateStarts.HasValue
+                        ? Url.RouteUrl(
+                            RouteNames.ChangeAllowedCourseLastStartDate,
+                            new { ukprn, routeLearningType, larsCode = course.LarsCode })!
+                        : Url.RouteUrl(
+                            RouteNames.AddAllowedCourseLastStartDate,
+                            new { ukprn, routeLearningType, larsCode = course.LarsCode })!;
+                    return item;
+                })
+                .ToList(),
             SuccessBannerMessage = TempData?[SuccessBannerTempDataKey] as string
         };
 

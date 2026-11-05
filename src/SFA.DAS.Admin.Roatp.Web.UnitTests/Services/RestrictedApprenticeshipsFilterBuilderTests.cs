@@ -242,7 +242,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
             deliveryStatusSection.Items.Single(i => i.Value == nameof(DeliveryStatus.LastStartDateAdded))
                 .DisplayDescription.Should().Be("Course will be restricted after this date");
             deliveryStatusSection.Items.Single(i => i.Value == nameof(DeliveryStatus.ClosedToNewStarts))
-                .DisplayDescription.Should().Be("This will be removed once all learners have completed the course");
+                .DisplayDescription.Should().Be(ClosedToNewStartsDescription);
         }
     }
 

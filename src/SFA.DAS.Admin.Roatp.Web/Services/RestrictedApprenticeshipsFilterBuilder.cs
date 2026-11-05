@@ -16,7 +16,6 @@ public static class RestrictedApprenticeshipsFilterBuilder
     private const string SearchTermInputId = "search-term-input";
     private const string DeliveryStatusFilterId = "delivery-status-filter";
     private const string LastStartDateAddedDescription = "Course will be restricted after this date";
-    private const string ClosedToNewStartsDescription = "This will be removed once all learners have completed the course";
 
     public static FiltersViewModel CreateFiltersViewModel(
         GetProviderRestrictedApprenticeshipsRequestModel requestModel,
