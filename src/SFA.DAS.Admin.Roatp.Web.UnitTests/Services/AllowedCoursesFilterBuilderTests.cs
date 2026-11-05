@@ -240,7 +240,7 @@ public class AllowedCoursesFilterBuilderTests
             deliveryStatusSection.Items.Single(i => i.Value == nameof(DeliveryStatus.OpenToNewStarts))
                 .DisplayDescription.Should().Be("Training providers offer this course on Find apprenticeship training");
             deliveryStatusSection.Items.Single(i => i.Value == nameof(DeliveryStatus.LastStartDateAdded))
-                .DisplayDescription.Should().Be("Training providers will not be able to take on new learners after this date");
+                .DisplayDescription.Should().Be(LastStartDateAddedDescription);
             deliveryStatusSection.Items.Single(i => i.Value == nameof(DeliveryStatus.ClosedToNewStarts))
                 .DisplayDescription.Should().Be(ClosedToNewStartsDescription);
         }

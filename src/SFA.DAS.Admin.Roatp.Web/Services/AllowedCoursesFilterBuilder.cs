@@ -17,8 +17,6 @@ public static class AllowedCoursesFilterBuilder
     private const string DeliveryStatusFilterId = "delivery-status-filter";
     private const string OpenToNewStartsDescription =
         "Training providers offer this course on Find apprenticeship training";
-    private const string LastStartDateAddedDescription =
-        "Training providers will not be able to take on new learners after this date";
 
     public static FiltersViewModel CreateFiltersViewModel(
         GetProviderAllowedCoursesRequestModel requestModel,

@@ -240,7 +240,7 @@ public class RestrictedApprenticeshipsFilterBuilderTests
             var deliveryStatusSection = filters.FilterSections[1]
                 .Should().BeOfType<CheckboxListFilterSectionViewModel>().Subject;
             deliveryStatusSection.Items.Single(i => i.Value == nameof(DeliveryStatus.LastStartDateAdded))
-                .DisplayDescription.Should().Be("Course will be restricted after this date");
+                .DisplayDescription.Should().Be(LastStartDateAddedDescription);
             deliveryStatusSection.Items.Single(i => i.Value == nameof(DeliveryStatus.ClosedToNewStarts))
                 .DisplayDescription.Should().Be(ClosedToNewStartsDescription);
         }
