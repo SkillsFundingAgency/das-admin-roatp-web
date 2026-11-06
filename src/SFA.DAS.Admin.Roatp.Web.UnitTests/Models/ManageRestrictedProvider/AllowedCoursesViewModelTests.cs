@@ -25,26 +25,51 @@ public class AllowedCoursesViewModelTests
     }
 
     [Test]
-    public void WhenTotalCountIsZero_ThenHasNoCoursesIsTrue()
+    public void WhenNoActiveFiltersAndNoCourses_ThenHasNoFilteredResultsIsFalse()
     {
         var model = new AllowedCoursesViewModel();
 
         using (new AssertionScope())
         {
+            model.HasNoFilteredResults.Should().BeFalse();
             model.HasNoCourses.Should().BeTrue();
+            model.ShowCourseResults.Should().BeFalse();
             model.HasCourses.Should().BeFalse();
         }
     }
 
     [Test]
-    public void WhenTotalCountIsGreaterThanZero_ThenHasCoursesIsTrue()
+    public void WhenActiveFiltersAndNoCourses_ThenShowsNoFilterResults()
     {
-        var model = new AllowedCoursesViewModel { TotalCount = 1 };
+        var model = new AllowedCoursesViewModel
+        {
+            HasActiveFilters = true
+        };
 
         using (new AssertionScope())
         {
-            model.HasCourses.Should().BeTrue();
+            model.HasNoFilteredResults.Should().BeTrue();
             model.HasNoCourses.Should().BeFalse();
+            model.ShowCourseResults.Should().BeTrue();
+            model.HasCourses.Should().BeFalse();
+        }
+    }
+
+    [Test]
+    public void WhenActiveFiltersAndHasCourses_ThenHasNoFilteredResultsIsFalse()
+    {
+        var model = new AllowedCoursesViewModel
+        {
+            HasActiveFilters = true,
+            TotalCount = 1
+        };
+
+        using (new AssertionScope())
+        {
+            model.HasNoFilteredResults.Should().BeFalse();
+            model.HasNoCourses.Should().BeFalse();
+            model.ShowCourseResults.Should().BeTrue();
+            model.HasCourses.Should().BeTrue();
         }
     }
 

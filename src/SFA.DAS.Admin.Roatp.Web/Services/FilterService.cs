@@ -16,6 +16,8 @@ public static class FilterService
     public const string CourseNameSectionSubHeading = "Search by course name or LARS code";
     public const string DeliveryStatusSectionHeading = "Delivery status";
     public const string LearningTypeSectionHeading = "Training type";
+    public const string LastStartDateAddedDescription = "Training providers will not be able to take on new learners after this date";
+    public const string ClosedToNewStartsDescription = "Training providers can no longer accept new learners";
 
     public enum FilterComponentType
     {

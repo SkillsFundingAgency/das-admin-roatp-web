@@ -38,7 +38,7 @@ public class ProviderAllowedCoursesControllerGetTests
         SetupRestrictedProvider(ukprnServiceMock, outerApiClientMock, response);
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken()) as ViewResult;
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new GetProviderAllowedCoursesRequestModel(), new CancellationToken()) as ViewResult;
         var model = result?.Model as AllowedCoursesViewModel;
 
         using (new AssertionScope())
@@ -67,6 +67,10 @@ public class ProviderAllowedCoursesControllerGetTests
             model.Courses.Select(course => course.HasLastDateStarts).Should().Equal(true, false, true);
             model.TotalCountDescription.Should().Be("3 courses");
             model.HasSuccessBanner.Should().BeFalse();
+            model.HasActiveFilters.Should().BeFalse();
+            model.ShowCourseResults.Should().BeTrue();
+            model.Filters.FilterSections.Should().HaveCount(2);
+            model.Filters.ShowFilterOptions.Should().BeFalse();
         }
 
         outerApiClientMock.Verify(
@@ -86,7 +90,7 @@ public class ProviderAllowedCoursesControllerGetTests
             new GetAllowedCoursesResponse { AllowedCourses = [] });
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken()) as ViewResult;
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new GetProviderAllowedCoursesRequestModel(), new CancellationToken()) as ViewResult;
         var model = result?.Model as AllowedCoursesViewModel;
 
         using (new AssertionScope())
@@ -94,6 +98,8 @@ public class ProviderAllowedCoursesControllerGetTests
             model.Should().NotBeNull();
             model!.HasNoCourses.Should().BeTrue();
             model.HasCourses.Should().BeFalse();
+            model.ShowCourseResults.Should().BeFalse();
+            model.HasNoFilteredResults.Should().BeFalse();
         }
     }
 
@@ -113,6 +119,7 @@ public class ProviderAllowedCoursesControllerGetTests
         var result = await sut.Index(
             Ukprn,
             RouteLearningType.ApprenticeshipUnit,
+            new GetProviderAllowedCoursesRequestModel(),
             new CancellationToken()) as ViewResult;
         var model = result?.Model as AllowedCoursesViewModel;
 
@@ -156,11 +163,13 @@ public class ProviderAllowedCoursesControllerGetTests
         var urlHelperMock = sut.AddUrlHelperMock()
             .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl)
             .AddUrlForRoute(RouteNames.AddAllowedCourse, AddAllowedCourseUrl)
-            .AddUrlForRoute(RouteNames.ChangeAllowedCourseLastStartDate, ChangeLastStartDateUrl);
+            .AddUrlForRoute(RouteNames.ChangeAllowedCourseLastStartDate, ChangeLastStartDateUrl)
+            .AddUrlForRoute(RouteNames.ProviderAllowedCourses, "/providers/10019900/ApprenticeshipUnit/allowed-courses");
 
         var result = await sut.Index(
             Ukprn,
             RouteLearningType.ApprenticeshipUnit,
+            new GetProviderAllowedCoursesRequestModel(),
             new CancellationToken()) as ViewResult;
         var model = result?.Model as AllowedCoursesViewModel;
 
@@ -197,7 +206,7 @@ public class ProviderAllowedCoursesControllerGetTests
         sut.AddTempData();
         sut.TempData[ProviderAllowedCoursesController.SuccessBannerTempDataKey] = successMessage;
 
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken()) as ViewResult;
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new GetProviderAllowedCoursesRequestModel(), new CancellationToken()) as ViewResult;
         var model = result?.Model as AllowedCoursesViewModel;
 
         using (new AssertionScope())
@@ -212,7 +221,7 @@ public class ProviderAllowedCoursesControllerGetTests
     public async Task WhenGettingAllowedCourses_AndRouteLearningTypeIsInvalid_ThenReturnsNotFound(
         [Greedy] ProviderAllowedCoursesController sut)
     {
-        var result = await sut.Index(Ukprn, (RouteLearningType)0, new CancellationToken());
+        var result = await sut.Index(Ukprn, (RouteLearningType)0, new GetProviderAllowedCoursesRequestModel(), new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -225,7 +234,7 @@ public class ProviderAllowedCoursesControllerGetTests
     {
         ukprnServiceMock.SetupOrganisationRestriction(Ukprn, isRestricted: false);
 
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken()) as RedirectToRouteResult;
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new GetProviderAllowedCoursesRequestModel(), new CancellationToken()) as RedirectToRouteResult;
 
         using (new AssertionScope())
         {
@@ -253,7 +262,7 @@ public class ProviderAllowedCoursesControllerGetTests
             isRestricted: false);
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(Ukprn, RouteLearningType.ApprenticeshipUnit, new CancellationToken()) as ViewResult;
+        var result = await sut.Index(Ukprn, RouteLearningType.ApprenticeshipUnit, new GetProviderAllowedCoursesRequestModel(), new CancellationToken()) as ViewResult;
         var model = result?.Model as AllowedCoursesViewModel;
 
         using (new AssertionScope())
@@ -274,7 +283,7 @@ public class ProviderAllowedCoursesControllerGetTests
             .Setup(s => s.GetOrganisationAsync(Ukprn, It.IsAny<CancellationToken>()))
             .ReturnsAsync((GetOrganisationResponse?)null);
 
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken());
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new GetProviderAllowedCoursesRequestModel(), new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -287,7 +296,7 @@ public class ProviderAllowedCoursesControllerGetTests
     {
         SetupRestrictedProvider(ukprnServiceMock, outerApiClientMock, statusCode: HttpStatusCode.NotFound);
 
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken());
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new GetProviderAllowedCoursesRequestModel(), new CancellationToken());
 
         result.Should().BeOfType<NotFoundResult>();
     }
@@ -303,7 +312,7 @@ public class ProviderAllowedCoursesControllerGetTests
             outerApiClientMock,
             statusCode: HttpStatusCode.InternalServerError);
 
-        var act = () => sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken());
+        var act = () => sut.Index(Ukprn, RouteLearningType.Apprenticeship, new GetProviderAllowedCoursesRequestModel(), new CancellationToken());
 
         await act.Should().ThrowAsync<ApiException>();
     }
@@ -320,7 +329,7 @@ public class ProviderAllowedCoursesControllerGetTests
             new GetAllowedCoursesResponse { AllowedCourses = null! });
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken()) as ViewResult;
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new GetProviderAllowedCoursesRequestModel(), new CancellationToken()) as ViewResult;
         var model = result?.Model as AllowedCoursesViewModel;
 
         using (new AssertionScope())
@@ -339,7 +348,7 @@ public class ProviderAllowedCoursesControllerGetTests
         SetupRestrictedProvider(ukprnServiceMock, outerApiClientMock, response: null);
         SetupUrlHelper(sut);
 
-        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new CancellationToken()) as ViewResult;
+        var result = await sut.Index(Ukprn, RouteLearningType.Apprenticeship, new GetProviderAllowedCoursesRequestModel(), new CancellationToken()) as ViewResult;
         var model = result?.Model as AllowedCoursesViewModel;
 
         using (new AssertionScope())
@@ -355,7 +364,8 @@ public class ProviderAllowedCoursesControllerGetTests
             .AddUrlForRoute(RouteNames.ProviderSummary, ProviderSummaryUrl)
             .AddUrlForRoute(RouteNames.AddAllowedCourse, AddAllowedCourseUrl)
             .AddUrlForRoute(RouteNames.AddAllowedCourseLastStartDate, AddLastStartDateUrl)
-            .AddUrlForRoute(RouteNames.ChangeAllowedCourseLastStartDate, ChangeLastStartDateUrl);
+            .AddUrlForRoute(RouteNames.ChangeAllowedCourseLastStartDate, ChangeLastStartDateUrl)
+            .AddUrlForRoute(RouteNames.ProviderAllowedCourses, "/providers/10019900/Apprenticeship/allowed-courses");
     }
 
     private static void SetupRestrictedProvider(

@@ -6,6 +6,7 @@ using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models.ManageRestrictedProvider;
+using SFA.DAS.Admin.Roatp.Web.Models.Shared;
 using SFA.DAS.Admin.Roatp.Web.Services;
 
 namespace SFA.DAS.Admin.Roatp.Web.Controllers.ManageRestrictedProvider;
@@ -23,6 +24,7 @@ public class ProviderAllowedCoursesController(
     public async Task<IActionResult> Index(
         int ukprn,
         RouteLearningType routeLearningType,
+        GetProviderAllowedCoursesRequestModel requestModel,
         CancellationToken cancellationToken)
     {
         if (!Enum.IsDefined(routeLearningType))
@@ -49,10 +51,50 @@ public class ProviderAllowedCoursesController(
             return NotFound();
         }
 
-        var allowedCourses = (coursesResponse.AllowedCourses ?? [])
+        var filteredCourses = AllowedCoursesFilterBuilder
+            .ApplyFilters(coursesResponse.AllowedCourses ?? [], requestModel)
             .OrderBy(
                 course => CourseDisplayModelExtensions.GetDisplayTitle(course.Title, course.Level),
                 StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var viewModel = new AllowedCoursesViewModel
+        {
+            RouteLearningType = routeLearningType,
+            ProviderName = organisation.LegalName,
+            BackLinkUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!,
+            AddUrl = Url.RouteUrl(RouteNames.AddAllowedCourse, new { ukprn, routeLearningType })!,
+            HasActiveFilters = requestModel.HasFilters,
+            Filters = AllowedCoursesFilterBuilder.CreateFiltersViewModel(
+                requestModel,
+                ukprn,
+                routeLearningType,
+                Url),
+            SuccessBannerMessage = TempData?[SuccessBannerTempDataKey] as string
+        };
+
+        ApplyPagination(viewModel, filteredCourses, requestModel, ukprn, routeLearningType);
+
+        return View(ViewPath, viewModel);
+    }
+
+    private void ApplyPagination(
+        AllowedCoursesViewModel viewModel,
+        List<ProviderAllowedCourseModel> filteredCourses,
+        GetProviderAllowedCoursesRequestModel requestModel,
+        int ukprn,
+        RouteLearningType routeLearningType)
+    {
+        var (pagedItems, totalCount, pagination) = PaginationHelper.Paginate(
+            filteredCourses,
+            requestModel.PageNumber,
+            Url,
+            RouteNames.ProviderAllowedCourses,
+            requestModel.ToQueryString(),
+            AllowedCoursesFilterBuilder.AllowedCourseFilterResultsFragment);
+
+        viewModel.TotalCount = totalCount;
+        viewModel.Courses = pagedItems
             .Select(course =>
             {
                 AllowedCourseItemViewModel item = course;
@@ -66,19 +108,7 @@ public class ProviderAllowedCoursesController(
                 return item;
             })
             .ToList();
-
-        var viewModel = new AllowedCoursesViewModel
-        {
-            RouteLearningType = routeLearningType,
-            ProviderName = organisation.LegalName,
-            BackLinkUrl = Url.RouteUrl(RouteNames.ProviderSummary, new { ukprn })!,
-            AddUrl = Url.RouteUrl(RouteNames.AddAllowedCourse, new { ukprn, routeLearningType })!,
-            TotalCount = allowedCourses.Count,
-            Courses = allowedCourses,
-            SuccessBannerMessage = TempData?[SuccessBannerTempDataKey] as string
-        };
-
-        return View(ViewPath, viewModel);
+        viewModel.Pagination = pagination;
     }
 
     private async Task<GetAllowedCoursesResponse?> GetAllowedCourses(
