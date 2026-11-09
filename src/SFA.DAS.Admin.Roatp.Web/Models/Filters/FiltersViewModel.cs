@@ -1,3 +1,4 @@
+using SFA.DAS.Admin.Roatp.Domain.Models;
 using SFA.DAS.Admin.Roatp.Web.Models.Filters.Abstract;
 using SFA.DAS.Admin.Roatp.Web.Models.Filters.FilterComponents;
 
@@ -8,6 +9,7 @@ public sealed class FiltersViewModel
     public required string Route { get; set; }
     public string? LarsCode { get; set; }
     public int? Ukprn { get; set; }
+    public RouteLearningType? RouteLearningType { get; set; }
     public string? FilterResultsFragment { get; set; }
     public IReadOnlyList<FilterSection> FilterSections { get; set; } = [];
     public IReadOnlyList<ClearFilterSectionViewModel> ClearFilterSections { get; set; } = [];
