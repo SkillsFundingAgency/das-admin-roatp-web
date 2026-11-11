@@ -185,7 +185,7 @@ public class ApprenticeshipsUpdateControllerPostTests
         outerApiClientMock.Setup(x => x.GetOrganisation(getOrganisationResponse.Ukprn, cancellationToken))!
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
 
-        List<int> expectedCourseTypeIds = hasShortCourse ? [2, 1] : [1];
+        List<int> expectedCourseTypeIds = hasShortCourse ? [1, 2] : [1];
 
         var actual = await sut.Index(getOrganisationResponse.Ukprn, submitModel, cancellationToken);
 

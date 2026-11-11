@@ -80,10 +80,11 @@ public class ApprenticeshipsUpdateController(IOuterApiClient _outerApiClient, IS
 
         if (!OffersApprenticeships(organisationResponse) && submitModel.IsApprenticeshipsOffered is true)
         {
-            await _outerApiClient.PutCourseTypes(
-                ukprn,
-                AddApprenticeshipsToCourseTypes(organisationResponse.AllowedCourseTypes, User.UserId(), User.UserDisplayName()),
-                cancellationToken);
+            UpdateCourseTypesModel updateCourseTypesModel = BuildCourseTypesModel(
+                                                            offersApprenticeships: true,
+                                                            offersApprenticeshipUnits: OffersApprenticeshipUnits(organisationResponse),
+                                                            User.UserId(), User.UserDisplayName());
+            await _outerApiClient.PutCourseTypes(ukprn, updateCourseTypesModel, cancellationToken);
         }
 
         return RedirectToRoute(RouteNames.ProviderSummary, new { ukprn });
@@ -92,6 +93,9 @@ public class ApprenticeshipsUpdateController(IOuterApiClient _outerApiClient, IS
     private static bool OffersApprenticeships(GetOrganisationResponse organisationResponse)
         => organisationResponse.AllowedCourseTypes.Any(x => x.CourseType == CourseType.Apprenticeship);
 
+    private static bool OffersApprenticeshipUnits(GetOrganisationResponse organisationResponse)
+        => organisationResponse.AllowedCourseTypes.Any(x => x.CourseType == CourseType.ShortCourse);
+
     private static OfferApprenticeshipsViewModel BuildViewModel(bool? containsApprenticeships)
         => new()
         {
@@ -99,10 +103,23 @@ public class ApprenticeshipsUpdateController(IOuterApiClient _outerApiClient, IS
             ApprenticeshipsSelection = BuildApprenticeshipsChoices(containsApprenticeships)
         };
 
-    private static UpdateCourseTypesModel AddApprenticeshipsToCourseTypes(IEnumerable<AllowedCourseType> courseTypes, string userId, string userDisplayName)
+    private static UpdateCourseTypesModel BuildCourseTypesModel(
+        bool offersApprenticeships,
+        bool offersApprenticeshipUnits,
+        string userId,
+        string userDisplayName)
     {
-        var courseTypeIds = courseTypes.Select(a => (int)a.CourseType).ToList();
-        courseTypeIds.Add((int)CourseType.Apprenticeship);
+        var courseTypeIds = new List<int>();
+        if (offersApprenticeships)
+        {
+            courseTypeIds.Add((int)CourseType.Apprenticeship);
+        }
+
+        if (offersApprenticeshipUnits)
+        {
+            courseTypeIds.Add((int)CourseType.ShortCourse);
+        }
+
         return new UpdateCourseTypesModel(courseTypeIds, userId, userDisplayName);
     }
 
