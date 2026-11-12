@@ -24,6 +24,7 @@ public class ProviderSummaryControllerGetTests
     private const string ProviderStatusUpdateUrl = "/providers/10019900/status";
     private const string ProviderTypeUpdateUrl = "/providers/10019900/provider-type";
     private const string OrganisationTypeUpdateUrl = "/providers/10019900/organisation-type";
+    private const string ApprenticeshipsUpdateUrl = "/providers/10019900/apprenticeships";
     private const string ApprenticeshipUnitsUpdateUrl = "/providers/10019900/apprenticeship-units";
     private const string RestrictProviderUrl = "/providers/10019900/restrict";
     private const string ProviderRestrictedCoursesUrl = "/providers/10019900/restricted-courses";
@@ -61,6 +62,7 @@ public class ProviderSummaryControllerGetTests
             .AddUrlForRoute(RouteNames.ProviderStatusUpdate, ProviderStatusUpdateUrl)
             .AddUrlForRoute(RouteNames.ProviderTypeUpdate, ProviderTypeUpdateUrl)
             .AddUrlForRoute(RouteNames.OrganisationTypeUpdate, OrganisationTypeUpdateUrl)
+            .AddUrlForRoute(RouteNames.ApprenticeshipsUpdate, ApprenticeshipsUpdateUrl)
             .AddUrlForRoute(RouteNames.ApprenticeshipUnitsUpdate, ApprenticeshipUnitsUpdateUrl)
             .AddUrlForRoute(RouteNames.RestrictProvider, RestrictProviderUrl)
             .AddUrlForRoute(RouteNames.ProviderRestrictedApprenticeships, ProviderRestrictedCoursesUrl);
@@ -89,6 +91,7 @@ public class ProviderSummaryControllerGetTests
             model.StatusChangeLink.Should().Be(ProviderStatusUpdateUrl);
             model.ProviderTypeChangeLink.Should().Be(ProviderTypeUpdateUrl);
             model.OrganisationTypeChangeLink.Should().Be(OrganisationTypeUpdateUrl);
+            model.OffersApprenticeshipsChangeLink.Should().Be(ApprenticeshipsUpdateUrl);
             model.OffersApprenticeshipUnitsChangeLink.Should().Be(ApprenticeshipUnitsUpdateUrl);
             model.ManageRestrictedCoursesUrl.Should().Be(ProviderRestrictedCoursesUrl);
             model.ManageApprovedCoursesUrl.Should().Be(ProviderAllowedCoursesUrl);

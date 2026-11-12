@@ -28,10 +28,14 @@ public class ApprenticeshipsUpdateControllerGetTests
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.NotFound), new GetOrganisationResponse(), new RefitSettings(), null));
 
         var actual = await sut.Index(ukprn, cancellationToken);
-        actual.Should().NotBeNull();
-        var result = actual! as RedirectToRouteResult;
-        result.Should().NotBeNull();
-        result!.RouteName.Should().Be(RouteNames.Home);
+
+        using (new AssertionScope())
+        {
+            actual.Should().NotBeNull();
+            var result = actual! as RedirectToRouteResult;
+            result.Should().NotBeNull();
+            result!.RouteName.Should().Be(RouteNames.Home);
+        }
     }
 
     [Test, MoqAutoData]
@@ -52,12 +56,167 @@ public class ApprenticeshipsUpdateControllerGetTests
             .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), new GetOrganisationResponse(), new RefitSettings(), null));
 
         var actual = await sut.Index(ukprn, cancellationToken);
-        actual.Should().NotBeNull();
-        var result = actual! as RedirectToRouteResult;
-        result.Should().NotBeNull();
-        result!.RouteName.Should().Be(RouteNames.Home);
+
+        using (new AssertionScope())
+        {
+            actual.Should().NotBeNull();
+            var result = actual! as RedirectToRouteResult;
+            result.Should().NotBeNull();
+            result!.RouteName.Should().Be(RouteNames.Home);
+        }
     }
 
+    [Test]
+    [MoqInlineAutoData(ProviderType.Main)]
+    [MoqInlineAutoData(ProviderType.Supporting)]
+    public async Task WhenGettingApprenticeshipsUpdate_AndNotEmployer_ThenRedirectsToHome(
+        ProviderType providerType,
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] ApprenticeshipsUpdateController sut,
+        GetOrganisationResponse getOrganisationResponse,
+        int ukprn)
+    {
+        var cancellationToken = new CancellationToken();
+        sessionServiceMock.Setup(s =>
+                    s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
+                .Returns((UpdateProviderTypeCourseTypesSessionModel)null!);
+
+        getOrganisationResponse.Ukprn = ukprn;
+        getOrganisationResponse.ProviderType = providerType;
+        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
+
+        var actual = await sut.Index(ukprn, cancellationToken) as RedirectToRouteResult;
+
+        using (new AssertionScope())
+        {
+            actual.Should().NotBeNull();
+            actual!.RouteName.Should().Be(RouteNames.Home);
+        }
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingApprenticeshipsUpdate_AndEmployerDoesNotOfferApprenticeshipsOrUnits_ThenBuildsViewModelWithNoSelected(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] ApprenticeshipsUpdateController sut,
+        GetOrganisationResponse getOrganisationResponse,
+        int ukprn)
+    {
+        var cancellationToken = new CancellationToken();
+        sessionServiceMock.Setup(s =>
+                    s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
+                .Returns((UpdateProviderTypeCourseTypesSessionModel)null!);
+
+        getOrganisationResponse.Ukprn = ukprn;
+        getOrganisationResponse.ProviderType = ProviderType.Employer;
+        getOrganisationResponse.AllowedCourseTypes = [];
+
+        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
+
+        var actual = await sut.Index(ukprn, cancellationToken) as ViewResult;
+        var model = actual?.Model as OfferApprenticeshipsViewModel;
+
+        using (new AssertionScope())
+        {
+            actual.Should().NotBeNull();
+            model.Should().NotBeNull();
+            model!.IsApprenticeshipsOffered.Should().BeFalse();
+            model.ApprenticeshipsSelection.Should().BeEquivalentTo(BuildApprenticeshipTypesChoices(false));
+        }
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingApprenticeshipsUpdate_AndEmployerDoesNotOfferApprenticeships_ThenBuildsViewModelWithNoSelected(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] ApprenticeshipsUpdateController sut,
+        GetOrganisationResponse getOrganisationResponse,
+        int ukprn)
+    {
+        var cancellationToken = new CancellationToken();
+        sessionServiceMock.Setup(s =>
+                    s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
+                .Returns((UpdateProviderTypeCourseTypesSessionModel)null!);
+
+        getOrganisationResponse.Ukprn = ukprn;
+        getOrganisationResponse.ProviderType = ProviderType.Employer;
+        getOrganisationResponse.AllowedCourseTypes = [new() { CourseType = CourseType.ShortCourse }];
+
+        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
+
+        var actual = await sut.Index(ukprn, cancellationToken) as ViewResult;
+        var model = actual?.Model as OfferApprenticeshipsViewModel;
+
+        using (new AssertionScope())
+        {
+            actual.Should().NotBeNull();
+            model.Should().NotBeNull();
+            model!.IsApprenticeshipsOffered.Should().BeFalse();
+            model.ApprenticeshipsSelection.Should().BeEquivalentTo(BuildApprenticeshipTypesChoices(false));
+        }
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingApprenticeshipsUpdate_AndEmployerOffersApprenticeships_ThenRedirectsToProviderSummary(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] ApprenticeshipsUpdateController sut,
+        GetOrganisationResponse getOrganisationResponse,
+        int ukprn)
+    {
+        var cancellationToken = new CancellationToken();
+        sessionServiceMock.Setup(s =>
+                    s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
+                .Returns((UpdateProviderTypeCourseTypesSessionModel)null!);
+
+        getOrganisationResponse.Ukprn = ukprn;
+        getOrganisationResponse.ProviderType = ProviderType.Employer;
+        getOrganisationResponse.AllowedCourseTypes = [new() { CourseType = CourseType.Apprenticeship }];
+
+        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
+
+        var actual = await sut.Index(ukprn, cancellationToken) as RedirectToRouteResult;
+
+        using (new AssertionScope())
+        {
+            actual.Should().NotBeNull();
+            actual!.RouteName.Should().Be(RouteNames.ProviderSummary);
+        }
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenGettingApprenticeshipsUpdate_AndSessionHasNoCourseTypes_ThenBuildsViewModelWithNoSelection(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] ApprenticeshipsUpdateController sut,
+        GetOrganisationResponse getOrganisationResponse,
+        int ukprn)
+    {
+        var cancellationToken = new CancellationToken();
+        sessionServiceMock.Setup(s =>
+                s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
+            .Returns(new UpdateProviderTypeCourseTypesSessionModel { CourseTypeIds = [] });
+
+        getOrganisationResponse.Ukprn = ukprn;
+        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
+
+        var actual = await sut.Index(ukprn, cancellationToken) as ViewResult;
+        var model = actual?.Model as OfferApprenticeshipsViewModel;
+
+        using (new AssertionScope())
+        {
+            actual.Should().NotBeNull();
+            model.Should().NotBeNull();
+            model!.IsApprenticeshipsOffered.Should().BeNull();
+            model.ApprenticeshipsSelection.Should().BeEquivalentTo(BuildApprenticeshipTypesChoices(null));
+        }
+    }
 
     [Test]
     [MoqInlineAutoData(true)]
@@ -108,12 +267,12 @@ public class ApprenticeshipsUpdateControllerGetTests
         }
     }
 
-    private static List<ApprenticeshipsSelectionModel> BuildApprenticeshipTypesChoices(bool containsApprenticeships)
+    private static List<ApprenticeshipsSelectionModel> BuildApprenticeshipTypesChoices(bool? containsApprenticeships)
     {
-        return new List<ApprenticeshipsSelectionModel>
-        {
-            new() { Description = "Yes", Id = true, IsSelected = containsApprenticeships},
-            new() { Description = "No", Id = false, IsSelected = !containsApprenticeships},
-        };
+        return
+        [
+            new() { Description = "Yes", Id = true, IsSelected = containsApprenticeships is true },
+            new() { Description = "No", Id = false, IsSelected = containsApprenticeships is false }
+        ];
     }
 }

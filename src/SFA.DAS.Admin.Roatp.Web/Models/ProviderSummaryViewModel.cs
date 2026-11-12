@@ -39,7 +39,9 @@ public class ProviderSummaryViewModel : ISearchProviderLink
     public string StatusChangeLink { get; set; } = "#";
     public string ProviderTypeChangeLink { get; set; } = "#";
     public string OrganisationTypeChangeLink { get; set; } = "#";
+    public string OffersApprenticeshipsChangeLink { get; set; } = "#";
     public string OffersApprenticeshipUnitsChangeLink { get; set; } = "#";
+    public bool ShowOffersApprenticeshipsChangeLink => OffersApprenticeshipsText == "No";
 
     public bool ShowManageCourseOffering { get; set; }
     public bool IsRestrictedMainProvider { get; set; }
