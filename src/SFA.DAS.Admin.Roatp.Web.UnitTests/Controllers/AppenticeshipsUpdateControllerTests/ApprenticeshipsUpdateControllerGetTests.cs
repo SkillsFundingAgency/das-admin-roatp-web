@@ -127,6 +127,35 @@ public class ApprenticeshipsUpdateControllerGetTests
         }
     }
 
+    [Test, MoqAutoData]
+    public async Task WhenGettingApprenticeshipsUpdate_AndSessionHasNoCourseTypes_ThenBuildsViewModelWithNoSelection(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] ApprenticeshipsUpdateController sut,
+        GetOrganisationResponse getOrganisationResponse,
+        int ukprn)
+    {
+        var cancellationToken = new CancellationToken();
+        sessionServiceMock.Setup(s =>
+                s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
+            .Returns(new UpdateProviderTypeCourseTypesSessionModel { CourseTypeIds = [] });
+
+        getOrganisationResponse.Ukprn = ukprn;
+        outerApiClientMock.Setup(x => x.GetOrganisation(ukprn, cancellationToken))!
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
+
+        var actual = await sut.Index(ukprn, cancellationToken) as ViewResult;
+        var model = actual?.Model as OfferApprenticeshipsViewModel;
+
+        using (new AssertionScope())
+        {
+            actual.Should().NotBeNull();
+            model.Should().NotBeNull();
+            model!.IsApprenticeshipsOffered.Should().BeNull();
+            model.ApprenticeshipsSelection.Should().BeEquivalentTo(BuildApprenticeshipTypesChoices(null));
+        }
+    }
+
     [Test]
     [MoqInlineAutoData(true)]
     [MoqInlineAutoData(false)]
@@ -176,12 +205,12 @@ public class ApprenticeshipsUpdateControllerGetTests
         }
     }
 
-    private static List<ApprenticeshipsSelectionModel> BuildApprenticeshipTypesChoices(bool containsApprenticeships)
+    private static List<ApprenticeshipsSelectionModel> BuildApprenticeshipTypesChoices(bool? containsApprenticeships)
     {
-        return new List<ApprenticeshipsSelectionModel>
-        {
-            new() { Description = "Yes", Id = true, IsSelected = containsApprenticeships},
-            new() { Description = "No", Id = false, IsSelected = !containsApprenticeships},
-        };
+        return
+        [
+            new() { Description = "Yes", Id = true, IsSelected = containsApprenticeships is true },
+            new() { Description = "No", Id = false, IsSelected = containsApprenticeships is false }
+        ];
     }
 }

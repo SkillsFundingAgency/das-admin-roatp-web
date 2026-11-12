@@ -235,6 +235,74 @@ public class ApprenticeshipsUpdateControllerPostTests
     }
 
     [Test, MoqAutoData]
+    public async Task WhenPostingApprenticeshipsUpdate_AndNotEmployer_ThenRedirectsToHome(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<IValidator<OfferApprenticeshipsSubmitModel>> validator,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] ApprenticeshipsUpdateController sut,
+        GetOrganisationResponse getOrganisationResponse,
+        OfferApprenticeshipsSubmitModel submitModel)
+    {
+        var cancellationToken = new CancellationToken();
+        validator.Setup(x => x.Validate(submitModel)).Returns(new ValidationResult());
+        sessionServiceMock.Setup(s =>
+                s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
+            .Returns((UpdateProviderTypeCourseTypesSessionModel)null!);
+
+        getOrganisationResponse.ProviderType = ProviderType.Main;
+        submitModel.IsApprenticeshipsOffered = true;
+
+        outerApiClientMock.Setup(x => x.GetOrganisation(getOrganisationResponse.Ukprn, cancellationToken))!
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
+
+        var actual = await sut.Index(getOrganisationResponse.Ukprn, submitModel, cancellationToken);
+
+        using (new AssertionScope())
+        {
+            actual.Should().BeOfType<RedirectToRouteResult>().Which.RouteName.Should().Be(RouteNames.Home);
+            outerApiClientMock.Verify(o => o.PutCourseTypes(
+                It.IsAny<int>(),
+                It.IsAny<UpdateCourseTypesModel>(),
+                It.IsAny<CancellationToken>()), Times.Never);
+        }
+    }
+
+    [Test, MoqAutoData]
+    public async Task WhenPostingApprenticeshipsUpdate_AndEmployerAlreadyOffersApprenticeshipsAndYesSelected_ThenRedirectsToProviderSummaryWithoutUpdatingCourseTypes(
+        [Frozen] Mock<IOuterApiClient> outerApiClientMock,
+        [Frozen] Mock<IValidator<OfferApprenticeshipsSubmitModel>> validator,
+        [Frozen] Mock<ISessionService> sessionServiceMock,
+        [Greedy] ApprenticeshipsUpdateController sut,
+        GetOrganisationResponse getOrganisationResponse,
+        OfferApprenticeshipsSubmitModel submitModel)
+    {
+        var cancellationToken = new CancellationToken();
+        validator.Setup(x => x.Validate(submitModel)).Returns(new ValidationResult());
+        sessionServiceMock.Setup(s =>
+                s.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes))
+            .Returns((UpdateProviderTypeCourseTypesSessionModel)null!);
+
+        sut.SetupAuthenticatedUser();
+        getOrganisationResponse.ProviderType = ProviderType.Employer;
+        getOrganisationResponse.AllowedCourseTypes = [new() { CourseType = CourseType.Apprenticeship }];
+        submitModel.IsApprenticeshipsOffered = true;
+
+        outerApiClientMock.Setup(x => x.GetOrganisation(getOrganisationResponse.Ukprn, cancellationToken))!
+            .ReturnsAsync(new ApiResponse<GetOrganisationResponse>(new HttpResponseMessage(HttpStatusCode.OK), getOrganisationResponse, new RefitSettings(), null));
+
+        var actual = await sut.Index(getOrganisationResponse.Ukprn, submitModel, cancellationToken);
+
+        using (new AssertionScope())
+        {
+            actual.Should().BeOfType<RedirectToRouteResult>().Which.RouteName.Should().Be(RouteNames.ProviderSummary);
+            outerApiClientMock.Verify(o => o.PutCourseTypes(
+                It.IsAny<int>(),
+                It.IsAny<UpdateCourseTypesModel>(),
+                It.IsAny<CancellationToken>()), Times.Never);
+        }
+    }
+
+    [Test, MoqAutoData]
     public async Task WhenPostingApprenticeshipsUpdate_AndEmployerAlreadyOffersApprenticeships_ThenRedirectsToProviderSummaryWithoutUpdatingCourseTypes(
         [Frozen] Mock<IOuterApiClient> outerApiClientMock,
         [Frozen] Mock<IValidator<OfferApprenticeshipsSubmitModel>> validator,
