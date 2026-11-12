@@ -81,9 +81,10 @@ public class ApprenticeshipsUpdateController(IOuterApiClient _outerApiClient, IS
         if (!OffersApprenticeships(organisationResponse) && submitModel.IsApprenticeshipsOffered is true)
         {
             UpdateCourseTypesModel updateCourseTypesModel = BuildCourseTypesModel(
-                                                            offersApprenticeships: true,
-                                                            offersApprenticeshipUnits: OffersApprenticeshipUnits(organisationResponse),
-                                                            User.UserId(), User.UserDisplayName());
+                offersApprenticeships: true,
+                offersApprenticeshipUnits: OffersApprenticeshipUnits(organisationResponse),
+                User.UserId(),
+                User.UserDisplayName());
             await _outerApiClient.PutCourseTypes(ukprn, updateCourseTypesModel, cancellationToken);
         }
 
