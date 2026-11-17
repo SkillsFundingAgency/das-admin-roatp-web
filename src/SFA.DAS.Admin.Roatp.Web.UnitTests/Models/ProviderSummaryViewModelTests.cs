@@ -116,7 +116,7 @@ public class ProviderSummaryViewModelTests
         response.LastUpdatedDate = null;
         if (day != null)
         {
-            response.LastUpdatedDate = new DateTime(2024, 10, day.Value);
+            response.LastUpdatedDate = new DateTime(2024, 10, day.Value, 0, 0, 0, DateTimeKind.Unspecified);
         }
         var sut = (ProviderSummaryViewModel)response;
         sut.LastUpdatedDateText.Should().Be(expectedDateText);
@@ -136,7 +136,7 @@ public class ProviderSummaryViewModelTests
         response.ApplicationDeterminedDate = null;
         if (day != null)
         {
-            response.ApplicationDeterminedDate = new DateTime(2024, 10, day.Value);
+            response.ApplicationDeterminedDate = new DateTime(2024, 10, day.Value, 0, 0, 0, DateTimeKind.Unspecified);
         }
         var sut = (ProviderSummaryViewModel)response;
         sut.ApplicationDeterminedDateText.Should().Be(expectedDateText);
@@ -174,7 +174,7 @@ public class ProviderSummaryViewModelTests
         response.RemovedDate = null;
         if (day != null)
         {
-            response.RemovedDate = new DateTime(2024, 10, day.Value);
+            response.RemovedDate = new DateTime(2024, 10, day.Value, 0, 0, 0, DateTimeKind.Unspecified);
         }
         var sut = (ProviderSummaryViewModel)response;
         sut.RemovedDateText.Should().Be(expectedDateText);
@@ -217,8 +217,12 @@ public class ProviderSummaryViewModelTests
 
         var sut = (ProviderSummaryViewModel)response;
 
-        sut.OffersApprenticeshipsText.Should().Be(expectedOffersApprenticeshipText);
-        sut.OffersShortCoursesText.Should().Be(expectedOffersShortCoursesText);
+        using (new AssertionScope())
+        {
+            sut.OffersApprenticeshipsText.Should().Be(expectedOffersApprenticeshipText);
+            sut.OffersShortCoursesText.Should().Be(expectedOffersShortCoursesText);
+            sut.ShowOffersApprenticeshipsChangeLink.Should().Be(!offersApprenticeships);
+        }
     }
 
     [Test]

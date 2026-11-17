@@ -2,6 +2,8 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Admin.Roatp.Domain.Models;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Requests;
+using SFA.DAS.Admin.Roatp.Domain.OuterApi.Responses;
 using SFA.DAS.Admin.Roatp.Web.Extensions;
 using SFA.DAS.Admin.Roatp.Web.Infrastructure;
 using SFA.DAS.Admin.Roatp.Web.Models;
@@ -10,74 +12,124 @@ using SFA.DAS.Admin.Roatp.Web.Services;
 namespace SFA.DAS.Admin.Roatp.Web.Controllers;
 
 [Route("providers/{ukprn}/apprenticeships", Name = RouteNames.ApprenticeshipsUpdate)]
-
 public class ApprenticeshipsUpdateController(IOuterApiClient _outerApiClient, ISessionService _sessionService, IValidator<OfferApprenticeshipsSubmitModel> _validator) : Controller
 {
+    [HttpGet]
     public async Task<IActionResult> Index(int ukprn, CancellationToken cancellationToken)
     {
         var organisationApiResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
-
         if (organisationApiResponse.StatusCode != HttpStatusCode.OK) return RedirectToRoute(RouteNames.Home);
 
+        var organisationResponse = organisationApiResponse.Content!;
         var sessionModel = _sessionService.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes);
-        if (sessionModel == null) return RedirectToRoute(RouteNames.Home);
-
-        bool? containsApprenticeships = null;
-        if (sessionModel.CourseTypeIds.Count > 0)
+        if (sessionModel is not null)
         {
-            containsApprenticeships = sessionModel.CourseTypeIds.Any(a => a == (int)CourseType.Apprenticeship);
+            bool? containsApprenticeships = null;
+            if (sessionModel.CourseTypeIds.Count > 0)
+            {
+                containsApprenticeships = sessionModel.CourseTypeIds.Any(a => a == (int)CourseType.Apprenticeship);
+            }
+
+            return View(BuildViewModel(containsApprenticeships));
         }
 
-        var model = new OfferApprenticeshipsViewModel
+        if (organisationResponse.ProviderType != ProviderType.Employer)
         {
-            IsApprenticeshipsOffered = containsApprenticeships,
-            ApprenticeshipsSelection = BuildApprenticeshipsChoices(containsApprenticeships)
-        };
+            return RedirectToRoute(RouteNames.Home);
+        }
 
-        return View(model);
+        if (OffersApprenticeships(organisationResponse))
+        {
+            return RedirectToRoute(RouteNames.ProviderSummary, new { ukprn });
+        }
+
+        return View(BuildViewModel(false));
     }
 
     [HttpPost]
     public async Task<IActionResult> Index(int ukprn, OfferApprenticeshipsSubmitModel submitModel,
         CancellationToken cancellationToken)
     {
-        var organisationApiResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
-
-        if (organisationApiResponse.StatusCode != HttpStatusCode.OK) return RedirectToRoute(RouteNames.Home);
-
         var result = _validator.Validate(submitModel);
-
         if (!result.IsValid)
         {
-            var viewModel = new OfferApprenticeshipsViewModel
-            {
-                IsApprenticeshipsOffered = submitModel.IsApprenticeshipsOffered,
-                ApprenticeshipsSelection = BuildApprenticeshipsChoices(submitModel.IsApprenticeshipsOffered)
-            };
-
             ModelState.AddValidationErrors(result.Errors);
-
-            return View(viewModel);
+            return View(BuildViewModel(submitModel.IsApprenticeshipsOffered));
         }
 
-        if (submitModel.IsApprenticeshipsOffered is true)
+        var sessionModel = _sessionService.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes);
+        if (sessionModel is not null)
         {
-            var sessionModel =
-                _sessionService.Get<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys
-                    .UpdateSupportingProviderCourseTypes);
-            sessionModel.CourseTypeIds = [(int)CourseType.Apprenticeship];
-            _sessionService.Set<UpdateProviderTypeCourseTypesSessionModel>(SessionKeys.UpdateSupportingProviderCourseTypes, sessionModel);
+            if (submitModel.IsApprenticeshipsOffered is true)
+            {
+                sessionModel.CourseTypeIds = [(int)CourseType.Apprenticeship];
+                _sessionService.Set(SessionKeys.UpdateSupportingProviderCourseTypes, sessionModel);
+            }
+
+            return RedirectToRoute(RouteNames.ApprenticeshipUnitsUpdate, new { ukprn });
         }
 
-        return RedirectToRoute(RouteNames.ApprenticeshipUnitsUpdate, new { ukprn });
+        var organisationApiResponse = await _outerApiClient.GetOrganisation(ukprn, cancellationToken);
+        if (organisationApiResponse.StatusCode != HttpStatusCode.OK) return RedirectToRoute(RouteNames.Home);
+
+        var organisationResponse = organisationApiResponse.Content!;
+        if (organisationResponse.ProviderType != ProviderType.Employer)
+        {
+            return RedirectToRoute(RouteNames.Home);
+        }
+
+        if (!OffersApprenticeships(organisationResponse) && submitModel.IsApprenticeshipsOffered is true)
+        {
+            UpdateCourseTypesModel updateCourseTypesModel = BuildCourseTypesModel(
+                offersApprenticeships: true,
+                offersApprenticeshipUnits: OffersApprenticeshipUnits(organisationResponse),
+                User.UserId(),
+                User.UserDisplayName());
+            await _outerApiClient.PutCourseTypes(ukprn, updateCourseTypesModel, cancellationToken);
+        }
+
+        return RedirectToRoute(RouteNames.ProviderSummary, new { ukprn });
     }
 
-    private static List<ApprenticeshipsSelectionModel> BuildApprenticeshipsChoices(bool? containsApprenticeshipUnits)
+    private static bool OffersApprenticeships(GetOrganisationResponse organisationResponse)
+        => organisationResponse.AllowedCourseTypes.Any(x => x.CourseType == CourseType.Apprenticeship);
+
+    private static bool OffersApprenticeshipUnits(GetOrganisationResponse organisationResponse)
+        => organisationResponse.AllowedCourseTypes.Any(x => x.CourseType == CourseType.ShortCourse);
+
+    private static OfferApprenticeshipsViewModel BuildViewModel(bool? containsApprenticeships)
+        => new()
+        {
+            IsApprenticeshipsOffered = containsApprenticeships,
+            ApprenticeshipsSelection = BuildApprenticeshipsChoices(containsApprenticeships)
+        };
+
+    private static UpdateCourseTypesModel BuildCourseTypesModel(
+        bool offersApprenticeships,
+        bool offersApprenticeshipUnits,
+        string userId,
+        string userDisplayName)
     {
-        return new List<ApprenticeshipsSelectionModel>
-            {
-                new() { Description = "Yes", Id = true, IsSelected = containsApprenticeshipUnits is true},
-                new() { Description = "No", Id = false, IsSelected =  containsApprenticeshipUnits is false}
-            };
+        var courseTypeIds = new List<int>();
+        if (offersApprenticeships)
+        {
+            courseTypeIds.Add((int)CourseType.Apprenticeship);
+        }
+
+        if (offersApprenticeshipUnits)
+        {
+            courseTypeIds.Add((int)CourseType.ShortCourse);
+        }
+
+        return new UpdateCourseTypesModel(courseTypeIds, userId, userDisplayName);
+    }
+
+    private static List<ApprenticeshipsSelectionModel> BuildApprenticeshipsChoices(bool? containsApprenticeships)
+    {
+        return
+        [
+            new() { Description = "Yes", Id = true, IsSelected = containsApprenticeships is true },
+            new() { Description = "No", Id = false, IsSelected = containsApprenticeships is false }
+        ];
     }
 }
